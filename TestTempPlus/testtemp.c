@@ -4,6 +4,39 @@
 
 #include "testtempRsc.h"
 
+/*
+#define alertInfo               2601
+
+void DEBUGBOX(char *ARGSTR1, char *ARGSTR2) {
+  char buf[1000];
+  int l=0;
+  l+=StrPrintF(buf+l, "debugbox - %s %s:%d\n", 
+     __FUNCTION__, __FILE__, __LINE__);
+  FrmCustomAlert(alertInfo, buf, ARGSTR1, ARGSTR2);
+}
+
+static void doPenAction(int e, int x, int y, int endx, int endy)
+{
+   char buf[1000];
+   int l=0;
+
+   l+=StrPrintF(buf+l, "event: %d x,y %d,%d end x,y %d,%d\n",
+		e, x, y, endx, endy);
+   buf[l]=0;
+
+   DEBUGBOX("doPenAction",buf);
+
+   switch(e){
+   case penDownEvent:
+     break;
+
+   case penUpEvent:
+     break;
+         
+   }
+}
+*/
+
 static Boolean MainFormHandleEvent (EventPtr e)
 {
     Boolean handled = false;
@@ -22,6 +55,8 @@ static Boolean MainFormHandleEvent (EventPtr e)
 	switch(e->data.menu.itemID) {
 	}
 
+	//DEBUGBOX("menuEvent","");
+
     	handled = true;
 	break;
 
@@ -29,6 +64,48 @@ static Boolean MainFormHandleEvent (EventPtr e)
 	switch(e->data.ctlSelect.controlID) {
 	}
 	break;
+
+    //case ctlRepeatEvent:
+    //break;
+
+    case penDownEvent:
+    case penMoveEvent:
+      //doPenAction( e->eType, e->screenX, e->screenY, 0, 0); 
+      break;
+
+    case penUpEvent:
+      //doPenAction( penUpEvent, 
+      //	   e->data.penUp.start.x, e->data.penUp.start.y, 
+      //	   e->data.penUp.end.x, e->data.penUp.end.y);
+      break;
+
+    case keyDownEvent:
+
+      /*{
+      char buf[1000];
+      int l=0;
+      l+=StrPrintF(buf+l, "Char: %c\n",e->data.keyDown.chr);
+      buf[l]=0;
+      DEBUGBOX("keyDownEvent",buf);
+      }*/
+
+      switch(e->data.keyDown.chr) {
+      case pageUpChr:
+      case pageDownChr:
+	handled = true;
+	break;
+      case prevFieldChr:
+      case nextFieldChr:
+      case '\n':
+	handled = true;
+	break;
+      default:
+	if (!TxtCharIsCntrl(e->data.keyDown.chr)) {
+	  handled = true;                 /* Swallow event */
+	}
+	break;
+      }
+      break;
 
     default:
         break;

@@ -8,7 +8,6 @@ OBJS = $(TARGET).o
 LIBS =
 
 CC = m68k-palmos-gcc
-
 CFLAGS = -Wall -g -O2
 
 PILRC = pilrc
@@ -21,14 +20,28 @@ PILOTXFER = pilot-xfer
 
 all: $(TARGET).prc
 
+############# GCC ##################
+# one way of gccing
+#CFLAGS = -S -Wall -O2 -DVERBOSE -g -I /PalmDev/sdk/include -I /PalmDev/sdk/include/Core -I /PalmDev/sdk/include/Core/Hardware -I /PalmDev/sdk/include/Core/System -I /PalmDev/sdk/include/Core/UI -I /PalmDev/sdk/include/Dynamic -I /PalmDev/sdk/include/libraries
+#%.o: %.c
+#	$(CC) $(CFLAGS) $(TARGETFLAGS) -c $< -o $*.S
+#	$(AS) $*.S -o $@
+
+# another way
+CFLAGS = -Wall -g -O2
 .S.o:
 	$(CC) $(TARGETFLAGS) -c $<
 
 .c.s:
 	$(CC) $(CSFLAGS) $<
 
-$(TARGET).prc: code0000.$(TARGET).grc code0001.$(TARGET).grc data0000.$(TARGET).grc pref0000.$(TARGET).grc rloc0000.$(TARGET).grc bin.res
+############# GCC ##################
+
+$(TARGET).o: $(TARGET)Rsc.h $(TARGET).h
+
+$(TARGET).prc: $(TARGET) $(TARGET)Rsc.h code0000.$(TARGET).grc code0001.$(TARGET).grc data0000.$(TARGET).grc pref0000.$(TARGET).grc rloc0000.$(TARGET).grc bin.res
 	$(BUILDPRC) $(TARGET).prc $(APPNAME) $(APPID) code0001.$(TARGET).grc code0000.$(TARGET).grc data0000.$(TARGET).grc *.bin pref0000.$(TARGET).grc rloc0000.$(TARGET).grc
+
 
 code0000.$(TARGET).grc: $(TARGET)
 	$(OBJRES) $(TARGET)
@@ -49,6 +62,7 @@ $(TARGET): $(OBJS)
 	$(CC) $(CFLAGS) $(OBJS) -o $(TARGET) $(LIBS)
 	! $(NM) -u $(TARGET) | grep .
 
+install: send
 send: $(TARGET).prc
 	$(PILOTXFER) -i $(TARGET).prc
 
