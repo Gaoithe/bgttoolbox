@@ -39,7 +39,7 @@ BEGIN
 	BUTTONS "Ok"
 END
 
-STRING hlpHelp "Start, Stop watch.\nHave fun!"
+STRING hlpHelp "Start, Stop watch.\nTODO: Bigger Font.\nHave fun!"
 
 STRING hlpCopy "Copyleft 2005 me.\nhttp://www.dspsrv.com/~jamesc"
 

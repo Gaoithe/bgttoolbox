@@ -121,15 +121,41 @@ void drawCount(UInt32 dtik) {
 	    playFreq(sndCmdFrqOn,100+min*4,10,10); // freq,maxdur, amp(0 - sndMaxAmp)
 	}
 	// and progress bar
-	eraseRectangleSafe(0, 20, 160, 20); // x,y,width,height
+	/* eraseRectangleSafe(0, 20, 160, 20); // x,y,width,height
 	drawRectangleSafe(0, 20, min * 4, 20); // x,y,width,height
 	eraseRectangleSafe((min * 4)-1, 41, 160, 1); // x,y,width,height
 	drawRectangleSafe((min * 4)-1, 41, 1, 1); // x,y,width,height
 	if ((min%5)==0){
 	    eraseRectangleSafe((min * 4)-2, 41, 160, 2); // x,y,width,height
 	    drawRectangleSafe((min * 4)-2, 41, 2, 2); // x,y,width,height
-	}
+	    } */
+
+	/* count like this 1 line = 1 minute
+	  -----  -----  -----  -----
+	  -----  -----  -----  -----
+	  -----  -----  -----  -----
+	  -----  -----  -----  -----
+	  -----  -----  -----  -----
+
+          -----
+          -----
+          160/4 = 40 => width 32 + 4 each side
+	  base weights 1, 5, 20, oh look rns :)
+          3 height with 2 sep + 5 sep big blocks
+	*/
+
+        // better visually but is not a bar anymore
+	drawRectangleSafe(4+36*(((min-1)/5)%4), 
+			  20 + 30*((min-1)/20) + 5*((min-1)%5), 
+			  32, 3); // x,y,width,height
+
     }
+
+    /* for testing
+    drawRectangleSafe(4+36*(((sec-1)/5)%4), 
+		      20 + 30*((sec-1)/20) + 5*((sec-1)%5), 
+		      32, 3); // x,y,width,height
+    */
 }
 
 static Boolean MainFormHandleEvent (EventPtr e)
@@ -168,6 +194,9 @@ static Boolean MainFormHandleEvent (EventPtr e)
 			tik = TimGetTicks();
 			dtik = tik - start_tik;
 			drawCount(dtik);
+
+			// call this periodically to hold off auto off  
+			EvtResetAutoOffTimer();
 
 			// delay one tenth of a sec (.09 acksherly to be sly)
 			SysTaskDelay((90 * SysTicksPerSecond())/1000);
@@ -323,6 +352,9 @@ static Boolean MainFormHandleEvent (EventPtr e)
 			tik = TimGetTicks();
 			dtik = tik - start_tik;
 			drawCount(dtik);
+
+			// call this periodically to hold off auto off  
+			EvtResetAutoOffTimer();
 
 			// delay one tenth of a sec (.09 acksherly to be sly)
 			SysTaskDelay((90 * SysTicksPerSecond())/1000);
