@@ -12,16 +12,46 @@ void DEBUGBOX(char *ARGSTR1, char *ARGSTR2) {
   FrmCustomAlert(alertInfo, buf, ARGSTR1, ARGSTR2);
 }
 
+
+
+void playFreq(SndCmdIDType cmd, int freq, int time, int amp)
+{
+   SndCommandType soundCmd;
+  
+   //soundCmd.cmd=sndCmdFreqDurationAmp; // blocking
+
+   // non-blocking!  better to use this and key press start sound, key up ends it.
+   soundCmd.cmd=cmd; // sndCmdFrqOn; 
+
+   soundCmd.param1 = freq; /*freq in hz */
+   soundCmd.param2 = time; /*max dur in ms */
+   soundCmd.param3 = amp; /*amp 0 - sndMaxAmp */
+
+   SndDoCmd(NULL, &soundCmd, 0/*nowait*/);
+
+      //} else {
+      // if sound off delay useful for playback
+      //if (cmd == sndCmdFreqDurationAmp) // force delay
+      //   SysTaskDelay((time * SysTicksPerSecond())/1000);
+      //}
+}
+
+void stopFreq()
+{
+   SndCommandType soundCmd;
+   soundCmd.cmd=sndCmdQuiet;
+   SndDoCmd(NULL, &soundCmd, 0/*nowait*/);
+}
+
 static void doPenAction(int e, int x, int y, int endx, int endy)
 {
 
-
-
    switch(e){
    case penDownEvent:
+   case penMoveEvent:
 
      /* doing dialog debug box on penUp gives us infinate loop */
-     {
+     if (0){
        char buf[1000];
        int l=0;
        l+=StrPrintF(buf+l, "event: %d x,y %d,%d end x,y %d,%d\n",
@@ -30,9 +60,13 @@ static void doPenAction(int e, int x, int y, int endx, int endy)
        DEBUGBOX("doPenAction",buf);
      }
 
+     // Middle C is 262Hz
+     playFreq(sndCmdFrqOn,x*20,y*10,10); // freq,maxdur, amp(0 - sndMaxAmp)
+
      break;
 
    case penUpEvent:
+     stopFreq();
      break;
          
    }
