@@ -88,7 +88,7 @@ END
 
 STRING hlpHelp "The plan: This will be a wee game.\nCopy the sequence of flashes and beeps.\nTest your memory and speed!\n\nNow it is a collection of ideas and experiments with PalmOS. Draw shapes, move shapes, play sounds. \nIdeas: Simple games for kids. Nice shapes, simple actions, music and happy success sequences at ends of games. Sound FX generator, can palm do sawtooth, violin, trumpet, voice, miaows?, submarine echo sounder, geiger counter, machine gun sound & game for Daire. Overhead Doom type game. Music metronome and recorder, generate memo pad music and system/alarm sounds. Draw IFSs, make IFS scene. Make creatures dance.\n\nHave fun!"
 
-STRING hlpCopy "Copyright \251 2002 me. Game is free, source code is free."
+STRING hlpCopy "Copyleft 2002 me. The must distribute source code with keepEupE."
 
 APPLICATIONICONNAME 1000 "keepEupE"
 ICON "keepEupE.pbm"

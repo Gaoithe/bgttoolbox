@@ -393,8 +393,8 @@ static Boolean MainFormHandleEvent (EventPtr e)
                 case itemOptAbout:
                     FrmCustomAlert(alertInfo, "keepEupE v" VERSION " Beta. "
                     "Built " __DATE__ ", " __TIME__ ". "
-                    "programming James Coleman jamesc@dspsrv.com. "
-                    "\251 me, distribute with source code please.", "", "");
+                    "James Coleman http://www.dspsrv.com/~jamesc "
+                    "copyleft me, distribute with source code please.", "", "");
                     break;
             }
 

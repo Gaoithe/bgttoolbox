@@ -70,12 +70,15 @@ extern void drawMusicScreen(void);
 
 
 
-#define DEBUGBOX(ARGSTR1,ARGSTR2) {\
+#define DEBUGBOXD(ARGSTR1,ARGSTR2) {\
   char buf[1000];\
   int l=0;\
   l+=StrPrintF(buf+l, "debugbox - %s %s:%d\n", \
      __FUNCTION__, __FILE__, __LINE__);\
   FrmCustomAlert(alertInfo, buf, ARGSTR1, ARGSTR2);\
 }
+
+
+#define DEBUGBOX(ARGSTR1,ARGSTR2)
 
 

@@ -32,9 +32,18 @@ M68328HWR_H = /usr/local/pilot/m68k-palmos-coff/include/PalmOS/Hardware/M68328Hw
 all: $(TARGET).prc
 
 #difficulty overriding default rule?
-%.o: %.c
-	$(CC) $(CFLAGS) $(TARGETFLAGS) -c $< -o $*.S
-	$(AS) $*.S -o $@
+#%.o: %.c
+#	$(CC) $(CFLAGS) $(TARGETFLAGS) -c $< -o $*.S
+#	$(AS) $*.S -o $@
+# This results in Emul exception VERY hard to debug problems.
+
+# another way, this seems to work
+CFLAGS = -Wall -g -O2
+.S.o:
+	$(CC) $(TARGETFLAGS) -c $<
+
+.c.s:
+	$(CC) $(CSFLAGS) $<
 
 $(TARGET).o: $(TARGET)Rsc.h $(TARGET).h
 
