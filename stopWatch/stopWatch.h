@@ -17,13 +17,15 @@ struct fontstate_s {
 
 typedef struct {
     UInt32 timestamp;
+    UInt32 tik_timestamp;
     int vol;
     int sound;
     int visual;
     int disableAutoOff;
+    int showTicks;
     struct fontstate_s fontstate;
 } stopWatchPreferenceType;
-#define stopWatchPrefVersionNum 2
+#define stopWatchPrefVersionNum 4
 // any change of struct requires change of version
 
 static Boolean ApplicationHandleEvent(EventPtr e);

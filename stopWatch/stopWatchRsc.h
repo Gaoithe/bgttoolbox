@@ -27,7 +27,7 @@
 #define btnOk 5204
 #define btnCancel 5205
 
-#define btnSoundLow 5210
+#define btnSoundOff 5210
 #define btnSound1 5211
 #define btnSound2 5212
 #define btnSound3 5213
@@ -37,3 +37,4 @@
 #define btnVisualSticks 5222
 #define btnVisualHour 5223
 #define chkDisableAutoOff 5230
+#define chkShowTicks 5231

@@ -1,5 +1,7 @@
 #include "stopWatch.h"
 
+stopWatchPreferenceType stopWatchPrefs;
+
 void playFreq(SndCmdIDType cmd, int freq, int time, int amp)
 {
    SndCommandType soundCmd;
@@ -47,7 +49,7 @@ static void doPenAction(int e, int x, int y, int endx, int endy)
      }
 
      // Middle C is 262Hz
-     // playFreq(sndCmdFrqOn,x*20,y*10,10); // freq,maxdur, amp(0 - sndMaxAmp)
+     // playFreq(sndCmdFrqOn,x*20,y*10,stopWatchPrefs.vol); // freq,maxdur, amp(0 - sndMaxAmp)
      // this could possibly get annoying
 
      break;
@@ -78,19 +80,136 @@ void drawRectangleSafe(int sx, int sy, int w, int h) // x,y,width,height
    // sdk/include/Core/System/Window.h
 }
 
+void clearScreen(void)
+{
+    //WinEraseRectangle(&dis_area, 0);
+}
+
+//extern void WinDrawLineF(Coord x1, Coord y1, Coord x2, Coord y2);
+//extern void WinEraseLineF(Coord x1, Coord y1, Coord x2, Coord y2);
+//void WinDrawLine (Coord x1, Coord y1, Coord x2, Coord y2) // and WinEraseLine
+typedef void (*WinDrawLine_fn)(Coord x1, Coord y1, Coord x2, Coord y2);
+
+void WinDrawLineF(Coord x1, Coord y1, Coord x2, Coord y2)
+{
+   WinDrawLine(x1,y1,x2,y2);
+}
+
+void WinEraseLineF(Coord x1, Coord y1, Coord x2, Coord y2)
+{
+   WinEraseLine(x1,y1,x2,y2);
+}
+
+typedef struct {
+    int w,h;
+    int tw,th;
+} digiFontType;
+
+void drawHSeg(int sx, int sy, digiFontType ft, WinDrawLine_fn WinDrawLine)
+{
+    int x1,x2,y1,y2;
+    int i;
+    x1 = sx;
+    x2 = sx + ft.w + (ft.th-1)*2; // maybe (ft.th-1)
+    for(i=0;i<=ft.th;i++){
+	y1=sy+i;
+	y2=sy-i;
+	WinDrawLine(x1,y1,x2,y1);
+	WinDrawLine(x1,y2,x2,y2);
+	x1++; x2--;
+    }
+}
+
+void drawVSeg(int sx, int sy, digiFontType ft, WinDrawLine_fn WinDrawLine)
+{
+    int x1,x2,y1,y2;
+    int i;
+    y1 = sy;
+    y2 = sy + ft.w + (ft.th-1)*2; // maybe (ft.th-1)
+    for(i=0;i<=ft.th;i++){
+	x1=sx+i;
+	x2=sx-i;
+	WinDrawLine(x1,y1,x1,y2);
+	WinDrawLine(x2,y1,x2,y2);
+	y1++; y2--;
+    }
+}
+
+void bigStr(int x, int y, digiFontType ft, char *s, WinDrawLine_fn WinDrawLine)
+{
+} 
+
+void bigDigit(int x, int y, char c, WinDrawLine_fn WinDrawLine) 
+{
+    digiFontType ft;
+    ft.h = 20;
+    ft.w = 12;
+    ft.th = 4; ft.tw = 7;
+
+    if (c=='0' || c=='2' || c=='3' || c=='5' || 
+	c=='6' || c=='7' || c=='8' || c=='9') 
+	drawHSeg(x+1,y,ft,WinDrawLine);
+    if (c=='0' || c=='4' || c=='5' || 
+	c=='6' || c=='8' || c=='9') 
+	drawVSeg(x,y+1,ft,WinDrawLine);
+    if (c=='0' || c=='1' || c=='2' || c=='3' || c=='4' || 
+	c=='7' || c=='8' || c=='9') 
+	drawVSeg(x+20,y+1,ft,WinDrawLine);
+    if (c=='2' || c=='3' || c=='4' || c=='5' || 
+	c=='6' || c=='8' || c=='9') 
+	drawHSeg(x+1,y+20,ft,WinDrawLine);
+    if (c=='0' || c=='2' ||
+	c=='6' || c=='8') 
+	drawVSeg(x,y+21,ft,WinDrawLine);
+    if (c=='0' || c=='1' || c=='3' || c=='4' || c=='5' || 
+	c=='6' || c=='7' || c=='8' || c=='9') 
+	drawVSeg(x+20,y+21,ft,WinDrawLine);
+    if (c=='0' || c=='2' || c=='3' || c=='5' || 
+	c=='6'  || c=='8') 
+	drawHSeg(x+1,y+40,ft,WinDrawLine);
+}
+
+void drawDiamond(int sx, int sy, int diw, WinDrawLine_fn WinDrawLine) // x,y,width
+{
+   int y,xl,xr;
+   for(y=sy,xl=xr=sx+(diw/2);xr-xl<diw;y++,xl--,xr++)
+      WinDrawLine(xl,y,xr,y);
+   for(;xr>xl;y++,xl++,xr--)
+      WinDrawLine(xl,y,xr,y);
+}
+
+void drawTriangle(int sx, int sy, int triw, WinDrawLine_fn WinDrawLine) // x,y,width
+// only one way ... like this xxxxxx
+//                                     xxxx
+//                                      xx
+{
+   int y,xl,xr;
+   for(y=sy,xl=sx,xr=xl+triw;xr>xl;y++,xl++,xr--)
+      WinDrawLine(xl,y,xr,y);
+}
+
+// TODO: use timestamp stored in porefs so if palm turned off
+//   or app switch, stopwatch should continue running
 void drawCount(UInt32 dtik) {
     char buf[100];
     int l=0;
     unsigned long int s,hour,min,sec,hs;
-    //l=0;
-    //l+=StrPrintF(buf+l, "Ticks %lu", dtik);
-    //FntSetFont(largeBoldFont);
-    //WinPaintChars(buf,l,1,100);
+    static unsigned long int lastsec=666;
+    static unsigned long int lastmin=666;
+
+    if (stopWatchPrefs.showTicks) {
+	l=0;
+	l+=StrPrintF(buf+l, "Ticks %lu", dtik);
+	FntSetFont(largeBoldFont);
+	WinPaintChars(buf,l,1,100);
+    }
 
     //ms = dtik / (SysTicksPerSecond()/1000);
     s = dtik / (SysTicksPerSecond()/100);
+    // for resumption of interrupted timer
     hs = s % 100;
     s = s / 100;
+    s += stopWatchPrefs.tik_timestamp - stopWatchPrefs.timestamp;
     sec = s % 60;
     s = s / 60;
     min = s % 60;
@@ -102,39 +221,82 @@ void drawCount(UInt32 dtik) {
     WinPaintChars(buf,l,1,120);
 
     // a minute alarm
-    if (sec == 0) {
+    if (sec == 0 && stopWatchPrefs.vol!=0) {
 	int i;
 	for(i=0;i<min%10;i++){
-	    playFreq(sndCmdFrqOn,100+min*4,10,10); // freq,maxdur, amp(0 - sndMaxAmp)
+	    playFreq(sndCmdFrqOn,100+min*4,10,stopWatchPrefs.vol); 
+            // freq,maxdur, amp(0 - sndMaxAmp)
 	}
-	// and progress bar
-	/* eraseRectangleSafe(0, 20, 160, 20); // x,y,width,height
-	drawRectangleSafe(0, 20, min * 4, 20); // x,y,width,height
-	eraseRectangleSafe((min * 4)-1, 41, 160, 1); // x,y,width,height
-	drawRectangleSafe((min * 4)-1, 41, 1, 1); // x,y,width,height
-	if ((min%5)==0){
-	    eraseRectangleSafe((min * 4)-2, 41, 160, 2); // x,y,width,height
-	    drawRectangleSafe((min * 4)-2, 41, 2, 2); // x,y,width,height
-	    } */
+    }
 
-	/* count like this 1 line = 1 minute
-	  -----  -----  -----  -----
-	  -----  -----  -----  -----
-	  -----  -----  -----  -----
-	  -----  -----  -----  -----
-	  -----  -----  -----  -----
+    // not wanted every update, every second should do.
+    if (sec != lastsec) {
+	lastsec = sec;
+	switch(stopWatchPrefs.visual) {
+	    case btnVisualNum:
+		// a big font
 
-          -----
-          -----
-          160/4 = 40 => width 32 + 4 each side
-	  base weights 1, 5, 20, oh look rns :)
-          3 height with 2 sep + 5 sep big blocks
-	*/
+		// gfx too big & flickery ugly to flick every sec
+		if (min != lastmin) {
+		    lastmin=min;
+		    bigDigit(5,20,'8',WinEraseLineF);
+		    bigDigit(40,20,'8',WinEraseLineF);
+		    //bigDigit(5,70,'8',WinEraseLineF);
+		    bigDigit(80,20,'8',WinEraseLineF);
+		    bigDigit(115,20,'8',WinEraseLineF);
 
-        // better visually but is not a bar anymore
-	drawRectangleSafe(4+36*(((min-1)/5)%4), 
-			  20 + 30*((min-1)/20) + 5*((min-1)%5), 
-			  32, 3); // x,y,width,height
+		    l=0;
+		    //l+=StrPrintF(buf+l, "%02d:%02d", (int)min,(int)sec);
+		    l+=StrPrintF(buf+l, "%02d:%02d", (int)hour, (int)min);
+
+		    bigDigit(5,20,buf[0],WinDrawLineF);
+		    bigDigit(40,20,buf[1],WinDrawLineF);
+		    //bigDigit(5,70,'7',WinDrawLineF);
+		    bigDigit(80,20,buf[3],WinDrawLineF);
+		    bigDigit(115,20,buf[4],WinDrawLineF);
+		}
+		break;
+
+	    case btnVisualHour:
+		break;
+
+	    case btnVisualBar:
+		eraseRectangleSafe(0, 20, 160, 20); // x,y,width,height
+		drawRectangleSafe(0, 20, min * 4, 20); // x,y,width,height
+		eraseRectangleSafe((min * 4)-1, 41, 160, 1); // x,y,width,height
+		drawRectangleSafe((min * 4)-1, 41, 1, 1); // x,y,width,height
+		if ((min%5)==0){
+		    eraseRectangleSafe((min * 4)-2, 41, 160, 2); // x,y,width,height
+		    drawRectangleSafe((min * 4)-2, 41, 2, 2); // x,y,width,height
+		}
+		break;
+
+	    case btnVisualSticks:
+
+		/* count like this 1 line = 1 minute
+		   -----  -----  -----  -----
+		   -----  -----  -----  -----
+		   -----  -----  -----  -----
+		   -----  -----  -----  -----
+		   -----  -----  -----  -----
+		   
+		   -----
+		   -----
+		   160/4 = 40 => width 32 + 4 each side
+		   base weights 1, 5, 20, oh look rns :)
+		   3 height with 2 sep + 5 sep big blocks
+		*/
+
+		// better visually but is not a bar anymore
+		/*drawRectangleSafe(4+36*(((min-1)/5)%4), 
+				  20 + 30*((min-1)/20) + 5*((min-1)%5), 
+				  32, 3); // x,y,width,height*/
+		drawRectangleSafe(4+36*(((min)/5)%4), 
+				  20 + 30*((min)/20) + 5*((min)%5), 
+				  (32*sec)/59, 3); // x,y,width,height
+
+		break;
+	}
 
     }
 
@@ -145,6 +307,37 @@ void drawCount(UInt32 dtik) {
     */
 }
 
+int run = 0;
+void RunCount(UInt32 start_tik)
+{
+    UInt32 tik,dtik;
+    run=1;
+    while(run==1) {
+	tik = TimGetTicks();
+	dtik = tik - start_tik;
+	drawCount(dtik);
+
+	// call this periodically to hold off auto off  
+	if (stopWatchPrefs.disableAutoOff) EvtResetAutoOffTimer();
+
+	// delay one tenth of a sec (.09 acksherly to be sly)
+	SysTaskDelay((90 * SysTicksPerSecond())/1000);
+	// within loop call SysHandleEvent to
+	//  give system opportunity to break in? 
+	// /opt/palmdev/sdk-5/include/Core/UI/Event.h
+	{ 
+	    UInt16 err;
+	    EventType e;
+	    EvtGetEvent(&e, 0);
+	    if (! SysHandleEvent (&e))
+		if (! MenuHandleEvent (NULL, &e, &err))
+		    if (! ApplicationHandleEvent (&e))
+			FrmDispatchEvent (&e);
+	}
+    }
+
+}
+
 static Boolean MainFormHandleEvent (EventPtr e)
 {
     Boolean handled = false;
@@ -153,12 +346,25 @@ static Boolean MainFormHandleEvent (EventPtr e)
     static UInt32 start_tik;
     static UInt32 end_sec;
     static UInt32 end_tik;
-    static int run = 0;
+    //static int run = 0;
     
     switch (e->eType) {
     case frmOpenEvent:
 	frm = FrmGetActiveForm();
 	FrmDrawForm(frm);
+
+	// resume interrupted count
+	// note now stopWatchPrefs.tik_timestamp != stopWatchPrefs.timestamp
+        // now this does work okay when switching away from app BUT
+        // not when palm is turned off & on but stays in app
+        // I think possibly GetTicks gets ticks from start of app
+        // when palm off the ticks do not increment
+	if (stopWatchPrefs.timestamp != 0) {
+	    stopWatchPrefs.tik_timestamp = TimGetSeconds();
+	    start_tik = TimGetTicks();
+	    RunCount(start_tik);
+	}
+
 	handled = true;
 	break;
 
@@ -170,37 +376,12 @@ static Boolean MainFormHandleEvent (EventPtr e)
 	    //case itemBar:
 	    case itemRun:
 		if (start_sec == 0) {
-		    start_sec = TimGetSeconds();
+		    stopWatchPrefs.tik_timestamp =
+			stopWatchPrefs.timestamp = 
+			start_sec = TimGetSeconds();
 		    start_tik = TimGetTicks();
 		}
-		{
-		    UInt32 tik,dtik;
-		    int i;
-		    run=1;
-		    while(run==1) {
-			tik = TimGetTicks();
-			dtik = tik - start_tik;
-			drawCount(dtik);
-
-			// call this periodically to hold off auto off  
-			EvtResetAutoOffTimer();
-
-			// delay one tenth of a sec (.09 acksherly to be sly)
-			SysTaskDelay((90 * SysTicksPerSecond())/1000);
-			// within loop call SysHandleEvent to
-                        //  give system opportunity to break in? 
-                        // /opt/palmdev/sdk-5/include/Core/UI/Event.h
-			{ 
-			    UInt16 err;
-			    EventType e;
-			    EvtGetEvent(&e, 0);
-			    if (! SysHandleEvent (&e))
-				if (! MenuHandleEvent (NULL, &e, &err))
-				    if (! ApplicationHandleEvent (&e))
-					FrmDispatchEvent (&e);
-			}
-		    }
-		}
+		RunCount(start_tik);
 		break;
 	    case itemHold:
 		// break the run loop
@@ -216,6 +397,8 @@ static Boolean MainFormHandleEvent (EventPtr e)
 		// break the run loop
 		run = 0;
 		start_sec = 0;
+		stopWatchPrefs.timestamp = 0;
+		stopWatchPrefs.tik_timestamp = 0;
 		end_tik = 0;
 		drawCount(0);
 		break;
@@ -225,6 +408,7 @@ static Boolean MainFormHandleEvent (EventPtr e)
 		break;
 
 	    case itemTest1:
+
 		WinDrawLine(20,20,50,50);
 //void WinDrawChar (WChar theChar, Coord x, Coord y)
 ///void WinDrawChars (const Char *chars, Int16 len, Coord x, Coord y)
@@ -249,9 +433,43 @@ static Boolean MainFormHandleEvent (EventPtr e)
 		    FntSetFont(largeBoldFont);
 		    WinPaintChars(buf,l,1,20);
 		}
+
+		if (0){
+		    digiFontType ft;
+		    ft.h = 20;
+		    ft.w = 16;
+		    ft.th = 4; ft.tw = 7;
+		    drawHSeg(11,9,ft,WinDrawLineF);
+		    drawVSeg(10,10,ft,WinDrawLineF);
+		    drawHSeg(11,36,ft,WinDrawLineF);
+		    drawVSeg(39,10,ft,WinDrawLineF);
+		}
+
+		if (0){
+		    digiFontType ft;
+		    ft.h = 20;
+		    ft.w = 12;
+		    ft.th = 4; ft.tw = 7;
+		    drawHSeg(11,59,ft,WinDrawLineF);
+		    drawVSeg(10,60,ft,WinDrawLineF);
+		    drawVSeg(38,60,ft,WinDrawLineF);
+		    drawHSeg(11,79,ft,WinDrawLineF);
+		    drawVSeg(10,80,ft,WinDrawLineF);
+		    drawVSeg(38,80,ft,WinDrawLineF);
+		    drawHSeg(11,99,ft,WinDrawLineF);
+		}
+
+		bigDigit(5,20,'2',WinDrawLineF);
+		bigDigit(40,20,'5',WinDrawLineF);
+		bigDigit(5,70,'7',WinDrawLineF);
 		break;
 
 	    case itemTest2:
+
+		bigDigit(5,20,'8',WinEraseLineF);
+		bigDigit(40,20,'8',WinEraseLineF);
+		bigDigit(5,70,'8',WinEraseLineF);
+
 		WinDrawChars("Hello",5,20,80);
 		WinPaintChars("Paint",5,20,110);
 
@@ -332,37 +550,12 @@ static Boolean MainFormHandleEvent (EventPtr e)
 
 	    case btnRun:
 		if (start_sec == 0) {
-		    start_sec = TimGetSeconds();
+		    stopWatchPrefs.tik_timestamp =
+			stopWatchPrefs.timestamp = 
+			start_sec = TimGetSeconds();
 		    start_tik = TimGetTicks();
 		}
-		{
-		    UInt32 tik,dtik;
-		    int i;
-		    run=1;
-		    while(run==1) {
-			tik = TimGetTicks();
-			dtik = tik - start_tik;
-			drawCount(dtik);
-
-			// call this periodically to hold off auto off  
-			EvtResetAutoOffTimer();
-
-			// delay one tenth of a sec (.09 acksherly to be sly)
-			SysTaskDelay((90 * SysTicksPerSecond())/1000);
-			// within loop call SysHandleEvent to
-                        //  give system opportunity to break in? 
-                        // /opt/palmdev/sdk-5/include/Core/UI/Event.h
-			{ 
-			    UInt16 err;
-			    EventType e;
-			    EvtGetEvent(&e, 0);
-			    if (! SysHandleEvent (&e))
-				if (! MenuHandleEvent (NULL, &e, &err))
-				    if (! ApplicationHandleEvent (&e))
-					FrmDispatchEvent (&e);
-			}
-		    }
-		}
+		RunCount(start_tik);
 		break;
 	    case btnHold:
 		// break the run loop
@@ -377,7 +570,8 @@ static Boolean MainFormHandleEvent (EventPtr e)
 	    case btnClear:
 		// break the run loop
 		run = 0;
-		start_sec = 0;
+		stopWatchPrefs.timestamp = start_sec = 0;
+		stopWatchPrefs.tik_timestamp = 0;
 		end_tik = 0;
 		drawCount(0);
 		break;
@@ -435,8 +629,6 @@ static Boolean MainFormHandleEvent (EventPtr e)
     return handled;
 }
 
-stopWatchPreferenceType stopWatchPrefs;
-
 static void PrefFormSetValue(FormPtr frm, UInt16 id, UInt16 value)
 {
     ControlPtr ctr;
@@ -456,9 +648,11 @@ static Boolean PrefFormHandleEvent (EventPtr e)
             FrmDrawForm(frm);
             PrefFormSetValue(frm, chkDisableAutoOff, 
 			     stopWatchPrefs.disableAutoOff);
+            PrefFormSetValue(frm, chkShowTicks, 
+			     stopWatchPrefs.showTicks);
 
-            PrefFormSetValue(frm, btnSoundLow, 
-			     btnSoundLow == stopWatchPrefs.sound);
+            PrefFormSetValue(frm, btnSoundOff, 
+			     btnSoundOff == stopWatchPrefs.sound);
             PrefFormSetValue(frm, btnSound1, 
 			     btnSound1 == stopWatchPrefs.sound);
             PrefFormSetValue(frm, btnSound2, 
@@ -490,9 +684,13 @@ static Boolean PrefFormHandleEvent (EventPtr e)
 		case chkDisableAutoOff:
 		    stopWatchPrefs.disableAutoOff=e->data.ctlSelect.on;
                     break;
-                case btnSoundLow:
+		case chkShowTicks:
+		    stopWatchPrefs.showTicks=e->data.ctlSelect.on;
+                    break;
+
+                case btnSoundOff:
                     stopWatchPrefs.sound=e->data.ctlSelect.controlID;
-                    stopWatchPrefs.vol=2;
+                    stopWatchPrefs.vol=0;
                     break;
                 case btnSound1:
                     stopWatchPrefs.sound=e->data.ctlSelect.controlID;
