@@ -1,0 +1,106 @@
+[jamesc@localhost keepEupE]$ m68k-palmos-objdump keepEupE -d |grep startKeep
+     874:       6100 0d74       bsrw 15ea <startKeepEupEGame>
+     b06:       6100 0ae2       bsrw 15ea <startKeepEupEGame>
+    14a0:       6100 0148       bsrw 15ea <startKeepEupEGame>
+    1596:       6100 0052       bsrw 15ea <startKeepEupEGame>
+000015ea <startKeepEupEGame>:
+[jamesc@localhost keepEupE]$ m68k-palmos-objdump keepEupE-keueolast -d |grep startKeep
+     d74:       6100 0148       bsrw ebe <startKeepEupEGame>
+     e6a:       6100 0052       bsrw ebe <startKeepEupEGame>
+00000ebe <startKeepEupEGame>:
+    1820:       6100 f69c       bsrw ebe <startKeepEupEGame>
+    1ab2:       6100 f40a       bsrw ebe <startKeepEupEGame>
+
+linker problem (DEBUGBOX
+call to funcs outside module problems
+OR just call to funcs too far away problems?
+=> how to tell compiler use bigger branches?
+   no linker.
+   linker doesn't flag warning or error?
+
+reorderd link order and I think this fixed it before ?
+messy
+
+strip ?  make obj files smaller b4 link or just strip exe ?
+
+
+
+
+
+[jamesc@localhost keepEupE]$ ls -al keepEupE keepEupE-keueolast
+-rwxr-xr-x    1 jamesc   family      24868 Oct 11 21:27 keepEupE
+-rwxr-xr-x    1 jamesc   family     190802 Oct 11 21:20 keepEupE-keueolast
+[jamesc@localhost keepEupE]$ m68k-palmos-strip keepEupE
+
+hmmmm
+
+
+
+[jamesc@localhost keepEupE]$ m68k-palmos-obj-res keepEupE
+[jamesc@localhost keepEupE]$ build-prc keepEupE.prc "keepEupE" "kEuE" code0001.keepEupE.grc code0000.keepEupE.grc data0000.keepEupE.grc *.bin pref0000.keepEupE.grc rloc0000.keepEupE.grc
+[jamesc@localhost keepEupE]$ pilot-xfer -p /dev/ttyUSB0 -i keepEupE.prc
+
+   Listening to port: /dev/ttyUSB0
+
+   Please press the HotSync button now... Connected
+
+Installing keepEupE.prc                       [  15218 bytes |     15223 total]
+Time elapsed: 0:00:02
+visor.c: visor_startup - error getting connection information
+visor.c: visor_startup - error getting first unknown palm command
+
+no joy though ?
+
+
+no was wrong there
+DEBUGS in seperate file go grand
+
+
+it's where func ptr is passed & called
+WinDrawLine func ptr passed
+had problems with that before I remember!!
+
+funny way of compiling to assembly first was the solution then
+
+
+hmmm tried no -S bad, -pic no change
+
+
+0000123a <WinDrawLineF>:
+    123a:	4e56 0000      	linkw %fp,#0
+    123e:	3f2e 000e      	movew %fp@(14),%sp@-
+    1242:	3f2e 000c      	movew %fp@(12),%sp@-
+    1246:	3f2e 000a      	movew %fp@(10),%sp@-
+    124a:	3f2e 0008      	movew %fp@(8),%sp@-
+    124e:	4e4f           	trap #15
+    1250:	a213           	0121023
+
+00001252 <.ef>:
+    1252:	4e5e           	unlk %fp
+    1254:	4e75           	rts
+
+00001256 <WinEraseLineF>:
+    1256:	4e56 0000      	linkw %fp,#0
+    125a:	3f2e 000e      	movew %fp@(14),%sp@-
+    125e:	3f2e 000c      	movew %fp@(12),%sp@-
+    1262:	3f2e 000a      	movew %fp@(10),%sp@-
+    1266:	3f2e 0008      	movew %fp@(8),%sp@-
+    126a:	4e4f           	trap #15
+    126c:	a215           	0121025
+
+0000126e <.ef>:
+    126e:	4e5e           	unlk %fp
+    1270:	4e75           	rts
+
+0000216e <playKeepEupEGame>:
+....
+    21d0:	41fb 0170 ffff 	lea %pc@(1256 <WinEraseLineF>),%a0
+    21d6:	f084 
+    21d8:	2f08           	movel %a0,%sp@-
+....
+    21fe:	6100 0118      	bsrw 2318 <playFreq>
+    2202:	41fb 0170 ffff 	lea %pc@(123a <WinDrawLineF>),%a0
+    2208:	f036 
+
+what is that 0170 ffff  ????
+and following f084 / f036 ?
