@@ -1,0 +1,44 @@
+#include "stopWatchRsc.h"
+
+FORM MainForm 1 1 158 158 NOFRAME MENUID menuMainForm
+BEGIN
+    TITLE "StopWatch"
+END
+
+MENU menuMainForm
+BEGIN
+	PULLDOWN "Start"
+	BEGIN
+		MENUITEM "Run" itemRun "R"
+		MENUITEM "Hold" itemHold "H"
+		MENUITEM "Stop" itemStop "S"
+		MENUITEM "Clear" itemClear "C"
+	END
+	PULLDOWN "Test"
+	BEGIN
+		MENUITEM "Test 1" itemTest1 "1"
+		MENUITEM "Test 2" itemTest2 "2"
+        END
+	PULLDOWN "Info"
+	BEGIN
+		MENUITEM "Help... " itemOptHelp "?"
+		MENUITEM "About... " itemOptAbout "A"
+		MENUITEM "Copy... " itemOptCopy "L"
+	END
+END
+
+ALERT alertInfo INFORMATION
+BEGIN
+	TITLE "Info"
+	MESSAGE "^1^2^3"
+	BUTTONS "Ok"
+END
+
+STRING hlpHelp "Start, Stop watch.\nHave fun!"
+
+STRING hlpCopy "Copyleft 2005 me.\nhttp://www.dspsrv.com/~jamesc"
+
+APPLICATIONICONNAME 1000 "StopWatch"
+ICON "stopWatch.pnm"
+
+VERSION 1 "0.0.1"
