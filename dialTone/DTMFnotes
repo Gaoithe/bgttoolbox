@@ -1,0 +1,170 @@
+
+D:\My Documents\FixComputer\hackNT
+file:///D:/My%20Documents/FixComputer/hackNT/hack-faq-2Telephony.html
+
+25. What are the DTMF frequencies?
+
+DTMF stands for Dual Tone Multi Frequency. These are the tones you get when you press a key on your telephone touchpad. The tone of the button is the sum of the column and row tones. The ABCD keys do not exist on standard telephones.
+
+	 1209 1336 1477 1633
+ 
+     697   1    2    3    A
+
+     770   4    5    6    B
+
+     852   7    8    9    C
+
+     941   *    0    #    D
+
+int DTMFFrequencies[16][2] = { // 0 1 .. 9 A B C D * #
+   { 941, 1336 }
+   { 697, 1209 }
+   { 697, 1336 }
+   { 697, 1477 }
+   { 770, 1209 }
+   { 770, 1336 }
+   { 770, 1477 }
+   { 852, 1209 }
+   { 852, 1366 }
+   { 852, 1477 }
+   { 697, 1633 }
+   { 770, 1633 }
+   { 852, 1633 }
+   { 941, 1633 }
+   { 941, 1209 }
+   { 941, 1477 }
+};
+
+26. What are the frequencies of the telephone tones?
+
+Type                Hz          On      Off
+---------------------------------------------------------------------
+Dial Tone         350 & 440     ---     ---
+Busy Signal       480 & 620     0.5     0.5
+Toll Congestion   480 & 620     0.2     0.3
+Ringback (Normal) 440 & 480     2.0     4.0
+Ringback (PBX)    440 & 480     1.5     4.5
+Reorder (Local)   480 & 620     3.0     2.0
+Invalid Number    200 & 400
+Hang Up Warning 1400 & 2060     0.1     0.1
+Hang Up         2450 & 2600     ---     ---
+
+typedef struct
+{
+  char name[20];
+  int tones[2];
+  int mson; int msoff;
+} TelephoneTone;
+
+TelephoneTone toneArray[] = {
+  { "Dial Tone        ",  {  350, 440 },    500,  0 },
+  { "Busy Signal      ",  {  480, 620 },    500,  500 },
+  { "Toll Congestion  ",  {  480, 620 },    200,  300 },
+  { "Ringback (Normal)",  {  440, 480 },    2000, 4000 },
+  { "Ringback (PBX)   ",  {  440, 480 },    1500, 4500 },
+  { "Reorder (Local)  ",  {  480, 620 },    3000, 2000 },
+  { "Invalid Number   ",  {  200, 400 },    500,  0 },
+  { "Hang Up Warning  ",  { 1400, 2060 },   100,  100 },
+  { "Hang Up          ",  { 2450, 2600 },   500,  0 }
+};
+
+int hashToneToArrayOffset(char whichTone);
+void playTwoFrequencies(int f1, int f2, int durationms);
+void playDTMFTone(char whichTone int durationms);
+void playTelephoneTone(int whichTone int durationms);
+void pausems(int time);
+void shutup(void);
+
+int hashToneToArrayOffset(char whichTone)
+{
+   if (whichTone>=`0` && whichTone <=`9`) return whichTone - `0`;
+   if (whichTone>=`A` && whichTone <=`D`) return whichTone + 10 - `A`;
+   if (whichTone==`*`) return 14;
+   if (whichTone==`#`) return 14;
+   return -1;
+}
+
+void playDTMFTone(char whichTone, int durationms)
+{
+   int n;
+   n = hashToneToArrayOffset(whichTone);
+   if (n>=0){
+      printf("playDTMFTone %c %dHz.\n",
+             whichTone, DTMFFrequencies[n][0], DTMFFrequencies[n][1]);
+      playTwoFrequencies(DTMFFrequencies[n][0], DTMFFrequencies[n][1], durationms);
+   }
+}
+
+void pausems(int time)
+{
+   SysTaskDelay((time * SysTicksPerSecond())/1000);
+}
+
+void shutup(void)
+{
+   SndCommandType soundCmd;
+   soundCmd.cmd=sndCmdQuiet;
+   SndDoCmd(NULL, &soundCmd, 0/*nowait*/);
+}
+
+void playTelephoneTone(int whichTone, int durationms)
+{
+   int t;
+   printf("playDTMFTone %c %s %dHz %dHz %dms on, %dms off.\n",
+          whichTone,
+          toneArray[n].name,
+          toneArray[n].tones[0],
+          toneArray[n].tones[1],
+          toneArray[n].mson,
+          toneArray[n].msoff);
+   while(thing){
+      playTwoFrequencies(toneArray[n].tones[0],
+                         toneArray[n].tones[1],
+                         toneArray[n].mson);
+      pausems(toneArray[n].msoff);
+   }
+}
+
+void playTwoFrequencies(int f1, int f2, int durationms)
+{
+   SndCmdIDType   cmd;
+   SndCommandType soundCmdf1, soundCmdf2;
+   int t;
+  
+   if (applicationPrefs.state.sound != 0){
+      // non-blocking!  better to use this and key press start sound, key up ends it.
+      //soundCmdf1.cmd = soundCmdf2.cmd = sndCmdFreqDurationAmp;; // blocking
+      soundCmdf1.cmd = soundCmdf2.cmd = sndCmdFrqOn;
+      soundCmdf1.param1 = f1; /*freq in hz */
+      soundCmdf2.param1 = f2; /*freq in hz */
+      soundCmdf1.param2 = soundCmdf2.param2 = 2; /*max dur in ms */
+      soundCmdf1.param3 = soundCmdf2.param3 = applicationPrefs.amp; /*amp 0 - sndMaxAmp */
+      for(t=0;t<durationms;t+=4){   // TBD: allow this to break on event if blocking
+         SndDoCmd(NULL, &soundCmdf1, 0/*nowait*/);
+         SndDoCmd(NULL, &soundCmdf2, 0/*nowait*/);
+      }
+   } else {
+      // if sound off delay?
+      //if (cmd == sndCmdFreqDurationAmp) // force delay
+      pausems(durationms);
+   }
+
+   //soundCmd.cmd=sndCmdQuiet;
+   //SndDoCmd(NULL, &soundCmd, 0/*nowait*/);
+
+}
+
+
+
+http://www.palminfocenter.com/view_story.asp?ID=298
+
+ The PalmReader has a piece on how to turn your Palm into a "red box" In phone phreak jargon, a "red box" is any device that tricks pay phones by using sounds to make the phone think you've entered money for the call. The 99 Fall issue of 2600 magazine details how to make Canadian phone-system "red box." Apparently all you need is the cbasPad BASIC interpreter and this chunk of code:
+#autonum
+new
+for a = 1 to 5
+sound 2200,33,64
+sound 1,33,2
+next a
+run
+Are there any Canadians out there willing to give this a try? Let us know how it turns out.
+
