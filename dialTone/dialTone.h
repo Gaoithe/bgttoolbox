@@ -7,9 +7,7 @@
 
 typedef enum dialToneGameType {
    dialToneGame,
-   musicGame,
-   ifsFern,
-   ifsTri
+   musicGame
 } dialToneGameType;
 
 struct prefstate_s {
@@ -60,6 +58,9 @@ extern void stopMusicGame(int x, int y);
 extern void drawMusicScreen(void);
 
 // dialToneDTMF.c
+#ifdef TRYINITGLOBDTMFSTUFF
+void initDialToneDTMF(void);
+#endif
 int hashToneToArrayOffset(char whichTone);
 void playTwoFrequencies(int f1, int f2, int durationms);
 void playDTMFTone(char whichTone, int durationms);

@@ -15,9 +15,13 @@ OBJS = $(TARGET).o dialToneDraw.o dialToneGame.o dialToneSound.o dialToneDTMF.o
 LIBS = -lc
 
 # -mown-gp added to CC and LD ... ? I forget why ?
-CC = /usr/m68k-palmos/bin/gcc -c -mown-gp
+# it messes up, or else just chance (alignment?) messes up global array init
+# if do make clean every time problems writing to static vars go away?
+#CC = /usr/m68k-palmos/bin/gcc -c -mown-gp
+CC = /usr/m68k-palmos/bin/gcc -c 
 AS = m68k-palmos-as 
-LD = m68k-palmos-ld -mown-gp
+#LD = m68k-palmos-ld -mown-gp
+LD = m68k-palmos-ld 
 #CFLAGS = -x c -S -Wall -O2 -DVERBOSE -g -I /PalmDev/sdk/include
 CFLAGS = -S -Wall -O2 -DVERBOSE -DAPPID=\'dtmF\' -g -I /PalmDev/sdk/include -I /PalmDev/sdk/include/Core -I /PalmDev/sdk/include/Core/Hardware -I /PalmDev/sdk/include/Core/System -I /PalmDev/sdk/include/Core/UI -I /PalmDev/sdk/include/Dynamic -I /PalmDev/sdk/include/libraries
 
@@ -46,6 +50,10 @@ CFLAGS = -Wall -g -O2 -DAPPID=\'dtmF\'
 
 .c.s:
 	$(CC) $(CFLAGS) $<
+
+#%.o: %.c
+#	$(CC) $(CFLAGS) $(TARGETFLAGS) -c $<
+#	$(CC) $(CFLAGS) $<
 
 $(TARGET).o: $(TARGET)Rsc.h $(TARGET).h
 

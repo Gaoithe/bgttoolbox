@@ -56,12 +56,9 @@ BEGIN
     PUSHBUTTON "o" btnSound3 PrevRight+1 PrevTop AUTO AUTO GROUP 1
     PUSHBUTTON "high" btnSoundHigh PrevRight+1 PrevTop AUTO AUTO GROUP 1
 
-    LABEL "Show:" AUTOID 2 PrevBottom+2 FONT 1
-    PUSHBUTTON "number" btnSysCallNum 20 PrevBottom+2 AUTO AUTO GROUP 3
-    PUSHBUTTON "name" btnSysCallName PrevRight+1 PrevTop AUTO AUTO GROUP 3
+    LABEL "PiezoHyst (ms):" AUTOID 2 PrevBottom+2 FONT 1
+    FIELD fieldPiezoHyst PrevRight+2 PrevTop 50 AUTO LEFTALIGN UNDERLINED SINGLELINE MAXCHARS 5 
 
-    CHECKBOX "Enable" chkMemEdit 18 PrevBottom+4 AUTO AUTO USABLE
-    CHECKBOX "stupid" chkAllowStupid 18 PrevBottom+2 AUTO AUTO USABLE
     CHECKBOX "messy" chkAllowDebug 18 PrevBottom+2 AUTO AUTO USABLE
 
     BUTTON "Ok" btnOk 5 PREVBOTTOM+8 AUTO AUTO FONT 1

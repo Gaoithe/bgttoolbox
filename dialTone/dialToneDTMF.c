@@ -5,8 +5,12 @@
 #include "dialToneRsc.h"
 #include "dialTone.h"
 
-//int DTMFFrequencies[16][2] = { // 0 1 .. 9 A B C D * #
-int DTMFFrequencies[][2] = { // 0 1 .. 9 A B C D * #
+// the way I compile global vars, static vars don't get init
+// old compiler problem or me problem ?
+// OR maybe it is because [][2] size unspecified?
+
+int DTMFFrequencies[16][2] = { // 0 1 .. 9 A B C D * #
+  //int DTMFFrequencies[][2] = { // 0 1 .. 9 A B C D * #
    { 941, 1336 },
    { 697, 1209 },
    { 697, 1336 },
@@ -25,6 +29,7 @@ int DTMFFrequencies[][2] = { // 0 1 .. 9 A B C D * #
    { 941, 1477 }
 };
 
+
 typedef struct
 {
   char name[20];
@@ -32,7 +37,8 @@ typedef struct
   int mson; int msoff;
 } TelephoneTone;
 
-TelephoneTone toneArray[] = {
+TelephoneTone toneArray[9] = {
+  //TelephoneTone toneArray[] = {
   { "Dial Tone        ",  {  350, 440 },    500,  0 },
   { "Busy Signal      ",  {  480, 620 },    500,  500 },
   { "Toll Congestion  ",  {  480, 620 },    200,  300 },
@@ -123,9 +129,11 @@ void playTwoFrequencies(int f1, int f2, int durationms)
       soundCmdf2.param1 = f2; /*freq in hz */
       soundCmdf1.param2 = soundCmdf2.param2 = 2; /*max dur in ms */
       soundCmdf1.param3 = soundCmdf2.param3 = dialTonePrefs.amp; /*amp 0 - sndMaxAmp */
-      for(t=0;t<durationms;t+=4){   // TBD: allow this to break on event if blocking
+      for(t=0;t<durationms;t+=32){   // TBD: allow this to break on event if blocking
          SndDoCmd(NULL, &soundCmdf1, 0/*nowait*/);
+	 pausems(16); // 2-8 not enough for piezo
          SndDoCmd(NULL, &soundCmdf2, 0/*nowait*/);
+	 pausems(16);
       }
    } else {
       // if sound off delay?

@@ -25,8 +25,7 @@
 #define fldValue        2101
 #define fldSearch       2102
 
-#define chkMemEdit      2201
-#define chkAllowStupid  2202
+#define fieldPiezoHyst  2201
 #define chkAllowDebug   2203
 
 #define MethodList      2301

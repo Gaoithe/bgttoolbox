@@ -126,11 +126,11 @@ static Boolean PrefFormHandleEvent (EventPtr e)
             i = (dialTonePrefs.state.sound);
             state = dialTonePrefs.state;  /* read state */
 
-            i = state.enable_edit;
-            PrefFormSetValue(frm, chkMemEdit, i);
+            //i = state.enable_edit;
+            //PrefFormSetValue(frm, chkMemEdit, i);
 
-            i = state.enable_stupid;
-            PrefFormSetValue(frm, chkAllowStupid, i);
+            //i = state.enable_stupid;
+            //PrefFormSetValue(frm, chkAllowStupid, i);
 
             i = state.debug;
             PrefFormSetValue(frm, chkAllowDebug, i);
@@ -174,12 +174,15 @@ static Boolean PrefFormHandleEvent (EventPtr e)
                     break;
                 case btnSysCallName:
                     break;
-                case chkMemEdit:
-                    state.enable_edit = e->data.ctlSelect.on;
-                    break;
-                case chkAllowStupid:
-                    state.enable_stupid = e->data.ctlSelect.on;
-                    break;
+	        case fieldPiezoHyst:
+		    // TODO
+	            break;
+		    //case chkMemEdit:
+                    //state.enable_edit = e->data.ctlSelect.on;
+                    //break;
+		    //case chkAllowStupid:
+                    //state.enable_stupid = e->data.ctlSelect.on;
+                    //break;
                 case chkAllowDebug:
                     state.debug = e->data.ctlSelect.on;
                     break;
@@ -481,29 +484,35 @@ static Boolean MainFormHandleEvent (EventPtr e)
 
  		    // TODO: config duration
 		    DEBUGBOX("DTMFTone","");
-		    playDTMFTone(e->data.keyDown.chr,500);
+		    playDTMFTone(e->data.keyDown.chr,5000);
 		    DEBUGBOX("DTMFTone","");
 		    // this (assignment to static) could cause things to explode
 		    //lastkey = e->data.keyDown.chr;
-		    DEBUGBOX("DTMFTone","");
+		    //DEBUGBOX("DTMFTone","");
+                    handled = true;
                     break;
 
-                case 'E' ... 'N':
-                case 'e' ... 'n':
+                case 'E' ... 'M':
+                case 'e' ... 'm':
 
 		    {
   		        int n=0;
+			int lk;
 
 			DEBUGBOX("TelTone","");
 
-			if (lastkey>='E' && lastkey <='N') n = lastkey - 'E';
-			if (lastkey>='e' && lastkey <='n') n = lastkey - 'e';
+                        // setting lastkey causes problems :(
+                        // not without -mown-gp ??
+			lastkey = e->data.keyDown.chr;
+			lk = e->data.keyDown.chr;
+			if (lk>='E' && lk <='M') n = lk - 'E';
+			if (lk>='e' && lk <='m') n = lk - 'e';
 
 			DEBUGBOX("TelTone","");
 			// TODO: config duration (from struct)
-			playTelephoneTone(n, 500);
+			playTelephoneTone(n, 5000);
 
-			DEBUGBOX("TelTone","");
+			//DEBUGBOX("TelTone","");
 			// this (assignment to static) could cause things to explode
 			//lasttone = n;
 
@@ -513,6 +522,7 @@ static Boolean MainFormHandleEvent (EventPtr e)
 
 		    }
 
+                    handled = true;
                     break;
 
                 case 's':
@@ -521,6 +531,7 @@ static Boolean MainFormHandleEvent (EventPtr e)
 		    DEBUGBOX("displayDTMFToneInfoDialog","");
 		    displayDTMFToneInfoDialog(lastkey);
 		    DEBUGBOX("displayDTMFToneInfoDialog","");
+                    handled = true;
                     break;
 
                 case 't':
@@ -529,11 +540,13 @@ static Boolean MainFormHandleEvent (EventPtr e)
 		    DEBUGBOX("displayTelToneInfoDialog","");
 		    displayTelephoneToneInfoDialog(lasttone%9);
 		    DEBUGBOX("displayTelToneInfoDialog","");
+                    handled = true;
                     break;
 
                 case 'v': // james special
                     displaySeekretDialog();
                     doSeekretAction(e->data.keyDown.chr);
+                    handled = true;
                     break;
 
                 /* anything non-control-char-ish is ignored. */
@@ -549,6 +562,7 @@ static Boolean MainFormHandleEvent (EventPtr e)
             break;
     }
 
+    // DO NOT PUT DEBUG BOX HERE DEBUGBOX("set lastEType","");
     lastEType = e->eType;
 
     return handled;
@@ -612,6 +626,12 @@ static UInt16 StartApplication(void)
 
     dbs_buf = MemPtrNew(100);
     ErrFatalDisplayIf(dbs_buf == NULL, "no mem");
+
+#ifdef TRYINITGLOBDTMFSTUFF
+    DEBUGBOX("init dial tone DTMF globals","");
+    initDialToneDTMF();
+    DEBUGBOX("after init dial tone DTMF globals","");
+#endif
 
     FrmGotoForm(MainForm);
 
