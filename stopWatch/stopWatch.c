@@ -1,17 +1,4 @@
-/* Main code for Test Template */
-
-#include <PalmOS.h>
-
-#include "stopWatchRsc.h"
-#define VERSION "0.1"
-
-void DEBUGBOX(char *ARGSTR1, char *ARGSTR2) {
-  char buf[1000];
-  int l=0;
-  l+=StrPrintF(buf+l, "debugbox - %s %s:%d\n", 
-     __FUNCTION__, __FILE__, __LINE__);
-  FrmCustomAlert(alertInfo, buf, ARGSTR1, ARGSTR2);
-}
+#include "stopWatch.h"
 
 void playFreq(SndCmdIDType cmd, int freq, int time, int amp)
 {
@@ -233,6 +220,10 @@ static Boolean MainFormHandleEvent (EventPtr e)
 		drawCount(0);
 		break;
 
+	    case itemPrefs:
+		FrmPopupForm(PrefForm);
+		break;
+
 	    case itemTest1:
 		WinDrawLine(20,20,50,50);
 //void WinDrawChar (WChar theChar, Coord x, Coord y)
@@ -444,6 +435,108 @@ static Boolean MainFormHandleEvent (EventPtr e)
     return handled;
 }
 
+stopWatchPreferenceType stopWatchPrefs;
+
+static void PrefFormSetValue(FormPtr frm, UInt16 id, UInt16 value)
+{
+    ControlPtr ctr;
+    ctr = FrmGetObjectPtr(frm, FrmGetObjectIndex(frm, id));
+    CtlSetValue(ctr, value);
+}
+
+static Boolean PrefFormHandleEvent (EventPtr e)
+{
+    Boolean handled = false;
+    FormPtr frm;
+    UInt16 i;
+    
+    frm = FrmGetActiveForm();
+    switch (e->eType) {
+        case frmOpenEvent:
+            FrmDrawForm(frm);
+            PrefFormSetValue(frm, chkDisableAutoOff, 
+			     stopWatchPrefs.disableAutoOff);
+
+            PrefFormSetValue(frm, btnSoundLow, 
+			     btnSoundLow == stopWatchPrefs.sound);
+            PrefFormSetValue(frm, btnSound1, 
+			     btnSound1 == stopWatchPrefs.sound);
+            PrefFormSetValue(frm, btnSound2, 
+			     btnSound2 == stopWatchPrefs.sound);
+            PrefFormSetValue(frm, btnSound3, 
+			     btnSound3 == stopWatchPrefs.sound);
+            PrefFormSetValue(frm, btnSoundHigh, 
+			     btnSoundHigh == stopWatchPrefs.sound);
+
+            PrefFormSetValue(frm, btnVisualNum, 
+			     btnVisualNum == stopWatchPrefs.visual);
+            PrefFormSetValue(frm, btnVisualBar, 
+			     btnVisualBar == stopWatchPrefs.visual);
+            PrefFormSetValue(frm, btnVisualSticks, 
+			     btnVisualSticks == stopWatchPrefs.visual);
+            PrefFormSetValue(frm, btnVisualHour, 
+			     btnVisualHour == stopWatchPrefs.visual);
+
+            handled = true;
+            break;
+
+        case menuEvent:
+            MenuEraseStatus(NULL);
+            handled = true;
+            break;
+
+        case ctlSelectEvent:
+            switch(e->data.ctlSelect.controlID) {
+		case chkDisableAutoOff:
+		    stopWatchPrefs.disableAutoOff=e->data.ctlSelect.on;
+                    break;
+                case btnSoundLow:
+                    stopWatchPrefs.sound=e->data.ctlSelect.controlID;
+                    stopWatchPrefs.vol=2;
+                    break;
+                case btnSound1:
+                    stopWatchPrefs.sound=e->data.ctlSelect.controlID;
+                    stopWatchPrefs.vol=5;
+                    break;
+                case btnSound2:
+                    stopWatchPrefs.sound=e->data.ctlSelect.controlID;
+                    stopWatchPrefs.vol=10;
+                    break;
+                case btnSound3:
+                    stopWatchPrefs.sound=e->data.ctlSelect.controlID;
+                    stopWatchPrefs.vol=30;
+                    break;
+                case btnSoundHigh:
+                    stopWatchPrefs.sound=e->data.ctlSelect.controlID;
+                    stopWatchPrefs.vol=50;
+                    break;
+		case btnVisualNum:
+		case btnVisualBar:
+		case btnVisualSticks:
+		case btnVisualHour:
+                    stopWatchPrefs.visual=e->data.ctlSelect.controlID;
+                    break;
+
+                case btnOk:
+                    // set things
+                    /* tell main form to update itself. */
+                    //FrmUpdateForm(MainForm, UPDATE_LISTING);
+                    /* FALLTHROUGH */
+                case btnCancel: // cancel is TODO
+                    FrmReturnToForm(MainForm);
+                    handled = true;
+                    break;
+
+            }
+            break;
+
+        default:
+            break;
+    }
+    
+    return handled;
+}
+
 static Boolean ApplicationHandleEvent(EventPtr e)
 {
     FormPtr frm;
@@ -456,9 +549,12 @@ static Boolean ApplicationHandleEvent(EventPtr e)
 	FrmSetActiveForm(frm);
 
 	switch(formId) {
-	case MainForm:
-	    FrmSetEventHandler(frm, MainFormHandleEvent);
-	    break;
+	    case MainForm:
+		FrmSetEventHandler(frm, MainFormHandleEvent);
+		break;
+            case PrefForm:
+                FrmSetEventHandler(frm, PrefFormHandleEvent);
+                break;
 	}
 	handled = true;
     }
@@ -469,6 +565,21 @@ static Boolean ApplicationHandleEvent(EventPtr e)
 /* Get preferences, open (or create) app database */
 static UInt16 StartApplication(void)
 {
+    UInt16 prefsize,i;
+    /* Fetch application preferences */
+    prefsize = sizeof(stopWatchPreferenceType);
+    i = PrefGetAppPreferences('StWt', 0, &stopWatchPrefs, &prefsize, true);
+
+    /* If no prefs were found, reset all values. */
+    if (noPreferenceFound == i) {
+        //DEBUGBOX("no prefs","");
+        stopWatchPrefs.timestamp = 0;
+        stopWatchPrefs.vol=10;
+        stopWatchPrefs.sound=btnSound2;
+        stopWatchPrefs.visual=btnVisualNum;
+        stopWatchPrefs.disableAutoOff = 1;
+    }
+
     FrmGotoForm(MainForm);
     return 0;
 }
@@ -476,6 +587,8 @@ static UInt16 StartApplication(void)
 /* Save preferences, close forms, close app database */
 static void StopApplication(void)
 {
+    PrefSetAppPreferences('StWt', 0, stopWatchPrefVersionNum,
+            &stopWatchPrefs, sizeof(stopWatchPreferenceType), true);
     FrmSaveAllForms();
     FrmCloseAllForms();
 }

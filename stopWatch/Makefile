@@ -1,7 +1,7 @@
 
 TARGET = stopWatch
 APPNAME = "StopWatch"
-APPID = "BoGo"
+APPID = "StWt"
 
 OBJS = $(TARGET).o
 LIBS =

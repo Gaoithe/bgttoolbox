@@ -18,6 +18,8 @@ BEGIN
 		MENUITEM "Hold" itemHold "H"
 		MENUITEM "Stop" itemStop "S"
 		MENUITEM "Clear" itemClear "C"
+		MENUITEM SEPARATOR
+		MENUITEM "Preferences... " itemPrefs "P"
 	END
 	PULLDOWN "Test"
 	BEGIN
@@ -31,6 +33,32 @@ BEGIN
 		MENUITEM "Copy... " itemOptCopy "L"
 	END
 END
+
+FORM PrefForm 2 25 156 133 MODAL SAVEBEHIND
+HELPID hlpPref DEFAULTBTNID btnCancel
+BEGIN
+    TITLE "Preferences"
+
+    LABEL "Sound Volume:" AUTOID 2 12 FONT 1
+    PUSHBUTTON "low" btnSoundLow 20 PrevBottom+2 AUTO AUTO GROUP 1
+    PUSHBUTTON "o" btnSound1 PrevRight+1 PrevTop AUTO AUTO GROUP 1
+    PUSHBUTTON "o" btnSound2 PrevRight+1 PrevTop AUTO AUTO GROUP 1
+    PUSHBUTTON "o" btnSound3 PrevRight+1 PrevTop AUTO AUTO GROUP 1
+    PUSHBUTTON "high" btnSoundHigh PrevRight+1 PrevTop AUTO AUTO GROUP 1
+
+    LABEL "Visual:" AUTOID 2 PrevBottom+2 FONT 1
+    PUSHBUTTON "number" btnVisualNum 20 PrevBottom+2 AUTO AUTO GROUP 3
+    PUSHBUTTON "bar" btnVisualBar PrevRight+1 PrevTop AUTO AUTO GROUP 3
+    PUSHBUTTON "sticks" btnVisualSticks PrevRight+1 PrevTop AUTO AUTO GROUP 3
+    PUSHBUTTON "hour" btnVisualHour PrevRight+1 PrevTop AUTO AUTO GROUP 3
+
+    CHECKBOX "Disable Auto Off" chkDisableAutoOff 18 PrevBottom+4 AUTO AUTO USABLE
+
+    BUTTON "Ok" btnOk 5 PREVBOTTOM+8 AUTO AUTO FONT 1
+    BUTTON "Cancel" btnCancel PREVRIGHT+10 PREVTOP AUTO AUTO FONT 1
+END
+
+STRING hlpPref "These preferences don't do anything much yet.\n"
 
 ALERT alertInfo INFORMATION
 BEGIN
