@@ -15,3 +15,9 @@
 #define hlpCopy         2402
 
 #define alertInfo               2601
+
+
+#define btnRun 5200
+#define btnHold 5201
+#define btnStop 5202
+#define btnClear 5203

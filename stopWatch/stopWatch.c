@@ -60,26 +60,45 @@ static void doPenAction(int e, int x, int y, int endx, int endy)
      }
 
      // Middle C is 262Hz
-     playFreq(sndCmdFrqOn,x*20,y*10,10); // freq,maxdur, amp(0 - sndMaxAmp)
+     // playFreq(sndCmdFrqOn,x*20,y*10,10); // freq,maxdur, amp(0 - sndMaxAmp)
+     // this could possibly get annoying
 
      break;
 
    case penUpEvent:
-     stopFreq();
+       // stopFreq();
      break;
          
    }
 }
 
+void eraseRectangleSafe(int sx, int sy, int w, int h) // x,y,width,height
+{
+   int y,x;
+   for(y=sy,x=sx;y<sy+h;y++)
+       WinEraseLine(x,y,x+w,y);
+}
+
+void drawRectangleSafe(int sx, int sy, int w, int h) // x,y,width,height
+{
+   int y,x;
+   //DEBUGBOX("drawRect","");
+   for(y=sy,x=sx;y<sy+h;y++)
+      WinDrawLine(x,y,x+w,y);
+   //RectangleType r; // = { {0, l, {160, 12} };
+   //RctSetRectangle(&r, sx, sy, w, h); // x,y,width,height
+   //WinDrawRectangleFrame(dialogFrame, &r); 
+   // sdk/include/Core/System/Window.h
+}
 
 void drawCount(UInt32 dtik) {
     char buf[100];
     int l=0;
-    int s,hour,min,sec,hs;
-    l=0;
-    l+=StrPrintF(buf+l, "Ticks %lu", dtik);
-    FntSetFont(largeBoldFont);
-    WinPaintChars(buf,l,1,120);
+    unsigned long int s,hour,min,sec,hs;
+    //l=0;
+    //l+=StrPrintF(buf+l, "Ticks %lu", dtik);
+    //FntSetFont(largeBoldFont);
+    //WinPaintChars(buf,l,1,100);
 
     //ms = dtik / (SysTicksPerSecond()/1000);
     s = dtik / (SysTicksPerSecond()/100);
@@ -91,15 +110,24 @@ void drawCount(UInt32 dtik) {
     s = s / 60;
     hour = s % 60;
     l=0;
-    l+=StrPrintF(buf+l, "%02d:%02d:%02d:%02d", hour,min,sec,hs);
+    l+=StrPrintF(buf+l, "%02d:%02d:%02d:%02d", (int)hour,(int)min,(int)sec,(int)hs);
     FntSetFont(largeBoldFont);
-    WinPaintChars(buf,l,1,100);
+    WinPaintChars(buf,l,1,120);
 
     // a minute alarm
     if (sec == 0) {
 	int i;
 	for(i=0;i<min%10;i++){
 	    playFreq(sndCmdFrqOn,100+min*4,10,10); // freq,maxdur, amp(0 - sndMaxAmp)
+	}
+	// and progress bar
+	eraseRectangleSafe(0, 20, 160, 20); // x,y,width,height
+	drawRectangleSafe(0, 20, min * 4, 20); // x,y,width,height
+	eraseRectangleSafe((min * 4)-1, 41, 160, 1); // x,y,width,height
+	drawRectangleSafe((min * 4)-1, 41, 1, 1); // x,y,width,height
+	if ((min%5)==0){
+	    eraseRectangleSafe((min * 4)-2, 41, 160, 2); // x,y,width,height
+	    drawRectangleSafe((min * 4)-2, 41, 2, 2); // x,y,width,height
 	}
     }
 }
@@ -281,6 +309,56 @@ static Boolean MainFormHandleEvent (EventPtr e)
 
     case ctlSelectEvent:
 	switch(e->data.ctlSelect.controlID) {
+
+	    case btnRun:
+		if (start_sec == 0) {
+		    start_sec = TimGetSeconds();
+		    start_tik = TimGetTicks();
+		}
+		{
+		    UInt32 tik,dtik;
+		    int i;
+		    run=1;
+		    while(run==1) {
+			tik = TimGetTicks();
+			dtik = tik - start_tik;
+			drawCount(dtik);
+
+			// delay one tenth of a sec (.09 acksherly to be sly)
+			SysTaskDelay((90 * SysTicksPerSecond())/1000);
+			// within loop call SysHandleEvent to
+                        //  give system opportunity to break in? 
+                        // /opt/palmdev/sdk-5/include/Core/UI/Event.h
+			{ 
+			    UInt16 err;
+			    EventType e;
+			    EvtGetEvent(&e, 0);
+			    if (! SysHandleEvent (&e))
+				if (! MenuHandleEvent (NULL, &e, &err))
+				    if (! ApplicationHandleEvent (&e))
+					FrmDispatchEvent (&e);
+			}
+		    }
+		}
+		break;
+	    case btnHold:
+		// break the run loop
+		run = 0;
+		break;
+	    case btnStop:
+		// break the run loop
+		run = 0;
+		end_sec = TimGetSeconds();
+ 		end_tik = TimGetTicks();
+		break;
+	    case btnClear:
+		// break the run loop
+		run = 0;
+		start_sec = 0;
+		end_tik = 0;
+		drawCount(0);
+		break;
+
 	}
 	break;
 
