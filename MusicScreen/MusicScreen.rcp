@@ -1,0 +1,34 @@
+#include "MusicScreenRsc.h"
+
+FORM MainForm 1 1 158 158 NOFRAME MENUID menuMainForm
+BEGIN
+    TITLE "Music Screen"
+END
+
+MENU menuMainForm
+BEGIN
+	PULLDOWN "Foo"
+	BEGIN
+		MENUITEM "Bar" itemBar "B"
+	END
+	PULLDOWN "Info"
+	BEGIN
+		MENUITEM "Help... " itemOptHelp "?"
+		MENUITEM "About... " itemOptAbout
+	END
+END
+
+
+APPLICATIONICONNAME 1000 "MusicScreen"
+ICON "MusicScreen.pnm"
+
+ALERT alertInfo INFORMATION
+BEGIN
+	TITLE "Info"
+	MESSAGE "^1^2^3"
+	BUTTONS "Ok"
+END
+
+STRING stringHelp "The plan: Make noise, illustrate noise, save & load & edit noise. Export noise. Geiger counter. Heartbeat monitor. Tick tock timebomb explode.\n\nHave fun!"
+
+VERSION 1 "0.0.1"
