@@ -4,3 +4,5 @@
 #define itemBar 1200
 #define itemOptHelp 1201
 #define itemOptAbout 1202
+
+#define alertInfo               2601

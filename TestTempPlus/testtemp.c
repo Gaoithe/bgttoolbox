@@ -4,9 +4,6 @@
 
 #include "testtempRsc.h"
 
-/*
-#define alertInfo               2601
-
 void DEBUGBOX(char *ARGSTR1, char *ARGSTR2) {
   char buf[1000];
   int l=0;
@@ -17,17 +14,22 @@ void DEBUGBOX(char *ARGSTR1, char *ARGSTR2) {
 
 static void doPenAction(int e, int x, int y, int endx, int endy)
 {
-   char buf[1000];
-   int l=0;
 
-   l+=StrPrintF(buf+l, "event: %d x,y %d,%d end x,y %d,%d\n",
-		e, x, y, endx, endy);
-   buf[l]=0;
 
-   DEBUGBOX("doPenAction",buf);
 
    switch(e){
    case penDownEvent:
+
+     /* doing dialog debug box on penUp gives us infinate loop */
+     {
+       char buf[1000];
+       int l=0;
+       l+=StrPrintF(buf+l, "event: %d x,y %d,%d end x,y %d,%d\n",
+		    e, x, y, endx, endy);
+       buf[l]=0;
+       DEBUGBOX("doPenAction",buf);
+     }
+
      break;
 
    case penUpEvent:
@@ -35,7 +37,6 @@ static void doPenAction(int e, int x, int y, int endx, int endy)
          
    }
 }
-*/
 
 static Boolean MainFormHandleEvent (EventPtr e)
 {
@@ -70,24 +71,25 @@ static Boolean MainFormHandleEvent (EventPtr e)
 
     case penDownEvent:
     case penMoveEvent:
-      //doPenAction( e->eType, e->screenX, e->screenY, 0, 0); 
+      doPenAction( e->eType, e->screenX, e->screenY, 0, 0); 
+      //FrmCustomAlert(alertInfo, "pen down", "ARGSTR1", "ARGSTR2");
       break;
 
     case penUpEvent:
-      //doPenAction( penUpEvent, 
-      //	   e->data.penUp.start.x, e->data.penUp.start.y, 
-      //	   e->data.penUp.end.x, e->data.penUp.end.y);
+      doPenAction( penUpEvent, 
+      	   e->data.penUp.start.x, e->data.penUp.start.y, 
+      	   e->data.penUp.end.x, e->data.penUp.end.y);
       break;
 
     case keyDownEvent:
 
-      /*{
-      char buf[1000];
-      int l=0;
-      l+=StrPrintF(buf+l, "Char: %c\n",e->data.keyDown.chr);
-      buf[l]=0;
-      DEBUGBOX("keyDownEvent",buf);
-      }*/
+      {
+	char buf[1000];
+	int l=0;
+	l+=StrPrintF(buf+l, "Char: %c %02x\n",e->data.keyDown.chr,e->data.keyDown.chr);
+	buf[l]=0;
+	DEBUGBOX("keyDownEvent",buf);
+      }
 
       switch(e->data.keyDown.chr) {
       case pageUpChr:
