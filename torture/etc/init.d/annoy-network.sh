@@ -15,6 +15,7 @@ ANNOYCOUNT=0
 TRYCOUNT=0
 QUICK=0
 VERBOSE=0
+NTP=1
 
 while [[ "$1" != "" ]] ; do
    if [[ "$1" == "-q" ]] ; then
@@ -47,6 +48,11 @@ while [[ $ANNOYCOUNT == 0 || $QUICK == 0 ]] ; do
    if [[ "$VERBOSE" == 1 ]] ; then 
       echo "$ANNOYCOUNT network $IPADDR is up."; 
       netstat -ie eth0 |perl -00 -ne "print \$_ if /eth0/;" 
+   fi
+
+   if [[ "$NTP" == 1 ]] ; then 
+      echo "start ntp"
+      /etc/init.d/xntpd start
    fi
 
    if [[ $QUICK == 0 ]] ; then
