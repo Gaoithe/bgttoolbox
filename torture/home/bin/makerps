@@ -1,0 +1,44 @@
+#!/bin/bash 
+
+# invoke: ./makerps &
+# build will run in parallel (5 top level processes per Makefile called) 
+# nice 6 so cpu will not be hammered
+# user processes will not notice because of nice
+# build much faster as the limiting build factor is really disk io access, not cpu. 
+# xterm opened showing build progress (closed when build finishes)
+# errors logged on screen and to file and presented after build in another xterm if present
+
+# bsh -m for job control ... doesn't quite work as expected?
+# job vars %+ %- etc seem to behave differently in script or shell
+# http://www.faqs.org/docs/bashman/bashref_toc.html#SEC_Contents
+# http://theory.uwinnipeg.ca/localfiles/infofiles/bash/bashref_68.html
+
+rm -f make.log makeerr.log
+nice -6 make -j 5 2>&1 >make.log |tee makeerr.log &
+makepid=$!
+echo "IFNI makepid is $makepid"
+
+sleep 3
+ls -al make.log
+xterm -geometry 180x8+400+860 -e tail -f make.log &
+logpid=$!
+echo "IFNI logpid is $logpid"
+
+echo "IFNI wait for build to finish #fg %- or wait %- or wait $makepid "
+# beware the error: wait: job control not enabled (on wait %- in script?)
+wait $makepid
+
+echo "IFNI after make process finishes kill make log. #kill %+ or kill $logpid"
+kill $logpid
+kill -9 $logpid
+
+echo "IFNI if errors or warnings are present show them \(already to stdout during build\)"
+ERRS=`cat makeerr.log `
+if [[ "$ERRS" != "" ]] ; then
+  xterm -e less makeerr.log &
+  errlogpid=$!
+else
+  echo "IFNI no errors/warnings this time."
+  echo "IFNI disclaim: Build may have been partial and you may have missed a warning earlier."
+fi
+

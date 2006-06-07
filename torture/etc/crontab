@@ -1,0 +1,18 @@
+SHELL=/bin/bash
+PATH=/sbin:/bin:/usr/sbin:/usr/bin
+MAILTO=root
+HOME=/
+
+# run-parts
+01 * * * * root run-parts /etc/cron.hourly
+02 4 * * * root run-parts /etc/cron.daily
+22 4 * * 0 root run-parts /etc/cron.weekly
+42 4 1 * * root run-parts /etc/cron.monthly
+
+# run 3:33 after every weekday to upload timesheets
+#33 3 * * 2-6 jamesc run-parts /etc/cron.afterweekday
+# run at 17:05 on weekdays
+05 17 * * 1-5 jamesc run-parts /etc/cron.5pmdaily
+05 8 * * 1-5 jamesc run-parts /etc/cron.8amdaily
+33 3 * * 2-6 jamesc run-parts /etc/cron.easytimer
+# run at 17:05 on weekdays

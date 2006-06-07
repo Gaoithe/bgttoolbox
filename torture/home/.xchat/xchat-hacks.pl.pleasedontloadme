@@ -1,0 +1,247 @@
+#!/usr/bin/perl -w
+
+# only called xchat-hacks.pl for laziness & historical reasons
+my $name = "hacked Waider's XChat hacks";
+my $version = "0.5h";
+
+# /load xchat-hacks.pl
+# /scpinfo
+# TODO: bottiness dictionary lookup  http://dictionary.reference.com/wordoftheday/
+#         http://dictionary.reference.com/search?r=2&q=rampallian
+#         http://dictionary.reference.com/search?r=2&q=ramsons
+# DONE: replace match on jamesc with  username get from IRC::? nope $ENV{USER}
+# 0.5h dictionary bottiness
+# 0.4h festival server
+# 0.3h festival tested (talks way too fast ?) 
+# 0.2h with coffee overload throttling
+# - annoying thing - xsplash slow to start - noticable CHungg in xchat and on machine :-7
+
+# fvwm/noseguy/gnome text   or just on background
+# /usr/X11R6/lib/xscreensaver/xjack
+# rt 
+
+
+# TODO: fix this: how to kill xchat-hacks.pl ?
+#doolin<  waider>| well, except Patrick Swayze
+#doolin<  waider>| kathryn: or aerial
+#doolin<  waider>| would you like to play again (y/n)
+#doolin< kathryn>| n
+#doolin< kathryn>| ^q
+#doolin<  waider>| command not understood
+#  what happened festival went mad?   seen same with xsplash ?
+#  e.g. try echo "^q" |festival_client --ttw | na_play
+
+
+# Register only if we're not already registered. Durr. Can't do that, can we?
+IRC::register( $name, $version, "", "" ); # name, version, shutdown routine, unused
+IRC::print "chathack: Loading $name $version\n";
+IRC::print "chathack: Registering handlers...";
+IRC::add_message_handler( "PRIVMSG", "privmsg_handler" );
+# IRC::add_command_handler( "cmd", "handler" ) cmd is a /cmd
+IRC::add_message_handler( "msg", "privmsg_handler" ); # msg is IRC message/numeric code
+# IRC::add_print_handler( "msg", "handler" ) msg is XChat message
+IRC::add_command_handler("xchat_hack_sound", "fest_cmd_handle");
+IRC::add_command_handler("fest", "fest_cmd_handle");
+IRC::print "chathack: Registering handlers...done.\n";
+IRC::add_command_handler("xchat_hack_debug", "xchat_hack_debug");
+
+my $user = $ENV{USER};
+my $home = $ENV{HOME};
+
+# TODO: festival server in bg and talk slowly damnit!   half done
+#my $fest_cmd = "festival --tts";
+my $fest_file = "/tmp/xchatFestivalLine.txt";
+#my $fest_cmd = "festival_client --ttw $fest_file >/dev/audio";
+my $fest_cmd = "festival_client --ttw | na_play";
+#my $fest_srv = "festival_server &";
+my $fest_srv = "festival_server -c $home/.fest-config &";
+
+my $xchat_hack_hist_file = "xchat_hack.log";
+
+# Docs:
+# http://www.irchelp.org/irchelp/rfc1459.html
+# http://www.irchelp.org/irchelp/ircd/numerics.html
+# http://www.irchelp.org/irchelp/ircd/hybrid6.html
+
+
+#test %B %%B for bold toggle on/off %B %%B off
+#test %U %%U for underline toggle on/off %U %%U off
+#%C1 %%C1 white %C2 %%C2 blue %C3 %%C3 green %C4 %%C4 red colour test %R %%R reverse %C5 %%C5 yellow (on red now) %C6 %%C6 pink %C7 %%C7 %C8 %%C8 %C9 %%C9 %Ca %%Ca %CA %%CA %C10 %%C10 dark cyan ? %C11 %%C11 cyan %Cb %%cb %C12 %%C12 blue %C13 %%C13 magenta %C14 %%C14 grey %C15 %%C15 grey
+
+my $msgcounter = 0;
+my $msgtime = 0;
+my $msgthrottle = 30; # 30 sec throttle
+my $sound_on = 0; # 0(off) 1(alerts(private message or coffee) or 2(everything)
+
+my $debug = 0;
+sub xchat_hack_debug {
+  $debug = shift;
+  IRC::print "chathack: debug is $debug\n";  
+}
+
+# actually handler for every message
+# send it to noseguy
+# send it to gnome panel/fvwm panel box
+# send it to festival
+# xsplash it if someone mentions coffee or if message for me and I'm not listening
+sub privmsg_handler {
+  my ( $sender, $type, $channel, $message ) = split( ' ', $_[0], 4 );
+  my $random;
+
+  # e.g. $line
+  # :jamesc!~jamesc@betty.dev.ie.alphyra.com privmsg jamesc :test
+
+  #nick_privmsg_handler(@_);
+
+  #IRC::print "chathack: xchat-hacks debug\n";
+
+  # Now clean things up
+  $message =~ s/^://;
+  ( $sender, undef ) = parse_sender( $sender );
+
+  #IRC::print "chathack: xchat-hacks debug $sender m $message\n";
+
+  # Ignore "foo is back" messages.
+  return if $message =~ /^.ACTION/;
+
+  # check focus
+# what who how huh? 
+# me wondering where the hell that .focus file came from
+# I thought it must be fvwm at first ....
+# missed it then at last found it:
+#*FvwmEvent: focus_change "Current Exec perl -l -e 'print join( chr(0), @ARGV )' $n $c $w > $HOME/.focus"
+
+  if ( open( FILE, "<$ENV{'HOME'}/.focus" )) {
+        my $focus = <FILE>;
+        close( FILE );
+        my ( $title, $class, $id ) = split( chr(0), $focus ); chomp($id);
+	IRC::print "chathack: fvwm focus title $title class $class id $id\n" if ($debug); 
+        if ( $title =~ /$channel/ ) {
+          return if (!$debug); # no need, I'm already paying attention
+        } else {
+          $random = "$title not $channel";
+        }
+  }
+
+#  if ( open( FILE, "<$xchat_hack_hist_file" )) {
+#      while(<FILE>) {
+#          if ( m/xsplash:/ ) {
+#  	      ($gub,$count,$then)=split ":"; m/(xsplash:)(.*)/;
+#          }
+#      }
+#      close( FILE );
+#  }
+
+  my $rtmsgfile = "$ENV{'HOME'}/.rtmessages";
+  if ( -e $rtmsgfile ) {
+      if ( open( RTFILE, ">>$rtmsgfile" )) {
+	  #my $stort = "xchat<" . sprintf("%8s",$sender) . ">|";
+	  my $stort = "$channel<" . sprintf("%8s",$sender) . ">|";
+	  print RTFILE "$stort $message\n";
+	  close RTFILE;
+      } else {
+	  IRC::print "chathack: hey! can\'t open $rtmsgfile ?\n";
+      }
+  }
+
+  if ( $type =~ /PRIVMSG/ && ( $message =~ /word/i || $message =~ /dictionary/ ) ) {
+      #parse
+      #wget 
+      #print
+  }
+
+  if ($channel !~ /^#/) {
+      IRC::print "chathack: message not ^# type is $type channel is $channel\n";
+  }
+  IRC::print "chathack: message type is $type channel is $channel\n" if ($debug); 
+  # special notifications for a privmsg or for "jamesc" or "coffee"
+  if ( $type =~ /PRIVMSG/ && ( $channel =~ /^$user/ || $channel !~ /^\#/ || $message =~ /^$user/i || $message =~ /coffee/ ) ) {
+      my $coffee = "";
+      $now=time();
+
+      if ($now - $msgtime > $msgthrottle) {   
+	  $msgtime = time();
+	  $msgcounter++;
+
+	  # drawled out coffeeeeee!
+	  # nihongo kohi or cohi
+	  # waider has a tendancy to say cawwwfeee these days (Amurrikin accent?)
+	  # TBD: upper/lower case
+	  # TBD: more languages!
+	  if ($message =~ /coffee/ ) {
+	      #|| $message =~ /[ck]o+h[ei]+/ 
+	      #|| $message =~ /[kc][oaw]+[fh][ei]+/) { 
+	      $coffee = "COFFEE! COFFEE! COFFEE! COFFEE! COFFEE!"; 
+	  }
+
+	  my $xspfont = "-adobe-new*school*-bold-r-normal--34*";
+	  system( "xsplash -timeout 5 -text '$coffee $sender/$channel/$message' -font \"$xspfont\" &" );
+	  #system( "sh -c \"xsplash -timeout 5 -text '$coffee $sender/$channel/$message' -font \"$xspfont\" &\"" );
+
+	  system "echo \"xsplash:$msgcounter:$now\">>$xchat_hack_hist_file";
+	  system "echo \"message:$sender/$channel/$message $coffee\">>$xchat_hack_hist_file";
+
+	  IRC::print "chathack: hitting xsplash $coffee $sender $channel $message\n" if ($debug); 
+	  #IRC::print "chathack: $random\n" if $random;
+      }
+
+      if ($sound_on) {
+	  system "echo \"debug:festival:$coffee\">>$fest_file"; 		
+	  IRC::print "chathack: echo \"$coffee\" |$fest_cmd" if ($debug); 		
+	  system "echo \"$coffee\" |$fest_cmd"; 		
+      }
+
+  }
+
+  # ALL messages to festival!  (unless we're looking at xchat & debug off)
+  if ($sound_on > 1) {
+      #$_ = $message;
+      #$msg = s/.*msg //;
+      
+      system "echo \"debug:festival:$message\">>$fest_file"; 		
+      #system "echo \"$coffee $message\">$fest_file"; 		
+      #system("$fest_cmd $fest_file");
+      #system("$fest_cmd");
+      IRC::print "chathack: echo \"$message\" |$fest_cmd" if ($debug); 		
+      system "echo \"$message\" |$fest_cmd"; 		
+      
+  }
+
+
+  return;
+}
+
+# split sender into nick / user@host
+sub parse_sender {
+  my $sender = shift;
+  $sender =~ m/^:(.*?)!(.*)$/;
+}
+
+sub fest_cmd_handle
+{
+    $sound_on = shift;
+    if ($sound_on) {
+        # check festival_server is running or start it
+
+	#system "echo \"start festival sound server\">$fest_file"; 		
+	my $result = system("echo \"check festival sound server\" |$fest_cmd");
+#festival_client --ttw /tmp/xchatFestivalLine.txt >/dev/audio
+#socket: connect failed
+
+        if ($result) {
+	    IRC::print "chathack: start festival_server $fest_srv\n";
+	    $result = system "$fest_srv";
+	    IRC::print "chathack: start festival_server $result\n";
+	    $sound_on = $result;
+	} else {
+            $sound_on = 1;
+	    IRC::print "chathack: festival_server already running $result $sound_on\n";
+	}
+
+    }
+    return 1;
+}
+
+IRC::print("chathack: Loaded xchat-hacks $name $version\n");
+IRC::print "chathack: xchat_hack_sound $sound_on\n";
+IRC::print "chathack: xchat_hack_debug $debug\n";

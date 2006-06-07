@@ -1,0 +1,19 @@
+#!/bin/bash
+
+# I need runit because when I open document from mutt
+# I want to keep browsing and read doc later.
+# By default mutt blocks and waits until ooffice has exited
+
+#FILENAME=/tmp/Membership_Application_Form_04.doc
+#[jamesc@betty] ~/src/easytimer/$ man bash
+#[jamesc@betty] ~/src/easytimer/$ echo "${FILENAME/*\//}"
+#Membership_Application_Form_04.doc
+
+echo 1 $1 2 $2 3 $3
+echo runit 1 $1 2 $2 3 $3 >>/tmp/muttfoo.log
+mkdir -p /tmp/muttfoo
+# we copy it as when pass control back to mutt mutt rm's the tmp file
+cp "$2" /tmp/muttfoo/
+FILENAME=${2/*\//}
+echo $1 "/tmp/muttfoo/$FILENAME" >>/tmp/muttfoo.log
+$1 "/tmp/muttfoo/$FILENAME" &

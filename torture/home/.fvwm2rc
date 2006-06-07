@@ -1,0 +1,440 @@
+# hackety hacked by James with input from
+# Waider's Win-95 lookalike fvwmrc code and other fvwmrcs on the web
+#
+# starts up a gnome-panel
+# a fvwmrc virtual desktop switcher + date/time and buttons
+# emacs, some xterms, xchat
+# fvwm menus 
+#  left quit/configure/start apps
+#  middle window ctrl
+#  right window list switch (also Alt-TAB)
+
+#
+# .fvwm doesn't do png's, just xpms
+# sudo convert /usr/share/pixmaps/xchat.png /usr/share/pixmaps/xchat.xpm
+# sudo convert -scale 18x18 /usr/share/pixmaps/xchat.png /usr/share/pixmaps/xchat.xpm
+# sudo convert -scale 18x18 -colors 10 /usr/share/pixmaps/xchat.png /usr/share/pixmaps/xchat.xpm
+# sudo convert -scale 18x18 -colors 9 /usr/share/pixmaps/xchat.png /usr/share/pixmaps/xchat.xpm
+# sudo convert -scale 18x18 /usr/share/pixmaps/gnome-xterm.png /usr/share/pixmaps/gnome-xterm.xpm
+# sudo convert -scale 18x18 /usr/share/pixmaps/gnome-log.png /usr/share/pixmaps/gnome-log.xpm
+# sudo convert -scale 18x18 /usr/share/pixmaps/emacs.png /usr/share/pixmaps/emacs.xpm
+# sudo convert -scale 18x18 /usr/share/pixmaps/mozilla-icon.png /usr/share/pixmaps/mozilla-icon.xpm 
+# sudo convert -scale 18x18 /usr/share/pixmaps/gnome-lockscreen.png /usr/share/pixmaps/gnome-lockscreen.xpm
+# sudo convert -scale 18x18 /usr/share/pixmaps/gimp.png /usr/share/pixmaps/gimp.xpm
+# sudo convert -scale 18x18 /usr/share/pixmaps/gnome-windows.png /usr/share/pixmaps/gnome-windows.xpm
+
+
+
+# james - pager DOES work ... and look! It was the very very first line that was the problem. sigh.
+# james - pager doesn't work? :(
+# Paths to icons & modules (careful - module path fsks up pager
+#ModulePath /usr/X11R6/lib/X11/fvwm2
+ImagePath /usr/share/icons:/usr/share/icons/mini:/usr/X11R6/include/X11/pixmaps:/home/waider/lib/icons:/usr/X11R6/include/X11/bitmaps:/usr/share/pixmaps
+
+# Window Style
+
+# Title
+TitleStyle LeftJustified
+TitleStyle ActiveUp Solid #000084
+TitleStyle ActiveDown Solid #000084
+TitleStyle Inactive Solid #848284
+
+# Frame
+HilightColor white #e0e0e0
+
+# Button 1, close/window-ops menu
+# Use minature icons for the Window-ops menu
+ButtonStyle 1 MiniIcon
+
+# Button 2 ( rightmost ) -> Close
+ButtonStyle 2 Pixmap mini-cross.xpm
+
+# Button 4 ( next rightmost ) -> Maximize toggle
+ButtonStyle 4 Pixmap mini-raise.xpm
+
+# Button 6 ( least rightmost ) -> Iconify
+ButtonStyle 6 Pixmap mini-lower.xpm
+
+# All should match the title
+ButtonStyle All -- UseTitleStyle
+
+# MWM ids for the buttons
+ButtonStyle 1 - MWMDecorMenu
+ButtonStyle 6 - MWMDecorMin
+ButtonStyle 4 - MWMDecorMax
+
+# Window Functions
+AddToFunc WinTitleClick
++ C Raise
++ M Move
++ D Maximize
+
+# Restore window from whatever state it was in
+AddToFunc WinRestoreFunc 
++ "I" Raise
++ "D" Current [ "Iconic"    ] Iconify False
++ "D" Current [ "Maximized" ] Maximize False
+
+# Raise & Resize
+AddToFunc WinResizeFunc
++ "I" Raise
++ "M" Resize
+
+# Window Functions Menu
+AddToMenu WinFuncMenu
++ "&Restore"  WinRestoreFunc
++ "&Move"     Move
++ "&Size"     Resize
++ "Mi&nimize" Iconify
++ "Ma&ximize" Maximize
++ ""          Nop
++ "&Close (Alt-F4)"    Close # Close => Delete or Destroy
++ "&Kill"     Destroy
++ "&Glue"     Stick
+
+# EdgeResistance scrolling moving
+#   Sets how hard it is to change the desktop viewport
+#   scrolling is in milliseconds 
+#   moving is in pixels (how far a window's edge must move to move off-screen
+# The bigger the first number, the harder it is to scroll desktops by mousing
+#Waider doesn't like edge scrolling :) ... in a way I agree ... but Alt-TAB (provided by gnome sometimes stops working and fvwm buttons and pager have trouble when I'm running gnome-panel. Quel surprise heh?
+#EdgeResistance 100000 10
+#EdgeResistance 250 10
+EdgeResistance 2500 10
+EdgeScroll 100 100
+
+# Desktop [Horizontal]x[vertical]  Defines the virtual desktop size, 
+DeskTopSize 4x2
+#MenuStyle "*" Font "fixed"
+ClickTime 50
+
+ColormapFocus FollowsMouse
+
+# set XORvalue to something visible.  This sets the coloration of the 
+# 'rubber-band' window-borders when moving and resizing windows.
+XORvalue 208
+# OpaqueMoveSize percentage
+#   This option tells fvwm the maximum size window that it should move
+#   with contents intact (ie, not 'rubber-banding')  You should keep this
+#   low if you don't have good video hardware.
+OpaqueMoveSize 25
+
+# not tested yet - maybe after full fvwm2 shutdown & startup (not restart)
+# for running rt, logs, noseguy other stuff on root
+# terrible messy habit of mine but I like it
+# query using xwininfo
+Style "*" BackingStore, SaveUnder
+# Style * BackingStoreOff, SaveUnderOff
+
+# Default styles
+Style "*"           BorderWidth 5, HandleWidth 5
+Style "*"           Icon unknown1.xpm, Color Black/#40a0c0
+Style "*"           MinOverlapPlacement
+Style "*"           MWMFunctions,MWMDecor,HintOverride
+Style "*"           DecorateTransient, MiniIcon mini-fvwm.xpm
+
+#Style "*"           IconBox 0  500 600 600
+# under gnome-panel ?
+#Style "*"           IconBox 0 -10 -280 -1
+Style "*"            IconBox 5 -50 -134 -5
+
+#Style "*"          Font -adobe-helvetica-medium-r-normal--14-100-100-100-p-76-iso8859-1
+#Style "*"          IconFont -adobe-helvetica-medium-r-normal--14-100-100-100-p-76-iso8859-1
+Style "*"           FocusFollowsMouse
+Style "*"           RandomPlacement, SmartPlacement
+
+Style "Fvwm*"       NoTitle, NoHandles, Sticky, WindowListSkip,
+Style "Fvwm*"       BorderWidth 2,CirculateSkipIcon
+#Style "FvwmPager"   StaysOnTop
+#Style "FvwmBanner"  StaysOnTop
+
+Style "FvwmButtons" Icon toolbox.xpm, ClickToFocus
+Style "FvwmButtons" NoTitle, NoHandles, Sticky, WindowListSkip
+#Style "FvwmButtons" BorderWidth 2, CirculateSkip, ClickToFocus
+Style "Fvwm*"       BorderWidth 2, CirculateSkipIcon, CirculateSkip
+
+Style "xman"        Icon xman.xpm,RandomPlacement,ClickToFocus
+
+#Style "Emacs"      SloppyFocus
+
+Style "APM"         NoTitle,NoHandles,Sticky,WindowListSkip
+Style "IrDA"        NoTitle,NoHandles,Sticky,WindowListSkip
+Style "Sharemon"    NoTitle,NoHandles,Sticky,WindowListSkip
+
+Style "VM"          StartsOnPage 0 0,SkipMapping
+
+# Mozilla
+Style "navigator:browser"   StartsOnPage 1 0,SkipMapping
+Style "Mozilla-bin" StartsOnPage 1 0,SkipMapping
+Style "mozilla-bin" StartsOnPage 1 0,SkipMapping
+Style "mail:3pane"  StartsOnPage 2 0,SkipMapping
+Style "mutt"  StartsOnPage 2 0,SkipMapping
+Style "ssh"  StartsOnPage 2 0,SkipMapping
+
+# xchat
+Style "X-Chat" StartsOnPage 0 1,SkipMapping
+
+
+# Key bindings
+#  The format for Key-bindings is:
+#
+#  Key keyname context modifier function
+#
+#  context describes where the binding applies, W for an application window,
+#     R for root window, A for anywhere, T for title, etc.
+#  modifier is keyboard meta-keys which should be pressed, N for none,
+#     S for Shift, M for Meta, C for Control, or A for any. You can combine
+#     these, so things like SM (shift-Meta) are valid.
+#
+Key F1 A N Desk 0 0
+Key F2 A N Desk 0 1
+Key F3 A N Desk 0 2
+Key F4 A N Desk 0 3
+Key F5 A N Desk 1 0
+Key F6 A N Desk 1 1
+Key F7 A N Desk 1 2
+Key F8 A N Desk 1 3
+
+#Alt-F1 in gnome pops up gnome menu
+#Alt-F2 run program
+
+# Familiar alt-tabbing
+#Key Tab A M Next (CurrentDesk !Iconic) Focus
+Key Tab A SM Prev (CurrentDesk !Iconic) Focus
+#Key Tab  A   M   Next
+Key Tab  A   M   WindowList
+
+# Key mapping Alt-F4 closes a window
+Key F4  A   M   Current Close
+Key F3  A   M   Next
+
+# Alt-Space should pop the windows menu, but it doesn't...
+Key Space   A   M   Current Menu WinFuncMenu
+
+
+# Shift-Ctrl-Arrow switches/scrolls virtual desktop
+Key Left    A   SC  Scroll -100 0
+Key Right   A   SC  Scroll +100 +0
+Key Up      A   SC  Scroll +0   -100
+Key Down    A   SC  Scroll +0   +100
+
+Key Up      A   SCM Exec xmms --rew
+Key Down    A   SCM Exec xmms --fwd
+Key Left    A   SCM Exec aumix -v-1
+Key Right   A   SCM Exec aumix -v+1
+
+# some simple default mouse bindings:
+#   for the root window:
+Mouse 1 R       A       Menu Utilities Nop
+Mouse 2	R    	A      	Menu Window-Ops Nop
+Mouse 3	R    	A      	WindowList
+
+
+# B1: single click for menu, double for close.
+Mouse 1 1 A Menu WinFuncMenu Close
+# B2: Close the window
+Mouse 1 2 A Close
+# B4: Maximise
+Mouse 1 4 A Maximize
+# B6: Iconify
+Mouse 1 6 A Iconify
+
+# Mouse 1 doubled on an icon should restore it.
+Mouse 1 I A Menu WinFuncMenu Iconify
+# Title bar, move/maximize(toggle)
+Mouse 1 T A WinTitleClick Maximize
+# Frame, raise and maybe resize
+Mouse 1 FS A WinResizeFunc
+# Mouse 3 on the frame or icon should also pop the window-ops menu
+Mouse 3 TFSI A Menu WinFuncMenu
+# For borken mousey
+Mouse 1 TFSI S Menu WinFuncMenu
+
+
+########################Initialization Functions ############################
+AddToFunc InitFunction    "I" Module FvwmButtons
++                         "I" exec echo "---------------- init -------------"
++                         "I" exec date
+# possibly ~ does not work, does $HOME work in .fvwm2rc ?
++                         "I" exec mv $HOME/.rtmessages $HOME/.rtmessages-old
++                         "I" exec touch $HOME/.rtmessages
++                         "I" exec rt -geometry 150x25+0+480 $HOME/.rtmessages &
++                         "I" exec rt -geometry 120x25+0+160 /var/log/messages,green /var/log/secure,red,' ALERT' &
++                         "I" exec xscreensaver -no-splash &
+#+                         "I" exec artsd -a toss -S 4096 -F 20 &
++                         "I" exec /usr/X11R6/bin/xsetroot -solid black
++                         "I" exec emacs -name sEmascsexeseven &
++                         "I" exec gnome-panel #>;)
++                         "I" exec mozilla -xrm &
++                         "I" exec /usr/X11R6/lib/xscreensaver/noseguy -root -program fortune
++			  "I" exec xterm -sb -sl 1000 -j -ls -fn 7x14 -name "Local Shell"
++			  "I" exec xterm -geometry 100x60+0+0 -name "dspsrv Mail Betty" -e mutt
++			  "I" exec xterm -geometry 100x60+0+0 -name "doolin Mail Doolin.com" -e ssh doolin.com
++			  "I" exec xchat 
+#+			  "I" exec xterm -geometry 100x60+0+0 -name "Kinsey" -e ssh kinsey
+#+			  "I" exec xterm -geometry 100x60+0+0 -name "Owsla" -e ssh owsla.ie.suberic.net
+#+			  "I" exec xterm -geometry 50x10+0+0 -name "Kinsey" -e ssh kinsey xchat
+#+			  "I" StartsOnPage 2 exec xchat 
+#+			  "I" StartsOnPage 4 exec xterm -geometry 100x60+0+0 -name "dspsrv Mail Betty" -e mutt
+#+			  "I" StartsOnPage 4 exec xterm -geometry 100x60+0+0 -name "doolin Mail Doolin.com" -e ssh doolin.com
+
+AddToFunc RestartFunction "I" Module FvwmButtons
++                         "I" exec echo "-------------- restart ------------"
++                         "I" exec date
++                         "I" exec /usr/X11R6/bin/xsetroot -solid black
+#+                         "I" exec /usr/X11R6/lib/xscreensaver/noseguy -root
+
+########################Menus ########################################
+AddToMenu Utilities	"Utilities"	Title 	
++			"xterm"		Exec  exec xterm +sb &
++			"emacs"		Exec  exec emacs &
++			"mozilla"       Exec  exec mozilla &
++                       "screensaver - lock"   Exec  exec xscreensaver-command -lock &
++                       "xscreensaver - config"  Exec  exec xscreensaver-command -prefs &
++			""		Nop
++			"Modules"	Popup Module-Popup
++			""		Nop		
++			"Exit Fvwm"	Popup Quit-Verify
+
+#these don't work? :(
+AddToMenu Module-Popup	"Modules"	Title	
++			"Identify"	Module	FvwmIdent
++			"Talk"  	Module	FvwmTalk
++			""		Nop
++			"Button-Bar"	Module	FvwmButtons
++			"Pager"		Module  FvwmPager 0 0
++			"Pager (2 desks)" Module  FvwmPager 0 1
++			"WinList"	Module  FvwmWinList
++			""		Nop
++			"Banner"	Module	FvwmBanner
++                       "ScrollBar"     Module  FvwmScroll 50 50
++			"Background"	Module  FvwmBacker
++                       "AutoRaise"     Module  FvwmAuto 200 Raise Nop
++                       "Stop AutoRaise" KillModule FvwmAuto
++			""		Nop
++			"IconBox"	Module	FvwmIconBox
++                       "IconMan"       Module  FvwmIconMan
++			""		Nop
++                       "Form - Rlogin"      Module FvwmForm Rlogin
++                       "Form - MyFvwmTalk"  Module FvwmForm MyFvwmTalk
++                       "Form - QuitVerify"  Module FvwmForm QuitVerify
++			""		Nop
+#+			"Pager"	        Module	FvwmPager
+#+			"Button-Bar"	Module	FvwmButtons
+#+			"Identify"	Module	FvwmIdent
+#+			"Talk to wm" Module FvwmTalk
+
+AddToMenu Quit-Verify 	"Really Quit Fvwm?" Title	
++		      	"Yes, Really Quit"  Quit	
++		      	"Restart FVWM2"	    Restart
++		      	"Start dummy"       Restart xterm
++		      	""		    Nop	
++		      	"No, Don't Quit"    Nop	
+
+AddToMenu Window-Ops	"Window Ops"	Title		
++			"Move"		Move
++			"Resize"	Resize
++			"Raise"		Raise
++			"Lower"		Lower 
++		 	"(De)Iconify"	Iconify
++			"(Un)Stick"	Stick		
++			"(Un)Maximize"	Maximize
++			""		Nop
++			"Delete"	Delete
++			"Close"		Close
++			"Destroy"	Destroy
++			""		Nop
++			"Refresh Window" RefreshWindow
+
+
+################## FvwmButtons button-bar ################################
+# Colors
+*FvwmButtonsFore Black
+#*FvwmButtonsBack #908090
+
+# Font
+*FvwmButtonsFont -*-*-medium-r-normal--11-*-100-100-p-*-iso8859-1
+# Geometry - really likes to pick its own size, but giving a position is OK
+#*FvwmButtonsGeometry -1-0
+
+# Layout: specify rows or columns, not both
+*FvwmButtonsColumns 4
+#*FvwmButtonsRows 6
+
+# "Far too much free time on my hands" section
+#*FvwmButtons(6x1, Container(Columns 6))
+*FvwmButtons(4x1, Container(Columns 4))
+#*FvwmButtons(Frame 1 Padding 1 1 Container(Rows 6 Columns 1 Frame 1 Padding 10 0))
+
+*FvwmButtons(gTitle Xterm, Icon gnome-xterm.xpm,\
+ Action `Exec xterm +sb -title "Local" &`)
+
+*FvwmButtons(gTitle Lock, Icon status_lock.xpm,\
+ Action `Exec xscreensaver-command -lock &`)
+
+*FvwmButtons(Title mutt, Icon mozilla-mail-icon.gif,\
+ Action `Exec xterm -geometry 100x60+0+0 -title "mutt dspsrv" -e mutt &`)
+#+			  "I" exec xterm -geometry 100x60+0+0 -name "dspsrv Mail Betty" -e mutt
+
+*FvwmButtons(Title doolin.com, Icon redhat-email.png,\
+ Action `Exec xterm -geometry 100x60+0+0 -fg yellow -bg seagreen -title "doolin" -e ssh doolin.com &`)
+
+#+			  "I" exec xterm -geometry 100x60+0+0 -name "doolin Mail Doolin.com" -e ssh doolin.com
+
+*FvwmButtons(3x1, Swallow(UseOld, NoKill) "XClock"\
+ `Exec xclock -digital -strftime "%a %b %d %R" -fg yellow -bg blue`)
+
+
+
+# Pager
+#*FvwmButtons(3x1 Frame 2 Swallow(UseOld) "FvwmPager" "Module FvwmPager 0 0")
+*FvwmButtons(3x4, Swallow "FvwmPager" `FvwmPager 0 0`)
+
+
+*FvwmButtons(End)
+
+########################## Window-Identifier ###############################
+# Just choose colors and a fonts
+*FvwmIdentBack MidnightBlue
+*FvwmIdentFore Yellow
+*FvwmIdentFont -adobe-helvetica-medium-r-*-*-12-*-*-*-*-*-*-*
+
+########################### Pager #########################################
+#*FvwmPagerBack #908090
+#*FvwmPagerFore Black
+#*FvwmPagerFont -*-*-medium-r-normal-*-6-*-*-*-c-*-*-*
+#*FvwmPagerHilight white
+#*FvwmPagerGeometry -1-1
+#*FvwmPagerLabel 0 Misc
+#*FvwmPagerSmallFont 5x8
+
+*FvwmPagerBack black
+*FvwmPagerFore white
+*FvwmPagerFont -adobe-helvetica-bold-r-*-*-10-*-*-*-*-*-*-*
+*FvwmPagerHilight slategrey
+*FvwmPagerDeskTopScale 32 
+*FvwmPagerGeometry 80x100+575+1 
+*FvwmPagerLabel 0 pager
+*FvwmPagerSmallFont 5x8
+*FvwmPagerColumns 1
+*FvwmPagerBalloons Pager
+*FvwmPagerBalloonfore white
+
+##########################FvwmWinList##################################
+*FvwmWinListBack #908090
+*FvwmWinListFore Black
+*FvwmWinListFont -adobe-helvetica-bold-r-*-*-10-*-*-*-*-*-*-*
+*FvwmWinListAction Click1 Iconify -1,Focus
+*FvwmWinListAction Click2 Iconify
+*FvwmWinListAction Click3 Module "FvwmIdent" FvwmIdent
+*FvwmWinListUseSkipList
+*FvwmWinListGeometry +0-1
+
+# Messing
+Module FvwmEvent
+*FvwmEvent: Cmd
+*FvwmEvent: focus_change "Current Exec perl -l -e 'print join( chr(0), @ARGV )' $n $c $w > $HOME/.focus"
+
+# bloody hell!!! I've spent 4 hrs grepping thinking this must be a standard fvwm or gnome or ? thing. - james.
+# .xchat-hacks relies on this .focus file
+# Vrrry handy.

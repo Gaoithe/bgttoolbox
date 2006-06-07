@@ -1,0 +1,11 @@
+/var/log/kannelbbox.log /var/log/kannelsmsbox.log /usr/local/log/smsc-kannel.log /usr/local/log/smsc-kannel-access.log /usr/local/log/smsc-smsbox.log /usr/local/log/smsc-smsbox-access.log {
+    sharedscripts
+    postrotate
+	#/bin/kill -HUP `cat /var/run/kannelbbox.pid 2> /dev/null` 2> /dev/null || true
+	#/bin/kill -HUP `cat /var/run/kannelsmsbox.pid 2> /dev/null` 2> /dev/null || true
+        #kannelbboxpid=`/sbin/pidof bearerbox`
+        #kannelsmsboxpid=`/sbin/pidof smsbox`
+	/bin/kill -HUP `/sbin/pidof bearerbox 2> /dev/null` 2> /dev/null || true
+	/bin/kill -HUP `/sbin/pidof smsbox 2> /dev/null` 2> /dev/null || true
+    endscript
+}

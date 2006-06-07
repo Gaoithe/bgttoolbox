@@ -1,0 +1,72 @@
+application/vnd.sun.xml.writer;/home/jamesc/OpenOffice.org1.1.0/soffice %s
+application/vnd.sun.xml.writer.global;/home/jamesc/OpenOffice.org1.1.0/soffice %s
+application/vnd.stardivision.writer;/home/jamesc/OpenOffice.org1.1.0/soffice %s
+application/vnd.stardivision.writer-global;/home/jamesc/OpenOffice.org1.1.0/soffice %s
+application/x-starwriter;/home/jamesc/OpenOffice.org1.1.0/soffice %s
+application/vnd.sun.xml.writer.template;/home/jamesc/OpenOffice.org1.1.0/soffice %s
+application/vnd.sun.xml.calc;/home/jamesc/OpenOffice.org1.1.0/soffice %s
+application/vnd.stardivision.calc;/home/jamesc/OpenOffice.org1.1.0/soffice %s
+application/x-starcalc;/home/jamesc/OpenOffice.org1.1.0/soffice %s
+application/vnd.sun.xml.calc.template;/home/jamesc/OpenOffice.org1.1.0/soffice %s
+application/vnd.sun.xml.impress;/home/jamesc/OpenOffice.org1.1.0/soffice %s
+application/vnd.stardivision.impress;/home/jamesc/OpenOffice.org1.1.0/soffice %s
+application/vnd.stardivision.impress-packed;/home/jamesc/OpenOffice.org1.1.0/soffice %s
+application/x-starimpress;/home/jamesc/OpenOffice.org1.1.0/soffice %s
+application/vnd.sun.xml.impress.template;/home/jamesc/OpenOffice.org1.1.0/soffice %s
+application/vnd.sun.xml.draw;/home/jamesc/OpenOffice.org1.1.0/soffice %s
+application/vnd.stardivision.draw;/home/jamesc/OpenOffice.org1.1.0/soffice %s
+application/x-stardraw;/home/jamesc/OpenOffice.org1.1.0/soffice %s
+application/vnd.sun.xml.draw.template;/home/jamesc/OpenOffice.org1.1.0/soffice %s
+application/vnd.sun.xml.math;/home/jamesc/OpenOffice.org1.1.0/soffice %s
+application/vnd.stardivision.math;/home/jamesc/OpenOffice.org1.1.0/soffice %s
+application/x-starmath;/home/jamesc/OpenOffice.org1.1.0/soffice %s
+application/vnd.sun.xml.writer;/home/jamesc/.openoffice/soffice %s
+application/vnd.sun.xml.writer.global;/home/jamesc/.openoffice/soffice %s
+application/vnd.stardivision.writer;/home/jamesc/.openoffice/soffice %s
+application/vnd.stardivision.writer-global;/home/jamesc/.openoffice/soffice %s
+application/x-starwriter;/home/jamesc/.openoffice/soffice %s
+application/vnd.sun.xml.writer.template;/home/jamesc/.openoffice/soffice %s
+application/vnd.sun.xml.calc;/home/jamesc/.openoffice/soffice %s
+application/vnd.stardivision.calc;/home/jamesc/.openoffice/soffice %s
+application/x-starcalc;/home/jamesc/.openoffice/soffice %s
+application/vnd.sun.xml.calc.template;/home/jamesc/.openoffice/soffice %s
+application/vnd.sun.xml.impress;/home/jamesc/.openoffice/soffice %s
+application/vnd.stardivision.impress;/home/jamesc/.openoffice/soffice %s
+application/vnd.stardivision.impress-packed;/home/jamesc/.openoffice/soffice %s
+application/x-starimpress;/home/jamesc/.openoffice/soffice %s
+application/vnd.sun.xml.impress.template;/home/jamesc/.openoffice/soffice %s
+application/vnd.sun.xml.draw;/home/jamesc/.openoffice/soffice %s
+application/vnd.stardivision.draw;/home/jamesc/.openoffice/soffice %s
+application/x-stardraw;/home/jamesc/.openoffice/soffice %s
+application/vnd.sun.xml.draw.template;/home/jamesc/.openoffice/soffice %s
+application/vnd.sun.xml.math;/home/jamesc/.openoffice/soffice %s
+application/vnd.stardivision.math;/home/jamesc/.openoffice/soffice %s
+application/x-starmath;/home/jamesc/.openoffice/soffice %s
+text/html; lynx -dump %s; nametemplate=%s.htm; copiousoutput
+application/pgp-keys; gpg -f < %s ; copiousoutput
+application/vnd.rn-rn_music_package;play %s
+application/x-play-theme;play %s
+audio/mp3;play %s
+audio/mpg;play %s
+audio/mpeg;play %s
+audio/mpegurl;play %s
+audio/scpls;play %s
+audio/x-mp3;play %s
+audio/x-mpeg;play %s
+audio/x-mpegurl;play %s
+audio/x-scpls;play %s
+image/gif; xview %s
+image/jpg; xview %s
+image/jpeg; xview %s
+#application/msword;/home/jamesc/.openoffice/soffice %s
+# I need runit because when I open document from mutt
+# I want to keep browsing and read doc later.
+# By default mutt blocks and waits until ooffice has exited
+application/msword2;/home/jamesc/bin/runit ooffice %s 
+application/msword;/home/jamesc/bin/runit ooffice %s 
+application/vnd.ms-pow;/home/jamesc/bin/runit ooffice %s 
+application/vnd.ms-powerpoint;/home/jamesc/bin/runit ooffice %s 
+
+video/mpeg;mplayer %s
+# Java Web Start
+application/x-java-jnlp-file; /home/jamesc/tools-test/j2sdk1.4.2_04/jre/javaws/javaws %s
