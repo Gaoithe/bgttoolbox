@@ -45,6 +45,9 @@ use strict;
 use Carp;
 use Data::Dumper;
 
+use Time::Local;
+use POSIX qw(mktime);
+
 my $mech = WWW::Mechanize->new();
 
 ##############################
@@ -181,10 +184,55 @@ my  $ANNOY_DAYS=2; # annoy befoire due
 #                 }
 #               ], 'WWW::Mechanize::Link' );
 
+
+my(@date) = (localtime)[3,4,5];
+$date[2]+=1900; $date[1]+=1;
+my $today = sprintf("%04d.%02d.%02d", $date[2], $date[1], $date[0] );
+$date[2]%=100;
+my $today2 = sprintf("%04d.%02d.%02d", $date[2], $date[1], $date[0] );
+print $today . " " . $today2 . "\n";
+
+
+my $nowts = time();
+
+
+
+
+
+
+
 my @links = $mech->find_all_links(url_regex => qr/&author=/i);
 foreach my $link (@links) {
     #print Dumper($link);
-    print $link->[1]."\n";
+    #print $link->[1]."\n";
+    my $book = $link->[1];
+    print $book."\n";
+    my @bookdate = ($book =~ m/.* (\d\d)\/(\d\d)\/(\d\d)$/);
+    #print Dumper(@bookdate);
+
+    my(@bookd) = localtime();
+    @bookd[0..2] = (0,0,0);
+    @bookd[3..5] = ($bookdate[0], $bookdate[1]-1, $bookdate[2]+100);
+    my $bookts = &mktime(@bookd);
+    my $days = int(($bookts - $nowts) / (60*60*24));
+    #print "bookts: " . $bookts . "nowts: " . $nowts . "\n";
+    #print "days: " . $days . "\n";
+
+    # check for coming up to renew
+    if ($days < 0 || $days <= $RENEW_DAYS) {
+        # OVERDUE or within REVIEW period
+        # TODO: renew the BOOK!
+        print "    TODO: RENEW. " . $days . " days." . "\n";
+    }
+
+    if ($days <= $ANNOY_DAYS) {
+        print "    TODO: NOTIFY. " . $days . " days." . "\n";
+        if ($days <0) {
+            # OVERDUE!
+            print "    TODO: OVERDUE! " . $days . " days." . "\n";
+        }
+    }
+
 }
 
 #    if ( my $l = $agent->find_link( text => $account )) {
