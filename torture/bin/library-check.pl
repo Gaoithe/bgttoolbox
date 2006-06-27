@@ -381,6 +381,28 @@ if ($count_renew>0) {
  
 
 # TODO: get fines etc ..
+#<A HREF=dun_laog-cat.sh?enqtype=BORROWER&enqpara1=charges&language=1&borrower=D2000000204552&borrower2=2323><IMG SRC="/catalogue-new-v5/../catalogue/buttons/fines-button2.gif" BORDER=0 HSPACE=3 ALT="Charges"></A>
+my $CHARGES="";
+$ACTION="find fines/charges page";
+my $charges_link=$mech->find_link( url_regex => qr/enqpara1=charges/i );
+if (!$mech->success() || !$charges_link){
+    logmessage( "ERROR: couldn't " . $ACTION . "\n"); 
+} else {
+    logmessage( $ACTION . "\n");
+
+    $ACTION="goto fines/charges page";
+    $mech->get($charges_link->url());
+    if (!$mech->success()){
+        logmessage( "ERROR: couldn't " . $ACTION . "\n"); 
+    } else {
+        logmessage( $ACTION . " status: " . $mech->status() . ", title: " . $mech->title() . "\n");  
+        my $charges_content = $mech->content( format => "text" );
+        $charges_content =~ s/Click here.*//m;
+        $CHARGES = $charges_content;
+    }
+}
+
+
 
 
 
@@ -405,6 +427,7 @@ if ($count_coming_up>0 || $count_overdue>0 || $count_renew>0) {
     if ($MAILTO && ($MAILTO |= "")) {
         open(MAIL, "|$MAILPROG '$MAILTO' -s \"library check $SUBJECT\"");
         print MAIL ("$HELLO\n$STATUS\n");
+        print MAIL ("\nCHARGES: $CHARGES\n") if ($CHARGES);
         print MAIL ("\nBEFORE renew:\n$old_STATUS\n") if ($count_renew>0);
         print MAIL ("\n\n$LOG\n");
         close(MAIL);
