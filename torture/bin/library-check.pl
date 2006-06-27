@@ -40,7 +40,7 @@ less /usr/lib/perl5/site_perl/5.8.3/Finance/Bank/IE/BankOfIreland.pm
 =cut
 
 use WWW::Mechanize;
-use HTML::TokeParser;
+#use HTML::TokeParser;
 use strict;
 use Carp;
 use Data::Dumper;
@@ -50,6 +50,12 @@ use POSIX qw(mktime);
 
 my $mech = WWW::Mechanize->new();
 
+###
+### BEWARE: points of failure (silent if not on box)
+### machine off, network off, cron fails, machine email fails 
+### TODO: don't die if cannot get login page or login, try email error instead.
+###
+
 ##############################
 ##############################
 ##############################
@@ -57,22 +63,40 @@ my $mech = WWW::Mechanize->new();
 my $BASEURL = "http://libcat.dlrcoco.ie/cgi-bin/dun_laog-cat.sh";
 my $BORROWER="D2000000204552";
 my $PIN=2323;
+my $MAILTO="jamesc\@dspsrv.com";
+my $MAILPROG="mail -r jamesc\@dspsrv.com";
+# renew 2 - our pc doesn't get switched on every day.
+my $RENEW_DAYS=3; # no days before book is due to renew it
+my $ANNOY_DAYS=3; # annoy befoire due
 
-my $ACTION = "get login page";
+
 # list of author/title/date due back
 ##http://libcat.dlrcoco.ie/cgi-bin/dun_laog-cat.sh?enqtype=BORROWER&enqpara1=loans&language=&borrower=D2000000204552&borrower2=2323
 my $url_loans = $BASEURL . "?enqtype=BORROWER&enqpara1=loans&language=&borrower=" . $BORROWER . "&borrower2=" . $PIN;
+my $LOG="";
+my $STATUS="";
+my $NEWSTATUS="";
+my $ACTION = "get login page";
+my $MSG;
+
+# we use $MSG as last msg logged sometimes
+sub logmessage {
+    $MSG = shift;
+    $LOG .= $MSG;
+    print $MSG;
+}
 
 $mech->get( $url_loans );
 die "couldn't even " . $ACTION . "\n" if !$mech->success();
-print "what's a uri?" . $mech->uri() . "\n";
-print "status: " . $mech->status() . "\n";
-print "is_html: " . $mech->is_html() . "\n";
-print "title: " . $mech->title() . "\n";
+#print "what's a uri?" . $mech->uri() . "\n";
+#print "status: " . $mech->status() . "\n";
+#print "is_html: " . $mech->is_html() . "\n";
+#print "title: " . $mech->title() . "\n";
 #print "forms:" . Dumper($mech->forms()) . "\n";
 #print "links:" . $mech->links() . "\n";
 #print "links:" . Dumper($mech->links()) . "\n";
 
+logmessage( $ACTION .  "status: " . $mech->status() . ", title: " . $mech->title() . "\n");
 
 ## first time not logged in, returns login page.
 # <FORM METHOD=POST onsubmit="return borrower_form_Validator(this)" name="borrower_form">
@@ -91,8 +115,7 @@ $mech->submit_form(form_name => 'borrower_form',
                                            button => 'Search');
 
 die "couldn't " . $ACTION . "\n" if !$mech->success();
-print "status: " . $mech->status() . "\n";
-print "title: " . $mech->title() . "\n";
+logmessage( $ACTION .  "status: " . $mech->status() . ", title: " . $mech->title() . "\n");
 
 ##############################
 ##############################
@@ -113,15 +136,10 @@ $ACTION="go to Loans page (list of books)";
 $mech->get( $url_loans );
 
 die "couldn't " . $ACTION . "\n" if !$mech->success();
-print "status: " . $mech->status() . "\n";
-print "title: " . $mech->title() . "\n";
-
+logmessage( $ACTION .  "status: " . $mech->status() . ", title: " . $mech->title() . "\n");
 
 SkipLogin:
 
-# renew 2 - our pc doesn't get switched on every day.
-my $RENEW_DAYS=2; # no days before book is due to renew it
-my  $ANNOY_DAYS=2; # annoy befoire due
 
 ##############################
 ##############################
@@ -196,17 +214,94 @@ print $today . " " . $today2 . "\n";
 my $nowts = time();
 
 
+my ($count_books, $count_renew, $count_renew_fail, $count_overdue, $count_coming_up) = (0,0,0,0,0);
+
+# globals out:             $count_renew_fail++;     or $count_renew++;
+# return bookstatus
+sub renewbook {
+    my $link = shift;
+    my $days = shift;
+    #global $count_renew, $count_renew_fail;
+    #global $mech;
+    #global $STATUS;
+
+        # save where we are in case of failure
+        $mech->_push_page_stack();
+
+        # renew the BOOK!
+        my $bookstatus = "    ATTEMPT RENEW. " . $days . " days.";
+
+        $ACTION="go to Book page (to renew)";
+        $mech->get($link->url());
+        if (!$mech->success()){
+            logmessage( "ERROR: couldn't " . $ACTION . "\n") ;
+            $count_renew_fail++;
+        } else {
+            logmessage( $ACTION . " status: " . $mech->status() . ", title: " . $mech->title() . "\n");
+
+            # Click renew button
+#<B>If you want to renew this item click on the 'Renew' button below. If not, click 'Cancel' or select one of the links at the bottom of the page.</B>
+#<A HREF="dun_laog-cat.sh?enqtype=BORROWER&enqpara1=renew-title&language=&renewdate=25%2F06%2F06&borrower=D2000000204552&borrower2=2323&hire_flag=0&fine_flag=0&item=04311116779004&issuedate=08%2F05%2F06&duedate=17%2F07%2F06&title=Mosaics&hire_charge=0.00&fine=&new_date=17%2F07%2F06&renewcount=2&borrower_status=&borrower_account=2.20"><IMG SRC="/catalogue-new-v5/../catalogue/buttons/renew-button2.gif" BORDER=0 ALT="Yes, renew"></a>
+#<A HREF="dun_laog-cat.sh?enqtype=BORROWER&enqpara1=loans&language=&borrower=D2000000204552&borrower2=2323"><IMG SRC="/catalogue-new-v5/../catalogue/buttons/cancel-button2.gif" BORDER=0 ALT="No, don't renew"></a>
+
+            $ACTION="Find renew link";
+            my $renew_link=$mech->find_link( url_regex => qr/renew-title/i );
+            if (!$mech->success() || !$renew_link){
+                logmessage( "ERROR: couldn't " . $ACTION . "\n"); 
+                $count_renew_fail++;
+#e.g.
+#<B>Sorry, this item cannot be renewed as it has been reserved by other library members.</B>
+#<BR><BR>Please select a link to the approproate screen.
+
+# $mech->content() call needs HTML::TreeBuilder
+                my $renew_fail_content = $mech->content( format => "text" );
+                $renew_fail_content =~ s/Please select.*//m;
+
+            } else {
+                $ACTION="Click renew link";
+                $mech->get($renew_link->url());
+
+                if (!$mech->success()){
+                    logmessage( "ERROR: couldn't " . $ACTION . "\n"); 
+                    $count_renew_fail++;
+                } else {
+                    logmessage( $ACTION . " status: " . $mech->status() . ", title: " . $mech->title() . "\n");  
+
+                    ## 
+                    ## TODO one last check to see if renew was okay?
+                    ## This part not tested.
+                    $LOG.=Dumper($mech->content());
+
+                    $count_renew++;
+
+                }
+
+            }
+  
+        }
+
+        $bookstatus = "    RENEW $MSG.";
+
+        # restore where we were
+        $mech->_pop_page_stack();
+    return $bookstatus;
+}
 
 
+my $min_days = 1000; # goes negative
+my $max_days = 0;
 
-
+# globals in: $mech, $LOG, $MSG, system stuff
+# globals out: $count_xxx $min_days $max_days, status for each book in $STATUS 
+sub processbooks {
+    my $do_renew = shift;
 
 my @links = $mech->find_all_links(url_regex => qr/&author=/i);
 foreach my $link (@links) {
     #print Dumper($link);
     #print $link->[1]."\n";
     my $book = $link->[1];
-    print $book."\n";
+    $count_books++;
     my @bookdate = ($book =~ m/.* (\d\d)\/(\d\d)\/(\d\d)$/);
     #print Dumper(@bookdate);
 
@@ -218,26 +313,100 @@ foreach my $link (@links) {
     #print "bookts: " . $bookts . "nowts: " . $nowts . "\n";
     #print "days: " . $days . "\n";
 
+    $min_days = $days if ($days < $min_days);
+    $max_days = $days if ($days > $max_days);
+
+    my $bookstatus = "";
     # check for coming up to renew
     if ($days < 0 || $days <= $RENEW_DAYS) {
         # OVERDUE or within REVIEW period
-        # TODO: renew the BOOK!
-        print "    TODO: RENEW. " . $days . " days." . "\n";
-    }
-
-    if ($days <= $ANNOY_DAYS) {
-        print "    TODO: NOTIFY. " . $days . " days." . "\n";
-        if ($days <0) {
-            # OVERDUE!
-            print "    TODO: OVERDUE! " . $days . " days." . "\n";
+        if (!$do_renew) {
+            $bookstatus = "    NEEDS RENEW. " . $days . " days.";
+        } else {
+            $bookstatus = renewbook($link,$days);
         }
     }
 
+    if ($days <= $ANNOY_DAYS) {
+
+        if ($days <0) {
+            # OVERDUE!
+            $bookstatus = "    OVERDUE! " . -$days . " days.";
+            $count_overdue++;
+        } else {
+            $bookstatus = "    NOTIFY coming due soon. " . $days . " days.";
+            $count_coming_up++;
+        }
+    }
+
+    print $book."\n";
+    $STATUS .= $book;
+    print $bookstatus . "\n";
+    $STATUS .= $bookstatus . "\n";
+
+}
 }
 
-#    if ( my $l = $agent->find_link( text => $account )) {
-#        $agent->follow_link( text => $account )
-#          or croak( "Couldn't follow link to account number $account" );
-#    } else {
-#        croak "Couldn't find a link for $account";
-#    }
+
+
+
+# check books status (date due)  and renew if needed
+processbooks(1); 
+
+
+
+
+# NOW get status again if we have changed it by renewing something
+my $old_count_books = $count_books;
+my $old_count_coming_up = $count_coming_up;
+my $old_count_renew = $count_renew;
+my $old_count_overdue = $count_overdue;
+my $old_min_days = $min_days;
+my $old_STATUS = $STATUS;
+
+if ($count_renew>0) {
+    $ACTION="reload  Loans page (to get updated list of books)";
+    $mech->reload();
+    if (!$mech->success()){
+        logmessage( "ERROR: couldn't " . $ACTION . "\n"); 
+    } else {
+        logmessage( $ACTION .  "status: " . $mech->status() . ", title: " . $mech->title() . "\n");
+        # note that $count_renew; and $count_renew_fail are not zeroed
+        ($count_books, $count_overdue, $count_coming_up) = (0,0,0);
+        my $min_days = 1000; # goes negative
+        my $max_days = 0;
+        processbooks(0); # process books and retrieve status only
+    }
+}
+ 
+
+# TODO: get fines etc ..
+
+
+
+if ($count_coming_up>0 || $count_overdue>0 || $count_renew>0) {
+    my $SUBJECT="";
+    $SUBJECT .= $count_overdue . " books OVERDUE. " if ($count_overdue>0);
+    $SUBJECT .= $count_renew_fail . " renew FAILed. " if ($count_renew_fail>0);
+    $SUBJECT .= $count_renew . " books renewed. " if ($count_renew>0);
+    $SUBJECT .= $count_coming_up . " books coming due. " if ($count_coming_up>0);
+    $SUBJECT = "JAmes's LOGIC is FLAWed" if ($SUBJECT eq "");
+
+    my $HELLO = "Hello,\nThis is your Automated Library Check Tool speaking.\n".
+                               "I have detected or done something.\n".
+                               "Books out: $count_books\n";
+
+    if ($min_days<0) {
+        $HELLO .= "Something is overdue by " . -$min_days . " days. tut. tut.\n";
+    } else {
+        $HELLO .= "Closest days due: $min_days\n";
+    }
+ 
+    if ($MAILTO && ($MAILTO |= "")) {
+        open(MAIL, "|$MAILPROG '$MAILTO' -s \"library check $SUBJECT\"");
+        print MAIL ("$HELLO\n$STATUS\n");
+        print MAIL ("\nBEFORE renew:\n$old_STATUS\n") if ($count_renew>0);
+        print MAIL ("\n\n$LOG\n");
+        close(MAIL);
+    }
+}
