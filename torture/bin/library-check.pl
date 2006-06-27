@@ -2,18 +2,61 @@
 
 =head1 NAME
 
-viewTimesheet.pl - reads timesheet file and outputs contents with date & time
+library-check.pl - login to deansgrange library, renew books when close to due date, report status
 
 =head1 SYNOPSIS
 
+run daily as a cron job
+
+set library account details in script:
+
+my $BORROWER="D200000011111";
+my $PIN=7777;
+my $MAILTO="me\@trashmail.net";
+my $MAILPROG="mail -r me\@trashmail.net"; # my qmail is configured not-so-goodly :-7
+my $RENEW_DAYS=3; # no days before book is due to renew it
+my $ANNOY_DAYS=3; # annoy before due
+
 =head1 DESCRIPTION
+
+We forgot to renew our books in time AGAIN.
+
+This script logs in to deansgrange library using your account number and pin.
+Gets info on each book that is out.
+Checks date for each book.
+Attempts to renew each book (if renewal is needed).
+Reports status by email if anything interesting happened. (renewal success/failed or if books overdue)
+
+My first go using WWW::Mechanize seems to have gone alright really all things considered.
+WWW::Mechanize itself very nicely done, clean interface, all the right things.
+Please note that I have not done many right things with this script!
+
+=head1 INSTALLATION/USE
+
+If you use this then BEWARE: it might work for a while, but someday the cron will
+just not happen or network will go down or _something_ will occur which will make the script
+not work or fail to email AND ...*!horrors!*... your books will go overdue and you will be fined!
+So as with anything: use with caution.
+
+Will run on any system that can do perl and send email.
+Use perl's cpan to install WWW::Mechanize and other needed perl modules.
+Best on linux of course.
+
+Set it up to run daily as cron (or Windows scheduled task).
+
+
+=head1 TODO
+
+If network down then should sleep and retry later.
+Fatal errors should mail a (maybe different) user (the maintainer of the cron) and log to system log.
+Put config items as command-line options.
+Use WWW:Mechanizes onerror as well as just checking for errors.
+Tidy.
+Blog.
 
 =head1 JUNK
 
-## greasemonkey script?
-## perl?
-## shell?
-wget http://libcat.dlrcoco.ie/cgi-bin/dun_laog-cat.sh?enqtype=BORROWER&enqpara1=loans&language=&borrower=D2000000204552&borrower2=2323
+wget http://libcat.dlrcoco.ie/cgi-bin/dun_laog-cat.sh?enqtype=BORROWER&enqpara1=loans&language=&borrower=D2000000111111&borrower2=7777
 less dun_laog-cat.sh\?enqtype\=BORROWER 
 
 jamesc@dhcppc0:~/tmp> egrep -i "form|input" dun_laog-cat.sh\?enqtype\=BORROWER 
@@ -28,19 +71,10 @@ jamesc@dhcppc0:~/tmp> egrep -i "form|input" dun_laog-cat.sh\?enqtype\=BORROWER
 <INPUT TYPE=reset VALUE="Clear Entry">
 <A HREF="/cgi-bin/dun_laog-cat.sh?enqtype=BORROWER&language="><IMG SRC="/catalogue-new-v5/../catalogue/../catalogue/buttons/borrower-button2.gif" HSPACE=3 BORDER=0 ALT="Borrower Information"></A>
 </FORM>
-  document.borrower_form.borrpara1.focus();
-function borrower_form_Validator(theForm) {
-  if (theForm.borrpara1.value.length == 0) {
-    theForm.borrpara1.focus();
-  if (theForm.borrpara2.value.length == 0) {
-    theForm.borrpara2.focus();
-
-less /usr/lib/perl5/site_perl/5.8.3/Finance/Bank/IE/BankOfIreland.pm
 
 =cut
 
 use WWW::Mechanize;
-#use HTML::TokeParser;
 use strict;
 use Carp;
 use Data::Dumper;
@@ -59,24 +93,78 @@ my $mech = WWW::Mechanize->new();
 ##############################
 ##############################
 ##############################
-# 1. get login page, fill in login/pin, submit login
+# set default config
 my $BASEURL = "http://libcat.dlrcoco.ie/cgi-bin/dun_laog-cat.sh";
-my $BORROWER="D2000000204552";
-my $PIN=2323;
-my $MAILTO="jamesc\@dspsrv.com";
-my $MAILPROG="mail -r jamesc\@dspsrv.com";
-# renew 2 - our pc doesn't get switched on every day.
+my $BORROWER="D2000000111111";
+my $PIN=7777;
+my $MAILTO="me\@somewhere.org, you\@somewhere.org";
+my $MAILPROG="mail -r me\@somewhere.org"; # my qmail is configured not-so-goodly :-7
+
+# our pc doesn't get switched on every day.
 my $RENEW_DAYS=3; # no days before book is due to renew it
-my $ANNOY_DAYS=3; # annoy befoire due
+my $ANNOY_DAYS=3; # annoy before due
+
+my $verbose=0;
 
 
-# list of author/title/date due back
-##http://libcat.dlrcoco.ie/cgi-bin/dun_laog-cat.sh?enqtype=BORROWER&enqpara1=loans&language=&borrower=D2000000204552&borrower2=2323
-my $url_loans = $BASEURL . "?enqtype=BORROWER&enqpara1=loans&language=&borrower=" . $BORROWER . "&borrower2=" . $PIN;
+##############################
+##############################
+##############################
+# arg parse and usage
+my $usage = <<END;
+usage: $0 [-v] [-m <email_prog>] [-r <renew_days>] [-a <annoy_days>] <borrower_number> <pin> <email>
+e.g. $0 -m "mail -r me\@somehost.org" D2000000111111 7777 "me\@somehost.org"
+  -v         verbose print
+
+END
+
+if ($#ARGV < 2 ) {   #read perldoc perlvar for ARGV
+    die "$usage";
+}
+
+if ($ARGV[0]) {
+while ($ARGV[0] =~ "^-") {
+
+    if ($ARGV[0] =~ "-m") {
+        $MAILPROG = shift(@ARGV);
+        $MAILPROG = shift(@ARGV);
+    }
+
+    if ($ARGV[0] =~ "-v") {
+        $verbose = shift(@ARGV);
+    }
+
+    if ($ARGV[0] =~ "-a") {
+        $ANNOY_DAYS = shift(@ARGV);
+        $ANNOY_DAYS = shift(@ARGV);
+    }
+
+    if ($ARGV[0] =~ "-r") {
+        $RENEW_DAYS = shift(@ARGV);
+        $RENEW_DAYS = shift(@ARGV);
+    }
+
+}}
+
+if ($#ARGV < 2 ) {   #read perldoc perlvar for ARGV
+    die "$usage";
+}
+
+$BORROWER = shift(@ARGV);
+$PIN = shift(@ARGV);
+$MAILTO = shift(@ARGV);
+
+#die "$0 test -m \"$MAILPROG\" -r $RENEW_DAYS -a $ANNOY_DAYS $BORROWER $PIN $MAILTO $usage";
+
+
+##############################
+##############################
+##############################
+# setup
 my $LOG="";
 my $STATUS="";
 my $NEWSTATUS="";
-my $ACTION = "get login page";
+my $ACTION;
 my $MSG;
 
 # we use $MSG as last msg logged sometimes
@@ -86,15 +174,18 @@ sub logmessage {
     print $MSG;
 }
 
+##############################
+##############################
+##############################
+# 1. get login page, fill in login/pin, submit login
+
+#login, then list of author/title/date due back (or login skipped if logged in already)
+##http://libcat.dlrcoco.ie/cgi-bin/dun_laog-cat.sh?enqtype=BORROWER&enqpara1=loans&language=&borrower=D2000000111111&borrower2=7777
+$ACTION = "get login page";
+my $url_loans = $BASEURL . "?enqtype=BORROWER&enqpara1=loans&language=&borrower=" . $BORROWER . "&borrower2=" . $PIN;
+
 $mech->get( $url_loans );
 die "couldn't even " . $ACTION . "\n" if !$mech->success();
-#print "what's a uri?" . $mech->uri() . "\n";
-#print "status: " . $mech->status() . "\n";
-#print "is_html: " . $mech->is_html() . "\n";
-#print "title: " . $mech->title() . "\n";
-#print "forms:" . Dumper($mech->forms()) . "\n";
-#print "links:" . $mech->links() . "\n";
-#print "links:" . Dumper($mech->links()) . "\n";
 
 logmessage( $ACTION .  "status: " . $mech->status() . ", title: " . $mech->title() . "\n");
 
@@ -123,9 +214,9 @@ logmessage( $ACTION .  "status: " . $mech->status() . ", title: " . $mech->title
 # 2. next is personal info page name, etc...
 # goto "Loans"
 
-#<A HREF=dun_laog-cat.sh?enqtype=BORROWER&enqpara1=loans&language=1&borrower=D2000000204552&borrower2=2323><IMG SRC="/catalogue-new-v5/../catalogue/buttons/loans-button2.gif" BORDER=0 HSPACE=3 ALT="Loans"></A>
-#<A HREF=dun_laog-cat.sh?enqtype=BORROWER&enqpara1=charges&language=1&borrower=D2000000204552&borrower2=2323><IMG SRC="/catalogue-new-v5/../catalogue/buttons/fines-button2.gif" BORDER=0 HSPACE=3 ALT="Charges"></A>
-#<A HREF=dun_laog-cat.sh?enqtype=BORROWER&enqpara1=reservations&language=1&borrower=D2000000204552&borrower2=2323><IMG SRC="/catalogue-new-v5/../catalogue/buttons/reservations-button2.gif" BORDER=0 HSPACE=3 ALT="Reservations"></A>
+#<A HREF=dun_laog-cat.sh?enqtype=BORROWER&enqpara1=loans&language=1&borrower=D2000000111111&borrower2=7777><IMG SRC="/catalogue-new-v5/../catalogue/buttons/loans-button2.gif" BORDER=0 HSPACE=3 ALT="Loans"></A>
+#<A HREF=dun_laog-cat.sh?enqtype=BORROWER&enqpara1=charges&language=1&borrower=D2000000111111&borrower2=7777><IMG SRC="/catalogue-new-v5/../catalogue/buttons/fines-button2.gif" BORDER=0 HSPACE=3 ALT="Charges"></A>
+#<A HREF=dun_laog-cat.sh?enqtype=BORROWER&enqpara1=reservations&language=1&borrower=D2000000111111&borrower2=7777><IMG SRC="/catalogue-new-v5/../catalogue/buttons/reservations-button2.gif" BORDER=0 HSPACE=3 ALT="Reservations"></A>
 
 #<A HREF="/cgi-bin/dun_laog-cat.sh?enqtype=DEFAULT&enqpara1=ANY&language=1"><IMG SRC="/catalogue-new-v5/../catalogue/../catalogue/buttons/home-button2.gif" HSPACE=3 BORDER=0 ALT="Home"></A>
 #<A HREF="/cgi-bin/dun_laog-cat.sh?enqtype=AUTHOR&language=1"><IMG SRC="/catalogue-new-v5/../catalogue/../catalogue/buttons/author-button2.gif" HSPACE=3 BORDER=0 ALT="Author Search"></A>
@@ -149,60 +240,38 @@ SkipLogin:
 #     RENEW each book if it is on? the renew date!!! :)
 #     send email if action was taken (renew - reporting status) or can't renew
   
-####
-# foreach book
-
 
 #<PRE>
 #Author                 Title                                       Date due back
 #--------------------------------------------------------------------------------<BR>
-#<A HREF=dun_laog-cat.sh?enqtype=BORROWER&enqpara1=renewals&language=1&author=Powell+Micelle&title=Mosaics&item=04311116779004&rcn=0431111677&borrower=D2000000204552&borrower2=2323&renewable=0&category=&renewcount=2&reservations=0&itemreserved=0&stopfines=0&freeissues=0&overdue=-21&duedate=17/07/06&issuedate=08/05/06&renewdate=25/06/06&i_category=15&homebranch=44&awaybranch=44>Powell Micelle         Mosaics                                       17/07/06
-#</A><A HREF=dun_laog-cat.sh?enqtype=BORROWER&enqpara1=renewals&language=1&author=Nesbit,+E.&title=Five+Children+and+It&item=05633606584003&rcn=0563360658&borrower=D2000000204552&borrower2=2323&renewable=0&category=&renewcount=2&reservations=0&itemreserved=0&stopfines=0&freeissues=0&overdue=-21&duedate=17/07/06&issuedate=08/05/06&renewdate=25/06/06&i_category=16&homebranch=44&awaybranch=44>Nesbit, E.             Five Children and It                          17/07/06
-#</A><A HREF=dun_laog-cat.sh?enqtype=BORROWER&enqpara1=renewals&language=1&author=Birkinshaw+Marie&title=Bounce&item=07214818179001&rcn=0721481817&borrower=D2000000204552&borrower2=2323&renewable=0&category=&renewcount=3&reservations=0&itemreserved=0&stopfines=0&freeissues=0&overdue=-21&duedate=17/07/06&issuedate=12/04/06&renewdate=25/06/06&i_category=16&homebranch=44&awaybranch=44>Birkinshaw Marie       Bounce                                        17/07/06
+#<A HREF=dun_laog-cat.sh?enqtype=BORROWER&enqpara1=renewals&language=1&author=Powell+Micelle&title=Mosaics&item=04311116779004&rcn=0431111677&borrower=D2000000111111&borrower2=7777&renewable=0&category=&renewcount=2&reservations=0&itemreserved=0&stopfines=0&freeissues=0&overdue=-21&duedate=17/07/06&issuedate=08/05/06&renewdate=25/06/06&i_category=15&homebranch=44&awaybranch=44>Powell Micelle         Mosaics                                       17/07/06
+#</A><A HREF=dun_laog-cat.sh?enqtype=BORROWER&enqpara1=renewals&language=1&author=Nesbit,+E.&title=Five+Children+and+It&item=05633606584003&rcn=0563360658&borrower=D2000000111111&borrower2=7777&renewable=0&category=&renewcount=2&reservations=0&itemreserved=0&stopfines=0&freeissues=0&overdue=-21&duedate=17/07/06&issuedate=08/05/06&renewdate=25/06/06&i_category=16&homebranch=44&awaybranch=44>Nesbit, E.             Five Children and It                          17/07/06
+#</A><A HREF=dun_laog-cat.sh?enqtype=BORROWER&enqpara1=renewals&language=1&author=Birkinshaw+Marie&title=Bounce&item=07214818179001&rcn=0721481817&borrower=D2000000111111&borrower2=7777&renewable=0&category=&renewcount=3&reservations=0&itemreserved=0&stopfines=0&freeissues=0&overdue=-21&duedate=17/07/06&issuedate=12/04/06&renewdate=25/06/06&i_category=16&homebranch=44&awaybranch=44>Birkinshaw Marie       Bounce                                        17/07/06
 #
-#</A><A HREF=dun_laog-cat.sh?enqtype=BORROWER&enqpara1=renewals&language=1&author=Rowling+J.+K.&title=Harry+Potter+and+the+half-blood+prince&item=07475810889014&rcn=0747581088&borrower=D2000000204552&borrower2=2323&renewable=0&category=&renewcount=1&reservations=1&itemreserved=0&stopfines=0&freeissues=0&overdue=7&duedate=19/06/06&issuedate=08/05/06&renewdate=26/05/06&i_category=16&homebranch=44&awaybranch=44>Rowling J. K.          Harry Potter and the half-blood prince        19/06/06
-#</A><A HREF=dun_laog-cat.sh?enqtype=BORROWER&enqpara1=renewals&language=1&author=Cabot+Meg&title=Princess+Diaries+Mia+goes+fourth&item=14050341229001&rcn=1405034122&borrower=D2000000204552&borrower2=2323&renewable=0&category=&renewcount=3&reservations=0&itemreserved=0&stopfines=0&freeissues=0&overdue=-21&duedate=17/07/06&issuedate=12/04/06&renewdate=25/06/06&i_category=21&homebranch=44&awaybranch=44>Cabot Meg              Princess Diaries Mia goes fourth              17/07/06
+#</A><A HREF=dun_laog-cat.sh?enqtype=BORROWER&enqpara1=renewals&language=1&author=Rowling+J.+K.&title=Harry+Potter+and+the+half-blood+prince&item=07475810889014&rcn=0747581088&borrower=D2000000111111&borrower2=7777&renewable=0&category=&renewcount=1&reservations=1&itemreserved=0&stopfines=0&freeissues=0&overdue=7&duedate=19/06/06&issuedate=08/05/06&renewdate=26/05/06&i_category=16&homebranch=44&awaybranch=44>Rowling J. K.          Harry Potter and the half-blood prince        19/06/06
+#</A><A HREF=dun_laog-cat.sh?enqtype=BORROWER&enqpara1=renewals&language=1&author=Cabot+Meg&title=Princess+Diaries+Mia+goes+fourth&item=14050341229001&rcn=1405034122&borrower=D2000000111111&borrower2=7777&renewable=0&category=&renewcount=3&reservations=0&itemreserved=0&stopfines=0&freeissues=0&overdue=-21&duedate=17/07/06&issuedate=12/04/06&renewdate=25/06/06&i_category=21&homebranch=44&awaybranch=44>Cabot Meg              Princess Diaries Mia goes fourth              17/07/06
 #</A>
 #</PRE>
 
 
 # use links/forms/content to verify we got the page content okay and that what we expect to be there is there.
-#my $content = $mech->content( format => "text" );
-
-#my $link=$mech->find_link( text => "download" );
-#my $link=$mech->find_link( text_regex => qr/download/i );
-#my $link=$mech->find_link( url => "download" );
-
-
-#my $link=$mech->find_link( url_regex => qr/author=/i );
-#print Dumper($link);
-#$link=$mech->find_link( url_regex => qr/&author=/i );
-#print Dumper($link);
-#$link=$mech->find_link( url_regex => qr/&author=/i, n => 1 );
-#print Dumper($link);
-#$link=$mech->find_link( url_regex => qr/&author=/i, n => 2 );
-#print Dumper($link);
-
-
-#for(my $i=0;$i<50;$i++){
-#    my $link=$mech->find_link( url_regex => qr/&author=/i, n => $i );
-#    print Dumper($link);
-#}
-
-
 # a link:
 #$VAR4 = bless( [
-#                 'dun_laog-cat.sh?enqtype=BORROWER&enqpara1=renewals&language=&author=Rowling+J.+K.&title=Harry+Potter+and+the+half-blood+prince&item=07475810889014&rcn=0747581088&borrower=D2000000204552&borrower2=2323&renewable=0&category=&renewcount=1&reservations=1&itemreserved=0&stopfines=0&freeissues=0&overdue=7&duedate=19/06/06&issuedate=08/05/06&renewdate=26/05/06&i_category=16&homebranch=44&awaybranch=44',
+#                 'dun_laog-cat.sh?enqtype=BORROWER&enqpara1=renewals&language=&author=Rowling+J.+K.&title=Harry+Potter+and+the+half-blood+prince&item=07475810889014&rcn=0747581088&borrower=D2000000111111&borrower2=7777&renewable=0&category=&renewcount=1&reservations=1&itemreserved=0&stopfines=0&freeissues=0&overdue=7&duedate=19/06/06&issuedate=08/05/06&renewdate=26/05/06&i_category=16&homebranch=44&awaybranch=44',
 #                 'Rowling J. K. Harry Potter and the half-blood prince 19/06/06',
 #                 undef,
 #                 'a',
 #                 $VAR1->[4],
 #                 {
-#                   'href' => 'dun_laog-cat.sh?enqtype=BORROWER&enqpara1=renewals&language=&author=Rowling+J.+K.&title=Harry+Potter+and+the+half-blood+prince&item=07475810889014&rcn=0747581088&borrower=D2000000204552&borrower2=2323&renewable=0&category=&renewcount=1&reservations=1&itemreserved=0&stopfines=0&freeissues=0&overdue=7&duedate=19/06/06&issuedate=08/05/06&renewdate=26/05/06&i_category=16&homebranch=44&awaybranch=44'
+#                   'href' => 'dun_laog-cat.sh?enqtype=BORROWER&enqpara1=renewals&language=&author=Rowling+J.+K.&title=Harry+Potter+and+the+half-blood+prince&item=07475810889014&rcn=0747581088&borrower=D2000000111111&borrower2=7777&renewable=0&category=&renewcount=1&reservations=1&itemreserved=0&stopfines=0&freeissues=0&overdue=7&duedate=19/06/06&issuedate=08/05/06&renewdate=26/05/06&i_category=16&homebranch=44&awaybranch=44'
 #                 }
 #               ], 'WWW::Mechanize::Link' );
 
 
+##############################
+##############################
+##############################
+# some date/timestamp preparation
 my(@date) = (localtime)[3,4,5];
 $date[2]+=1900; $date[1]+=1;
 my $today = sprintf("%04d.%02d.%02d", $date[2], $date[1], $date[0] );
@@ -210,12 +279,14 @@ $date[2]%=100;
 my $today2 = sprintf("%04d.%02d.%02d", $date[2], $date[1], $date[0] );
 print $today . " " . $today2 . "\n";
 
-
 my $nowts = time();
 
 
 my ($count_books, $count_renew, $count_renew_fail, $count_overdue, $count_coming_up) = (0,0,0,0,0);
 
+##############################
+##############################
+##############################
 # globals out:             $count_renew_fail++;     or $count_renew++;
 # return bookstatus
 sub renewbook {
@@ -241,8 +312,8 @@ sub renewbook {
 
             # Click renew button
 #<B>If you want to renew this item click on the 'Renew' button below. If not, click 'Cancel' or select one of the links at the bottom of the page.</B>
-#<A HREF="dun_laog-cat.sh?enqtype=BORROWER&enqpara1=renew-title&language=&renewdate=25%2F06%2F06&borrower=D2000000204552&borrower2=2323&hire_flag=0&fine_flag=0&item=04311116779004&issuedate=08%2F05%2F06&duedate=17%2F07%2F06&title=Mosaics&hire_charge=0.00&fine=&new_date=17%2F07%2F06&renewcount=2&borrower_status=&borrower_account=2.20"><IMG SRC="/catalogue-new-v5/../catalogue/buttons/renew-button2.gif" BORDER=0 ALT="Yes, renew"></a>
-#<A HREF="dun_laog-cat.sh?enqtype=BORROWER&enqpara1=loans&language=&borrower=D2000000204552&borrower2=2323"><IMG SRC="/catalogue-new-v5/../catalogue/buttons/cancel-button2.gif" BORDER=0 ALT="No, don't renew"></a>
+#<A HREF="dun_laog-cat.sh?enqtype=BORROWER&enqpara1=renew-title&language=&renewdate=25%2F06%2F06&borrower=D2000000111111&borrower2=7777&hire_flag=0&fine_flag=0&item=04311116779004&issuedate=08%2F05%2F06&duedate=17%2F07%2F06&title=Mosaics&hire_charge=0.00&fine=&new_date=17%2F07%2F06&renewcount=2&borrower_status=&borrower_account=2.20"><IMG SRC="/catalogue-new-v5/../catalogue/buttons/renew-button2.gif" BORDER=0 ALT="Yes, renew"></a>
+#<A HREF="dun_laog-cat.sh?enqtype=BORROWER&enqpara1=loans&language=&borrower=D2000000111111&borrower2=7777"><IMG SRC="/catalogue-new-v5/../catalogue/buttons/cancel-button2.gif" BORDER=0 ALT="No, don't renew"></a>
 
             $ACTION="Find renew link";
             my $renew_link=$mech->find_link( url_regex => qr/renew-title/i );
@@ -291,6 +362,9 @@ sub renewbook {
 my $min_days = 1000; # goes negative
 my $max_days = 0;
 
+##############################
+##############################
+##############################
 # globals in: $mech, $LOG, $MSG, system stuff
 # globals out: $count_xxx $min_days $max_days, status for each book in $STATUS 
 sub processbooks {
@@ -331,7 +405,8 @@ foreach my $link (@links) {
 
         if ($days <0) {
             # OVERDUE!
-            $bookstatus = "    OVERDUE! " . -$days . " days.";
+            # bugfix: don't override RENEW message
+            $bookstatus .= "    OVERDUE! " . -$days . " days.";
             $count_overdue++;
         } else {
             $bookstatus = "    NOTIFY coming due soon. " . $days . " days.";
@@ -350,12 +425,18 @@ foreach my $link (@links) {
 
 
 
+##############################
+##############################
+##############################
 # check books status (date due)  and renew if needed
 processbooks(1); 
 
 
 
 
+##############################
+##############################
+##############################
 # NOW get status again if we have changed it by renewing something
 my $old_count_books = $count_books;
 my $old_count_coming_up = $count_coming_up;
@@ -380,8 +461,11 @@ if ($count_renew>0) {
 }
  
 
-# TODO: get fines etc ..
-#<A HREF=dun_laog-cat.sh?enqtype=BORROWER&enqpara1=charges&language=1&borrower=D2000000204552&borrower2=2323><IMG SRC="/catalogue-new-v5/../catalogue/buttons/fines-button2.gif" BORDER=0 HSPACE=3 ALT="Charges"></A>
+##############################
+##############################
+##############################
+# get charges/fines etc ..
+#<A HREF=dun_laog-cat.sh?enqtype=BORROWER&enqpara1=charges&language=1&borrower=D2000000111111&borrower2=7777><IMG SRC="/catalogue-new-v5/../catalogue/buttons/fines-button2.gif" BORDER=0 HSPACE=3 ALT="Charges"></A>
 my $CHARGES="";
 $ACTION="find fines/charges page";
 my $charges_link=$mech->find_link( url_regex => qr/enqpara1=charges/i );
@@ -405,7 +489,10 @@ if (!$mech->success() || !$charges_link){
 
 
 
-
+##############################
+##############################
+##############################
+# send email
 if ($count_coming_up>0 || $count_overdue>0 || $count_renew>0) {
     my $SUBJECT="";
     $SUBJECT .= $count_overdue . " books OVERDUE. " if ($count_overdue>0);
