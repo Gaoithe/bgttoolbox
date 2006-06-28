@@ -105,7 +105,7 @@ my $RENEW_DAYS=3; # no days before book is due to renew it
 my $ANNOY_DAYS=3; # annoy before due
 
 my $verbose=0;
-
+my $send_email_regardless=0;
 
 ##############################
 ##############################
@@ -115,7 +115,7 @@ my $usage = <<END;
 usage: $0 [-v] [-m <email_prog>] [-r <renew_days>] [-a <annoy_days>] <borrower_number> <pin> <email>
 e.g. $0 -m "mail -r me\@somehost.org" D2000000111111 7777 "me\@somehost.org"
   -v         verbose print
-
+  -M       send email regardless (every day - annoying!)
 END
 
 if ($#ARGV < 2 ) {   #read perldoc perlvar for ARGV
@@ -132,6 +132,10 @@ while ($ARGV[0] =~ "^-") {
 
     if ($ARGV[0] =~ "-v") {
         $verbose = shift(@ARGV);
+    }
+
+    if ($ARGV[0] =~ "-M") {
+        $send_email_regardless = shift(@ARGV);
     }
 
     if ($ARGV[0] =~ "-a") {
@@ -493,12 +497,13 @@ if (!$mech->success() || !$charges_link){
 ##############################
 ##############################
 # send email
-if ($count_coming_up>0 || $count_overdue>0 || $count_renew>0) {
+if ($send_email_regardless || $count_coming_up>0 || $count_overdue>0 || $count_renew>0) {
     my $SUBJECT="";
     $SUBJECT .= $count_overdue . " books OVERDUE. " if ($count_overdue>0);
     $SUBJECT .= $count_renew_fail . " renew FAILed. " if ($count_renew_fail>0);
     $SUBJECT .= $count_renew . " books renewed. " if ($count_renew>0);
     $SUBJECT .= $count_coming_up . " books coming due. " if ($count_coming_up>0);
+    $SUBJECT = "library-check.pl -M option on. send email regardless." if ($SUBJECT eq "" && $send_email_regardless);
     $SUBJECT = "JAmes's LOGIC is FLAWed" if ($SUBJECT eq "");
 
     my $HELLO = "Hello,\nThis is your Automated Library Check Tool speaking.\n".
