@@ -44,6 +44,21 @@ Best on linux of course.
 
 Set it up to run daily as cron (or Windows scheduled task).
 
+On my Suse 9.1 e.g. 
+sudo cp library-check.pl /usr/local/bin/
+sudo cp run-library-check.sh /etc/cron.daily/
+
+run-library-check.sh looks like this:
+
+  #!/bin/bash
+
+  BORROWER=D2000000111111
+  PIN=1111
+  MAILTO="me@foo.org,fi@call.ok"
+  MAILPROG="mail -r me@goo.org"
+  # my qmail is configured not-so-goodly :-7
+ 
+  library-check.pl -m "$MAILPROG" $BORROWER $PIN $MAILTO
 
 =head1 TODO
 
