@@ -44,10 +44,46 @@ Best on linux of course.
 
 Set it up to run daily as cron (or Windows scheduled task).
 
+On my Suse 9.1 e.g. 
+sudo cp library-check.pl /usr/local/bin/
+sudo cp run-library-check.sh /etc/cron.daily/
+
+run-library-check.sh looks like this:
+
+  #!/bin/bash
+
+  BORROWER=D2000000111111
+  PIN=1111
+  MAILTO="me@foo.org,fi@call.ok"
+  MAILPROG="mail -r me@goo.org"
+  # my qmail is configured not-so-goodly :-7
+
+  # add path for library-check.pl script for cron user
+  # export $PATH=$PATH:/usr/local/bin
+
+  # use -M to force mail to be sent every time script is run (good for testing)
+  #library-check.pl -M -m "$MAILPROG" $BORROWER $PIN $MAILTO
+
+  # while loop around library-check with sleep in case network is down 
+  # check return value $?
+
+  RETVAL=77
+  while [[ $RETVAL != 0 ]] ; do
+    library-check.pl -m "$MAILPROG" $BORROWER $PIN $MAILTO
+    RETVAL=$?
+    if [[ $RETVAL != 0 ]] ; then
+       echo Failed to run. :-7 RETVAL is $RETVAL. Sleep 600 and try again. 
+       sleep 600
+       echo Here we go again ...
+    fi
+  done
+ 
+  echo Success. I think.
+  date
 
 =head1 TODO
 
-If network down then should sleep and retry later.
+DONE: (in run script) If network down then should sleep and retry later.
 Fatal errors should mail a (maybe different) user (the maintainer of the cron) and log to system log.
 Put config items as command-line options.
 Use WWW:Mechanizes onerror as well as just checking for errors.
