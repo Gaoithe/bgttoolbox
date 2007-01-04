@@ -263,14 +263,17 @@ AddToFunc InitFunction    "I" Module FvwmButtons
 +                         "I" exec xscreensaver -no-splash &
 #+                         "I" exec artsd -a toss -S 4096 -F 20 &
 +                         "I" exec /usr/X11R6/bin/xsetroot -solid black
-+                         "I" exec emacs -name sEmascsexeseven &
++                         "I" exec emacs  -geometry 50x46+0+0 -name sEmascsexeseven &
 +                         "I" exec gnome-panel #>;)
-+                         "I" exec mozilla -xrm &
+#+                         "I" exec mozilla -xrm &
++                         "I" exec firefox -xrm &
++                         "I" exec thunderbird &
 +                         "I" exec /usr/X11R6/lib/xscreensaver/noseguy -root -program fortune
 +			  "I" exec xterm -sb -sl 1000 -j -ls -fn 7x14 -name "Local Shell"
-+			  "I" exec xterm -geometry 100x60+0+0 -name "dspsrv Mail Betty" -e mutt
-+			  "I" exec xterm -geometry 100x60+0+0 -name "doolin Mail Doolin.com" -e ssh doolin.com
+#+			  "I" exec xterm -geometry 100x60+0+0 -name "dspsrv Mail Betty" -e mutt
+#+			  "I" exec xterm -geometry 100x60+0+0 -name "doolin Mail Doolin.com" -e ssh doolin.com
 +			  "I" exec xchat 
++			  "I" exec skype 
 #+			  "I" exec xterm -geometry 100x60+0+0 -name "Kinsey" -e ssh kinsey
 #+			  "I" exec xterm -geometry 100x60+0+0 -name "Owsla" -e ssh owsla.ie.suberic.net
 #+			  "I" exec xterm -geometry 50x10+0+0 -name "Kinsey" -e ssh kinsey xchat
@@ -366,29 +369,39 @@ AddToMenu Window-Ops	"Window Ops"	Title
 *FvwmButtons(4x1, Container(Columns 4))
 #*FvwmButtons(Frame 1 Padding 1 1 Container(Rows 6 Columns 1 Frame 1 Padding 10 0))
 
-*FvwmButtons(gTitle Xterm, Icon gnome-xterm.xpm,\
+*FvwmButtons(Title term, Icon gnome-xterm.xpm,\
  Action `Exec xterm +sb -title "Local" &`)
 
-*FvwmButtons(gTitle Lock, Icon status_lock.xpm,\
+*FvwmButtons(Title lock, Icon status_lock.xpm,\
  Action `Exec xscreensaver-command -lock &`)
 
-*FvwmButtons(Title mutt, Icon mozilla-mail-icon.gif,\
- Action `Exec xterm -geometry 100x60+0+0 -title "mutt dspsrv" -e mutt &`)
+*FvwmButtons(Title mail, Icon mozilla-mail-icon.gif,\
+ Action `Exec thunderbird &`)
+
+*FvwmButtons(Title web, Icon mozilla-icon.gif,\
+ Action `Exec firefox &`)
+
+#*FvwmButtons(Title mutt, Icon mozilla-mail-icon.gif,\
+# Action `Exec xterm -geometry 100x60+0+0 -title "mutt dspsrv" -e mutt &`)
 #+			  "I" exec xterm -geometry 100x60+0+0 -name "dspsrv Mail Betty" -e mutt
-
-*FvwmButtons(Title doolin.com, Icon redhat-email.png,\
- Action `Exec xterm -geometry 100x60+0+0 -fg yellow -bg seagreen -title "doolin" -e ssh doolin.com &`)
-
+#*FvwmButtons(Title doolin.com, Icon redhat-email.png,\
+# Action `Exec xterm -geometry 100x60+0+0 -fg yellow -bg seagreen -title "doolin" -e ssh doolin.com &`)
 #+			  "I" exec xterm -geometry 100x60+0+0 -name "doolin Mail Doolin.com" -e ssh doolin.com
 
 *FvwmButtons(3x1, Swallow(UseOld, NoKill) "XClock"\
  `Exec xclock -digital -strftime "%a %b %d %R" -fg yellow -bg blue`)
+
+*FvwmButtons(Title Sky, Icon skype.xpm,\
+ Action `Exec skype &`)
 
 
 
 # Pager
 #*FvwmButtons(3x1 Frame 2 Swallow(UseOld) "FvwmPager" "Module FvwmPager 0 0")
 *FvwmButtons(3x4, Swallow "FvwmPager" `FvwmPager 0 0`)
+
+*FvwmButtons(Title CommProve, Icon xterm.xpm,\
+ Action `Exec xt slaine &`)
 
 
 *FvwmButtons(End)
