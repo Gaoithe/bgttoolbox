@@ -322,7 +322,6 @@ $mech->follow_link( text_regex => qr/Loans/i );
 logmessage( $ACTION .  "status: " . $mech->status() . ", title: " . $mech->title() . "\n");
 die "couldn't " . $ACTION . "\n" if (!$mech->success() || !$bi_link);
 
- 
 
 
 ##############################
@@ -333,8 +332,6 @@ die "couldn't " . $ACTION . "\n" if (!$mech->success() || !$bi_link);
 #     RENEW each book if it is on? the renew date!!! :)
 #     send email if action was taken (renew - reporting status) or can't renew
   
-
-
 
 ##############################
 ##############################
@@ -518,6 +515,7 @@ sub processbooks {
     logmessage ( "Found $book_count books.\n");
     
     my $found_book = 0;
+    my $renew_all_books = 0;
     foreach my $book (@books) {
 	if ($book->{'isabook'}) {
 
@@ -532,7 +530,52 @@ sub processbooks {
 # due: 23/03/07                 
 # title: Swallows and amazons by Ransome Arthur
 
-	    my @bookdate = ($book->{'1'} =~ m/.* (\d\d)\/(\d\d)\/(\d\d)$/);
+	    my @bookdate = ($book->{'1'} =~ m/(\d\d)\/(\d\d)\/(\d\d)/);
+
+	    my(@bookd) = localtime();
+	    @bookd[0..2] = (0,0,0);
+	    @bookd[3..5] = ($bookdate[0], $bookdate[1]-1, $bookdate[2]+100);
+	    my $bookts = &mktime(@bookd);
+	    my $days = int(($bookts - $nowts) / (60*60*24));
+
+	    $min_days = $days if ($days < $min_days);
+	    $max_days = $days if ($days > $max_days);
+	    
+	    my $bookstatus = "";
+	    # check for coming up to renew
+	    if ($days < 0 || $days <= $RENEW_DAYS) {
+		# OVERDUE or within REVIEW period
+		if (!$do_renew) {
+		    $bookstatus = "    NEEDS RENEW. " . $days . " days.";
+		} else {
+
+		    # TODO the renew is easier or harder?
+		    # always do all at once? => easier, one form submit
+		    logmessage("marking all books for renew");
+		    $renew_all_books = 1;
+		    #$bookstatus = renewbook($link,$days);
+		}
+	    }
+
+	    if ($days <= $ANNOY_DAYS) {
+		
+		if ($days <0) {
+		    # OVERDUE!
+		    # bugfix: don't override RENEW message
+		    $bookstatus .= "    OVERDUE! " . -$days . " days.";
+		    $count_overdue++;
+		} else {
+		    $bookstatus = "    NOTIFY coming due soon. " . $days . " days.";
+		    $count_coming_up++;
+		}
+	    }
+
+	    logmessage("bookstatus: " . $bookstatus . "\n");
+	    logmessage("days: " . $days . "\n");
+	    print "bookstatus: " . $bookstatus . "\n";
+	    print "days: " . $days . "\n";
+	    $STATUS .= "bookstatus: " . $bookstatus . "\n";
+	    $STATUS .= "days: " . $days . "\n";
 
 	} else {
 	    if ($found_book > 0) {
@@ -542,61 +585,11 @@ sub processbooks {
 	    }
 	}
 
-    }	
-
-
-my @links = $mech->find_all_links(url_regex => qr/&author=/i);
-foreach my $link (@links) {
-    #print Dumper($link);
-    #print $link->[1]."\n";
-    my $book = $link->[1];
-    $count_books++;
-    my @bookdate = ($book =~ m/.* (\d\d)\/(\d\d)\/(\d\d)$/);
-    #print Dumper(@bookdate);
-
-    my(@bookd) = localtime();
-    @bookd[0..2] = (0,0,0);
-    @bookd[3..5] = ($bookdate[0], $bookdate[1]-1, $bookdate[2]+100);
-    my $bookts = &mktime(@bookd);
-    my $days = int(($bookts - $nowts) / (60*60*24));
-    #print "bookts: " . $bookts . "nowts: " . $nowts . "\n";
-    #print "days: " . $days . "\n";
-
-    $min_days = $days if ($days < $min_days);
-    $max_days = $days if ($days > $max_days);
-
-    my $bookstatus = "";
-    # check for coming up to renew
-    if ($days < 0 || $days <= $RENEW_DAYS) {
-        # OVERDUE or within REVIEW period
-        if (!$do_renew) {
-            $bookstatus = "    NEEDS RENEW. " . $days . " days.";
-        } else {
-            $bookstatus = renewbook($link,$days);
-        }
     }
 
-    if ($days <= $ANNOY_DAYS) {
-
-        if ($days <0) {
-            # OVERDUE!
-            # bugfix: don't override RENEW message
-            $bookstatus .= "    OVERDUE! " . -$days . " days.";
-            $count_overdue++;
-        } else {
-            $bookstatus = "    NOTIFY coming due soon. " . $days . " days.";
-            $count_coming_up++;
-        }
-    }
-
-    print $book."\n";
-    $STATUS .= $book;
-    print $bookstatus . "\n";
-    $STATUS .= $bookstatus . "\n";
+    return $renew_all_books;
 
 }
-}
-
 
 
 
@@ -604,10 +597,17 @@ foreach my $link (@links) {
 ##############################
 ##############################
 # check books status (date due)  and renew if needed
-processbooks(1); 
+my $do_renew = processbooks(1); 
+my $renewhtml = "";
 
-
-
+if ($do_renew) {
+    $ACTION="renew all books (because one is close to due)";
+    $mech->submit_form(form_name => 'bulk_renew');
+    $STATUS .= "couldn't " . $ACTION . "\n" if (!$mech->success());
+    logmessage( $ACTION .  "status: " . $mech->status() . ", title: " . $mech->title() . "\n");
+    $renewhtml = $mech->content();
+    logmessage("Renew results follow: " . $renewhtml);
+}
 
 ##############################
 ##############################
@@ -636,33 +636,6 @@ if ($count_renew>0) {
 }
  
 
-##############################
-##############################
-##############################
-# get charges/fines etc ..
-#<A HREF=dun_laog-cat.sh?enqtype=BORROWER&enqpara1=charges&language=1&borrower=D2000000111111&borrower2=7777><IMG SRC="/catalogue-new-v5/../catalogue/buttons/fines-button2.gif" BORDER=0 HSPACE=3 ALT="Charges"></A>
-my $CHARGES="";
-$ACTION="find fines/charges page";
-my $charges_link=$mech->find_link( url_regex => qr/enqpara1=charges/i );
-if (!$mech->success() || !$charges_link){
-    logmessage( "ERROR: couldn't " . $ACTION . "\n"); 
-} else {
-    logmessage( $ACTION . "\n");
-
-    $ACTION="goto fines/charges page";
-    $mech->get($charges_link->url());
-    if (!$mech->success()){
-        logmessage( "ERROR: couldn't " . $ACTION . "\n"); 
-    } else {
-        logmessage( $ACTION . " status: " . $mech->status() . ", title: " . $mech->title() . "\n");  
-        my $charges_content = $mech->content( format => "text" );
-        $charges_content =~ s/Click here.*//m;
-        $CHARGES = $charges_content;
-    }
-}
-
-
-
 
 ##############################
 ##############################
@@ -690,7 +663,7 @@ if ($send_email_regardless || $count_coming_up>0 || $count_overdue>0 || $count_r
     if ($MAILTO && ($MAILTO |= "")) {
         open(MAIL, "|$MAILPROG '$MAILTO' -s \"library check $SUBJECT\"");
         print MAIL ("$HELLO\n$STATUS\n");
-        print MAIL ("\nCHARGES: $CHARGES\n") if ($CHARGES);
+        #print MAIL ("\nCHARGES: $CHARGES\n") if ($CHARGES);
         print MAIL ("\nBEFORE renew:\n$old_STATUS\n") if ($count_renew>0);
         print MAIL ("\n\n$LOG\n");
         close(MAIL);
