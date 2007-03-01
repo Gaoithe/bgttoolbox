@@ -108,6 +108,34 @@ jamesc@dhcppc0:~/tmp> egrep -i "form|input" dun_laog-cat.sh\?enqtype\=BORROWER
 <A HREF="/cgi-bin/dun_laog-cat.sh?enqtype=BORROWER&language="><IMG SRC="/catalogue-new-v5/../catalogue/../catalogue/buttons/borrower-button2.gif" HSPACE=3 BORDER=0 ALT="Borrower Information"></A>
 </FORM>
 
+=head1 AIE! Web page hs changed Feb 2007
+
+login here:
+http://libcat.dlrcoco.ie/cgi-bin/vps2.5_borrower.sh
+
+form  name ="borr_entry" method="post" onsubmit="return borrower_valid(this)" action="">
+<input type="hidden" name="session_no" value="10040"/>
+<input type="hidden" name="time" value=""/>
+<input type="hidden" name="enqtype" value="MENU"/>
+<input type="hidden" name="enqpara1" value="query"/>
+<input type="hidden" name="from" value=""/>
+<span class="bold">Please enter your library card number</span>
+<input name="borrpara1" type="text " size="14" maxlength="14" value=""/>
+<script language="javascript" type="TEXT/JAVASCRIPT">
+<!--
+document.borr_entry.borrpara1.value = "";
+document.borr_entry.borrpara1.focus();
+// -->
+</script>
+<label for="borrpara2"><span class="bold">and PIN</span></label>
+<input name="borrpara2" id="borrpara2" type="password" size="4" maxlength="4" value=""/>
+<input type="hidden" name="end" value="1">
+<br/>
+<input type="submit" value="Login" title="Login button" />
+<input type="reset" value="Clear" title="Clear button" />
+<br/>
+</form>
+
 =cut
 
 use WWW::Mechanize;
@@ -117,6 +145,10 @@ use Data::Dumper;
 
 use Time::Local;
 use POSIX qw(mktime);
+
+#use HTML::Parser;
+use HTML::PullParser;
+
 
 my $mech = WWW::Mechanize->new();
 
@@ -130,7 +162,9 @@ my $mech = WWW::Mechanize->new();
 ##############################
 ##############################
 # set default config
-my $BASEURL = "http://libcat.dlrcoco.ie/cgi-bin/dun_laog-cat.sh";
+my $BASEURL0 = "http://libcat.dlrcoco.ie/";
+my $BASEURL = #"http://libcat.dlrcoco.ie/cgi-bin/dun_laog-cat.sh";
+    "http://libcat.dlrcoco.ie/cgi-bin/vps2.5_borrower.sh";
 my $BORROWER="D2000000111111";
 my $PIN=7777;
 my $MAILTO="me\@somewhere.org, you\@somewhere.org";
@@ -214,20 +248,29 @@ sub logmessage {
     print $MSG;
 }
 
-##############################
-##############################
-##############################
-# 1. get login page, fill in login/pin, submit login
 
-#login, then list of author/title/date due back (or login skipped if logged in already)
-##http://libcat.dlrcoco.ie/cgi-bin/dun_laog-cat.sh?enqtype=BORROWER&enqpara1=loans&language=&borrower=D2000000111111&borrower2=7777
+##############################
+##############################
+##############################
+# 1. get front page, fllow borrower info link wih session t login page, 
+#    fill in login/pin, submit login
+
 $ACTION = "get login page";
-my $url_loans = $BASEURL . "?enqtype=BORROWER&enqpara1=loans&language=&borrower=" . $BORROWER . "&borrower2=" . $PIN;
-
+my $url_loans = $BASEURL0;
 $mech->get( $url_loans );
+logmessage( $ACTION .  "status: " . $mech->status() . ", title: " . $mech->title() . "\n");
 die "couldn't even " . $ACTION . "\n" if !$mech->success();
 
+#	<li> <a title="Link to Borrower Information" href="http://libcat.dlrcoco.ie/cgi-bin/vps2.5_borrower.sh?session_no=10175" target="_top">Borrower Information</a></li>
+$ACTION="Find Borrower Information link";
+my $bi_link=$mech->find_link( text_regex => qr/Borrower Information/i );
 logmessage( $ACTION .  "status: " . $mech->status() . ", title: " . $mech->title() . "\n");
+die "couldn't even " . $ACTION . "\n" if (!$mech->success() || !$bi_link);
+
+$ACTION="Follow Borrower Info link: " . $bi_link->url();
+$mech->get($bi_link->url());
+logmessage( $ACTION .  "status: " . $mech->status() . ", title: " . $mech->title() . "\n");
+die "couldn't even " . $ACTION . "\n" if (!$mech->success());
 
 ## first time not logged in, returns login page.
 # <FORM METHOD=POST onsubmit="return borrower_form_Validator(this)" name="borrower_form">
@@ -240,13 +283,16 @@ goto SkipLogin if ($mech->title() eq "Borrower Loans and Renewals");
 
 # login
 $ACTION="submit login details";
-$mech->submit_form(form_name => 'borrower_form',
-                                           fields => { borrpara1 => $BORROWER, 
-                                                              borrpara2 => $PIN },
-                                           button => 'Search');
 
-die "couldn't " . $ACTION . "\n" if !$mech->success();
+logmessage("action $ACTION");
+
+$mech->submit_form(form_name => 'borr_entry',
+		   fields => { borrpara1 => $BORROWER, 
+			       borrpara2 => $PIN });
+		   #button => 'Login');
+
 logmessage( $ACTION .  "status: " . $mech->status() . ", title: " . $mech->title() . "\n");
+die "couldn't " . $ACTION . "\n" if !$mech->success();
 
 ##############################
 ##############################
@@ -254,22 +300,29 @@ logmessage( $ACTION .  "status: " . $mech->status() . ", title: " . $mech->title
 # 2. next is personal info page name, etc...
 # goto "Loans"
 
-#<A HREF=dun_laog-cat.sh?enqtype=BORROWER&enqpara1=loans&language=1&borrower=D2000000111111&borrower2=7777><IMG SRC="/catalogue-new-v5/../catalogue/buttons/loans-button2.gif" BORDER=0 HSPACE=3 ALT="Loans"></A>
-#<A HREF=dun_laog-cat.sh?enqtype=BORROWER&enqpara1=charges&language=1&borrower=D2000000111111&borrower2=7777><IMG SRC="/catalogue-new-v5/../catalogue/buttons/fines-button2.gif" BORDER=0 HSPACE=3 ALT="Charges"></A>
-#<A HREF=dun_laog-cat.sh?enqtype=BORROWER&enqpara1=reservations&language=1&borrower=D2000000111111&borrower2=7777><IMG SRC="/catalogue-new-v5/../catalogue/buttons/reservations-button2.gif" BORDER=0 HSPACE=3 ALT="Reservations"></A>
+#<ul>
+#<li><a title="Link to Catalogue Homepage " href="http://libcat.dlrcoco.ie/cgi-bin/vps2.5_viewpoint.sh?session_no=10175" target="_top">Catalogue Homepage</a></li>
+#<li><a title="Link to Your Details " href="http://libcat.dlrcoco.ie/cgi-bin/vps2.5_borrower.sh?session_no=10175&amp;time=&amp;enqtype=BORROWER&amp;enqpara1=details" target="_top" class="subnav">Your Details</a></li>
+#<li><a title="Link to Your Account " href="http://libcat.dlrcoco.ie/cgi-bin/vps2.5_borrower.sh?session_no=10175&amp;time=&amp;enqtype=BORROWER&amp;enqpara1=account" target="_top" class="subnav">Your Account </a></li>
+#
+#<li><a title="Link to Your Loans " href="http://libcat.dlrcoco.ie/cgi-bin/vps2.5_borrower.sh?session_no=10175&amp;time=&amp;enqtype=LOANS&amp;enqpara1=loans"target="_top" class="subnav">Your Loans</a></li>
+#<li><a title="Link to Your Loans History " href="http://libcat.dlrcoco.ie/cgi-bin/vps2.5_borrower.sh?session_no=10175&amp;time=&amp;enqtype=LOAN&amp;enqpara1=history" target="_top" class="subnav">Your Loans History</a></li>
+#<li><a title="Link to Your Reservations " href="http://libcat.dlrcoco.ie/cgi-bin/vps2.5_borrower.sh?session_no=10175&amp;time=&amp;enqtype=BORROWER&amp;enqpara1=reservations" target="_top" class="subnav">Your Reservations</a></li>
+#<li><a title="Link to Your Comments " href="http://libcat.dlrcoco.ie/cgi-bin/vps2.5_comments.sh?session_no=10175&amp;time=&amp;enqtype=BORROWER&amp;enqpara1=view-comments&amp;from=BORROWER" target="_top" class="subnav">Your Comments</a></li>
 
-#<A HREF="/cgi-bin/dun_laog-cat.sh?enqtype=DEFAULT&enqpara1=ANY&language=1"><IMG SRC="/catalogue-new-v5/../catalogue/../catalogue/buttons/home-button2.gif" HSPACE=3 BORDER=0 ALT="Home"></A>
-#<A HREF="/cgi-bin/dun_laog-cat.sh?enqtype=AUTHOR&language=1"><IMG SRC="/catalogue-new-v5/../catalogue/../catalogue/buttons/author-button2.gif" HSPACE=3 BORDER=0 ALT="Author Search"></A>
-#<A HREF="/cgi-bin/dun_laog-cat.sh?enqtype=TITLE&language=1"><IMG SRC="/catalogue-new-v5/../catalogue/../catalogue/buttons/title-button2.gif" HSPACE=3 BORDER=0 ALT="Title Search"></A>
-#<A HREF="/cgi-bin/dun_laog-cat.sh?enqtype=KEYWORD&language=1"><IMG SRC="/catalogue-new-v5/../catalogue/../catalogue/buttons/keyword-button2.gif" HSPACE=3 BORDER=0 ALT="Keyword Search"></A>
-#<A HREF="/cgi-bin/dun_laog-cat.sh?enqtype=BORROWER&language=1"><IMG SRC="/catalogue-new-v5/../catalogue/../catalogue/buttons/borrower-button2.gif" HSPACE=3 BORDER=0 ALT="Borrower Information"></A>
-$ACTION="go to Loans page (list of books)";
-$mech->get( $url_loans );
+#<a title="Link to loans" href="http://libcat.dlrcoco.ie/cgi-bin/vps2.5_borrower.sh?session_no=10175&amp;time=&amp;enqtype=LOANS&amp;enqpara1=loans">
+#<span class="bold">Loans</span>
+#</a>
 
-die "couldn't " . $ACTION . "\n" if !$mech->success();
-logmessage( $ACTION .  "status: " . $mech->status() . ", title: " . $mech->title() . "\n");
 
 SkipLogin:
+
+$ACTION="Find and Follow loans link";
+$mech->follow_link( text_regex => qr/Loans/i );
+logmessage( $ACTION .  "status: " . $mech->status() . ", title: " . $mech->title() . "\n");
+die "couldn't " . $ACTION . "\n" if (!$mech->success() || !$bi_link);
+
+ 
 
 
 ##############################
@@ -281,31 +334,6 @@ SkipLogin:
 #     send email if action was taken (renew - reporting status) or can't renew
   
 
-#<PRE>
-#Author                 Title                                       Date due back
-#--------------------------------------------------------------------------------<BR>
-#<A HREF=dun_laog-cat.sh?enqtype=BORROWER&enqpara1=renewals&language=1&author=Powell+Micelle&title=Mosaics&item=04311116779004&rcn=0431111677&borrower=D2000000111111&borrower2=7777&renewable=0&category=&renewcount=2&reservations=0&itemreserved=0&stopfines=0&freeissues=0&overdue=-21&duedate=17/07/06&issuedate=08/05/06&renewdate=25/06/06&i_category=15&homebranch=44&awaybranch=44>Powell Micelle         Mosaics                                       17/07/06
-#</A><A HREF=dun_laog-cat.sh?enqtype=BORROWER&enqpara1=renewals&language=1&author=Nesbit,+E.&title=Five+Children+and+It&item=05633606584003&rcn=0563360658&borrower=D2000000111111&borrower2=7777&renewable=0&category=&renewcount=2&reservations=0&itemreserved=0&stopfines=0&freeissues=0&overdue=-21&duedate=17/07/06&issuedate=08/05/06&renewdate=25/06/06&i_category=16&homebranch=44&awaybranch=44>Nesbit, E.             Five Children and It                          17/07/06
-#</A><A HREF=dun_laog-cat.sh?enqtype=BORROWER&enqpara1=renewals&language=1&author=Birkinshaw+Marie&title=Bounce&item=07214818179001&rcn=0721481817&borrower=D2000000111111&borrower2=7777&renewable=0&category=&renewcount=3&reservations=0&itemreserved=0&stopfines=0&freeissues=0&overdue=-21&duedate=17/07/06&issuedate=12/04/06&renewdate=25/06/06&i_category=16&homebranch=44&awaybranch=44>Birkinshaw Marie       Bounce                                        17/07/06
-#
-#</A><A HREF=dun_laog-cat.sh?enqtype=BORROWER&enqpara1=renewals&language=1&author=Rowling+J.+K.&title=Harry+Potter+and+the+half-blood+prince&item=07475810889014&rcn=0747581088&borrower=D2000000111111&borrower2=7777&renewable=0&category=&renewcount=1&reservations=1&itemreserved=0&stopfines=0&freeissues=0&overdue=7&duedate=19/06/06&issuedate=08/05/06&renewdate=26/05/06&i_category=16&homebranch=44&awaybranch=44>Rowling J. K.          Harry Potter and the half-blood prince        19/06/06
-#</A><A HREF=dun_laog-cat.sh?enqtype=BORROWER&enqpara1=renewals&language=1&author=Cabot+Meg&title=Princess+Diaries+Mia+goes+fourth&item=14050341229001&rcn=1405034122&borrower=D2000000111111&borrower2=7777&renewable=0&category=&renewcount=3&reservations=0&itemreserved=0&stopfines=0&freeissues=0&overdue=-21&duedate=17/07/06&issuedate=12/04/06&renewdate=25/06/06&i_category=21&homebranch=44&awaybranch=44>Cabot Meg              Princess Diaries Mia goes fourth              17/07/06
-#</A>
-#</PRE>
-
-
-# use links/forms/content to verify we got the page content okay and that what we expect to be there is there.
-# a link:
-#$VAR4 = bless( [
-#                 'dun_laog-cat.sh?enqtype=BORROWER&enqpara1=renewals&language=&author=Rowling+J.+K.&title=Harry+Potter+and+the+half-blood+prince&item=07475810889014&rcn=0747581088&borrower=D2000000111111&borrower2=7777&renewable=0&category=&renewcount=1&reservations=1&itemreserved=0&stopfines=0&freeissues=0&overdue=7&duedate=19/06/06&issuedate=08/05/06&renewdate=26/05/06&i_category=16&homebranch=44&awaybranch=44',
-#                 'Rowling J. K. Harry Potter and the half-blood prince 19/06/06',
-#                 undef,
-#                 'a',
-#                 $VAR1->[4],
-#                 {
-#                   'href' => 'dun_laog-cat.sh?enqtype=BORROWER&enqpara1=renewals&language=&author=Rowling+J.+K.&title=Harry+Potter+and+the+half-blood+prince&item=07475810889014&rcn=0747581088&borrower=D2000000111111&borrower2=7777&renewable=0&category=&renewcount=1&reservations=1&itemreserved=0&stopfines=0&freeissues=0&overdue=7&duedate=19/06/06&issuedate=08/05/06&renewdate=26/05/06&i_category=16&homebranch=44&awaybranch=44'
-#                 }
-#               ], 'WWW::Mechanize::Link' );
 
 
 ##############################
@@ -332,69 +360,16 @@ my ($count_books, $count_renew, $count_renew_fail, $count_overdue, $count_coming
 sub renewbook {
     my $link = shift;
     my $days = shift;
-    #global $count_renew, $count_renew_fail;
-    #global $mech;
-    #global $STATUS;
 
-        # save where we are in case of failure
-        $mech->_push_page_stack();
+    # save where we are in case of failure
+    $mech->_push_page_stack();
 
-        # renew the BOOK!
-        my $bookstatus = "    ATTEMPT RENEW. " . $days . " days.";
+    # renew the BOOK!
+    my $bookstatus = "    ATTEMPT RENEW. " . $days . " days.";
+    $LOG.=Dumper($mech->content());
 
-        $ACTION="go to Book page (to renew)";
-        $mech->get($link->url());
-        if (!$mech->success()){
-            logmessage( "ERROR: couldn't " . $ACTION . "\n") ;
-            $count_renew_fail++;
-        } else {
-            logmessage( $ACTION . " status: " . $mech->status() . ", title: " . $mech->title() . "\n");
-
-            # Click renew button
-#<B>If you want to renew this item click on the 'Renew' button below. If not, click 'Cancel' or select one of the links at the bottom of the page.</B>
-#<A HREF="dun_laog-cat.sh?enqtype=BORROWER&enqpara1=renew-title&language=&renewdate=25%2F06%2F06&borrower=D2000000111111&borrower2=7777&hire_flag=0&fine_flag=0&item=04311116779004&issuedate=08%2F05%2F06&duedate=17%2F07%2F06&title=Mosaics&hire_charge=0.00&fine=&new_date=17%2F07%2F06&renewcount=2&borrower_status=&borrower_account=2.20"><IMG SRC="/catalogue-new-v5/../catalogue/buttons/renew-button2.gif" BORDER=0 ALT="Yes, renew"></a>
-#<A HREF="dun_laog-cat.sh?enqtype=BORROWER&enqpara1=loans&language=&borrower=D2000000111111&borrower2=7777"><IMG SRC="/catalogue-new-v5/../catalogue/buttons/cancel-button2.gif" BORDER=0 ALT="No, don't renew"></a>
-
-            $ACTION="Find renew link";
-            my $renew_link=$mech->find_link( url_regex => qr/renew-title/i );
-            if (!$mech->success() || !$renew_link){
-                logmessage( "ERROR: couldn't " . $ACTION . "\n"); 
-                $count_renew_fail++;
-#e.g.
-#<B>Sorry, this item cannot be renewed as it has been reserved by other library members.</B>
-#<BR><BR>Please select a link to the approproate screen.
-
-# $mech->content() call needs HTML::TreeBuilder
-                my $renew_fail_content = $mech->content( format => "text" );
-                $renew_fail_content =~ s/Please select.*//m;
-
-            } else {
-                $ACTION="Click renew link";
-                $mech->get($renew_link->url());
-
-                if (!$mech->success()){
-                    logmessage( "ERROR: couldn't " . $ACTION . "\n"); 
-                    $count_renew_fail++;
-                } else {
-                    logmessage( $ACTION . " status: " . $mech->status() . ", title: " . $mech->title() . "\n");  
-
-                    ## 
-                    ## TODO one last check to see if renew was okay?
-                    ## This part not tested.
-                    $LOG.=Dumper($mech->content());
-
-                    $count_renew++;
-
-                }
-
-            }
-  
-        }
-
-        $bookstatus = "    RENEW $MSG.";
-
-        # restore where we were
-        $mech->_pop_page_stack();
+    # restore where we were
+    $mech->_pop_page_stack();
     return $bookstatus;
 }
 
@@ -407,8 +382,168 @@ my $max_days = 0;
 ##############################
 # globals in: $mech, $LOG, $MSG, system stuff
 # globals out: $count_xxx $min_days $max_days, status for each book in $STATUS 
+
+=head1 each book listed in table (in renew form)
+
+<form method="post" action="http://libcat.dlrcoco.ie/cgi-bin/vps2.5_borrower.sh" name="bulk_renew" id="bulk_renew">
+<input type="hidden" name="session_no" value="10175">
+<input type="hidden" name="enqtype" value="BORROWER">
+<input type="hidden" name="enqpara1" value="bulk-renewals">
+<input type="HIDDEN" name="borrower" value="D2000000204552">
+<input type="HIDDEN" name="borrower2" value="2323">
+<input type="HIDDEN" name="family" value="">
+
+<table width='100%' border='0' cellspacing='5' cellpadding='0'>
+
+*chomp*
+
+<tr>
+<td width="10%" valign="top" align="left">23/03/07                 </td>
+<td width="40%" valign="top" align="left">Horrid Henry and the Secret Club <span class="bold">by</span> Simon Francesca</td>
+<td width="20%" valign="top"> </td>
+<td width="20%" valign="top" align="right">0.00</td>
+<td width="10%" valign="top" align="center"><input type='CHECKBOX' name='loan_list0' value='18588129259051' checked='checked'></td>
+</tr>
+
+*chomp*
+
+<td colspan='5' align='center'>You are able to renew ALL the items you have on loan.</td>
+
+<td align='center'><input type='submit' VALUE='Renew'></td>
+
+=cut
+
 sub processbooks {
     my $do_renew = shift;
+
+## find all of these
+## <input type='CHECKBOX' name='loan_list0' value='18588129259051' checked='checked'>
+
+    my $renew_form = $mech->form_name( "bulk_renew" );
+
+    my $html = $mech->content();
+
+    ##my $p = new HTML::TreeExtract;
+    #my $p = HTML::Parser->new();
+    #$p->parse($html);
+    #$p->eof;
+
+    #my @FORM_TAGS = qw(form input textarea button select option);
+    my $p = HTML::PullParser->new(doc => \$html,
+				  start => 'event, tagname, @attr',
+				  end   => 'event, tagname',
+				  text  => '@{text}',
+    #			      start => 'tag, attr',
+    #	  	              end   => 'tag',
+    #			      report_tags => \@FORM_TAGS,
+				  ignore_elements => [qw(script style)],
+				  ) || die "Can't HTML::PullParser: $!";
+
+    # 1. go to bulk_renew form
+    # 2. go to each <tr> (1st/last <tr> are informational
+    # 3. get book date, name, ?, fine, checkbox
+
+    my $book_count = 0;
+    my $tr_count = 0;
+    my @books; # array of hash
+
+    my $book_detail_count = 0;
+    my $td_count = 0;
+
+    while (my $t = $p->get_token) {
+	#...do something with $token
+	#print "token: " . Dumper($t);  
+
+	# next unless ref $t; # skip text
+	if (ref $t) {
+	    my %ht = @$t;
+	    #print "tag: " . $t->[1] . "\n";
+
+	    if ($t->[1] eq "form") {
+		print "form name: " . %ht->{'name'} . "\n";
+
+		if (%ht->{'name'} eq "bulk_renew") {
+		    # 1. got bulk_renew form
+		    logmessage( "parse bulk_renew form");
+
+		    while ($t = $p->get_token) {
+			if (ref $t) {
+			    my %ht = @$t;
+			    #print "tag: " . $t->[1] . "\n";
+			    if ($t->[1] eq "tr" && $t->[0] eq "start") {
+				# 2. got <tr> (1st/last <tr> are informational
+				$tr_count++;
+				$td_count=0;
+				#logmessage( "got tr" . $tr_count . "\n");
+			    } elsif ($t->[1] eq "td" && $t->[0] eq "start") {
+				# 3. get book date, name, ?, fine, checkbox
+				$td_count++;
+			    } elsif ($t->[1] eq "input" && %ht->{'type'} eq "CHECKBOX") { # checkbox
+				#print "type: " . %ht->{'type'} . "\n";
+				#print "name: " . %ht->{'name'} . "\n";
+
+				# 3. get book date, name, ?, fine, checkbox
+				#print "input: " . Dumper($t);  
+				$books[$tr_count]->{'isabook'} = 1;
+				$books[$tr_count]->{'checkbox_name'} = %ht->{'name'};
+				$book_count++;
+
+			    }
+			} else {
+			    # 3. get book date, name, ?, fine, checkbox
+			    if ($tr_count > 0 && $td_count < 20) {
+				# store text as book detail
+				$books[$tr_count]->{$td_count} .= $t;
+				#print "books[$tr_count]->{$td_count} = $t\n";
+				$book_detail_count++;
+			    }
+			}
+
+		    }
+		}
+	    }
+
+	} #else {
+	#    #print "text: " . $t . "\n";
+	#}
+
+    }
+
+
+    # now we have a nice @books array hash
+    # entries are all contents of <tr>
+    # not all entries are books
+
+    #print Dumper(@books); # array of hash
+    logmessage ( "Found $book_count books.\n");
+    
+    my $found_book = 0;
+    foreach my $book (@books) {
+	if ($book->{'isabook'}) {
+
+	    $found_book++;
+	    logmessage("book: " . $book->{'checkbox_name'}
+		       . " fine: " . $book->{'4'}
+	               . " due: " . $book->{'1'}
+		       . " title: " . $book->{'2'} . "\n");
+
+# e.g.
+# book: loan_list5 fine: 0.00
+# due: 23/03/07                 
+# title: Swallows and amazons by Ransome Arthur
+
+	    my @bookdate = ($book->{'1'} =~ m/.* (\d\d)\/(\d\d)\/(\d\d)$/);
+
+	} else {
+	    if ($found_book > 0) {
+		logmessage("message: " . $book->{'1'} );
+		# informational, e.g. 'You are able to renew ALL the items you have on loan.'
+		# just the 1th element after go through books
+	    }
+	}
+
+    }	
+
 
 my @links = $mech->find_all_links(url_regex => qr/&author=/i);
 foreach my $link (@links) {
