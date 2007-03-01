@@ -349,26 +349,11 @@ my $nowts = time();
 
 my ($count_books, $count_renew, $count_renew_fail, $count_overdue, $count_coming_up) = (0,0,0,0,0);
 
-##############################
-##############################
-##############################
-# globals out:             $count_renew_fail++;     or $count_renew++;
-# return bookstatus
-sub renewbook {
-    my $link = shift;
-    my $days = shift;
-
-    # save where we are in case of failure
-    $mech->_push_page_stack();
-
-    # renew the BOOK!
-    my $bookstatus = "    ATTEMPT RENEW. " . $days . " days.";
-    $LOG.=Dumper($mech->content());
-
-    # restore where we were
-    $mech->_pop_page_stack();
-    return $bookstatus;
-}
+# save where we are in case of failure
+#$mech->_push_page_stack();
+#    $LOG.=Dumper($mech->content());
+# restore where we were
+#$mech->_pop_page_stack();
 
 
 my $min_days = 1000; # goes negative
@@ -484,6 +469,7 @@ sub processbooks {
 				$books[$tr_count]->{'isabook'} = 1;
 				$books[$tr_count]->{'checkbox_name'} = %ht->{'name'};
 				$book_count++;
+				$count_books++;
 
 			    }
 			} else {
@@ -553,7 +539,6 @@ sub processbooks {
 		    # always do all at once? => easier, one form submit
 		    logmessage("marking all books for renew");
 		    $renew_all_books = 1;
-		    #$bookstatus = renewbook($link,$days);
 		}
 	    }
 
@@ -600,6 +585,9 @@ sub processbooks {
 my $do_renew = processbooks(1); 
 my $renewhtml = "";
 
+my ($old_count_books, $old_count_coming_up, $old_count_renew,
+    $old_count_overdue, $old_min_days, $old_STATUS);
+
 if ($do_renew) {
     $ACTION="renew all books (because one is close to due)";
     $mech->submit_form(form_name => 'bulk_renew');
@@ -607,22 +595,19 @@ if ($do_renew) {
     logmessage( $ACTION .  "status: " . $mech->status() . ", title: " . $mech->title() . "\n");
     $renewhtml = $mech->content();
     logmessage("Renew results follow: " . $renewhtml);
-}
 
-##############################
-##############################
-##############################
-# NOW get status again if we have changed it by renewing something
-my $old_count_books = $count_books;
-my $old_count_coming_up = $count_coming_up;
-my $old_count_renew = $count_renew;
-my $old_count_overdue = $count_overdue;
-my $old_min_days = $min_days;
-my $old_STATUS = $STATUS;
+    # NOW get status again if we have changed it by renewing something
+    $old_count_books = $count_books;
+    $old_count_coming_up = $count_coming_up;
+    $old_count_renew = $count_renew;
+    $old_count_overdue = $count_overdue;
+    $old_min_days = $min_days;
+    $old_STATUS = $STATUS;
 
-if ($count_renew>0) {
-    $ACTION="reload  Loans page (to get updated list of books)";
-    $mech->reload();
+    $ACTION="Find and Follow loans link";
+    $mech->follow_link( text_regex => qr/Loans/i );
+
+    #$mech->reload();
     if (!$mech->success()){
         logmessage( "ERROR: couldn't " . $ACTION . "\n"); 
     } else {
@@ -633,6 +618,7 @@ if ($count_renew>0) {
         my $max_days = 0;
         processbooks(0); # process books and retrieve status only
     }
+
 }
  
 
