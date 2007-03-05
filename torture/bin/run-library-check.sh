@@ -2,8 +2,8 @@
 
 BORROWER=D2000000204552
 PIN=2323
-#MAILTO="jamesc@dspsrv.com,fionnuala@callan.de"
-MAILTO="jamesc@dspsrv.com"
+MAILTO="jamesc@dspsrv.com,fionnuala@callan.de"
+#MAILTO="jamesc@dspsrv.com"
 MAILPROG="mail -r jamesc@dspsrv.com"
 # my qmail is configured not-so-goodly :-7
 
@@ -19,7 +19,7 @@ RETVAL=77
 export PATH=$PATH:/usr/local/bin
 
 #need half hour for sleep 600 retry an MAX_RETRY
-MAX_RETRY=3
+MAX_RETRY=6
 TRY_COUNT=0
 
 while [[ $RETVAL != 0 ]] ; do
