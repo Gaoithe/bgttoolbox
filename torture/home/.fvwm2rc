@@ -161,18 +161,32 @@ Style "APM"         NoTitle,NoHandles,Sticky,WindowListSkip
 Style "IrDA"        NoTitle,NoHandles,Sticky,WindowListSkip
 Style "Sharemon"    NoTitle,NoHandles,Sticky,WindowListSkip
 
+
+#############################
+# 1 0  #      #      #      #
+#      #      #      #      #
+#############################
+# 0 1  #      #      #      #
+#      #      #      #      #
+#############################
 Style "VM"          StartsOnPage 0 0,SkipMapping
 
 # Mozilla
 Style "navigator:browser"   StartsOnPage 1 0,SkipMapping
 Style "Mozilla-bin" StartsOnPage 1 0,SkipMapping
 Style "mozilla-bin" StartsOnPage 1 0,SkipMapping
+Style "firefox" StartsOnPage 0 1,SkipMapping
+Style "firefox-bin" StartsOnPage 0 1,SkipMapping
 Style "mail:3pane"  StartsOnPage 2 0,SkipMapping
 Style "mutt"  StartsOnPage 2 0,SkipMapping
 Style "ssh"  StartsOnPage 2 0,SkipMapping
 
 # xchat
 Style "X-Chat" StartsOnPage 0 1,SkipMapping
+Style "xchat" StartsOnPage 0 1,SkipMapping
+Style "skype" StartsOnPage 0 1,SkipMapping
+Style "thunderbird" StartsOnPage 0 1,SkipMapping
+Style "thunderbird-bin" StartsOnPage 0 1,SkipMapping
 
 
 # Key bindings
@@ -274,6 +288,7 @@ AddToFunc InitFunction    "I" Module FvwmButtons
 #+			  "I" exec xterm -geometry 100x60+0+0 -name "doolin Mail Doolin.com" -e ssh doolin.com
 +			  "I" exec xchat 
 +			  "I" exec skype 
++			  "I" exec xt slaineproxy
 #+			  "I" exec xterm -geometry 100x60+0+0 -name "Kinsey" -e ssh kinsey
 #+			  "I" exec xterm -geometry 100x60+0+0 -name "Owsla" -e ssh owsla.ie.suberic.net
 #+			  "I" exec xterm -geometry 50x10+0+0 -name "Kinsey" -e ssh kinsey xchat
@@ -294,6 +309,8 @@ AddToMenu Utilities	"Utilities"	Title
 +			"mozilla"       Exec  exec mozilla &
 +                       "screensaver - lock"   Exec  exec xscreensaver-command -lock &
 +                       "xscreensaver - config"  Exec  exec xscreensaver-command -prefs &
++			""		Nop
++			"slaineproxy"	Exec  exec xt slaineproxy &
 +			""		Nop
 +			"Modules"	Popup Module-Popup
 +			""		Nop		
@@ -401,7 +418,7 @@ AddToMenu Window-Ops	"Window Ops"	Title
 *FvwmButtons(3x4, Swallow "FvwmPager" `FvwmPager 0 0`)
 
 *FvwmButtons(Title CommProve, Icon xterm.xpm,\
- Action `Exec xt slaine &`)
+ Action `Exec xt slaineproxy &`)
 
 
 *FvwmButtons(End)

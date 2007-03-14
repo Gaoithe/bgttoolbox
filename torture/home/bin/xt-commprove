@@ -1,0 +1,333 @@
+#!/bin/bash
+
+if [[ "$1" == "" ]] ; then
+  echo "usage: xt <servername>"
+
+  #command="xterm -geometry 100x60+0+0 -sb -sl 1000"
+  command="xterm -geometry 100x47+0+0 -sb -sl 1000"
+  echo $command
+  `$command`
+
+  exit
+fi
+
+
+#GEOM1=100x63+520+10
+#GEOM0=100x60+0+0
+GEOM1=100x60+520+10
+GEOM2=100x60+260+40
+GEOM3=100x60+130+160
+GEOM0=$GEOM3
+
+XDPYDIM=`xdpyinfo |grep "^ *dimensions:"`
+if [[ ! ${XDPYDIM//* 1024x*/} ]] ; then 
+    #echo 1024x something display 
+    #GEOM2=94x47+-10--2
+    #GEOM3=107x49+177-11
+    #GEOM1=85x54--5--8
+
+    GEOM3=100x45+9-16
+    GEOM2=100x51+259-1
+    GEOM1=88x54--2+1
+    GEOM0=$GEOM3
+fi
+
+#xterm -sb -sl 1000 -j -ls -fn 7x14 -name "Local Shell"
+#xterm -geometry $GEOM0 -name "dspsrv Mail Betty" -e mutt
+#xterm -geometry $GEOM0 -name "doolin Mail Doolin.com" -e ssh doolin.com
+#xterm -geometry $GEOM0 -name "Kinsey" -e ssh kinsey
+#xterm -geometry $GEOM0 -name "Owsla" -e ssh owsla.ie.suberic.net
+#xterm -geometry $GEOM0 -name "dspsrv Mail Betty" -e mutt
+#xterm -geometry $GEOM0 -name "doolin Mail Doolin.com" -e ssh doolin.com
+
+#xterm -bg green -fg yellow -e ssh bakunin &
+
+#gtk-demo
+# select colour selector
+#1A1A61
+
+# leitrim 
+
+# kor daire barney.dev.ie.alphyra.com
+#--> daveb (~daveb@ingatestone.ucd.ie) has joined #admin
+#--> kathryn (~kathryn@dunno.dev.ie.alphyra.com) has joined #admin
+#--> kathryn (~kathryn@dialup84-176.utvinternet.net) has joined #dev
+#--> waider (~waider@itg-gw.cr008.cwt.esat.net) has joined #admin
+#--> markus (~markus@markus-dub-1.vpn.alphyra.com) has joined #admin
+#--> stella (~stella@renegade.dev.ie.alphyra.com) has joined #admin
+#--> kev (~kevin@roo.dev.ie.alphyra.com) has joined #admin
+#--> stel (^Astarmain@tchpc.tcd.ie) has joined #admin
+#--> mbroad (~mbroaders@vikings.admin.ie.alphyra.com)
+#--> aimee (~aimee@itg-gw.cr008.cwt.esat.net) has joined #doolin
+#--> jim (~jphelan@itg-gw.cr008.cwt.esat.net) has joined #doolin
+#--> shobha (^#doolin,#@host217-44-236-160.range217-44.btcentralplus.com) has joined #doolin
+#--> kor (~kor@itg-gw.cr008.cwt.esat.net) has joined #doolin
+# jphelan stef
+
+###
+# commprove: 
+# iago 10.1.40.102, 
+# cassio 10.1.40.103
+# bianca 10.1.40.105
+# aries ares.ie.commprove.internal 192.168.0.161
+
+###
+while [[ "$1" != "" ]] ; do
+  server=$1
+  bg=black
+  fg=yellow
+  command=""
+
+  if [[ $1 == "dspsrv" ]] ; then
+    server=www.dspsrv.com
+    bg=seagreen
+    fg=yellow
+  elif [[ $1 == owsla ]] ; then
+    #server=owsla.ie.suberic.net
+    server=owsla.g.dev.ie.alphyra.com
+    bg=#1A1A61
+    #bg=blue
+    fg=yellow
+  elif [[ $1 == lotus ]] ; then
+    server=lotus
+    bg=#1A901a
+    fg=yellow
+  elif [[ $1 == jamesh ]] ; then
+    echo "/usr/sbin/sshd -d -d must be running on jamesh first"
+    server=JamesH@yogi
+    #server=JamesH@192.168.3.161
+    bg=#1A901a
+    fg=yellow
+  elif [[ $1 == vnc ]] ; then
+    #vncviewer 192.168.1.135 -display :0 &
+    echo "hint: JamesH"
+    #command="vncviewer host161.sfrd.ie.alphyra.com"
+    command="vncviewer yogi"
+  elif [[ $1 == kinsey ]] ; then
+    bg=#1A1A61
+    #bg=blue
+    fg=yellow
+  elif [[ $1 == doolin ]] ; then
+    server=www.doolin.com
+    bg=#1A1A61
+    fg=yellow
+  elif [[ $1 == stef ]] ; then
+    server=stef
+    bg=#1A1A61
+    fg=yellow
+  elif [[ $1 == bakunin ]] ; then
+    bg=#400090
+    fg=white
+  elif [[ $1 == mops-test ]] ; then
+    #mops-test.dub.ie.alphyra.com (192.168.10.205)
+    server=mops-test.dub.ie.alphyra.com
+    bg=slategrey
+    fg=yellow
+  elif [[ $1 == mops || $1 == berkman ]] ; then
+    #mops.dub.ie.alphyra.com (192.168.11.100)
+    #xt kathryn@mops.dub.ie.alphyra.com &
+    server=kathryn@mops.dub.ie.alphyra.com
+    bg=slategrey
+    fg=yellow
+  elif [[ $1 == florence ]] ; then
+    server=florence.dub.ie.alphyra.com
+    bg=slategrey
+    fg=yellow
+
+  elif [[ $1 == topup ]] ; then
+   server=topupclub@82.195.134.46
+    bg=slategrey
+    fg=yellow
+
+  elif [[ $1 == topupclub || $1 == tuc ]] ; then
+    server=topupclub@193.111.82.167
+    bg=slategrey
+    fg=white
+  elif [[ $1 == topupclub-test || $1 == tuc-test ]] ; then
+    server=topupclub@192.168.10.211
+    bg=slategrey
+    fg=yellow
+  elif [[ $1 == rrb ]] ; then
+    server=$1
+    bg=slategrey
+    fg=yellow
+  elif [[ $1 == qa || $1 == doolinqa ]] ; then
+    server=doolinqa
+    bg=slategrey
+    fg=yellow
+
+  elif [[ $1 == adpfs-lab || $1 == adpfs ]] ; then
+    server=adpfs@adpfs-lab.rrb.ie.alphyra.com
+    bg=sienna4
+    fg=yellow
+  elif [[ $1 == auis-lab || $1 == auis ]] ; then
+    server=adpfs@auis-lab.rrb.ie.alphyra.com
+    bg=sienna4
+    fg=yellow
+
+
+
+  elif [[ $1 == slaine ]] ; then
+    server=jcoleman@slaine.ie.commprove.com
+    #62.231.48.117.
+    bg=sienna4
+    fg=yellow
+
+  elif [[ $1 == minerva ]] ; then
+    #server=jcoleman@minerva.ie.commprove.com
+    server=jcoleman@10.1.2.10
+    #10.1.2.10
+    bg=slategrey
+    fg=yellow
+
+  elif [[ $1 == iel02 || $1 == jameslaptop ]] ; then
+    server=iel02.ie.commprove.internal 
+    server=james_coleman@192.168.0.107
+    bg=sienna4
+    fg=yellow
+
+  elif [[ $1 == iel01 || $1 == marklaptop ]] ; then
+    server=iel01.ie.commprove.internal 
+    server=192.168.0.131
+    bg=sienna4
+    fg=yellow
+
+#marklaptop,iel01.ie.commprove.internal,192.168.0.131
+#jameslaptop,iel02.ie.commprove.internal,192.168.0.107
+
+  elif [[ $1 == aries || $1 == ares ]] ; then
+    server=ares.ie.commprove.internal
+    bg=sienna4
+    fg=yellow
+
+  elif [[ $1 == apollo || $1 == uno || $1 == iago ]] ; then
+    server=$1.ie.commprove.internal
+    bg=sienna4
+    fg=yellow
+
+  elif [[ $1 == othello ]] ; then
+    #server=othello.ie.commprove.internal
+    server=jcoleman@10.1.40.100
+    bg=slategrey
+    fg=yellow
+
+  elif [[ $1 == desdemona ]] ; then
+    server=jcoleman@10.1.40.101
+    bg=slategrey
+    fg=yellow
+
+  elif [[ $1 == iago ]] ; then
+    server=jcoleman@10.1.40.102
+    bg=slategrey
+    fg=yellow
+
+  elif [[ $1 == cassio ]] ; then
+    server=jcoleman@10.1.40.103
+    bg=slategrey
+    fg=yellow
+
+  elif [[ $1 == emilia ]] ; then
+    server=jcoleman@10.1.40.104
+    bg=slategrey
+    fg=yellow
+
+  elif [[ $1 == bianca ]] ; then
+    server=jcoleman@10.1.40.105
+    bg=slategrey
+    fg=yellow
+
+  elif [[ $1 == uno ]] ; then
+    server=jcoleman@uno.ie.commprove.internal
+    bg=seagreen
+    fg=yellow
+
+
+  elif [[ $1 == raphael ]] ; then
+    server=192.168.0.160
+    title="raphael gsp $server"
+    bg=sienna4
+    fg=yellow
+    command="xterm -title '$title' -geometry $GEOM0 -fg $fg -bg $bg -sb -sl 1000 -e rlogin -l gsp $server"
+
+  # amd: fodbgen seangann
+  # sparc t2000: rianainn?  
+  # traceroute to fodbgen.ie.commprove.test (10.1.40.16), 30 hops max, 40 byte packets
+
+  elif [[ $1 == balder ]] ; then
+    server=rpsuser@balder.ie.commprove.test
+    bg=sienna4
+    fg=yellow
+
+  #fodbgen.ie.commprove.test (10.1.40.16)
+  #SunOS fodbgen 5.10 Generic_118855-33 i86pc i386 i86pc
+
+  elif [[ $1 == fodbgen ]] ; then
+    server=rpsuser@fodbgen.ie.commprove.test
+    bg=sienna4
+    fg=yellow
+
+  elif [[ $1 == rinnial ]] ; then
+    server=rpsuser@rinnial.ie.commprove.test
+    bg=sienna4
+    fg=yellow
+
+  elif [[ $1 == frigg ]] ; then
+    server=rpsuser@frigg.ie.commprove.test
+    bg=sienna4
+    fg=yellow
+
+
+  elif [[ $1 == lazio ]] ; then
+    server=113.210.18.116
+    title="italy live TIM dev machine"
+    bg=#1A1A61
+    fg=yellow
+    command="xterm -title '$title' -geometry $GEOM0 -fg \"$fg\" -bg \"$bg\" -sb -sl 1000 -e telnet $server"
+
+
+  elif [[ $1 == t2000 || $1 == scandicci ]] ; then
+    title="root@T2000scandicci"
+    server=root@192.168.1.64
+    bg=darkblue
+    fg=yellow
+
+  elif [[ $1 == live || $1 == tim ]] ; then
+    bg=#1A1A61
+    fg=yellow
+    proxy=192.168.1.47
+    cmd="telnet root@${proxy} 30950"
+    title="TIM live machine"
+    command="xterm -title '$title' -geometry $GEOM0 -fg \"$fg\" -bg \"$bg\" -sb -sl 1000 -e $cmd"
+    #telnet root@192.168.1.47 30950
+
+  elif [[ $1 == timdev || $1 == dev ]] ; then
+    bg=#1A1A61
+    fg=yellow
+    proxy=192.168.1.47
+    cmd="telnet root@${proxy} 40000"
+    title="TIM dev machine"
+    command="xterm -title '$title' -geometry $GEOM0 -fg \"$fg\" -bg \"$bg\" -sb -sl 1000 -e $cmd"
+    #telnet root@192.168.1.47 30950
+
+    #bg=#400090
+    #fg=white
+
+  else
+    server=$1
+    bg=seagreen
+    fg=yellow    
+  fi
+
+  if [[ $title == "" ]] ; then
+      title=$server
+  fi
+
+  if [[ $command == "" ]] ; then
+    command="xterm -title '$title' -geometry $GEOM0 -fg $fg -bg $bg -sb -sl 1000 -e ssh -X $server"
+  fi
+
+  echo $command
+  `$command`
+
+  shift
+done
