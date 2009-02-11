@@ -53,6 +53,8 @@ sub name {
     return $self->{NAME};
 }
 
+# add one (more) coloured square to this shape
+# used verifying blockus boards
 sub addSquare {
     my $self = shift;
     my ($x, $y, $c);

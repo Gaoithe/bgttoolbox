@@ -77,6 +77,13 @@ last one output is: *  :-7 :) phoo
 =cut 
 
 use strict;
+use warnings;
+
+use lib ".";
+use lib "./bin";
+use BlockusShape;
+use BlockusBoard;
+
 
 my $board_str = qq(
 GG.YYGGGGYBBBBBRRRBB
@@ -104,117 +111,21 @@ RGGGRRRR.RRRRBBB..BY
 print $board_str;
 
 
-my @blockus_colours = unpack("c*","RGBY.");
-my @blockus_colours_desc = ( "red", "green", "blue", "yellow", "blank" );
-my @blockus_colours_skype = ( "(flag:HK)", "(flag:LY)", "(flag:SO)", "(flag:NU)", "(flag:CY)" );
+my $debug = 0;
+
+my $board = BlockusBoard->new();
 
 
-# board string to array
-my @board_str_chars = unpack("c*",$board_str);
+print "# board populate, set by string (and that converted to array)\n";
+$board->populate($board_str);
 
-# array to pieces list/count
-## squares  count
-my %board_char_counts;
-my @board_physical;
-my $i = 0; my ($x,$y);
-foreach my $p (@board_str_chars) {
-    $board_char_counts{$p} += 1;
-    $x = $i%20;
-    $y = $i/20; 
-    print "p is $p, x=$x, y=$y, i=$i\n";
-    #print Dumper(grep(/$p/, (@blockus_colours)));
-    if (grep(/$p/, (@blockus_colours))) {
-	$board_physical[$x][$y] = $p;
-	$i++ 
-    }
-}
+$board->print();
+$board->printSummary();
 
 
-use Data::Dumper; 
-print Dumper(%board_char_counts);
+$board->countShapes();
 
 
-print "x=$x, y=$y\n";
+$board->printBoard();
 
-print Dumper(@board_physical);
-# >;)
-
-
-use lib ".";
-use lib "./bin";
-use BlockusShape;
-
-
-sub add_around_if_colour_matches {
-    my ($r_ashape,$colour,$ra_board,$x,$y) = @_;
-
-    if ($x>=0 && $y>=0) {
-	if ($colour == ${$ra_board}[$x][$y]) {
-	    # take and blank this square
-	    $$r_ashape->addSquare($x,$y); # = $colour;
-     	    #@{$ra_board}->[$x][$y] = $blockus_colours[4]; 
-     	    ${$ra_board}[$x][$y] = $blockus_colours[4]; 
-	    add_all_around_if_colour_matches($r_ashape,$colour,$ra_board,$x,$y);
-        }
-    }
-}
-
-sub add_all_around_if_colour_matches {
-    my ($r_ashape,$colour,$ra_board,$x,$y) = @_;
-    # recursively go right+down and left+up and add all attached cols
-    add_around_if_colour_matches($r_ashape,$colour,$ra_board,$x+1,$y);
-    add_around_if_colour_matches($r_ashape,$colour,$ra_board,$x,$y+1);
-    add_around_if_colour_matches($r_ashape,$colour,$ra_board,$x-1,$y);
-    add_around_if_colour_matches($r_ashape,$colour,$ra_board,$x,$y-1);
-}
-
-
-# take a copy of the board.
-my @board_physical_copy = @board_physical;
-
-#### TODO: slurp shapes off of board in blockus corner linked order and validate that way as well.
-# iterate over board
-# find touching squares of same colour (horiz or vert, not diag),
-#  pull them out into one shape,
-#  blank them on the board
-my $shape_count = 0;
-my @shapes_on_board;
-my $ashape = BlockusShape->new();
-for ($x=0; $x<20; $x++) {
-    for ($y=0; $y<20; $y++) {
-        my $colour = $board_physical_copy[$x][$y];
-	# if not blank
-	if ($colour != $blockus_colours[4]) {
-	    # take and blank this square
-	    $ashape->addSquare($x,$y,$colour);
-	    $board_physical_copy[$x][$y] = $blockus_colours[4]; 
- 	    # recursively go right+down and left+up and add all attached cols
-	    add_all_around_if_colour_matches(\$ashape,$colour,\@board_physical_copy,$x,$y);
-	    push(@shapes_on_board,$ashape);
-	    $ashape->printShape();
-	    $ashape = BlockusShape->new();
-	    
-	}
-
-    }
-}
-
-print "HOI x=$x, y=$y, shapes=$#shapes_on_board, ";
-$ashape->printShape();
-
-
-print " is the board cleared off ?";
-print Dumper(@board_physical);
-
-
-
-print "now, how many shapes? sort by colour, size shape (rotated)  ";
-
-my (%col_count, %col_sz_count) = (0,0);
-foreach my $s (@shapes_on_board) {
-    $col_count{$s->{COLOUR}}++;
-    $col_sz_count{$s->{COLOUR}}{$s->{SIZE}}++;
-}
-
-print Dumper(%col_count);
-print Dumper(%col_sz_count);
+$board->printBoardCurses();

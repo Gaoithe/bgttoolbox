@@ -72,12 +72,16 @@ sub populate {
 sub printSummary {
     my $self = shift;
     print "# couloured square counts array:\n";
+
     use Data::Dumper; 
-    print Dumper($self->{BOARDINFO});
+    #print Dumper($self->{BOARDINFO});
+    foreach my $k (keys(%{$self->{BOARDINFO}})) {
+	print "k=$k kv=$self->{BOARDINFO}->{$k}\n";
+    }
 
     #print "x=$x, y=$y\n";
-    print "# Board physical dumped:\n";
-    print Dumper($self->{BOARDARR});
+    #print "# Board physical dumped:\n";
+    #print Dumper($self->{BOARDARR});
     # >;)
 }
 
@@ -87,36 +91,63 @@ sub print {
 }
 
 
-sub printShape {
+sub printBoard {
     my $self = shift;
-    my $info;
-    if (@_) { $info = shift; print $info; }
-    print "name=".$self->{NAME}.", " if ($self->{NAME});
-    my $w = 1 + $self->{MAXX} - $self->{MINX};
-    my $h = 1 + $self->{MAXY} - $self->{MINY};
-    print "size=".$self->{SIZE}.", w=$w, h=$h, ";
-    print "colour=".$self->{COLOUR}.", " if ($self->{COLOUR});
+    my $aref = shift || \@{ $self->{BOARDARR} };
 
-    print "xoffset=".$self->{MINX}.", " if ($self->{MINX});
-    print "yoffset=".$self->{MINY}.", " if ($self->{MINY});
+    #print Dumper(@$aref);
 
-    print "\nSHAPE:\n";
-    for (my $yi = 0; $yi < $h; $yi++) {
-	for (my $xi = 0; $xi < $w; $xi++) {
-	    if ($self->{ARRAY}[$xi+$self->{MINX}][$yi+$self->{MINY}]) {
-		print "1";
-	    } else {
-		print " ";
-	    }
+    print "\nBOARD:\n";
+    for (my $yi = 0; $yi < $self->{BHEIGHT}; $yi++) {
+	for (my $xi = 0; $xi < $self->{BWIDTH}; $xi++) {
+	    print pack("c",$$aref[$xi][$yi]);
 	}
   	print "\n";
     }
 }
 
 
+sub cursesPutXY {
+    my $self = shift;
+    my $text = shift;
+    my ($x, $y) = (shift, shift);
+    #my ($x,$y) = @_;
+    my $rev = shift;
+
+    my $revstr = "";
+    $revstr = qq([7m) if ($rev);
+
+    print "[".$x.";".$y."H".$revstr.$text;
+		 
+}    
+
+sub printBoardCurses {
+    my $self = shift;
+
+    # init
+    print qq([?1049h[H[2J);
+
+    $self->cursesPutXY("       ",10,10);
+    $self->cursesPutXY("       ",11,11,1);
+    $self->cursesPutXY("       ",12,12);
+
+    print qq([59;13Hblockus);
+    print qq([1;1Hbaa);
+    print qq([1;38H[7m             ). (' ' x 20);
+    print qq([27m[21;60Hmoo\n);
+
+    return;
 
 
+    print qq([27m[1;46H[7m    [27m[1;60H[7m  [27m[2;38H[7m  [27m[2;60H[7m  [27m[3;38H[7m  [27m[3;60H[7m  [27m[4;38H);
 
+    print qq([?1049h[H[2J[59;13Hj - left   k - rotate   l - right   <space> - drop   p - pause   q - quit[1;1HScore: 0[1;38H[7m  [27m[1;46H[7m    [27m[1;60H[7m  [27m[2;38H[7m  [27m[2;60H[7m  [27m[3;38H[7m  [27m[3;60H[7m  [27m[4;38H
+[7m  [27m[4;60H[7m  [27m[5;38H[7m  [27m[5;60H[7m  [27m[6;38H[7m  [27m[6;60H[7m  [27m[7;38H[7m  [27m[7;60H[7m  [27m[8;38H[7m  [27m[8;60H[7m  [27m[9;38H[7m  [27m[9;60H[7m  [27m[10;38H[7m  [27m[10;60H[7m  [27m[11;38H[7m  [27m[11;60H[7m  [27m[12;38H[7m  [27m[12;60H[7m  [27m[13;38H[7m  [27m[13;60H[7m  [27m[14;38H[7m  [27m[14;60H[7m  [27m[15;38H[7m  [27m[15;60H[7m  [27m[16;38H[7m  [27m[16;60H[7m  [27m[17;38H[7m  [27m[17;60H[7m  [27m[18;38H[7m  [27m[18;60H[7m  [27m[19;38H[7m  [27m[19;60H[7m  [27m[20;38H[7m  [27m[20;60H[7m  [27m[21;38H[7m                        [27m[1;46H  [1;50H[7m  [27m[2;46H[7m    [27m[21;60H[7m  [27m[1;48H    [2;46H  [2;50H[7m  [27m[3;46H[7m    [27m[21;60H[7m  [27m[21;60H[7m  [27m[21;60H[7m  [27m[21;60H[7m  [27m[2;48H    [3;46H  [3;50H[7m  [27m[4;46H[7m    [27m[21;60H[7m  [27m[21;60H[7m  [27m[21;60H[7m  [27m[21;60H[7m  [27m[21;60H[7m  [27m[21;60H[7m  [27m[21;60H[7m  [27m[3;48H    
+[4;46H  [4;50H[7m  [27m[5;46H[7m    [27m[21;60H[7m  [27m[4;48H    
+[5;46H  [5;50H[7m  [27m[6;46H[7m    [27m[21;60H[7m  [27m[5;48H    
+																																					    [6;46H  [6;50H[7m  [27m[7;46H[7m    [27m[21;60H[7m  [27m[6;46H[7m    [27m  [7;44H[7m    [27m  [21;60H[7m  [27m[6;44H[7m    [27m  [7;42H[7m    [27m  [21;60H[7m  [27m[6;42H[7m    [27m  [7;40H[7m    [27m  [21;60H[7m  [27m[6;42H    [7;40H  [7;44H[7m  [27m[8;40H[7m    [27m[21;60H[7m  [27m[21;60H[7m  [27m[1;1HScore: 12[7;42H    [8;40H    [19;42H[7m    [27m[20;40H[7m    [27m[21;60H[7m  [27m[1;1HScore: 13[1;46H[7m      [27m[2;48H[7m  [27m[21;60H[7m  [27m[1;46H      [2;46H[7m      [27m[3;48H[7m  [27m[21;60H[7m  [27m[1;48H[7m  [27m[2;46H  [21;60H[7m  [27m[2;46H[7m  [27m[3;48H  [21;60H[7m  [27m[1;48H  [2;46H  [2;50H  [3;46H[7m      [27m[21;60H[7m  [27m[1;1HScore: 30[2;48H  [3;46H      [19;48H[7m  [27m[20;46H[7m      [27m[21;60H[7m   [27m[21;60Hmoo);
+
+}
 
 
 sub add_around_if_colour_matches {
@@ -183,6 +214,8 @@ sub countShapes {
 		push(@{$self->{SHAPEARR}},$ashape);
 		$ashape->printShape();
 		$ashape = BlockusShape->new();
+
+		$self->printBoard(\@board_physical_copy);
 		
 	    }
 	    
@@ -196,11 +229,13 @@ sub countShapes {
 
 
     print "#is the board cleared off ?";
-    print Dumper(@board_physical_copy);
+    #print Dumper(@board_physical_copy);
+    $self->printBoard(\@board_physical_copy);
 
 
 
     print "now, how many shapes? sort by colour, size shape (rotated)  ";
+    print "\n";
 
     my (%col_count, %col_sz_count) = (0,0);
     foreach my $s (@shapes_on_board) {
@@ -208,9 +243,23 @@ sub countShapes {
 	$col_sz_count{$s->{COLOUR}}{$s->{SIZE}}++;
     }
     
-    print Dumper(%col_count);
-    print Dumper(%col_sz_count);
+    
+    #print Dumper(%col_count);
+    print "Shape counts for colours: ";
+    foreach my $k (sort(keys(%col_count))) {
+	print pack("c",$k) . ":" . $col_count{$k} . " " if ($k);
+    }
+    print "\n";
 
+    #print Dumper(%col_sz_count);
+    print "Shape count breakdown:\n";
+    foreach my $k (sort(keys(%col_sz_count))) {
+	print "colour:" . pack("c",$k) . "  ";
+	foreach my $k2 (sort(keys(%{$col_sz_count{$k}}))) {
+	    print "size=$k2 count=" . $col_sz_count{$k}{$k2} . "  ";
+	}
+	print "\n";
+    }
 
 }
 
