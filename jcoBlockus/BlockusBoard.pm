@@ -6,6 +6,12 @@ use BlockusShape;
 # TODO a BlockusShape is just a BlockusBoard, a BlockusBoard is just a BlockusShape :)  Chicken or egg.  Inherit.  Same class?
 # A board has shapes/squares with different colours
 
+my @blockus_colours = unpack("c*","RGBY.");
+my @blockus_colours_desc = ( "red", "green", "blue", "yellow", "blank" );
+my @blockus_colours_skype = ( "(flag:HK)", "(flag:LY)", "(flag:SO)", "(flag:NU)", "(flag:CY)" );
+my @blockus_colours_curses = ( 1, 2, 4, 3 );
+my %blockus_colours_c_to_curses;
+
 sub new {
     my $proto = shift;
     my $class = ref($proto) || $proto;
@@ -29,13 +35,14 @@ sub new {
     $self->{MAXY}   = 0;
     $self->{MINY}   = 500;
 
+    for (my $i=0; $i<5; $i++) {
+	my $ci = $blockus_colours[$i];
+	$blockus_colours_c_to_curses{$ci} = $blockus_colours_curses[$i];
+    }
+
     bless($self,$class);
     return $self;
 }
-
-my @blockus_colours = unpack("c*","RGBY.");
-my @blockus_colours_desc = ( "red", "green", "blue", "yellow", "blank" );
-my @blockus_colours_skype = ( "(flag:HK)", "(flag:LY)", "(flag:SO)", "(flag:NU)", "(flag:CY)" );
 
 
 sub populateFromString {
@@ -107,29 +114,95 @@ sub printBoard {
 }
 
 
+#attr: 0=Reset, 1Bright, 2Dim,  3Underline,  5Blink,  7Reverse,  8Hidden
+#fg:   30 + (0Black,  1Red,  2Green,  3Yellow,  4Blue,  5Magenta,  6Cyan,  7White)
+#bg:   40 + (")
+sub cursesCol {
+    my $self = shift;
+    my ($attr, $fg, $bg) = (shift, shift, shift);
+    my $text = shift || ""; # optional
+
+    print "[".$attr.";".$fg.";".$bg."m".$text;
+}
+
 sub cursesPutXY {
     my $self = shift;
     my $text = shift;
     my ($x, $y) = (shift, shift);
-    #my ($x,$y) = @_;
     my $rev = shift;
 
     my $revstr = "";
     $revstr = qq([7m) if ($rev);
 
-    print "[".$x.";".$y."H".$revstr.$text;
+    print "[".$y.";".$x."H".$revstr.$text;
 		 
 }    
 
 sub printBoardCurses {
     my $self = shift;
+    my $aref = shift || \@{ $self->{BOARDARR} };
+
+    my $BoardMinX = 11;
+    my $BoardMinY = 4;
+
 
     # init
     print qq([?1049h[H[2J);
+    my $dwc = qq(#6); # double width chars
+
+    # print base board
+    $self->cursesCol(2,30,47); # dim black on white
+    my $y = $BoardMinY-1;
+    $self->cursesPutXY($dwc . (' ' x (2+$self->{BWIDTH})),$BoardMinX-1,$y);
+    for ($y=$BoardMinY;$y<$BoardMinY+$self->{BHEIGHT};$y++) {
+        $self->cursesPutXY($dwc . ' ' . ('o' x $self->{BWIDTH}) . ' ' ,$BoardMinX-1,$y);
+    }
+    $self->cursesPutXY($dwc . (' ' x (2+$self->{BWIDTH})),$BoardMinX-1,$y);
+
+
+    for (my $yi = 0; $yi < $self->{BHEIGHT}; $yi++) {
+	for (my $xi = 0; $xi < $self->{BWIDTH}; $xi++) {
+	    # print using char in case colour doesn't work
+	    my $char = pack("c",$$aref[$xi][$yi]);
+	    # set colour 
+ 	    my $c = $blockus_colours_c_to_curses{$$aref[$xi][$yi]};
+	    $self->cursesCol(1,30+$c,40+$c);  # bright, same fg + bg colour
+            $self->cursesPutXY($dwc . $char,$BoardMinX+$xi,$BoardMinY+$yi);
+	    #$self->cursesPutXY(" ",0,27+$xi);
+	    #print "c is $c, char is $char, ref is ".$$aref[$xi][$yi]."\n";
+	}
+    }
+
+    # print summary 
+    $self->cursesPutXY(" ",0,27);
+    # reset colour
+    $self->cursesCol(0,33,40);
+    $self->printSummary();
+
+    # reset colour
+    $self->cursesCol(0,33,40);
+    $self->cursesPutXY(" ",0,35);
+
+}
+
+sub printBoardCursesMBLEH {
+    my $self = shift;
+
+    # init
+    print qq([?1049h[H[2J);
+    print qq(#6;MOOOp); # double width chars
 
     $self->cursesPutXY("       ",10,10);
     $self->cursesPutXY("       ",11,11,1);
     $self->cursesPutXY("       ",12,12);
+    $self->cursesCol(0,31,40);
+    $self->cursesPutXY("       ",11,13,1);
+    $self->cursesCol(0,32,40);
+    $self->cursesPutXY("       ",11,14,1);
+    $self->cursesCol(0,33,40);
+    $self->cursesPutXY("       ",11,15,1);
+    $self->cursesCol(0,34,40);
+    $self->cursesPutXY("       ",11,16,1);
 
     print qq([59;13Hblockus);
     print qq([1;1Hbaa);
@@ -176,6 +249,18 @@ sub add_all_around_if_colour_matches {
 }
 
 
+  sub deep_copy {
+    my $this = shift;
+    if (not ref $this) {
+      $this;
+    } elsif (ref $this eq "ARRAY") {
+      [map deep_copy($_), @$this];
+    } elsif (ref $this eq "HASH") {
+      +{map { $_ => deep_copy($this->{$_}) } keys %$this};
+    } else { die "what type is $_?" }
+  }
+
+
 sub countShapes {
     my $self = shift;
 
@@ -185,9 +270,22 @@ sub countShapes {
     # perldoc perllol (not in)  http://www.perlmonks.org/?node_id=489224
     #my @board_physical_copy = [ $self->{BOARDARR} ];
     #my @board_physical_copy = ( ( $self->{BOARDARR} ) );
-    my @board_physical_copy = @{ $self->{BOARDARR} };
+
+    #my @board_pc = @{ $self->{BOARDARR} };
+    #my @board_physical_copy = @board_pc;
+
+    # OHHHH yeah :)
+    my @board_physical_copy = map { [ @$_ ] } @{ $self->{BOARDARR} };
+
+    # NO! deep_copy doesn't preserve array dimensions
+    #my @board_physical_copy = deep_copy(@{ $self->{BOARDARR} });
+
     #print "# Board physical dumped:\n";
     #print Dumper(@board_physical_copy);
+    # BUT now changing @board_physical_copy changes $self->{BOARDARR} ! :( not what we want
+    # AHH. the lists inside @board_physical_copy are [] (refs) that is why they change
+    # ?eh? @newlist = map { [ @$_ ] } @{ $self->{oldlist} };
+    # deep copying  http://www.stonehenge.com/merlyn/UnixReview/col30.html
 
     #### TODO: slurp shapes off of board in blockus corner linked order and validate that way as well.
     # iterate over board
@@ -215,7 +313,8 @@ sub countShapes {
 		$ashape->printShape();
 		$ashape = BlockusShape->new();
 
-		$self->printBoard(\@board_physical_copy);
+		#$self->printBoard(\@board_physical_copy);
+		$self->printBoardCurses(\@board_physical_copy);
 		
 	    }
 	    
@@ -262,14 +361,6 @@ sub countShapes {
     }
 
 }
-
-
-
-
-
-
-
-
 
 
 

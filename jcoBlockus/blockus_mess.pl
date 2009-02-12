@@ -123,8 +123,13 @@ $board->print();
 $board->printSummary();
 
 
+$board->printBoardCurses();
+
+sleep(10);
+
 $board->countShapes();
 
+sleep(10);
 
 $board->printBoard();
 
