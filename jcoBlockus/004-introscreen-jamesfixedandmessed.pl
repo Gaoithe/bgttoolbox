@@ -14,13 +14,21 @@ use SDL::TTFont;
 
 =head1 foo
 
-TODO PErl SDL Blockus
+TODO perl SDL Blockus
+TODO Blockus play computer vs computer, computer vs human 2/4 players
+TODO lockus teach ? tutorial mode, sarcastic slagging teaching mode :-P, hint mode - reveals computer strategies, how load/expand strategies?
+TODO Blockus validator, load game, load paused game, ...
+TODO Blockus board full allocation finder/screensaver
+
+TODO network play/web play
+high scores, game record/playback
+
 TODO Blockus font >;)
 
 TODO: animated transparent blocks moving into place, grey background/board seen underneath
 shiny/reflective blocks surface
 3D?
-1. ascii 2. web 3. skype 4. graphics sdl/perl, windows, linux, mobile devices
+1. ascii 2. web (GoogleApp cloud?) 3. skype 4. graphics sdl/perl, windows, linux, mobile devices
 
 TODO blockus fun sounds + animations, 
 T-piece Mr T animates + A Team theme, 
@@ -28,11 +36,62 @@ customisable animations
 
 TODO customisable bot-comments 
 
+=head2 Blockus strategies
+
+Place pieces so as to increase own nucleation points.
+Expand towards areas of least occupation, limit other players from getting to whole areas.
+Squeeze other players who have to concentrate on fight in other areas of board.
+But if you squeeze a player out of 1 place they will have to go wherever is left.
+Place pieces so as to take advantage of places that are unblockable.
+
+e.g. (also example of sneaky Jeremy block.)
+         
+ ........rrr
+ ...rrrrr...
+ ...........
+ ...........
+ ...........
+ ggg........
+         
+ ........rrr
+ ...rrrrr...
+ .g.........
+ .ggg.......
+ ...g.......
+ ggg........
+         
+ ...!!!!!rrr
+ .x!rrrrr!!!
+ xgxx!!!!...
+ xgggx......
+ xxxgx......
+ gggx.......
+
+! = unblockable (by r)
+
+3rd+4th piece placement always important 4 player game.
+
+
+=head3 co-operative placement
+
+Any territorial impingement can be greeted with distress and dismay.
+Saf :)  A habit of wreaking revenge for any percieved trespass can be effective.
+
+=head3 direct block
+
+=head3 sneaky Jeremy not-quite block
+
+Leave just 1/2/small possible placement.
+Very sneaky.
+
+
+Be cruel. If you have lost maximise damage,
+This because other players must know if they cut you off then they will suffer from neat deployment of pieces unconstrained by concern of winning.
 
 =cut
 
 my $app = new SDL::App(
-        -title=>'kaboom!',
+        -title=>'Blockus',
         -width=>800,
         -height=>600,
         -depth=>32,
@@ -71,16 +130,20 @@ sub event_loop {
     }
 }
 
+# states: intro game(level) pause
+# state state: init run draw
 sub heartbeat {
     print "hb level=$level playing=$playing\n";
     if ($level) {
         if ($playing) {
             # update game state
+            #hb_draw_game();
         } else {
             # draw paused screen
+            #hb_draw_pause();
         }
     } else {
-        &draw_intro_screen();
+        &hb_draw_intro();
         return 500;
     }
     return 50;
@@ -93,7 +156,7 @@ sub heartbeat {
     my($bgcolor, $bgfcolor, $fgcolor, $titlefont, $actionfont, $titletext, $titlexpos, $actiontext, $actionxpos);
     my ($g1col,$g2col);
 
-    sub config_intro_screen {
+    sub init_intro {
 	print "intro c\n";
 	print "intro c $titlexpos $actionxpos\n";
 
@@ -113,7 +176,6 @@ sub heartbeat {
 	print Dumper($bgcolor);
 	print Dumper($fgcolor);
 
-	#my $fffont = "lib-kaboom/fonts/Vera.ttf";
 	my $fffont = "/usr/share/childsplay/Data/Domestic_Manners.ttf";
 	#my $fffont = "/usr/share/k3d/fonts/K-3D.ttf";
 	#my $fffont = "/usr/share/k3d/fonts/VeraBd.ttf";
@@ -127,7 +189,7 @@ sub heartbeat {
 	print "hijo font $titlefont, $actionfont\n";
 	print Dumper($titlefont);
 
-        $titletext = "Kaboom!";
+        $titletext = "Blockus";
         $titlexpos = int(($app->width - $@{$titlefont->width($titletext)}[0]) / 2);
 
         $actiontext = "press mouse button to .. do nothing";
@@ -140,11 +202,11 @@ sub heartbeat {
 
     }
 
-    sub draw_intro_screen {
+    sub hb_draw_intro {
 	#our ($titlexpos,$actionxpos);
 
 	print "intro d $titlexpos $actionxpos\n";
-        &config_intro_screen unless (defined($bgcolor));
+        &init_intro unless (defined($bgcolor));
 
         SDL::Cursor::show(undef, 1);
         $app->grab_input(SDL_GRAB_OFF);
