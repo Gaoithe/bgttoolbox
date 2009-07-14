@@ -1,0 +1,182 @@
+Use Projity openproj. http://openproj.org/
+"OpenProj is a free, open source desktop alternative to Microsoft Project."
+Very good, read the .mpp I was interested in no bother.
+My colleagues have used it to edit .mpps and  exchange them with Windows people.  
+
+Downloads here:
+http://sourceforge.net/projects/openproj/files/
+The rpm worked well for me on Fedora 10.
+The .deb (openproj_1.4-2.deb) installed and runs but menus/gui were invisible for me on ubuntu jaunty.
+I have some java dev packages installed so my java environment is not a bog-standard one.
+
+Projity was acquired recently by Serena Software.
+Common Public Attribution Licensed.
+Implemented in Java. 
+Seems to be a relationship with Sun and distros so hopefully coming as the project planning part of StarOffice and OpenOffice sometime.
+No I'm not affiliated in any way and still don't even like java though somewhat grudgingly have to admit it's somewhat useful.
+
+
+vi `which openproj`
+# Set it to log to file and control what version of java it chooses.
+# The command-line it chose was this:
+/usr/lib/jvm/java-1.5.0-sun/bin/java -Xms128m -Xmx768m -jar /usr/share/openproj/openproj.jar --silentlyFail true
+# This command-line worked for me (just use my default java which is 1.6):
+java -Xms128m -Xmx768m -jar /usr/share/openproj/openproj.jar 
+
+I have these jvms:
+
+java version "1.6.0_0"
+OpenJDK Runtime Environment (IcedTea6 1.4.1) (6b14-1.4.1-0ubuntu7)
+OpenJDK Server VM (build 14.0-b08, mixed mode)
+
+java version "1.5.0_18"
+Java(TM) 2 Runtime Environment, Standard Edition (build 1.5.0_18-b02)
+Java HotSpot(TM) Server VM (build 1.5.0_18-b02, mixed mode)
+
+
+
+
+
+
+
+================================================================================
+
+
+================================================================================
+
+The hexdump write last week was part of an epic struggle to get back onto the RedBoot prompt of a device which was booting into a not very well working full linux and which had some problems in the flash images.
+
+The plot of the epic is more or less:
+
+ James starts using device and is very cautious with flash mounted filesystem.
+ After some weeks using the system James gets more confident and puts minor handy links and scripts on the flash system,
+ After more than a month James is happy making mods to the file-system. Removes a 600kish app and unpacks a package in /lib/modules. 
+ Next reboot => severe b0rkedness.
+ Struggle and puzzle with device for a couple of hours,
+ Augh.  It's a jffs2 filesystem image.
+
+ Nope. Give up. Reflash with OS image and original busybox jffs2 image.
+ Reboot.  Set up system, configure stuff. 
+ Mount drives. Config environment.
+ Hurngghh. Problems problems problems Ehhh?
+ Struggle struggle struggle.  wtf ?
+ Extreme puzzledness.
+
+ Start again.
+ Reflash.
+ Configure configure.
+ Still same problems! MAH! 
+ But this time the redboot delay is 0 before running boot script.
+  That's the default after fis init!
+ AUGH :( 
+ And this image seems to be even more problematic.
+
+ Email replying to some questions from device makers, they use squashfs now and before that they had lots of jffs2 bug fixes so yeah, using and writing to the jffs2 flash image WAS a bad idea :(
+
+ So ... now ... then ... I never quite got a nfs boot working for the device but now seems like a good time to try!  
+
+ BUT can't get at RedBoot to reflash or just reconfigure RedBoot.
+ Can we write to flash with BusyBox?
+ mtd device ... seems to have limited writing capability?
+ not really?
+ Compile mtd_utils.
+ They give info but unlocking/writing not allowed by kernel.
+ fconfig ported to linux ... looks noice but again can't open mtd for write.
+ kexec? ... Hurmmm.
+ Okay.
+ Write a kernel module.
+ Get address of mtd data structures from kernel with nm.
+ hexdump them
+ Get the pointer to the mtd device in which RedBoot config is written,
+ Follow the structure and find the WRITABLE flag.
+ Set writable to 1!
+ Now mtd_unlock mtd_write does something.  But? Flash not changed :(
+ fconfig seems to do more.  Use it to set time delay to 2, not 0.
+ BUt it doesn't quite work.
+ The config is not modified ... BUT ... the CRC is!
+ A few more attempts to correct it back to valid don't seem to work.
+ fconfig won't write it again as the CRC is invalid! 
+ Hah hah.
+ Okay.
+ Fine.
+ Reboot.
+ OH yessss!  Redboot detects bad CRC in it's fconfig block and breaks into command-line! YES!! >;-)
+ 
+ Right. nfs boot.
+ Manual reading.  Configure stuff.  Unpack initrd.gz/initrd_media.gz, mount, make a copy of it. Config config. Read manuals.  After a while have nfs boot,   BUT *sigh* half the libs are not there. It's a different image really than the busybox_media.jffs2?  Thus ensues lib/bin/module finding and installing ... which never quite completely works. 
+
+MAH! MAH! MAH! I've seriously run out of time.
+
+So.
+
+Hopefully we can recover that box sometime.
+
+For now share another box and do some real work.
+ (real work = spend hours on weird timing/gfx/memory problems to find eventually the main problem is gstreamer tcpserversrc binding to default ("localhost") doesn't work. A bind to 0.0.0.0 does work.)
+Now we still have mostly memory problems now.  
+Buffering video is probably using up too much especially when 1 video ends + another starts maybe?  Multiple rebuilds and reconfigs and runs with different memory settings later ....
+
+
+
+http://ecos.sourceware.org/docs-latest/redboot/flash-image-system.html
+http://www.embedded.com/story/OEG20020729S0043 If the RedBoot fits
+http://sourceware.org/redboot/
+http://www.gelato.unsw.edu.au/lxr/source/drivers/mtd/redboot.c
+
+Inside my kernel this seems to be in place:
+201 #ifdef CONFIG_MTD_REDBOOT_PARTS_READONLY
+202                 if (!memcmp(names, "RedBoot", 8) ||
+203                                 !memcmp(names, "RedBoot config", 15) ||
+204                                 !memcmp(names, "FIS directory", 14)) {
+205                         parts[i].mask_flags = MTD_WRITEABLE;
+206                 }
+207 #endif
+
+But writing to flash may not be possible for other reasons. The mtd driver might be find for read only. Writing to flash might be fully supported in redboot code but not in mtd code in busybox?  Not sure. The flash writing procedure requires unlock, erase, write, lock. 
+
+http://www.gelato.unsw.edu.au/lxr/source/drivers/mtd/mtdpart.c
+
+ 28 /* Our partition node structure */
+ 29 struct mtd_part {
+ 30         struct mtd_info mtd;
+ 31         struct mtd_info *master;
+ 32         u_int32_t offset;
+ 33         int index;
+ 34         struct list_head list;
+ 35         int registered;
+ 36 };
+
+http://www.gelato.unsw.edu.au/lxr/ident?i=mtd_info
+
+http://www.gelato.unsw.edu.au/lxr/source/include/linux/mtd/mtd.h#L59
+
+ 59 struct mtd_info {
+ 60         u_char type;
+ 61         u_int32_t flags;
+ 62         u_int32_t size;  // Total size of the MTD
+ 63 
+ .
+ .
+ .
+
+
+http://www.linux-mtd.infradead.org/
+Linux MTD (flash device drivers).
+
+http://wiki.davincidsp.com/index.php/MTD_Utilities
+MTD utils
+Heh heh, mtd_utils has a little hexdump inside also.
+
+fconfig ported to work in linux/busybox:   HANDY!
+http://andrzejekiert.ovh.org/software.html.en
+http://andrzejekiert.ovh.org/software/fconfig/fconfig-20080329.tar.gz
+
+
+Could build kexec for the platform and trigger boot of a particular image from busybox. Maybe.
+http://www.ibm.com/developerworks/linux/library/l-kexec.html
+http://www.kernel.org/pub/linux/kernel/people/horms/kexec-tools/
+
+
+# this will more or less get things going:
+CC=arm-linux-gcc CXX=arm-linux-g++ make 
+

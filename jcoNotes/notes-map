@@ -1,0 +1,214 @@
+logainm.ie request:
+
+I don't require it.  Just notifying of some missing names.
+Does logainm wish to have all place names in the database?
+Gabh mo leithsceail ag caint as Berla ach níl mo chuid Gaeilge ró láidir.
+Go raibh maith agat.
+
+I can guess what these names are.
+http://www.logainm.ie/?text=Kilgobbin+Road
+Old Kilgobbin Road =  Seanbhóthar Chill Ghobáin
+http://www.logainm.ie/?text=Sandyford+Hall
+ Ascaill Halla Áth an Ghainimh/Sandyford Hall Avenue  
+ so Place/Rise/Gardens/... = Áit/Ard/Gairdíní/...
+
+
+
+================================================================================
+guitar
+
+http://www.tuxguitar.com.ar/tgwiki/doku.php?id=doc:tuxguitar_alsa
+http://www.csybu.com/tabs.html
+================================================================================
+how do elevation plots of gpx?
+  http://utrack.crempa.net/
+
+
+me today:
+ http://www.openstreetmap.org/user/gaoithe/traces/432302
+http://www.openstreetmap.org/?lat=53.25161&lon=-6.25589&zoom=15&layers=B000FTF
+
+http://code.google.com/p/wherewasi/wiki/WhereWasI
+
+http://www.fsckin.com/2008/04/06/review-four-linux-gps-packages/
+
+http://www.mapability.com/blogs/gps/2008/07/gpx-route-map-technical-detail.html
+  http://utrack.crempa.net/
+http://wiki.openstreetmap.org/wiki/Making_Tracks_with_Homebrew-ware
+
+http://www.nabble.com/Displaying-the-properties-of-GPX-points-td22432909.html
+  sudo apt-get install viking
+
+http://www.ncc.up.pt/gpsman/wGPSMan_1.html
+
+jamesc@jamesc-laptop:~/maps$ gpsman 
+   old ish? tcl, ...
+jamesc@jamesc-laptop:~/maps$ wherewasi_gui.py ^C
+jamesc@jamesc-laptop:~/maps$ wherewasi.py --eprof -g wami-20090704-00.gpx 
+  neat
+jamesc@jamesc-laptop:~/maps$ viking
+  lovely but how elevation? can't do it on a single gpx?
+
+
+================================================================================
+setup bluetooth gps
+
+jamesc@jamesc-laptop:~/maps$ hcitool dev
+Devices:
+	hci0	00:16:41:74:0F:0B
+jamesc@jamesc-laptop:~/maps$ hcitool  scan
+Scanning ...
+	00:18:E4:08:50:F0	JRTGPS
+jamesc@jamesc-laptop:~/maps$ cat /etc/bluetooth/hcid.conf
+cat: /etc/bluetooth/hcid.conf: No such file or directory
+
+#
+
+    *
+
+# Set up /etc/bluetooth/hcid.conf
+# Set up /etc/bluetooth/rfcomm.conf
+# Establish RF communications:
+   sdptool add --channel=1 OPUSH
+   sudo rfcomm bind /dev/rfcomm0 00:18:E4:08:50:F0;
+Use the channel no. specified in /etc/bluetooth/rfcomm.conf, and the Bluetooth ID for the GPS device as reported by “hcitool scan”.
+# Read data fom the GPS device:
+
+    * sudo cat /dev/rfcomm0
+      will read realtime NMEA data from the device, but included with this will be binary data in the device buffer
+    * sudo gpsd /dev/rfcomm0
+      will start gpsd using the proper device node, and
+      gpspipe -r
+      will show you properly formatted NMEA sentenc
+
+
+
+
+F. Edit /etc/bluetooth/hcid.conf
+
+Mine looks like:
+
+#
+# HCI daemon configuration file.
+#
+
+# HCId options
+options {
+# Automatically initialize new devices
+autoinit yes;
+
+# Security Manager mode
+# none - Security manager disabled
+# auto - Use local PIN for incoming connections
+# user - Always ask user for a PIN
+#
+security none;
+
+# Pairing mode
+# none - Pairing disabled
+# multi - Allow pairing with already paired devices
+# once - Pair once and deny successive attempts
+pairing multi;
+
+# Default PIN code for incoming connections
+passkey "0000";
+}
+
+# Default settings for HCI devices
+device {
+# Local device name
+# %d - device id
+# %h - host name
+name "%h-%d";
+
+# Local device class
+class 0x3e0100;
+
+# Default packet type
+#pkt_type DH1,DM1,HV1;
+
+# Inquiry and Page scan
+iscan enable; pscan enable;
+discovto 0;
+
+# Default link mode
+# none - no specific policy
+# accept - always accept incoming connections
+# master - become master on incoming connections,
+# deny role switch on outgoing connections
+lm accept;
+
+# Default link policy
+# none - no specific policy
+# rswitch - allow role switch
+# hold - allow hold mode
+# sniff - allow sniff mode
+# park - allow park mode
+lp rswitch,hold,sniff,park;
+}
+
+From my incomplete understanding of the file format:
+
+   1. The “autoinit yes” and “security none” options are important.
+   2. In the device section, the “lm master” is what is recommended, though things seemed to work for me with “lm accept”. Not sure what the difference is.
+   3. In the device section, the “class 0×3e0100″ is important. Part of the bit settings in the class indicate that this is a location device. However, there are apparently other ways (sdptool) of setting up communications.
+
+G. Edit /etc/bluetooth/rfcomm.conf
+
+Mine now is:
+
+#
+# RFCOMM configuration file.
+#
+
+rfcomm0 {
+# Automatically bind the device at startup
+bind no;
+
+# Bluetooth address of the device
+device 00:18:E4:08:50:F0;
+
+# RFCOMM channel for the connection
+channel 1;
+
+# Description of the connection
+comment "JRTGPS";
+}
+
+
+
+#rfcomm0 {
+#        # Automatically bind the device at startup
+#        bind no;
+
+#        device 00:17:E5:EE:29:18; # Pooky james mobile
+#
+#        # RFCOMM channel for the connection
+#        channel 10;
+#
+#        # Description of the connection
+#        comment "Pooky james mobile c";
+
+
+--------------------------------------------------------------------------------
+
+jamesc@jamesc-laptop:~/maps$ xgps
+http://ubuntuforums.org/showthread.php?p=1497680
+
+jamesc@jamesc-laptop:~/maps$ sudo apt-get install gpsdrive
+Reading package lists... Done
+Building dependency tree       
+Reading state information... Done
+The following extra packages will be installed:
+  gpsdrive-data gpsdrive-scripts libboost-filesystem1.34.1 libboost-iostreams1.34.1
+  libboost-python1.34.1 libdate-manip-perl libfile-slurp-perl libgdal1-1.5.0 libgeos-3.0.0 libgeos-c1
+  libhdf4g libhttp-response-encoding-perl libhttp-server-simple-perl libio-socket-ssl-perl
+  libmapnik0.5 libnet-libidn-perl libnet-ssleay-perl libnetcdf4 libogdi3.2 libtext-query-perl
+  libtime-local-perl libwww-curl-perl libwww-mechanize-perl libxml-writer-perl mapnik-plugins
+  openstreetmap-map-icons-square perl-tk proj python-mapnik
+
+
+
+http://www.fsckin.com/2008/04/06/review-four-linux-gps-packages/
+
+================================================================================

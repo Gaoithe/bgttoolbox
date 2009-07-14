@@ -1,0 +1,146 @@
+mon mar 9
+
+We collected 2 hens - well - point of lay pullets (17 weeks old) yesterday evening.
+
+This moring
+
+
+
+Mums image
+200 x 200 mm == 1600 x 1600 pixels 
+5.6M jpeg, 74M pdf, 224M xcf (gimp, 340M photoshop
+ 234k jpeg resized 50x50 mm thumb
+  NO 544M
+
+
+-rw-r--r-- 1 jamesc jamesc   5867762 2009-03-09 15:00 Desktop/Visit to Mayo.jpg
+-rw-r--r-- 1 jamesc jamesc  77273265 2009-03-09 15:04 Desktop/Visit to Mayo.pdf
+-rw-r--r-- 1 jamesc jamesc    239981 2009-03-09 15:35 Desktop/Visit to Mayo_Thumb50x50.jpg
+-rw-r--r-- 1 jamesc jamesc 235395489 2009-03-09 14:59 Desktop/Visit to Mayo.xcf
+
+
+Hello, 
+
+ We got a nice package in the post from you today.
+ And we got chickens yesterday (more on that below).
+
+
+ I could open your photoshop file okay. 
+ Open source and the gimp (free alternative program to photoshop) wins! :)
+ The gimp works on windows too.
+ If you don't have photoshop at home you could get it.
+  http://www.gimp.org/windows/
+
+ Your file is quite big alright - your photoshop file is 340M.
+  340M isn't completely ridiculous - close - but not totally unmanegable.
+  340M would take maybe 8750secs (assuming 40kb/s good broadband) = 2+ hours
+   to send or download anywhere
+
+ Probably it is so big as you have enough resolution to print it bigger.
+ If you save it as jpeg at a fixed printing size you get rid of the 
+ extra resolution and you get a smaller file. 
+ I have saved it as a 5.6M jpeg which should print out on A4 okay and 
+  a Thumb for viewing. I have put them on the dspsrv. 
+ You can look at them there and right-click and select Save As ... 
+
+  http://www.dspsrv.com/~jamesc/photos/Visit%20to%20Mayo_Thumb50x50.jpg
+  http://www.dspsrv.com/~jamesc/photos/Visit%20to%20Mayo.jpg
+
+ The .jpg there is original resolution you sent 1600x1600 pixels = 200x200mm
+ It is 5.6M in file size.
+  5.6M at 40kb/s would take maybe 2 minutes to transfer somewhere
+ The Thumb is much smaller 50x50mm = 544k (= 0.5M)
+ If you printed the Thumb full size (A4) it would probably look blurry.
+
+ A normal sized photo could be from .5M to 4M in size (depending on resolution).
+ The higher the resolution the bigger the size and the bigger you can print it.
+ 
+ Too much info probably.
+ We need a diagram.
+  We need several diagrams.
+
+ 
+ We got 2 chickens yesterday and we've been busy today finishing a chicken coop.
+ Check Facebook for some pics.
+ Hopefully they will survive the night tonight! :) 
+ They were inside in a cardboard box last night.
+ They're quite feisty, it was windy blowy so a bit unsettling weather to be arriving at a new home.
+ Settling in alright to coop and garden.
+ The darker one is adopted by Kate - Rosie.
+ The lighter and fatter one is adopted by Maeve - Lucy.
+
+
+James.
+================================================================================
+
+
+keyboard test:
+
+~` !@#$%^&*()_-+=
+eéé€$¢†§
+
+Two alt keys together switch keyboard.
+
+Ireland/uk keyboard (laptop has US layout
+ (key shift r-alt shift+r-alt)
+`¬¦ 1!¡¹ 2"™² 3£©³ 4$€¢ 5%§† .... -_–— =+≠±
+                                   {[“” ]}‘’ #~«»
+                                   ;:…‡ '@æÆ
+                              ,<≤„ .>≥‚ /?÷¿
+eEéÉ
+
+
+
+
+
+gedit /etc/modprobe.d/blacklist
+
+And then add:
+
+#silly speaker beep
+
+blacklist pcspkr
+
+Save your file and the speaker beep will be gone when you reboot.
+
+If you don’t want to wait until a reboot, simply type:
+
+sudo rmmod pcspkr
+
+
+# in System Prefs Sound there is no third tab? PC Speaker  .
+
+in .xinitrc:
+xset b off
+xset b 0 0 0
+
+# annoying beep off (actually in /etc/X11/xinit/xinitrc )
+xset -b b 0
+xset b off
+xset b 0 0 0
+
+
+
+
+
+================================================================================
+
+
+jamesc@jamesc-laptop:~$ sudo modprobe -l |grep pcspk
+/lib/modules/2.6.27-11-generic/kernel/drivers/input/misc/pcspkr.ko
+
+
+jamesc@jamesc-laptop:~$ lsmod | grep pcspkr
+jamesc@jamesc-laptop:~$ sudo lsmod | grep pcspkr
+jamesc@jamesc-laptop:~$ sudo vi /etc/modprobe.d/blacklist
+jamesc@jamesc-laptop:~$ tail /etc/modprobe.d/blacklist
+# replaced by asus-laptop (Ubuntu: #184721)
+blacklist asus_acpi
+
+# low-quality, just noise when being used for sound playback, causes
+# hangs at desktop session start (Ubuntu: #246969)
+blacklist snd_pcsp
+
+#blacklist pc speaker to get rid of annoying beeps
+blacklist pcspkr
+

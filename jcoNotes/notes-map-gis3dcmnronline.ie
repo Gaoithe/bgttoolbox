@@ -1,0 +1,331 @@
+
+http://gis3.dcmnronline.ie/imf5104/imf.jsp?site=Helicopter
+Click the map, zoom/pan.
+Click the red heli.
+Click the red line. 
+
+any way to link to a zoom on the map + selected image?
+without hacking javascript?
+
+Cuskinney
+
+http://gis3.dcmnronline.ie/sorted/87685.jpg
+http://gis3.dcmnronline.ie/imf5104/images/copyright.gif
+http://gis3.dcmnronline.ie/thumbnails/87685.jpg
+http://gis3.dcmnronline.ie/thumbnails/87686.jpg
+http://gis3.dcmnronline.ie/thumbnails/87687.jpg
+http://gis3.dcmnronline.ie/thumbnails/87688.jpg
+http://gis3.dcmnronline.ie/thumbnails/87689.jpg
+http://gis3.dcmnronline.ie/imf5104/images/viewer/locate.gif
+http://gis3.dcmnronline.ie/imf5104/images/viewer/play_bck.gif
+http://gis3.dcmnronline.ie/imf5104/images/viewer/prev3.gif
+http://gis3.dcmnronline.ie/imf5104/images/viewer/previous.gif
+http://gis3.dcmnronline.ie/imf5104/images/viewer/stop.gif
+http://gis3.dcmnronline.ie/imf5104/images/viewer/next.gif
+http://gis3.dcmnronline.ie/imf5104/images/viewer/play3.gif
+http://gis3.dcmnronline.ie/imf5104/images/viewer/play_fwd.gif
+http://gis3.dcmnronline.ie/imf5104/images/viewer/abt.gif
+
+the slip
+
+http://gis3.dcmnronline.ie/sorted/87654.jpg
+http://gis3.dcmnronline.ie/imf5104/images/copyright.gif
+http://gis3.dcmnronline.ie/thumbnails/87652.jpg
+http://gis3.dcmnronline.ie/thumbnails/87653.jpg
+http://gis3.dcmnronline.ie/thumbnails/87654.jpg
+http://gis3.dcmnronline.ie/thumbnails/87655.jpg
+http://gis3.dcmnronline.ie/thumbnails/87656.jpg
+http://gis3.dcmnronline.ie/imf5104/images/viewer/locate.gif
+http://gis3.dcmnronline.ie/imf5104/images/viewer/play_bck.gif
+http://gis3.dcmnronline.ie/imf5104/images/viewer/prev3.gif
+http://gis3.dcmnronline.ie/imf5104/images/viewer/previous.gif
+http://gis3.dcmnronline.ie/imf5104/images/viewer/stop.gif
+http://gis3.dcmnronline.ie/imf5104/images/viewer/next.gif
+http://gis3.dcmnronline.ie/imf5104/images/viewer/play3.gif
+http://gis3.dcmnronline.ie/imf5104/images/viewer/play_fwd.gif
+http://gis3.dcmnronline.ie/imf5104/images/viewer/abt.gif
+
+
+
+it would be nice to slurp down all the images.
+then make a video
+simplest fade from one to another -> v jerky?
+load image, pan? left(or r), fade into next
+join images together and scroll somehow?
+
+ actually just simplest is fine
+ click click click on map and 
+
+youtube it with link to the site
+
+
+
+-rw-r--r--  1 jamesc jamesc 87102 2003-12-02 09:06 87685.jpg.1
+
+
+
+
+Dublin joyce martello tower sandycove
+
+http://gis3.dcmnronline.ie/sorted/100741.jpg
+http://gis3.dcmnronline.ie/imf5104/images/copyright.gif
+http://gis3.dcmnronline.ie/thumbnails/100737.jpg
+http://gis3.dcmnronline.ie/thumbnails/100738.jpg
+http://gis3.dcmnronline.ie/thumbnails/100739.jpg
+http://gis3.dcmnronline.ie/thumbnails/100740.jpg
+http://gis3.dcmnronline.ie/thumbnails/100741.jpg
+http://gis3.dcmnronline.ie/imf5104/images/viewer/locate.gif
+http://gis3.dcmnronline.ie/imf5104/images/viewer/play_bck.gif
+http://gis3.dcmnronline.ie/imf5104/images/viewer/prev3.gif
+http://gis3.dcmnronline.ie/imf5104/images/viewer/previous.gif
+http://gis3.dcmnronline.ie/imf5104/images/viewer/stop.gif
+http://gis3.dcmnronline.ie/imf5104/images/viewer/next.gif
+http://gis3.dcmnronline.ie/imf5104/images/viewer/play3.gif
+http://gis3.dcmnronline.ie/imf5104/images/viewer/play_fwd.gif
+http://gis3.dcmnronline.ie/imf5104/images/viewer/abt.gif
+
+
+dundalk slip
+http://gis3.dcmnronline.ie/sorted/104513.jpg
+
+
+
+throat of malin
+http://gis3.dcmnronline.ie/sorted/1.jpg
+
+
+87k * 100000 images = 8700000k = 8.7G
+
+Hmmmmm >;)
+Do a few 100 or 1000 first and see what it looks like.
+ 
+
+
+
+http://gis3.dcmnronline.ie/sorted/88123.jpg
+out to R of Roches Point
+http://gis3.dcmnronline.ie/sorted/87198.jpg
+well out of harbour to left
+
+
+
+http://gis3.dcmnronline.ie/sorted/87638.jpg
+http://gis3.dcmnronline.ie/sorted/87639.jpg
+http://gis3.dcmnronline.ie/sorted/87640.jpg
+http://gis3.dcmnronline.ie/sorted/87641.jpg
+http://gis3.dcmnronline.ie/sorted/87642.jpg
+
+87638 bow
+ 39
+  40
+   41 
+    42 stern
+
+http://en.wikipedia.org/wiki/HNLMS_Amsterdam_(A836)
+http://www.defensie.nl/marine/operationeel/schepen/hr_ms_amsterdam/
+
+
+
+http://gis3.dcmnronline.ie/output/ENG_HELICOPTER_dcmnrgis-web134762684331.png
+
+
+facebook/cloud app to ... mark places in the helicopter views and call them up
+ ... to take/make vids?
+ ?
+
+
+BASEURL=http://gis3.dcmnronline.ie/sorted/
+for (( i=87638 ; i<=87642 ; i++ )) ; do 
+ echo i=$i;
+ wget -c $BASEURL/$i.jpg ; 
+done
+
+## --limit-rate=amount(e.g.20k)
+## --random-wait
+
+
+# Cork harbour
+# just one wget command ... ?
+# wget 10 things/more in parallel?
+BASEURL=http://gis3.dcmnronline.ie/sorted/
+for (( i=87198 ; i<=88123 ; i++ )) ; do 
+ echo i=$i;
+ wget -c $BASEURL/$i.jpg ; 
+done
+
+# Resolving gis3.dcmnronline.ie... 193.178.2.233
+# 96,043       290K/s   in 0.3s    
+
+~/Desktop/ScreenshotOfFirefoxAndHelicopterSite.png
+
+
+
+
+http://electron.mit.edu/~gsteele/ffmpeg/
+
+ffmpeg -r 10 -b 1800 -i %03d.jpg test1800.mp4
+
+ffmpeg -r 10 -b 1800 -i %d.jpg test1800.mp4
+
+ -vframes or -t option, or
+       in combination with -ss to start extracting from a certain point in time.
+?$ ffmpeg -r 10 -b 1800 -ss 87198 -i %05d.jpg test1800.mp4
+
+for (( i=87198,j=0 ; i<=88123 ; i++,j++ )) ; do 
+ ln -s $i.jpg $j.jpg; 
+done
+
+.... last one:
+ln -s 88123.jpg 925.jpg
+
+
+
+
+
+jamesc@jamesc-laptop:~/maps/corkharb$ ffmpeg -r 10 -b 1800 -i %d.jpg test1800.mp4
+FFmpeg version 0.5-svn17737+3:0.svn20090303-1ubuntu6, Copyright (c) 2000-2009 Fabrice Bellard, et al.
+  configuration: --enable-gpl --enable-postproc --enable-swscale --enable-x11grab --extra-version=svn17737+3:0.svn20090303-1ubuntu6 --prefix=/usr --enable-avfilter --enable-avfilter-lavf --enable-libgsm --enable-libschroedinger --enable-libspeex --enable-libtheora --enable-libvorbis --enable-pthreads --disable-stripping --disable-vhook --enable-libdc1394 --disable-armv5te --disable-armv6 --disable-armv6t2 --disable-armvfp --disable-neon --disable-altivec --disable-vis --enable-shared --disable-static
+  libavutil     49.15. 0 / 49.15. 0
+  libavcodec    52.20. 0 / 52.20. 0
+  libavformat   52.31. 0 / 52.31. 0
+  libavdevice   52. 1. 0 / 52. 1. 0
+  libavfilter    0. 4. 0 /  0. 4. 0
+  libswscale     0. 7. 1 /  0. 7. 1
+  libpostproc   51. 2. 0 / 51. 2. 0
+  built on Apr 10 2009 23:18:41, gcc: 4.3.3
+Input #0, image2, from '%d.jpg':
+  Duration: 00:01:32.60, start: 0.000000, bitrate: N/A
+    Stream #0.0: Video: mjpeg, yuvj420p, 720x576 [PAR 150:150 DAR 5:4], 10 tbr, 10 tbn, 10 tbc
+Output #0, mp4, to 'test1800.mp4':
+    Stream #0.0: Video: mpeg4, yuv420p, 720x576 [PAR 1:1 DAR 5:4], q=2-31, 1 kb/s, 90k tbn, 10 tbc
+Stream mapping:
+  Stream #0.0 -> #0.0
+Press [q] to stop encoding
+frame=  926 fps= 56 q=31.0 Lsize=    7026kB time=92.60 bitrate= 621.6kbits/s    
+video:7018kB audio:0kB global headers:0kB muxing overhead 0.120518%
+
+
+
+
+
+Wurgh
+
+A bit fast, needs to be slower
+needs music :)
+  how add/multiplex/mux audio track?
+ just add another -i whatever.mp3
+
+Thundering helicopter music maybe
+
+
+jamesc@jamesc-laptop:~/maps/corkharb$ ls -al test1800.mp4 
+-rw-r--r-- 1 jamesc jamesc 7195128 2009-07-01 00:29 test1800.mp4
+
+
+
+# -r is framerate in fps, -b bitrate
+#ffmpeg -r 10 -b 1800 -i %d.jpg HelicopterCoastCorkHarbour.mp4
+FFFLAGS=-title 'Helicopter Coast Cork Harbour http://gis3.dcmnronline.ie/imf5104/imf.jsp?site=Helicopter'
+ffmpeg $FFFLAGS -r 3 -b 1800 -i %d.jpg HelicopterCoastCorkHarbour.mp4
+
+
+
+
+
+# walking in the air - snowman 1st then electric/war of the worlds?
+http://www.youtube.com/watch?v=vKJAB6bYgts
+# Apocalypse now
+http://www.youtube.com/watch?v=vHjWDCX1Bdw
+
+
+
+youtube-dl http://www.youtube.com/watch?v=1ZVbRLM2isw -o helisound.flv
+ffmpeg -i helisound.flv helisound.mp3
+mplayer helisound.mp3
+ls -al helisound.mp3
+
+
+
+ffmpeg $FFFLAGS -r 3 -b 1800 -i helisound.mp3 -i %d.jpg HelicopterCoastCorkHarbour.mp4
+
+
+================================================================================
+Helicopter Coast View Around Cork Harbour, wget and ffmpeg fun
+
+
+http://www.youtube.com/user/green3gg
+see http://gaoithe.livejournal.com/29536.html
+
+
+Copyright:
+http://gis3.dcmnronline.ie/imf5104/imf.jsp?site=Helicopter
+It would be nice if GIS info were available to taxpayers! poke. poke.
+And if GIS browsing site had more features.
+Basic bookmarking/linking would be nice.
+
+<pre>
+BASEURL=http://gis3.dcmnronline.ie/sorted/
+for (( i=87198 ; i<=88123 ; i++ )) ; do 
+ echo i=$i;
+ wget -c $BASEURL/$i.jpg ; 
+done
+
+for (( i=87198,j=0 ; i<=88123 ; i++,j++ )) ; do 
+ ln -s $i.jpg $j.jpg; 
+done
+
+# -r is framerate in fps, -b bitrate
+FFFLAGS=-title 'Helicopter Coast Cork Harbour http://gis3.dcmnronline.ie/imf5104/imf.jsp?site=Helicopter'
+
+ffmpeg $FFFLAGS -r 3 -b 1800 -i helisound.mp3 -i %d.jpg HelicopterCoastCorkHarbour.mp4
+
+# ugh, yes. sorry about the audio
+</pre>
+
+
+http://gis3.dcmnronline.ie/output/ENG_HELICOPTER_dcmnrgis-web134762684331.png
+
+http://gis3.dcmnronline.ie/sorted/87685.jpg
+Cuskinney, Cobh
+
+http://gis3.dcmnronline.ie/sorted/87654.jpg
+The slip in Cobh
+
+http://gis3.dcmnronline.ie/sorted/100741.jpg
+Dublin joyce martello tower sandycove
+
+http://gis3.dcmnronline.ie/sorted/104513.jpg
+Dundalk 
+
+http://gis3.dcmnronline.ie/sorted/1.jpg
+Throat of malin
+
+87k * 100000 images = 8700000k = 8.7G
+Hmmmmm >;)
+ 
+http://gis3.dcmnronline.ie/sorted/88123.jpg
+out to R of Roches Point
+
+http://gis3.dcmnronline.ie/sorted/87198.jpg
+well out of harbour to left
+
+
+http://en.wikipedia.org/wiki/HNLMS_Amsterdam_(A836)
+http://www.defensie.nl/marine/operationeel/schepen/hr_ms_amsterdam/
+
+http://gis3.dcmnronline.ie/sorted/87638.jpg
+http://gis3.dcmnronline.ie/sorted/87639.jpg
+http://gis3.dcmnronline.ie/sorted/87640.jpg
+http://gis3.dcmnronline.ie/sorted/87641.jpg
+http://gis3.dcmnronline.ie/sorted/87642.jpg
+
+87638 bow -> 42 stern
+
+
+================================================================================
+## ? problem uploading that .mp4 to youtube?
+# ?noscript? ... ?
+ffmpeg -i FILE.vob -s 320x240 FILE.flv
+
+
+see http://gaoithe.livejournal.com/29536.html

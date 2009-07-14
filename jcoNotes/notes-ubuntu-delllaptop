@@ -1,0 +1,365 @@
+sudo wget http://www.medibuntu.org/sources.list.d/feisty.list -O /etc/apt/sources.list.d/medibuntu.list
+
+wget -q http://packages.medibuntu.org/medibuntu-key.gpg -O- | sudo apt-key add - && sudo apt-get update
+
+sudo aptitude install skype
+
+
+
+/etc/lsb-release:DISTRIB_CODENAME=jaunty
+
+
+DN=jaunty
+sudo wget http://www.medibuntu.org/sources.list.d/${DN}.list -O /etc/apt/sources.list.d/medibuntu.list
+wget -q http://packages.medibuntu.org/medibuntu-key.gpg -O- | sudo apt-key add - && sudo apt-get update
+
+
+
+
+sudo apt-get install amrnb
+sudo apt-get install amrwb
+
+
+sudo apt-get upgrade ffmpeg
+### that also cought mplayer and a bunch of stuff
+
+mplayer Inis\ thiar.amr
+#yay
+
+
+Unsupported codec (id=73728) for input stream #0.0
+jamesc@jamesc-laptop:~/Music$ ffmpeg -i Inis\ thiar.amr Inis\ thiar.flac
+# ffmpeg itself doesn't seem to handle it
+ldd `which ffmpeg`
+
+-------------------------------
+TODO: emacs  insert-timestamp
+ from my old old old OLD .emacs
+ ... partly from my diary helper
+
+--------------------------------------------------------------------------------
+Bluetooth
+pooky phone registered, send file ok
+file browse on device => error :(  obex://xx.xx. 
+
+jamesc@jamesc-laptop:~$ sudo apt-get install gnome-vfs-obexftp
+
+no difference
+
+
+Browse files on Device
+  Select Pooky + Connect 
+   1. Could not display "obex..."
+      Error: Connection refused
+      Please select another viewer and try again.
+   2. Could not display "obex..."
+      Error: DBus error org.freedesktop.DBus.Error.NoReply: Message d....
+      Please select another viewer and try again.
+
+On phone Connections - bluetooth - jamesc-laptop-0 already paired
+ delete it
+  add paired device ...
+  first on laptop set bluetooth visible
+  then add (passcode ? 2323 ?)  oh prompt on pc for pin - oops too late
+  try again.
+  YAY Browse files on device => can see C:
+
+
+
+OTHER bluetooth issue (or 2).
+1. file browse, copy files, move files
+ - no permissions to delete -> errors
+ - files alreasdy exist - V slow prompting for overwrite or skip and timeouts
+  any prompt causes session timeout?
+restart phone (maybe it is just the phone unit?)
+2. initial copy it says starting xfer of 0 files 0 bytes
+ ...
+
+
+
+--------------------------------------------------------------------------------
+Sun J2ME BlueRay test
+Preffered owner and org ~/.wine/system.reg
+
+jamesc@jamesc-laptop:~$ wine exploder
+wine: could not load L"C:\\windows\\system32\\exploder.exe": Module not found
+jamesc@jamesc-laptop:~$ wine explorer
+j
+
+
+
+
+http://www.howtogeek.com/howto/ubuntu/install-subversion-with-web-access-on-ubuntu/
+
+http://localhost/apache2-default/
+
+jamesc@jamesc-laptop:~/src$ svn co file://localhost/svn svn_local
+Checked out revision 0.
+
+
+yes http://localhost/svn/
+
+
+jamesc@jamesc-laptop:~/src$ svn co http://localhost/svn svn_loc_http
+Checked out revision 0.
+
+
+mkdir trunk branches tags
+svn add trunk branches tags
+
+
+jamesc@jamesc-laptop:~/src/svn_loc_http$ svn ci -m"add trunk branches tags"
+svn: Commit failed (details follow):
+svn: Can't open file '/svn/db/txn-current-lock': Permission denied
+
+eh ?
+
+
+jamesc@jamesc-laptop:~/src/svn_loc_http$ svn --username drupaluser --password drupaluser ci -m"add trunk branches tags"
+svn: Commit failed (details follow):
+svn: Can't open file '/svn/db/txn-current-lock': Permission denied
+
+permissions ?
+/svn root root
+ but no apache/apache2 group or userr?
+no subversion user?
+-rw-r--r--  1 jamesc jamesc   352 2005-12-10 19:26 xmlrpc.php
+jamesc@jamesc-laptop:~/src/svn_loc_http$ ls -al /var/www/drupal/
+
+
+
+jamesc@jamesc-laptop:~/src/svn_loc_http$ sudo chown www-data /svn
+jamesc@jamesc-laptop:~/src/svn_loc_http$ sudo chown www-data /svn/
+conf/       db/         format      hooks/      locks/      README.txt  
+jamesc@jamesc-laptop:~/src/svn_loc_http$ sudo chown www-data /svn/*
+jamesc@jamesc-laptop:~/src/svn_loc_http$ sudo chown www-data /svn/*/*
+jamesc@jamesc-laptop:~/src/svn_loc_http$ sudo chown www-data /svn/*/*/*
+jamesc@jamesc-laptop:~/src/svn_loc_http$ sudo chown www-data /svn/*/*/*/*
+jamesc@jamesc-laptop:~/src/svn_loc_http$ sudo chown www-data /svn/*/*/*/*/*
+chown: cannot access `/svn/*/*/*/*/*': No such file or directory
+jamesc@jamesc-laptop:~/src/svn_loc_http$ svn ci -m"add trunk branches tags"
+Adding         branches
+Adding         tags
+Adding         trunk
+
+Committed revision 1.
+
+
+
+http://www.howtogeek.com/howto/ubuntu/install-subversion-with-web-access-on-ubuntu/
+
+edit and comment in the auth part
+
+jamesc@jamesc-laptop:~/src/svn_loc_http/trunk$ sudo vi /etc/apache2/mods-enabled/dav_svn.conf
+jamesc@jamesc-laptop:~/src/svn_loc_http/trunk$ !sudo /et
+sudo vi /etc/apache2/mods-enabled/dav_svn.conf /et
+2 files to edit
+jamesc@jamesc-laptop:~/src/svn_loc_http/trunk$ sudo /etc/init.d/apache2 restart
+
+
+then commit with usernames
+
+================================================================================
+
+now Trac
+
+http://trac.edgewall.org/wiki/TracUbuntuMultipleProjects
+
+
+
+... enable ssl
+
+
+jamesc@jamesc-laptop:~/src/svn_loc_http/trunk$ ls -al /etc/apache2/sites-available
+total 20
+drwxr-xr-x 2 root root 4096 2009-03-31 21:51 .
+drwxr-xr-x 7 root root 4096 2009-04-04 01:36 ..
+-rw-r--r-- 1 root root  950 2008-09-19 14:41 default
+-rw-r--r-- 1 root root 7366 2008-09-19 14:41 default-ssl
+jamesc@jamesc-laptop:~/src/svn_loc_http/trunk$ ls -al /etc/apache2/sites-enabled/
+total 8
+drwxr-xr-x 2 root root 4096 2009-03-31 21:51 .
+drwxr-xr-x 7 root root 4096 2009-04-04 01:36 ..
+lrwxrwxrwx 1 root root   26 2009-03-31 21:51 000-default -> ../sites-available/default
+jamesc@jamesc-laptop:~/src/svn_loc_http/trunk$ ln -s /etc/apache2/sites-available/default-ssl /etc/apache2/sites-enabled/
+ln: creating symbolic link `/etc/apache2/sites-enabled/default-ssl': Permission denied
+jamesc@jamesc-laptop:~/src/svn_loc_http/trunk$ sudo ln -s /etc/apache2/sites-available/default-ssl /etc/apache2/sites-enabled/
+
+
+
+
+mod_userdir  yes :)
+
+
+jamesc@jamesc-laptop:~/src/svn_loc_http/trunk$ sudo ln -s /etc/apache2/mods-available/userdir.conf /etc/apache2/mods-enabled/
+jamesc@jamesc-laptop:~/src/svn_loc_http/trunk$ sudo ln -s /etc/apache2/mods-available/userdir.load /etc/apache2/mods-enabled/
+jamesc@jamesc-laptop:~/src/svn_loc_http/trunk$ ls -al /etc/apache2/mods-*/
+
+jamesc@jamesc-laptop:~/src/svn_loc_http/trunk$ sudo /etc/init.d/apache2 restart
+
+
+
+jamesc@jamesc-laptop:~/src/svn_loc_http/trunk$ sudo vi /etc/apache2/sites-available/default-trac
+jamesc@jamesc-laptop:~/src/svn_loc_http/trunk$ cat /etc/apache2/sites-available/default-trac
+
+<Location /projects> #set up Trac handling      
+     SetHandler mod_python    
+     PythonHandler trac.web.modpython_frontend    
+     PythonOption TracEnvParentDir /var/lib/trac    
+     PythonOption TracUriRoot /projects    
+</Location>      
+
+
+jamesc@jamesc-laptop:~/src/svn_loc_http/trunk$ sudo /etc/init.d/apache2 restart
+ * Restarting web server apache2                                                                                * We failed to correctly shutdown apache, so we're now killing all running apache processes. This is almost certainly suboptimal, so please make sure your system is working as you'd expect now!
+ ... waiting Syntax error on line 4 of /etc/apache2/sites-enabled/default-trac:
+Invalid command 'PythonHandler', perhaps misspelled or defined by a module not included in the server configuration
+                                                                                                        [fail]
+jamesc@jamesc-laptop:~/src/svn_loc_http/trunk$ 
+
+
+sudo trac-admin /var/lib/trac/drupaltrac initenv 
+Project Name [My Project]> DrupalTrac
+Database connection string [sqlite:db/trac.db]> 
+Repository type [svn]> 
+Path to repository [/path/to/repos]> /svn
+
+
+
+
+
+
+
+
+jamesc@jamesc-laptop:~/src/svn_loc_http/trunk$ sudo apt-get install libapache2-mod-python2.4
+Reading package lists... Done
+Building dependency tree       
+Reading state information... Done
+Package libapache2-mod-python2.4 is not available, but is referred to by another package.
+This may mean that the package is missing, has been obsoleted, or
+is only available from another source
+However the following packages replace it:
+  libapache2-mod-python
+E: Package libapache2-mod-python2.4 has no installation candidate
+jamesc@jamesc-laptop:~/src/svn_loc_http/trunk$ sudo apt-get install libapache2-mod-python
+
+
+
+https://localhost/projects
+
+    % (getuser(), path))
+TracError: The user www-data requires read _and_ write permission to the database file /var/lib/trac/drupaltrac/db/trac.db and the directory it is located in.
+
+
+jamesc@jamesc-laptop:~/src/svn_loc_http/trunk$ chown www-data /var/lib/trac
+chown: changing ownership of `/var/lib/trac': Operation not permitted
+jamesc@jamesc-laptop:~/src/svn_loc_http/trunk$ sudo chown www-data /var/lib/trac
+jamesc@jamesc-laptop:~/src/svn_loc_http/trunk$ sudo chown www-data /var/lib/trac/*
+jamesc@jamesc-laptop:~/src/svn_loc_http/trunk$ sudo chown www-data /var/lib/trac/*/*
+jamesc@jamesc-laptop:~/src/svn_loc_http/trunk$ sudo chown www-data /var/lib/trac/*/*/*
+jamesc@jamesc-laptop:~/src/svn_loc_http/trunk$ sudo chown www-data /var/lib/trac/*/*/*/*
+chown: cannot access `/var/lib/trac/*/*/*/*': No such file or directory
+
+
+
+
+
+
+svnserve:
+jamesc@jamesc-laptop:~/src$ svn co svn://localhost/svn svn_loc_svnserve
+svn: Can't connect to host 'localhost': Connection refused
+
+
+
+
+
+
+
+need /etc/init.d entry and /etc/svnserve.conf for auth
+
+jamesc@jamesc-laptop:~/src$ svnserve -d -r /svn
+jamesc@jamesc-laptop:~/src$ svn co svn://localhost/svn svn_loc_svnservesvn: URL 'svn://localhost/svn' doesn't exist
+jamesc@jamesc-laptop:~/src$ svn co svn://localhost svn_loc_svnserve
+A    svn_loc_svnserve/trunk
+A    svn_loc_svnserve/trunk/drupalmessdrawingx.png
+A    svn_loc_svnserve/trunk/notes-ubuntu-delllaptop
+A    svn_loc_svnserve/branches
+A    svn_loc_svnserve/tags
+Checked out revision 3.
+
+
+svnserve -d --listen-port 911 --listen-host 192.168.0.123 -r /lnx_data/repos_holder/
+
+
+
+
+svn import /foo/work svn+ssh://usre@server/full/path/to/repoz
+
+
+
+
+================================================================================
+
+
+apt-file --list josm ... doesn't work !?!?
+x
+jamesc@jamesc-laptop:~$ dpkg-query -L josm
+/.
+/usr
+/usr/bin
+/usr/bin/josm
+/usr/share
+/usr/share/josm
+/usr/share/josm/josm-0.0.0.20080713.jar
+/usr/share/pixmaps
+/usr/share/pixmaps/josm-16.xpm
+/usr/share/pixmaps/josm-32.xpm
+/usr/share/applications
+/usr/share/applications/josm.desktop
+/usr/share/doc
+/usr/share/doc/josm
+/usr/share/doc/josm/README
+/usr/share/doc/josm/README.Debian
+/usr/share/doc/josm/copyright
+/usr/share/doc/josm/examples
+/usr/share/doc/josm/examples/start.html
+/usr/share/doc/josm/changelog.Debian.gz
+/usr/share/man
+/usr/share/man/man1
+/usr/share/man/man1/josm.1.gz
+/usr/share/menu
+/usr/share/menu/josm
+/usr/share/josm/josm.jar
+jamesc@jamesc-laptop:~$ display /usr/share/pixmaps/josm-32.xpm
+^C
+
+josm pkg installed ... but ... it is too old
+
+
+jamesc@jamesc-laptop:~$ ls -al mobileGPS/
+total 1500
+drwxr-xr-x  2 jamesc jamesc   4096 2009-04-28 22:50 .
+drwxr-xr-x 77 jamesc jamesc   4096 2009-05-03 12:35 ..
+-rw-r--r--  1 jamesc jamesc 528146 2009-04-27 01:14 aftereditingmounteagle.osm
+lrwxrwxrwx  1 jamesc jamesc     15 2009-04-26 23:06 josm -> /usr/share/josm
+-rw-r--r--  1 jamesc jamesc  79526 2008-09-01 23:25 wami-20080901-00.gpx
+-rw-r--r--  1 jamesc jamesc  28901 2008-09-01 23:41 wami-20080901-01.gpx
+-rw-r--r--  1 jamesc jamesc 554018 2009-04-26 16:27 wami-20090426-00.gpx
+-rw-r--r--  1 jamesc jamesc   4470 2009-04-26 16:41 wami-20090426-01.gpx
+-rw-r--r--  1 jamesc jamesc 301132 2009-04-28 21:49 wami-20090428-00.gpx
+
+
+
+jamesc@jamesc-laptop:~$ ls -al /usr/bin/josm 
+-rwxr-xr-x 1 root root 558 2008-09-09 21:07 /usr/bin/josm
+
+
+
+jamesc@jamesc-laptop:~$ ls -al /usr/share/josm
+total 5836
+drwxr-xr-x   3 root   root      4096 2009-04-26 23:07 .
+drwxr-xr-x 431 root   root     16384 2009-04-26 21:27 ..
+-rw-r--r--   1 root   root   1309153 2008-09-09 21:07 josm-0.0.0.20080713.jar
+lrwxrwxrwx   1 root   root        31 2009-04-26 23:07 josm.jar -> /usr/share/josm/josm-latest.jar
+-rw-r--r--   1 jamesc jamesc 4623023 2009-04-26 23:04 josm-latest.jar
+drwxr-xr-x   2 root   root      4096 2009-04-26 21:27 plugins
