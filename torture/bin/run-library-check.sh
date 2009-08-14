@@ -1,8 +1,10 @@
 #!/bin/bash
 
-BORROWER=D2000000204552
+# march 2009 new card for Daire and 3,$s/fionnuala.callan@s3group.com/fionnuala.callan@s3group.com/g
+# BORROWER=D2000000204552
+BORROWER=D2000000219515
 PIN=2323
-MAILTO="jamesc@dspsrv.com,fionnuala@callan.de"
+MAILTO="jamesc@dspsrv.com,fionnuala.callan@s3group.com"
 #MAILTO="jamesc@dspsrv.com"
 MAILPROG="mail -r jamesc@dspsrv.com"
 # my qmail is configured not-so-goodly :-7
@@ -13,7 +15,6 @@ LOGFILE=/tmp/run-library-check.log
 echo logrotate $LOGROTATEBIN $LOGFILE
 $LOGROTATEBIN $LOGFILE
 
-#library-check.pl -M -m "$MAILPROG" $BORROWER $PIN $MAILTO
 RETVAL=77
 
 export PATH=$PATH:/usr/local/bin
@@ -24,8 +25,7 @@ TRY_COUNT=0
 
 while [[ $RETVAL != 0 ]] ; do
    TRY_COUNT=$(( $TRY_COUNT + 1 ))
-   #library-check.pl -m "$MAILPROG" $BORROWER $PIN $MAILTO
-   library-check.pl -M -m "$MAILPROG" $BORROWER $PIN $MAILTO 2>&1 >$LOGFILE
+   library-check.pl -m "$MAILPROG" $BORROWER $PIN $MAILTO 2>&1 >$LOGFILE
    RETVAL=$?
    if [[ $RETVAL != 0 ]] ; then
       if (( $TRY_COUNT > $MAX_RETRY )) ; then 

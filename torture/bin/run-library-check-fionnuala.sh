@@ -2,18 +2,17 @@
 
 BORROWER=D2000000163296
 PIN=2323
-MAILTO="jamesc@dspsrv.com,fionnuala@callan.de"
+MAILTO="jamesc@dspsrv.com,fionnuala.callan@s3group.com"
 #MAILTO="jamesc@dspsrv.com"
 MAILPROG="mail -r jamesc@dspsrv.com"
 # my qmail is configured not-so-goodly :-7
 
 LOGROTATEBIN="/usr/sbin/logrotate -s /tmp/mic-logrotate-status.log"
-LOGFILE=/tmp/run-library-check.log
+LOGFILE=/tmp/run-library-check-f.log
 #LOGFILE=/tmp/run-library-check-`date +"%Y%m%d%H%M%S"`.log
 echo logrotate $LOGROTATEBIN $LOGFILE
 $LOGROTATEBIN $LOGFILE
 
-#library-check.pl -M -m "$MAILPROG" $BORROWER $PIN $MAILTO
 RETVAL=77
 
 export PATH=$PATH:/usr/local/bin
@@ -24,8 +23,8 @@ TRY_COUNT=0
 
 while [[ $RETVAL != 0 ]] ; do
    TRY_COUNT=$(( $TRY_COUNT + 1 ))
-   #library-check.pl -m "$MAILPROG" $BORROWER $PIN $MAILTO
-   library-check.pl -M -m "$MAILPROG" $BORROWER $PIN $MAILTO 2>&1 >$LOGFILE
+   #add -M option (before -m) to send email every time
+   library-check.pl -m "$MAILPROG" $BORROWER $PIN $MAILTO 2>&1 >$LOGFILE
    RETVAL=$?
    if [[ $RETVAL != 0 ]] ; then
       if (( $TRY_COUNT > $MAX_RETRY )) ; then 

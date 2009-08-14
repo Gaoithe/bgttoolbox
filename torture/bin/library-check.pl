@@ -348,6 +348,7 @@ my $nowts = time();
 
 
 my ($count_books, $count_renew, $count_renew_fail, $count_overdue, $count_coming_up) = (0,0,0,0,0);
+my $count_needs_renew = 0;
 
 # save where we are in case of failure
 #$mech->_push_page_stack();
@@ -397,6 +398,7 @@ my $max_days = 0;
 
 sub processbooks {
     my $do_renew = shift;
+    $count_needs_renew = 0;
 
 ## find all of these
 ## <input type='CHECKBOX' name='loan_list0' value='18588129259051' checked='checked'>
@@ -531,6 +533,7 @@ sub processbooks {
 	    # check for coming up to renew
 	    if ($days < 0 || $days <= $RENEW_DAYS) {
 		# OVERDUE or within REVIEW period
+		$count_needs_renew++;
 		if (!$do_renew) {
 		    $bookstatus = "    NEEDS RENEW. " . $days . " days.";
 		} else {
@@ -572,6 +575,8 @@ sub processbooks {
 
     }
 
+    logmessage("need renew: " . $renew_all_books . ", (" . $count_needs_renew . "books), total out:" . $count_books);
+
     return $renew_all_books;
 
 }
@@ -591,7 +596,14 @@ my ($old_count_books, $old_count_coming_up, $old_count_renew,
 if ($do_renew) {
     $ACTION="renew all books (because one is close to due)";
     $mech->submit_form(form_name => 'bulk_renew');
-    $STATUS .= "couldn't " . $ACTION . "\n" if (!$mech->success());
+
+    if (!$mech->success()) {
+	$STATUS .= "couldn't " . $ACTION . "\n";
+	$count_renew_fail++;
+    } else {
+	$count_renew++;
+    }
+
     logmessage( $ACTION .  "status: " . $mech->status() . ", title: " . $mech->title() . "\n");
     $renewhtml = $mech->content();
     logmessage("Renew results follow: " . $renewhtml);
@@ -621,17 +633,20 @@ if ($do_renew) {
 
 }
  
-
+$ACTION="send email";
+logmessage( $ACTION . "\n");
 
 ##############################
 ##############################
 ##############################
 # send email
-if ($send_email_regardless || $count_coming_up>0 || $count_overdue>0 || $count_renew>0) {
+if ($send_email_regardless || $count_coming_up>0 || $count_overdue>0 || 
+    $count_renew>0 || $count_renew_fail>0 || $count_needs_renew>0) {
     my $SUBJECT="";
     $SUBJECT .= $count_overdue . " books OVERDUE. " if ($count_overdue>0);
+    $SUBJECT .= $count_needs_renew . " renew NEEDed. " if ($count_needs_renew>0);
     $SUBJECT .= $count_renew_fail . " renew FAILed. " if ($count_renew_fail>0);
-    $SUBJECT .= $count_renew . " books renewed. " if ($count_renew>0);
+    $SUBJECT .= $count_renew . " renew done. " if ($count_renew>0);
     $SUBJECT .= $count_coming_up . " books coming due. " if ($count_coming_up>0);
     $SUBJECT = "library-check.pl -M option on. send email regardless." if ($SUBJECT eq "" && $send_email_regardless);
     $SUBJECT = "JAmes's LOGIC is FLAWed" if ($SUBJECT eq "");
