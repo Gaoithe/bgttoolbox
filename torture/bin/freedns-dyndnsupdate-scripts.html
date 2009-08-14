@@ -1,0 +1,1215 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html dir="ltr"><head><title>Simple update unix shell script</title>
+
+<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+<meta http-equiv="EXPIRES" content="0">
+<meta name="RESOURCE-TYPE" content="DOCUMENT">
+<meta name="DISTRIBUTION" content="GLOBAL">
+<meta name="AUTHOR" content="Esbardu">
+<meta name="COPYRIGHT" content="Copyright (c) 2004 by Esbardu">
+<meta name="KEYWORDS" content="Esbardu, gaita, asturies"><!--
+<meta NAME="DESCRIPTION" CONTENT="Hestoria y datos de la Asociación Cultural Esbardu">
+-->
+
+<meta name="ROBOTS" content="INDEX, FOLLOW">
+<meta name="REVISIT-AFTER" content="1 DAYS">
+<meta name="RATING" content="GENERAL">
+<link rel="stylesheet" type="text/css" href="freedns-dyndnsupdate-scripts_files/esbardu.css">
+
+<link rel="icon" href="http://freedns.afraid.org/forums/templates/esbardu/images/esbardu_icon.png" type="image/png"></head>
+
+<body>
+<table border="0" cellpadding="0" cellspacing="0" width="100%">
+  <tbody><tr>
+    <td>
+      <table border="0" cellpadding="0" cellspacing="0" width="100%">
+        <tbody><tr>
+    <td class="titular" width="120"><a href="http://www.esbardu.org/"><img src="freedns-dyndnsupdate-scripts_files/logo_top.jpg" alt="Esbardu" title="Esbardu" border="0" height="71" width="120"></a></td>
+    <td class="titular" align="center" width="100%">
+
+<!-- YOUR BANNER HERE -->
+
+<table cellpadding="10">
+<tbody><tr><td bgcolor="white">
+
+<font><a href="http://freedns.afraid.org/">Free DNS</a> - Completely free shared DNS hosting</font>
+
+</td></tr>
+</tbody></table>
+
+
+
+<!-- YOUR BANNER HERE -->
+
+</td>
+  </tr>
+  <tr>
+    <td class="negro" height="15" valign="top" width="120"><a href="http://www.esbardu.org/"><img src="freedns-dyndnsupdate-scripts_files/logo_pie.jpg" alt="Esbardu" title="Esbardu" border="0" height="15" width="120"></a></td>
+    <td class="negro" width="100%">Simple update unix shell script</td>
+  </tr>
+</tbody></table>
+</td>
+  </tr>
+  <tr>
+
+    <td>
+      <table border="0" cellpadding="0" cellspacing="0" width="100%">
+        <tbody><tr>
+          <td class="tablanca">
+		  <table border="0" cellpadding="0" cellspacing="10" width="100%">
+  <tbody><tr>
+                <td class="bordpunt" valign="top" width="20%">
+<table border="0" cellpadding="0" cellspacing="5" width="100%">
+                    <tbody><tr>
+
+                      <td class="bordpunt2">
+
+<table border="0" cellpadding="0" cellspacing="5" width="100%">
+  <tbody><tr>
+    <td>
+	<table border="0" cellpadding="0" cellspacing="0" width="100%">
+  <tbody><tr>
+    <td height="15" width="47"><img src="freedns-dyndnsupdate-scripts_files/menu_izq.png" alt=""></td>
+    <td class="negro" height="15">Menu</td>
+    <td height="15" width="14"><img src="freedns-dyndnsupdate-scripts_files/menu_der.png" alt=""></td>
+
+  </tr>
+</tbody></table>
+	</td>
+  </tr>
+  <tr>
+    <td>
+		<!-- <a href="faq.php">·FAQ</a><br> -->
+        <a href="http://freedns.afraid.org/forums/search.php">·Search</a><br>
+        <a href="http://freedns.afraid.org/forums/memberlist.php">·Memberlist</a><br>
+        <a href="http://freedns.afraid.org/forums/groupcp.php">·Usergroups</a><br>
+        <!--<a href="profile.php?mode=register">·Register</a><br>-->
+        <a href="http://freedns.afraid.org/forums/profile.php?mode=editprofile">·Profile</a><br>
+        <!--<a href="privmsg.php?folder=inbox">·Log in to check your private messages</a><br>-->
+        <a href="http://freedns.afraid.org/forums/viewonline.php">·Who is Online</a><br>
+        <a href="http://freedns.afraid.org/forums/login.php">·Log in</a>
+
+	</td>
+  </tr>
+</tbody></table>
+</td>
+                    </tr>
+
+
+
+<tr><td class="bordpunt2">
+<form method="post" action="login.php">
+<table border="0" cellpadding="0" cellspacing="5" width="100%">
+  <tbody><tr>
+    <td>
+	<table border="0" cellpadding="0" cellspacing="0" width="100%">
+  <tbody><tr>
+    <td height="15" width="47"><img src="freedns-dyndnsupdate-scripts_files/menu_izq.png" alt=""></td>
+    <td class="negro" height="15"><a name="login"></a>Log in</td>
+    <td height="15" width="14"><img src="freedns-dyndnsupdate-scripts_files/menu_der.png" alt=""></td>
+
+  </tr>
+</tbody></table>
+	</td>
+  </tr>
+  <tr>
+    <td>
+
+<table border="0" cellpadding="2" cellspacing="1" width="100%">
+<tbody><tr>
+     <td align="center" valign="middle"><font>Username:<br>
+		<input name="username" size="10" type="text"></font></td>
+  </tr>
+  <tr>
+     <td align="center" valign="middle"><font>Password:<br>
+		<input name="password" size="10" type="password"></font>
+	 </td>
+  </tr>
+   <tr>
+     <td align="center" valign="middle"><font>Log me on automatically each visit   <input class="check" name="autologin" type="checkbox"></font>
+	 </td>
+  </tr>
+   <tr>
+     <td align="center" valign="middle"><font><input name="login" value="Log in" type="submit"></font>
+	 </td>
+  </tr>
+</tbody></table>
+
+	</td>
+  </tr>
+</tbody></table>
+</form>
+
+</td></tr>
+
+
+
+<tr>
+
+                      <td>
+
+<table border="0" cellpadding="0" cellspacing="5" width="100%">
+  <tbody><tr>
+    <td>
+	<table border="0" cellpadding="0" cellspacing="0" width="100%">
+  <tbody><tr>
+    <td height="15" width="47"><img src="freedns-dyndnsupdate-scripts_files/menu_izq.png" alt=""></td>
+    <td class="negro" height="15">Info</td>
+    <td height="15" width="14"><img src="freedns-dyndnsupdate-scripts_files/menu_der.png" alt=""></td>
+
+  </tr>
+</tbody></table>
+	</td>
+  </tr>
+  <tr>
+    <td align="left">
+
+<center><img src="freedns-dyndnsupdate-scripts_files/exclaim.gif"></center><br>
+<b><a href="http://freedns.afraid.org/forums/search.php"><font style="color: red;">SEARCH</font></a></b><font> before asking a question please.<br><br>
+
+These forums are placed here to save you time!</font>
+
+	</td>
+  </tr>
+</tbody></table>
+</td>
+                    </tr>
+
+
+
+</tbody></table>
+                </td>
+    <td align="center" valign="top" width="80%">
+
+<table border="0" cellpadding="2" cellspacing="2" width="100%">
+  <tbody><tr>
+	<td colspan="2" align="left" valign="bottom"><a href="http://freedns.afraid.org/forums/about1160.html">Simple update unix shell script</a><br>
+	  <font><b>Goto page <b>1</b>, <a href="http://freedns.afraid.org/forums/about1160-0-asc-15.html">2</a>, <a href="http://freedns.afraid.org/forums/about1160-0-asc-30.html">3</a>&nbsp;&nbsp;<a href="http://freedns.afraid.org/forums/about1160-0-asc-15.html">Next</a></b><br>
+	  &nbsp; </font></td>
+  </tr>
+</tbody></table>
+
+<table border="0" cellpadding="2" cellspacing="2" width="100%">
+  <tbody><tr>
+	<td align="left" nowrap="nowrap" valign="bottom"><font><a class="imagen" href="http://freedns.afraid.org/forums/posting.php?mode=newtopic&amp;f=1"><img src="freedns-dyndnsupdate-scripts_files/post.gif" alt="Post new topic" align="middle" border="0"></a>&nbsp;&nbsp;&nbsp;<a href="http://freedns.afraid.org/forums/posting.php?mode=reply&amp;t=1160" class="imagen"><img src="freedns-dyndnsupdate-scripts_files/reply.gif" alt="Reply to topic" align="middle" border="0"></a></font></td>
+	<td align="left" valign="middle" width="100%"><font>&nbsp;&nbsp;&nbsp;<a href="http://freedns.afraid.org/forums/index.php">freedns.afraid.org Forum Index</a>
+	  -&gt; <a href="http://freedns.afraid.org/forums/forum-1.html">General Discussion</a></font></td>
+  </tr>
+</tbody></table>
+
+<table border="0" cellpadding="1" cellspacing="0" width="100%">
+	<tbody><tr align="right">
+	</tr>
+	
+	<tr>
+		<th nowrap="nowrap"><table border="0" cellpadding="0" cellspacing="0" width="100%">
+  <tbody><tr>
+    <td height="15" width="47"><img src="freedns-dyndnsupdate-scripts_files/menu_izq.png" alt=""></td>
+    <td class="negro" height="15">Author&nbsp;</td>
+    </tr></tbody></table></th>
+
+		<th nowrap="nowrap"><table border="0" cellpadding="0" cellspacing="0" width="100%"><tbody><tr><td class="negro" height="15">&nbsp;Message</td><td height="15" width="14"><img src="freedns-dyndnsupdate-scripts_files/menu_der.png" alt=""></td></tr></tbody></table></th>
+	</tr>
+	<tr>
+		<td class="gris1" align="left" valign="top" width="150"><a name="4161"></a><b>Guest</b><br><br><br><br><br><a href="http://freedns.afraid.org/forums/search.php?search_author=Guest" class="postdetails"></a><br><br></td>
+		<td class="gris2" valign="top" width="100%"><table border="0" cellpadding="0" cellspacing="0" width="100%">
+			<tbody><tr>
+				<td class="gris2" width="100%"><a href="http://freedns.afraid.org/forums/post-4161.html#4161" class="imagen"><img src="freedns-dyndnsupdate-scripts_files/icon_minipost.gif" alt="Post" title="Post" border="0" height="9" width="12"></a><font>Posted: Tue Apr 20, 2004 1:29 pm&nbsp;&nbsp; &nbsp;Post subject: Simple update unix shell script</font></td>
+				<td nowrap="nowrap" valign="top"><a href="http://freedns.afraid.org/forums/posting.php?mode=quote&amp;p=4161"><img src="freedns-dyndnsupdate-scripts_files/icon_quote.gif" alt="Reply with quote" title="Reply with quote" border="0"></a>   </td>
+			</tr>
+
+			<tr>
+				<td colspan="2"><font><br>Be sure to set the value of UPDATEURL correctly and throw this into your crontab to run every 30 minutes e.g.
+<br>
+
+<br>
+
+<table align="center" border="0" cellpadding="3" cellspacing="1" width="90%">
+<tbody><tr> 	  <td><font><b>Code:</b></font></td>
+	</tr>
+	<tr>
+	  <td class="code">
+<br>
+*/30&nbsp; &nbsp; *&nbsp; &nbsp; &nbsp; &nbsp;*&nbsp; &nbsp; &nbsp;
+&nbsp;*&nbsp; &nbsp; &nbsp; &nbsp;*&nbsp; &nbsp; &nbsp;
+&nbsp;username&nbsp; &nbsp; /usr/local/bin/dynIP.sh
+<br>
+</td>
+	</tr>
+</tbody></table>
+<span>
+<br>
+
+<br>
+dynIP.sh:
+<br>
+</span>
+<table align="center" border="0" cellpadding="3" cellspacing="1" width="90%">
+<tbody><tr> 	  <td><font><b>Code:</b></font></td>
+	</tr>
+	<tr>
+	  <td class="code">
+<br>
+#!/bin/sh
+<br>
+CURL=/usr/bin/curl
+<br>
+
+<br>
+# get the URL from http://freedns.afraid.org/dynamic/
+<br>
+UPDATEURL='http://freedns.afraid.org/dynamic/update.php?......'
+<br>
+
+<br>
+CURRENTIP=`$CURL -s http://ip.dnsexit.com/ | sed -e 's/ //'`
+<br>
+OLDIP=`cat /tmp/ip.cache 2&gt;/dev/null`
+<br>
+if [ "$CURRENTIP" != "$OLDIP" ]; then $CURL -s "$UPDATEURL"; fi
+<br>
+echo $CURRENTIP &gt; /tmp/ip.cache
+<br>
+</td>
+	</tr>
+</tbody></table>
+<span></span></font></td>
+			</tr>
+		</tbody></table></td>
+	</tr>
+	<tr>
+		<td class="gris2" align="left" valign="middle" width="150"><a href="#top">Back to top</a></td>
+		<td class="gris2" nowrap="nowrap" valign="bottom" width="100%"><table border="0" cellpadding="0" cellspacing="0" height="18" width="18">
+			<tbody><tr>
+				<td nowrap="nowrap" valign="middle">   <br>  <script language="JavaScript" type="text/javascript"><!--
+
+	if ( navigator.userAgent.toLowerCase().indexOf('mozilla') != -1 && navigator.userAgent.indexOf('5.') == -1 && navigator.userAgent.indexOf('6.') == -1 )
+		document.write(' ');
+	else
+		document.write('</td><td>&nbsp;</td><td valign="top" nowrap="nowrap"><div style="position:relative"><div style="position:absolute"></div><div style="position:absolute;left:3px;top:-1px"></div></div>');
+
+				//--></script></td><td>&nbsp;</td><td nowrap="nowrap" valign="top"><div style="position: relative;"><div style="position: absolute;"></div><div style="position: absolute; left: 3px; top: -1px;"></div></div><noscript></noscript></td>
+			</tr>
+		</tbody></table></td>
+	</tr>
+	<tr>
+		<td class="categoria" colspan="2" height="2"><img src="freedns-dyndnsupdate-scripts_files/spacer.gif" alt="" height="2" width="1"></td>
+	</tr>
+	<tr>
+		<td class="gris1" align="left" valign="top" width="150"><a name="4194"></a><b>rost</b><br>Guest<br><br><br><br><a href="http://freedns.afraid.org/forums/search.php?search_author=rost" class="postdetails"></a><br><br></td>
+		<td class="gris2" valign="top" width="100%"><table border="0" cellpadding="0" cellspacing="0" width="100%">
+			<tbody><tr>
+				<td class="gris2" width="100%"><a href="http://freedns.afraid.org/forums/post-4194.html#4194" class="imagen"><img src="freedns-dyndnsupdate-scripts_files/icon_minipost.gif" alt="Post" title="Post" border="0" height="9" width="12"></a><font>Posted: Thu Apr 22, 2004 1:26 pm&nbsp;&nbsp; &nbsp;Post subject: </font></td>
+				<td nowrap="nowrap" valign="top"><a href="http://freedns.afraid.org/forums/posting.php?mode=quote&amp;p=4194"><img src="freedns-dyndnsupdate-scripts_files/icon_quote.gif" alt="Reply with quote" title="Reply with quote" border="0"></a>   </td>
+			</tr>
+
+			<tr>
+				<td colspan="2"><font><br>also, my version (for linux):
+<br>
+
+<br>
+
+<table align="center" border="0" cellpadding="3" cellspacing="1" width="90%">
+<tbody><tr> 	  <td><font><b>Code:</b></font></td>
+	</tr>
+	<tr>
+	  <td class="code">
+<br>
+#!/bin/bash
+<br>
+
+<br>
+# your internet interface
+<br>
+inet_if=eth0
+<br>
+# curl utility
+<br>
+curl=/usr/bin/curl
+<br>
+# your update url
+<br>
+url=http://..............
+<br>
+# cache file for ip address
+<br>
+ip_cache=/tmp/ipaddr.cache
+<br>
+
+<br>
+ifconfig | grep $inet_if || echo "internet interface is down!" &amp;&amp; exit 1
+<br>
+current_ip=`ifconfig ${inet_if} | sed '/.*inet addr:/!d;s///;s/ .*//'`
+<br>
+old_ip=`&lt;/tmp/$ip_cache`
+<br>
+[ $current_ip != $old_ip ] &amp;&amp; \
+<br>
+&nbsp; $curl -s $url &amp;&amp; \
+<br>
+&nbsp; echo $current_ip &gt;$ip_cache
+<br>
+exit 0
+<br>
+</td>
+	</tr>
+</tbody></table>
+<span></span></font></td>
+			</tr>
+		</tbody></table></td>
+	</tr>
+	<tr>
+		<td class="gris2" align="left" valign="middle" width="150"><a href="#top">Back to top</a></td>
+		<td class="gris2" nowrap="nowrap" valign="bottom" width="100%"><table border="0" cellpadding="0" cellspacing="0" height="18" width="18">
+			<tbody><tr>
+				<td nowrap="nowrap" valign="middle">   <br>  <script language="JavaScript" type="text/javascript"><!--
+
+	if ( navigator.userAgent.toLowerCase().indexOf('mozilla') != -1 && navigator.userAgent.indexOf('5.') == -1 && navigator.userAgent.indexOf('6.') == -1 )
+		document.write(' ');
+	else
+		document.write('</td><td>&nbsp;</td><td valign="top" nowrap="nowrap"><div style="position:relative"><div style="position:absolute"></div><div style="position:absolute;left:3px;top:-1px"></div></div>');
+
+				//--></script></td><td>&nbsp;</td><td nowrap="nowrap" valign="top"><div style="position: relative;"><div style="position: absolute;"></div><div style="position: absolute; left: 3px; top: -1px;"></div></div><noscript></noscript></td>
+			</tr>
+		</tbody></table></td>
+	</tr>
+	<tr>
+		<td class="categoria" colspan="2" height="2"><img src="freedns-dyndnsupdate-scripts_files/spacer.gif" alt="" height="2" width="1"></td>
+	</tr>
+	<tr>
+		<td class="gris1" align="left" valign="top" width="150"><a name="4383"></a><b>Guest</b><br><br><br><br><br><a href="http://freedns.afraid.org/forums/search.php?search_author=Guest" class="postdetails"></a><br><br></td>
+		<td class="gris2" valign="top" width="100%"><table border="0" cellpadding="0" cellspacing="0" width="100%">
+			<tbody><tr>
+				<td class="gris2" width="100%"><a href="http://freedns.afraid.org/forums/post-4383.html#4383" class="imagen"><img src="freedns-dyndnsupdate-scripts_files/icon_minipost.gif" alt="Post" title="Post" border="0" height="9" width="12"></a><font>Posted: Thu May 06, 2004 1:25 pm&nbsp;&nbsp; &nbsp;Post subject: </font></td>
+				<td nowrap="nowrap" valign="top"><a href="http://freedns.afraid.org/forums/posting.php?mode=quote&amp;p=4383"><img src="freedns-dyndnsupdate-scripts_files/icon_quote.gif" alt="Reply with quote" title="Reply with quote" border="0"></a>   </td>
+			</tr>
+
+			<tr>
+				<td colspan="2"><font><br>Ermh, 
+<br>
+
+<br>
+this is mine <img src="freedns-dyndnsupdate-scripts_files/icon_wink.gif" alt="Wink" border="0">
+<br>
+
+<br>
+
+<table align="center" border="0" cellpadding="3" cellspacing="1" width="90%">
+<tbody><tr> 	  <td><font><b>Code:</b></font></td>
+	</tr>
+	<tr>
+	  <td class="code">
+<br>
+#!/bin/bash
+<br>
+inet_if='ppp0'
+<br>
+url='http://freedns.afraid.org/dynamic/update.php?...'
+<br>
+ip_cache='/tmp/.iptmp'
+<br>
+
+<br>
+( ifconfig $inet_if &amp;&gt;/dev/null &amp;&amp; test -w $ip_cache ) || exit 0
+<br>
+
+<br>
+ADDR=`ifconfig $inet_if | grep inet | sed 's/addr://g' | awk '{print($2)}'`;
+<br>
+OLD_ADDR=`head -1 $ip_cache`
+<br>
+
+<br>
+
+<br>
+
+<br>
+if [ "$ADDR" != "$OLD_ADDR" ]; then
+<br>
+
+<br>
+
+<br>
+&nbsp; &nbsp; &nbsp; &nbsp; echo "$ADDR" &gt; $ip_cache
+<br>
+&nbsp; &nbsp; &nbsp; &nbsp; wget "$url" -O /dev/null &amp;&gt;/dev/null
+<br>
+&nbsp; &nbsp; &nbsp; &nbsp; echo "done"
+<br>
+
+<br>
+fi
+<br>
+
+<br>
+</td>
+	</tr>
+</tbody></table>
+<span> 
+<br>
+
+<br>
+Regards.</span></font></td>
+			</tr>
+		</tbody></table></td>
+	</tr>
+	<tr>
+		<td class="gris2" align="left" valign="middle" width="150"><a href="#top">Back to top</a></td>
+		<td class="gris2" nowrap="nowrap" valign="bottom" width="100%"><table border="0" cellpadding="0" cellspacing="0" height="18" width="18">
+			<tbody><tr>
+				<td nowrap="nowrap" valign="middle">   <br>  <script language="JavaScript" type="text/javascript"><!--
+
+	if ( navigator.userAgent.toLowerCase().indexOf('mozilla') != -1 && navigator.userAgent.indexOf('5.') == -1 && navigator.userAgent.indexOf('6.') == -1 )
+		document.write(' ');
+	else
+		document.write('</td><td>&nbsp;</td><td valign="top" nowrap="nowrap"><div style="position:relative"><div style="position:absolute"></div><div style="position:absolute;left:3px;top:-1px"></div></div>');
+
+				//--></script></td><td>&nbsp;</td><td nowrap="nowrap" valign="top"><div style="position: relative;"><div style="position: absolute;"></div><div style="position: absolute; left: 3px; top: -1px;"></div></div><noscript></noscript></td>
+			</tr>
+		</tbody></table></td>
+	</tr>
+	<tr>
+		<td class="categoria" colspan="2" height="2"><img src="freedns-dyndnsupdate-scripts_files/spacer.gif" alt="" height="2" width="1"></td>
+	</tr>
+	<tr>
+		<td class="gris1" align="left" valign="top" width="150"><a name="4384"></a><b>Guest</b><br><br><br><br><br><a href="http://freedns.afraid.org/forums/search.php?search_author=Guest" class="postdetails"></a><br><br></td>
+		<td class="gris2" valign="top" width="100%"><table border="0" cellpadding="0" cellspacing="0" width="100%">
+			<tbody><tr>
+				<td class="gris2" width="100%"><a href="http://freedns.afraid.org/forums/post-4384.html#4384" class="imagen"><img src="freedns-dyndnsupdate-scripts_files/icon_minipost.gif" alt="Post" title="Post" border="0" height="9" width="12"></a><font>Posted: Thu May 06, 2004 2:19 pm&nbsp;&nbsp; &nbsp;Post subject: </font></td>
+				<td nowrap="nowrap" valign="top"><a href="http://freedns.afraid.org/forums/posting.php?mode=quote&amp;p=4384"><img src="freedns-dyndnsupdate-scripts_files/icon_quote.gif" alt="Reply with quote" title="Reply with quote" border="0"></a>   </td>
+			</tr>
+
+			<tr>
+				<td colspan="2"><font><br>And here's mine.
+<br>
+
+<br>This assumes you're using dhclient and Debian Linux. It'll probably
+work with minimal modification on any system that uses dhclient. It
+will only update when your IP address changes.
+<br>
+
+<br>
+Create a file called /etc/dhclient-exit-hooks with the following in it...
+<br>
+
+<br>
+if [ x$old_ip_address != x$new_ip_address ]
+<br>
+then
+<br>
+        GET -t 5s <a href="http://freedns.afraid.org/dynamic/update.php?xxxxxx" target="_blank">http://freedns.afraid.org/dynamic/update.php?xxxxxx</a> 2&gt;&amp;1 | logger -i -t ipupdate --
+<br>
+
+<br>
+fi</font></td>
+			</tr>
+		</tbody></table></td>
+	</tr>
+	<tr>
+		<td class="gris2" align="left" valign="middle" width="150"><a href="#top">Back to top</a></td>
+		<td class="gris2" nowrap="nowrap" valign="bottom" width="100%"><table border="0" cellpadding="0" cellspacing="0" height="18" width="18">
+			<tbody><tr>
+				<td nowrap="nowrap" valign="middle">   <br>  <script language="JavaScript" type="text/javascript"><!--
+
+	if ( navigator.userAgent.toLowerCase().indexOf('mozilla') != -1 && navigator.userAgent.indexOf('5.') == -1 && navigator.userAgent.indexOf('6.') == -1 )
+		document.write(' ');
+	else
+		document.write('</td><td>&nbsp;</td><td valign="top" nowrap="nowrap"><div style="position:relative"><div style="position:absolute"></div><div style="position:absolute;left:3px;top:-1px"></div></div>');
+
+				//--></script></td><td>&nbsp;</td><td nowrap="nowrap" valign="top"><div style="position: relative;"><div style="position: absolute;"></div><div style="position: absolute; left: 3px; top: -1px;"></div></div><noscript></noscript></td>
+			</tr>
+		</tbody></table></td>
+	</tr>
+	<tr>
+		<td class="categoria" colspan="2" height="2"><img src="freedns-dyndnsupdate-scripts_files/spacer.gif" alt="" height="2" width="1"></td>
+	</tr>
+	<tr>
+		<td class="gris1" align="left" valign="top" width="150"><a name="5128"></a><b>MeDevil</b><br>Guest<br><br><br><br><a href="http://freedns.afraid.org/forums/search.php?search_author=MeDevil" class="postdetails"></a><br><br></td>
+		<td class="gris2" valign="top" width="100%"><table border="0" cellpadding="0" cellspacing="0" width="100%">
+			<tbody><tr>
+				<td class="gris2" width="100%"><a href="http://freedns.afraid.org/forums/post-5128.html#5128" class="imagen"><img src="freedns-dyndnsupdate-scripts_files/icon_minipost.gif" alt="Post" title="Post" border="0" height="9" width="12"></a><font>Posted: Thu Jul 01, 2004 5:20 am&nbsp;&nbsp; &nbsp;Post subject: </font></td>
+				<td nowrap="nowrap" valign="top"><a href="http://freedns.afraid.org/forums/posting.php?mode=quote&amp;p=5128"><img src="freedns-dyndnsupdate-scripts_files/icon_quote.gif" alt="Reply with quote" title="Reply with quote" border="0"></a>   </td>
+			</tr>
+
+			<tr>
+				<td colspan="2"><font><br>Hi there!
+<br>
+I was looking for a bash script that updates multiple address...
+<br>
+SO i decided to modify the "Guest" script and adapt it.
+<br>
+Eg. if you have 2 links to update, modify the script in this way:
+<br>
+
+<table align="center" border="0" cellpadding="3" cellspacing="1" width="90%">
+<tbody><tr> 	  <td><font><b>Code:</b></font></td>
+	</tr>
+	<tr>
+	  <td class="code">url_count=2
+<br>
+url[0]=''http://freedns.afraid.org/dynamic/update.php?..."
+<br>
+url[1]="'http://freedns.afraid.org/dynamic/update.php?..."
+<br>
+</td>
+	</tr>
+</tbody></table>
+<span>
+<br>
+<span style="color: red;">don't forget to set <span style="font-weight: bold;">url_count</span> to the count of links to update!</span>
+<br>
+
+<br>
+
+<br>
+</span>
+<table align="center" border="0" cellpadding="3" cellspacing="1" width="90%">
+<tbody><tr> 	  <td><font><b>Code:</b></font></td>
+	</tr>
+	<tr>
+	  <td class="code">
+<br>
+#!/bin/bash
+<br>
+inet_if='ppp0'
+<br>
+url_count=1;
+<br>
+url[0]='http://freedns.afraid.org/dynamic/update.php?...'
+<br>
+ip_cache='/tmp/.iptmp'
+<br>
+
+<br>
+( ifconfig $inet_if &amp;&gt;/dev/null &amp;&amp; test -w $ip_cache ) || exit 0
+<br>
+
+<br>
+ADDR=`ifconfig $inet_if | grep inet | sed 's/addr://g' | awk '{print($2)}'`;
+<br>
+OLD_ADDR=`head -n 1 $ip_cache`
+<br>
+
+<br>
+echo "Updating IP ($ADDR) at FreeDNS ($OLD_ADDR)..."
+<br>
+if [ "$ADDR" != "$OLD_ADDR" ]; then
+<br>
+&nbsp; &nbsp; &nbsp; &nbsp; echo "$ADDR" &gt; $ip_cache
+<br>
+&nbsp; &nbsp;i=0;
+<br>
+&nbsp; &nbsp;while [ $i -lt $url_count ];
+<br>
+&nbsp; &nbsp;do
+<br>
+&nbsp; &nbsp;&nbsp; &nbsp;echo "Updating Address $i of $url_count"
+<br>
+&nbsp; &nbsp;&nbsp; &nbsp;wget "$url[$i]" -O /dev/null &amp;&gt;/dev/null
+<br>
+&nbsp; &nbsp;&nbsp; &nbsp;i=$((i+1))
+<br>
+&nbsp; &nbsp;done
+<br>
+&nbsp; &nbsp; &nbsp; &nbsp; echo "done"
+<br>
+fi 
+<br>
+</td>
+	</tr>
+</tbody></table>
+<span>
+<br>
+
+<br>
+Regards, MeDevil <img src="freedns-dyndnsupdate-scripts_files/icon_twisted.gif" alt="Twisted Evil" border="0"></span></font></td>
+			</tr>
+		</tbody></table></td>
+	</tr>
+	<tr>
+		<td class="gris2" align="left" valign="middle" width="150"><a href="#top">Back to top</a></td>
+		<td class="gris2" nowrap="nowrap" valign="bottom" width="100%"><table border="0" cellpadding="0" cellspacing="0" height="18" width="18">
+			<tbody><tr>
+				<td nowrap="nowrap" valign="middle">   <br>  <script language="JavaScript" type="text/javascript"><!--
+
+	if ( navigator.userAgent.toLowerCase().indexOf('mozilla') != -1 && navigator.userAgent.indexOf('5.') == -1 && navigator.userAgent.indexOf('6.') == -1 )
+		document.write(' ');
+	else
+		document.write('</td><td>&nbsp;</td><td valign="top" nowrap="nowrap"><div style="position:relative"><div style="position:absolute"></div><div style="position:absolute;left:3px;top:-1px"></div></div>');
+
+				//--></script></td><td>&nbsp;</td><td nowrap="nowrap" valign="top"><div style="position: relative;"><div style="position: absolute;"></div><div style="position: absolute; left: 3px; top: -1px;"></div></div><noscript></noscript></td>
+			</tr>
+		</tbody></table></td>
+	</tr>
+	<tr>
+		<td class="categoria" colspan="2" height="2"><img src="freedns-dyndnsupdate-scripts_files/spacer.gif" alt="" height="2" width="1"></td>
+	</tr>
+	<tr>
+		<td class="gris1" align="left" valign="top" width="150"><a name="5129"></a><b>MeDevil</b><br>Guest<br><br><br><br><a href="http://freedns.afraid.org/forums/search.php?search_author=MeDevil" class="postdetails"></a><br><br></td>
+		<td class="gris2" valign="top" width="100%"><table border="0" cellpadding="0" cellspacing="0" width="100%">
+			<tbody><tr>
+				<td class="gris2" width="100%"><a href="http://freedns.afraid.org/forums/post-5129.html#5129" class="imagen"><img src="freedns-dyndnsupdate-scripts_files/icon_minipost.gif" alt="Post" title="Post" border="0" height="9" width="12"></a><font>Posted: Thu Jul 01, 2004 5:26 am&nbsp;&nbsp; &nbsp;Post subject: </font></td>
+				<td nowrap="nowrap" valign="top"><a href="http://freedns.afraid.org/forums/posting.php?mode=quote&amp;p=5129"><img src="freedns-dyndnsupdate-scripts_files/icon_quote.gif" alt="Reply with quote" title="Reply with quote" border="0"></a>   </td>
+			</tr>
+
+			<tr>
+				<td colspan="2"><font><br>Oh, i forgot 2 things...
+<br>
+First:
+<br>
+new version of <span style="font-weight: bold;">head</span> needs <span style="font-weight: bold;">-n 1</span> instead of <span style="font-weight: bold;">-1</span> so if you have problems change the line:
+<br>
+
+<table align="center" border="0" cellpadding="3" cellspacing="1" width="90%">
+<tbody><tr> 	  <td><font><b>Code:</b></font></td>
+	</tr>
+	<tr>
+	  <td class="code">OLD_ADDR=`head -n 1 $ip_cache` </td>
+	</tr>
+</tbody></table>
+<span>
+<br>
+to:
+<br>
+</span>
+<table align="center" border="0" cellpadding="3" cellspacing="1" width="90%">
+<tbody><tr> 	  <td><font><b>Code:</b></font></td>
+	</tr>
+	<tr>
+	  <td class="code">OLD_ADDR=`head -1 $ip_cache` </td>
+	</tr>
+</tbody></table>
+<span>
+<br>
+
+<br>
+Second: excuse me for the bad english <img src="freedns-dyndnsupdate-scripts_files/icon_lol.gif" alt="Laughing" border="0"> 
+<br>
+
+<br>
+Regards, MeDevil <img src="freedns-dyndnsupdate-scripts_files/icon_twisted.gif" alt="Twisted Evil" border="0"></span></font></td>
+			</tr>
+		</tbody></table></td>
+	</tr>
+	<tr>
+		<td class="gris2" align="left" valign="middle" width="150"><a href="#top">Back to top</a></td>
+		<td class="gris2" nowrap="nowrap" valign="bottom" width="100%"><table border="0" cellpadding="0" cellspacing="0" height="18" width="18">
+			<tbody><tr>
+				<td nowrap="nowrap" valign="middle">   <br>  <script language="JavaScript" type="text/javascript"><!--
+
+	if ( navigator.userAgent.toLowerCase().indexOf('mozilla') != -1 && navigator.userAgent.indexOf('5.') == -1 && navigator.userAgent.indexOf('6.') == -1 )
+		document.write(' ');
+	else
+		document.write('</td><td>&nbsp;</td><td valign="top" nowrap="nowrap"><div style="position:relative"><div style="position:absolute"></div><div style="position:absolute;left:3px;top:-1px"></div></div>');
+
+				//--></script></td><td>&nbsp;</td><td nowrap="nowrap" valign="top"><div style="position: relative;"><div style="position: absolute;"></div><div style="position: absolute; left: 3px; top: -1px;"></div></div><noscript></noscript></td>
+			</tr>
+		</tbody></table></td>
+	</tr>
+	<tr>
+		<td class="categoria" colspan="2" height="2"><img src="freedns-dyndnsupdate-scripts_files/spacer.gif" alt="" height="2" width="1"></td>
+	</tr>
+	<tr>
+		<td class="gris1" align="left" valign="top" width="150"><a name="5140"></a><b>janderso</b><br><br><br><br>Joined: 10 Sep 2002<br><a href="http://freedns.afraid.org/forums/search.php?search_author=janderso" class="postdetails">Posts: 3214</a><br><br></td>
+		<td class="gris2" valign="top" width="100%"><table border="0" cellpadding="0" cellspacing="0" width="100%">
+			<tbody><tr>
+				<td class="gris2" width="100%"><a href="http://freedns.afraid.org/forums/post-5140.html#5140" class="imagen"><img src="freedns-dyndnsupdate-scripts_files/icon_minipost.gif" alt="Post" title="Post" border="0" height="9" width="12"></a><font>Posted: Fri Jul 02, 2004 6:22 am&nbsp;&nbsp; &nbsp;Post subject: </font></td>
+				<td nowrap="nowrap" valign="top"><a href="http://freedns.afraid.org/forums/posting.php?mode=quote&amp;p=5140"><img src="freedns-dyndnsupdate-scripts_files/icon_quote.gif" alt="Reply with quote" title="Reply with quote" border="0"></a>   </td>
+			</tr>
+
+			<tr>
+				<td colspan="2"><font><br>Just would like to say that I would highly recommend the use of CNAME dns records over multiple updates.
+<br>
+
+<br>
+For a explanation of what a CNAME is, you can click the 'explanation' text link in the add/edit a subdomain page,
+<br>
+
+<br>
+Josh</font></td>
+			</tr>
+		</tbody></table></td>
+	</tr>
+	<tr>
+		<td class="gris2" align="left" valign="middle" width="150"><a href="#top">Back to top</a></td>
+		<td class="gris2" nowrap="nowrap" valign="bottom" width="100%"><table border="0" cellpadding="0" cellspacing="0" height="18" width="18">
+			<tbody><tr>
+				<td nowrap="nowrap" valign="middle">   <br>  <script language="JavaScript" type="text/javascript"><!--
+
+	if ( navigator.userAgent.toLowerCase().indexOf('mozilla') != -1 && navigator.userAgent.indexOf('5.') == -1 && navigator.userAgent.indexOf('6.') == -1 )
+		document.write(' ');
+	else
+		document.write('</td><td>&nbsp;</td><td valign="top" nowrap="nowrap"><div style="position:relative"><div style="position:absolute"></div><div style="position:absolute;left:3px;top:-1px"></div></div>');
+
+				//--></script></td><td>&nbsp;</td><td nowrap="nowrap" valign="top"><div style="position: relative;"><div style="position: absolute;"></div><div style="position: absolute; left: 3px; top: -1px;"></div></div><noscript></noscript></td>
+			</tr>
+		</tbody></table></td>
+	</tr>
+	<tr>
+		<td class="categoria" colspan="2" height="2"><img src="freedns-dyndnsupdate-scripts_files/spacer.gif" alt="" height="2" width="1"></td>
+	</tr>
+	<tr>
+		<td class="gris1" align="left" valign="top" width="150"><a name="5149"></a><b>Bugi</b><br>Guest<br><br><br><br><a href="http://freedns.afraid.org/forums/search.php?search_author=Bugi" class="postdetails"></a><br><br></td>
+		<td class="gris2" valign="top" width="100%"><table border="0" cellpadding="0" cellspacing="0" width="100%">
+			<tbody><tr>
+				<td class="gris2" width="100%"><a href="http://freedns.afraid.org/forums/post-5149.html#5149" class="imagen"><img src="freedns-dyndnsupdate-scripts_files/icon_minipost.gif" alt="Post" title="Post" border="0" height="9" width="12"></a><font>Posted: Fri Jul 02, 2004 11:03 am&nbsp;&nbsp; &nbsp;Post subject: Top 20 Wealthiest Soccer clubs</font></td>
+				<td nowrap="nowrap" valign="top"><a href="http://freedns.afraid.org/forums/posting.php?mode=quote&amp;p=5149"><img src="freedns-dyndnsupdate-scripts_files/icon_quote.gif" alt="Reply with quote" title="Reply with quote" border="0"></a>   </td>
+			</tr>
+
+			<tr>
+				<td colspan="2"><font><br>Saw that this morning. I've said it before....for all you want to talk about United and their international profile <a href="http://www.buy-games.narod.ru/" target="_blank" class="postlink">http://www.buy-games.narod.ru/</a>,
+they really seem to do business the right way. I'm interested to see
+just how much Kenyon had to do with these results, so next year will be
+interesting.</font></td>
+			</tr>
+		</tbody></table></td>
+	</tr>
+	<tr>
+		<td class="gris2" align="left" valign="middle" width="150"><a href="#top">Back to top</a></td>
+		<td class="gris2" nowrap="nowrap" valign="bottom" width="100%"><table border="0" cellpadding="0" cellspacing="0" height="18" width="18">
+			<tbody><tr>
+				<td nowrap="nowrap" valign="middle">   <br>  <script language="JavaScript" type="text/javascript"><!--
+
+	if ( navigator.userAgent.toLowerCase().indexOf('mozilla') != -1 && navigator.userAgent.indexOf('5.') == -1 && navigator.userAgent.indexOf('6.') == -1 )
+		document.write(' ');
+	else
+		document.write('</td><td>&nbsp;</td><td valign="top" nowrap="nowrap"><div style="position:relative"><div style="position:absolute"></div><div style="position:absolute;left:3px;top:-1px"></div></div>');
+
+				//--></script></td><td>&nbsp;</td><td nowrap="nowrap" valign="top"><div style="position: relative;"><div style="position: absolute;"></div><div style="position: absolute; left: 3px; top: -1px;"></div></div><noscript></noscript></td>
+			</tr>
+		</tbody></table></td>
+	</tr>
+	<tr>
+		<td class="categoria" colspan="2" height="2"><img src="freedns-dyndnsupdate-scripts_files/spacer.gif" alt="" height="2" width="1"></td>
+	</tr>
+	<tr>
+		<td class="gris1" align="left" valign="top" width="150"><a name="5170"></a><b>jadams007</b><br>Guest<br><br><br><br><a href="http://freedns.afraid.org/forums/search.php?search_author=jadams007" class="postdetails"></a><br><br></td>
+		<td class="gris2" valign="top" width="100%"><table border="0" cellpadding="0" cellspacing="0" width="100%">
+			<tbody><tr>
+				<td class="gris2" width="100%"><a href="http://freedns.afraid.org/forums/post-5170.html#5170" class="imagen"><img src="freedns-dyndnsupdate-scripts_files/icon_minipost.gif" alt="Post" title="Post" border="0" height="9" width="12"></a><font>Posted: Mon Jul 05, 2004 7:50 am&nbsp;&nbsp; &nbsp;Post subject: URL??  for update</font></td>
+				<td nowrap="nowrap" valign="top"><a href="http://freedns.afraid.org/forums/posting.php?mode=quote&amp;p=5170"><img src="freedns-dyndnsupdate-scripts_files/icon_quote.gif" alt="Reply with quote" title="Reply with quote" border="0"></a>   </td>
+			</tr>
+
+			<tr>
+				<td colspan="2"><font><br>I've tried a copule of the shell scripts to do the auto IP update at freedns.org, but they all seem to be missing something.
+<br>
+When the scripts get to the point...
+<br>
+
+<br>
+url[0]='http://freedns.afraid.org/dynamic/update.php?...' 
+<br>
+
+<br>
+I get an error from freedns.org  saying 
+<br>
+
+<br>
+Missing S/key and DataID
+<br>
+
+<br>
+I cannot find what is supposed to replace "..." in the line "update.php?..."
+<br>
+or I have seen "update.php?blablabla". 
+<br>
+What goes in "blablabla"?
+<br>
+Can somebody please post an example for me to update
+<br>
+my domain as  testdomain.org or something like that..
+<br>
+
+<br>
+thankx,
+<br>
+    John</font></td>
+			</tr>
+		</tbody></table></td>
+	</tr>
+	<tr>
+		<td class="gris2" align="left" valign="middle" width="150"><a href="#top">Back to top</a></td>
+		<td class="gris2" nowrap="nowrap" valign="bottom" width="100%"><table border="0" cellpadding="0" cellspacing="0" height="18" width="18">
+			<tbody><tr>
+				<td nowrap="nowrap" valign="middle">   <br>  <script language="JavaScript" type="text/javascript"><!--
+
+	if ( navigator.userAgent.toLowerCase().indexOf('mozilla') != -1 && navigator.userAgent.indexOf('5.') == -1 && navigator.userAgent.indexOf('6.') == -1 )
+		document.write(' ');
+	else
+		document.write('</td><td>&nbsp;</td><td valign="top" nowrap="nowrap"><div style="position:relative"><div style="position:absolute"></div><div style="position:absolute;left:3px;top:-1px"></div></div>');
+
+				//--></script></td><td>&nbsp;</td><td nowrap="nowrap" valign="top"><div style="position: relative;"><div style="position: absolute;"></div><div style="position: absolute; left: 3px; top: -1px;"></div></div><noscript></noscript></td>
+			</tr>
+		</tbody></table></td>
+	</tr>
+	<tr>
+		<td class="categoria" colspan="2" height="2"><img src="freedns-dyndnsupdate-scripts_files/spacer.gif" alt="" height="2" width="1"></td>
+	</tr>
+	<tr>
+		<td class="gris1" align="left" valign="top" width="150"><a name="5176"></a><b>janderso</b><br><br><br><br>Joined: 10 Sep 2002<br><a href="http://freedns.afraid.org/forums/search.php?search_author=janderso" class="postdetails">Posts: 3214</a><br><br></td>
+		<td class="gris2" valign="top" width="100%"><table border="0" cellpadding="0" cellspacing="0" width="100%">
+			<tbody><tr>
+				<td class="gris2" width="100%"><a href="http://freedns.afraid.org/forums/post-5176.html#5176" class="imagen"><img src="freedns-dyndnsupdate-scripts_files/icon_minipost.gif" alt="Post" title="Post" border="0" height="9" width="12"></a><font>Posted: Tue Jul 06, 2004 8:16 pm&nbsp;&nbsp; &nbsp;Post subject: </font></td>
+				<td nowrap="nowrap" valign="top"><a href="http://freedns.afraid.org/forums/posting.php?mode=quote&amp;p=5176"><img src="freedns-dyndnsupdate-scripts_files/icon_quote.gif" alt="Reply with quote" title="Reply with quote" border="0"></a>   </td>
+			</tr>
+
+			<tr>
+				<td colspan="2"><font><br>YOu need to copy the URLs from 'Direct URL' link in the 'Dynamic DNS' section within the site,
+<br>
+
+<br>
+Josh</font></td>
+			</tr>
+		</tbody></table></td>
+	</tr>
+	<tr>
+		<td class="gris2" align="left" valign="middle" width="150"><a href="#top">Back to top</a></td>
+		<td class="gris2" nowrap="nowrap" valign="bottom" width="100%"><table border="0" cellpadding="0" cellspacing="0" height="18" width="18">
+			<tbody><tr>
+				<td nowrap="nowrap" valign="middle">   <br>  <script language="JavaScript" type="text/javascript"><!--
+
+	if ( navigator.userAgent.toLowerCase().indexOf('mozilla') != -1 && navigator.userAgent.indexOf('5.') == -1 && navigator.userAgent.indexOf('6.') == -1 )
+		document.write(' ');
+	else
+		document.write('</td><td>&nbsp;</td><td valign="top" nowrap="nowrap"><div style="position:relative"><div style="position:absolute"></div><div style="position:absolute;left:3px;top:-1px"></div></div>');
+
+				//--></script></td><td>&nbsp;</td><td nowrap="nowrap" valign="top"><div style="position: relative;"><div style="position: absolute;"></div><div style="position: absolute; left: 3px; top: -1px;"></div></div><noscript></noscript></td>
+			</tr>
+		</tbody></table></td>
+	</tr>
+	<tr>
+		<td class="categoria" colspan="2" height="2"><img src="freedns-dyndnsupdate-scripts_files/spacer.gif" alt="" height="2" width="1"></td>
+	</tr>
+	<tr>
+		<td class="gris1" align="left" valign="top" width="150"><a name="5203"></a><b>MeDevil</b><br>Guest<br><br><br><br><a href="http://freedns.afraid.org/forums/search.php?search_author=MeDevil" class="postdetails"></a><br><br></td>
+		<td class="gris2" valign="top" width="100%"><table border="0" cellpadding="0" cellspacing="0" width="100%">
+			<tbody><tr>
+				<td class="gris2" width="100%"><a href="http://freedns.afraid.org/forums/post-5203.html#5203" class="imagen"><img src="freedns-dyndnsupdate-scripts_files/icon_minipost.gif" alt="Post" title="Post" border="0" height="9" width="12"></a><font>Posted: Sun Jul 11, 2004 12:04 pm&nbsp;&nbsp; &nbsp;Post subject: </font></td>
+				<td nowrap="nowrap" valign="top"><a href="http://freedns.afraid.org/forums/posting.php?mode=quote&amp;p=5203"><img src="freedns-dyndnsupdate-scripts_files/icon_quote.gif" alt="Reply with quote" title="Reply with quote" border="0"></a>   </td>
+			</tr>
+
+			<tr>
+				<td colspan="2"><font><br>If someone has tested it, can post a feedback about my modified ipupdate script?
+<br>
+
+<br>
+Thanks in advance.
+<br>
+Regards, MeDevil <img src="freedns-dyndnsupdate-scripts_files/icon_twisted.gif" alt="Twisted Evil" border="0"></font></td>
+			</tr>
+		</tbody></table></td>
+	</tr>
+	<tr>
+		<td class="gris2" align="left" valign="middle" width="150"><a href="#top">Back to top</a></td>
+		<td class="gris2" nowrap="nowrap" valign="bottom" width="100%"><table border="0" cellpadding="0" cellspacing="0" height="18" width="18">
+			<tbody><tr>
+				<td nowrap="nowrap" valign="middle">   <br>  <script language="JavaScript" type="text/javascript"><!--
+
+	if ( navigator.userAgent.toLowerCase().indexOf('mozilla') != -1 && navigator.userAgent.indexOf('5.') == -1 && navigator.userAgent.indexOf('6.') == -1 )
+		document.write(' ');
+	else
+		document.write('</td><td>&nbsp;</td><td valign="top" nowrap="nowrap"><div style="position:relative"><div style="position:absolute"></div><div style="position:absolute;left:3px;top:-1px"></div></div>');
+
+				//--></script></td><td>&nbsp;</td><td nowrap="nowrap" valign="top"><div style="position: relative;"><div style="position: absolute;"></div><div style="position: absolute; left: 3px; top: -1px;"></div></div><noscript></noscript></td>
+			</tr>
+		</tbody></table></td>
+	</tr>
+	<tr>
+		<td class="categoria" colspan="2" height="2"><img src="freedns-dyndnsupdate-scripts_files/spacer.gif" alt="" height="2" width="1"></td>
+	</tr>
+	<tr>
+		<td class="gris1" align="left" valign="top" width="150"><a name="5738"></a><b>limit</b><br><br><br><br>Joined: 29 Apr 2004<br><a href="http://freedns.afraid.org/forums/search.php?search_author=limit" class="postdetails">Posts: 663</a><br>Location: UK<br></td>
+		<td class="gris2" valign="top" width="100%"><table border="0" cellpadding="0" cellspacing="0" width="100%">
+			<tbody><tr>
+				<td class="gris2" width="100%"><a href="http://freedns.afraid.org/forums/post-5738.html#5738" class="imagen"><img src="freedns-dyndnsupdate-scripts_files/icon_minipost.gif" alt="Post" title="Post" border="0" height="9" width="12"></a><font>Posted: Mon Aug 16, 2004 9:26 am&nbsp;&nbsp; &nbsp;Post subject: </font></td>
+				<td nowrap="nowrap" valign="top"><a href="http://freedns.afraid.org/forums/posting.php?mode=quote&amp;p=5738"><img src="freedns-dyndnsupdate-scripts_files/icon_quote.gif" alt="Reply with quote" title="Reply with quote" border="0"></a>   </td>
+			</tr>
+
+			<tr>
+				<td colspan="2"><font><br>eh?</font></td>
+			</tr>
+		</tbody></table></td>
+	</tr>
+	<tr>
+		<td class="gris2" align="left" valign="middle" width="150"><a href="#top">Back to top</a></td>
+		<td class="gris2" nowrap="nowrap" valign="bottom" width="100%"><table border="0" cellpadding="0" cellspacing="0" height="18" width="18">
+			<tbody><tr>
+				<td nowrap="nowrap" valign="middle">   <br>  <script language="JavaScript" type="text/javascript"><!--
+
+	if ( navigator.userAgent.toLowerCase().indexOf('mozilla') != -1 && navigator.userAgent.indexOf('5.') == -1 && navigator.userAgent.indexOf('6.') == -1 )
+		document.write(' ');
+	else
+		document.write('</td><td>&nbsp;</td><td valign="top" nowrap="nowrap"><div style="position:relative"><div style="position:absolute"></div><div style="position:absolute;left:3px;top:-1px"></div></div>');
+
+				//--></script></td><td>&nbsp;</td><td nowrap="nowrap" valign="top"><div style="position: relative;"><div style="position: absolute;"></div><div style="position: absolute; left: 3px; top: -1px;"></div></div><noscript></noscript></td>
+			</tr>
+		</tbody></table></td>
+	</tr>
+	<tr>
+		<td class="categoria" colspan="2" height="2"><img src="freedns-dyndnsupdate-scripts_files/spacer.gif" alt="" height="2" width="1"></td>
+	</tr>
+	<tr>
+		<td class="gris1" align="left" valign="top" width="150"><a name="5743"></a><b>admin</b><br>Site Admin<br><br><br>Joined: 10 Sep 2002<br><a href="http://freedns.afraid.org/forums/search.php?search_author=admin" class="postdetails">Posts: 4</a><br><br></td>
+		<td class="gris2" valign="top" width="100%"><table border="0" cellpadding="0" cellspacing="0" width="100%">
+			<tbody><tr>
+				<td class="gris2" width="100%"><a href="http://freedns.afraid.org/forums/post-5743.html#5743" class="imagen"><img src="freedns-dyndnsupdate-scripts_files/icon_minipost.gif" alt="Post" title="Post" border="0" height="9" width="12"></a><font>Posted: Mon Aug 16, 2004 7:54 pm&nbsp;&nbsp; &nbsp;Post subject: </font></td>
+				<td nowrap="nowrap" valign="top"><a href="http://freedns.afraid.org/forums/posting.php?mode=quote&amp;p=5743"><img src="freedns-dyndnsupdate-scripts_files/icon_quote.gif" alt="Reply with quote" title="Reply with quote" border="0"></a>   </td>
+			</tr>
+
+			<tr>
+				<td colspan="2"><font><br>US Bankrupcy spam links have been removed.
+<br>
+
+<br>
+If they show up again I will report cloaking activities to the search engines.
+<br>
+
+<br>
+Josh</font></td>
+			</tr>
+		</tbody></table></td>
+	</tr>
+	<tr>
+		<td class="gris2" align="left" valign="middle" width="150"><a href="#top">Back to top</a></td>
+		<td class="gris2" nowrap="nowrap" valign="bottom" width="100%"><table border="0" cellpadding="0" cellspacing="0" height="18" width="18">
+			<tbody><tr>
+				<td nowrap="nowrap" valign="middle">   <br>  <script language="JavaScript" type="text/javascript"><!--
+
+	if ( navigator.userAgent.toLowerCase().indexOf('mozilla') != -1 && navigator.userAgent.indexOf('5.') == -1 && navigator.userAgent.indexOf('6.') == -1 )
+		document.write(' ');
+	else
+		document.write('</td><td>&nbsp;</td><td valign="top" nowrap="nowrap"><div style="position:relative"><div style="position:absolute"></div><div style="position:absolute;left:3px;top:-1px"></div></div>');
+
+				//--></script></td><td>&nbsp;</td><td nowrap="nowrap" valign="top"><div style="position: relative;"><div style="position: absolute;"></div><div style="position: absolute; left: 3px; top: -1px;"></div></div><noscript></noscript></td>
+			</tr>
+		</tbody></table></td>
+	</tr>
+	<tr>
+		<td class="categoria" colspan="2" height="2"><img src="freedns-dyndnsupdate-scripts_files/spacer.gif" alt="" height="2" width="1"></td>
+	</tr>
+	<tr>
+		<td class="gris1" align="left" valign="top" width="150"><a name="6577"></a><b>mati</b><br>Guest<br><br><br><br><a href="http://freedns.afraid.org/forums/search.php?search_author=mati" class="postdetails"></a><br><br></td>
+		<td class="gris2" valign="top" width="100%"><table border="0" cellpadding="0" cellspacing="0" width="100%">
+			<tbody><tr>
+				<td class="gris2" width="100%"><a href="http://freedns.afraid.org/forums/post-6577.html#6577" class="imagen"><img src="freedns-dyndnsupdate-scripts_files/icon_minipost.gif" alt="Post" title="Post" border="0" height="9" width="12"></a><font>Posted: Wed Oct 20, 2004 9:16 am&nbsp;&nbsp; &nbsp;Post subject: </font></td>
+				<td nowrap="nowrap" valign="top"><a href="http://freedns.afraid.org/forums/posting.php?mode=quote&amp;p=6577"><img src="freedns-dyndnsupdate-scripts_files/icon_quote.gif" alt="Reply with quote" title="Reply with quote" border="0"></a>   </td>
+			</tr>
+
+			<tr>
+				<td colspan="2"><font><br>hello,
+i'm sorry for bringing this up, but i'd like to show my script too. i
+think it only runs on freebsd because of the different ifconfig output,
+but i'm not sure. the ip checking thing in it, that idea i got from
+this thread. oh and it also supports multiple updates, uses lynx to
+update and has a verbosity option (-v).
+<br>
+
+<br>
+
+<table align="center" border="0" cellpadding="3" cellspacing="1" width="90%">
+<tbody><tr> 	  <td><font><b>Code:</b></font></td>
+	</tr>
+	<tr>
+	  <td class="code">
+<br>
+urls=(url1 url2) #an array
+<br>
+iface="tun0"
+<br>
+lynx="/usr/local/bin/lynx"
+<br>
+sed="/usr/bin/sed"
+<br>
+head="/usr/bin/head"
+<br>
+current_ip=`/sbin/ifconfig $iface | grep inet | /usr/bin/sed -e 's/\-.*//;s/^.//;s/.$//;s/inet //'`
+<br>
+ipfile="/tmp/.ipfile"
+<br>
+old_ip=`$head -n 1 $ipfile`
+<br>
+# End of vars
+<br>
+
+<br>
+if [ $current_ip != $old_ip ]; then
+<br>
+&nbsp; &nbsp; &nbsp;echo $current_ip &gt; /tmp/.ipfile
+<br>
+
+<br>
+&nbsp; &nbsp; &nbsp;if [ -z $1 ]; then
+<br>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; for i in ${urls[@]}; do
+<br>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;$lynx -dump $i &gt;/dev/null
+<br>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; done
+<br>
+&nbsp; &nbsp; &nbsp;elif [ $1 = "-v" ]; then
+<br>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; for i in ${urls[@]}; do
+<br>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;$lynx&nbsp; -dump $i | $sed -e '/^$/d'
+<br>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; done
+<br>
+&nbsp; &nbsp; &nbsp;fi
+<br>
+else
+<br>
+&nbsp; &nbsp; &nbsp;exit 0
+<br>
+fi
+<br>
+exit 0
+<br>
+</td>
+	</tr>
+</tbody></table>
+<span></span></font></td>
+			</tr>
+		</tbody></table></td>
+	</tr>
+	<tr>
+		<td class="gris2" align="left" valign="middle" width="150"><a href="#top">Back to top</a></td>
+		<td class="gris2" nowrap="nowrap" valign="bottom" width="100%"><table border="0" cellpadding="0" cellspacing="0" height="18" width="18">
+			<tbody><tr>
+				<td nowrap="nowrap" valign="middle">   <br>  <script language="JavaScript" type="text/javascript"><!--
+
+	if ( navigator.userAgent.toLowerCase().indexOf('mozilla') != -1 && navigator.userAgent.indexOf('5.') == -1 && navigator.userAgent.indexOf('6.') == -1 )
+		document.write(' ');
+	else
+		document.write('</td><td>&nbsp;</td><td valign="top" nowrap="nowrap"><div style="position:relative"><div style="position:absolute"></div><div style="position:absolute;left:3px;top:-1px"></div></div>');
+
+				//--></script></td><td>&nbsp;</td><td nowrap="nowrap" valign="top"><div style="position: relative;"><div style="position: absolute;"></div><div style="position: absolute; left: 3px; top: -1px;"></div></div><noscript></noscript></td>
+			</tr>
+		</tbody></table></td>
+	</tr>
+	<tr>
+		<td class="categoria" colspan="2" height="2"><img src="freedns-dyndnsupdate-scripts_files/spacer.gif" alt="" height="2" width="1"></td>
+	</tr>
+	<tr>
+		<td class="gris1" align="left" valign="top" width="150"><a name="6579"></a><b>mati</b><br>Guest<br><br><br><br><a href="http://freedns.afraid.org/forums/search.php?search_author=mati" class="postdetails"></a><br><br></td>
+		<td class="gris2" valign="top" width="100%"><table border="0" cellpadding="0" cellspacing="0" width="100%">
+			<tbody><tr>
+				<td class="gris2" width="100%"><a href="http://freedns.afraid.org/forums/post-6579.html#6579" class="imagen"><img src="freedns-dyndnsupdate-scripts_files/icon_minipost.gif" alt="Post" title="Post" border="0" height="9" width="12"></a><font>Posted: Wed Oct 20, 2004 9:50 am&nbsp;&nbsp; &nbsp;Post subject: </font></td>
+				<td nowrap="nowrap" valign="top"><a href="http://freedns.afraid.org/forums/posting.php?mode=quote&amp;p=6579"><img src="freedns-dyndnsupdate-scripts_files/icon_quote.gif" alt="Reply with quote" title="Reply with quote" border="0"></a>   </td>
+			</tr>
+
+			<tr>
+				<td colspan="2"><font><br>whoops forgot the root check. i'm new to scripting <img src="freedns-dyndnsupdate-scripts_files/icon_redface.gif" alt="Embarassed" border="0">
+<br>
+
+<br>
+rootuid="0"
+<br>
+
+<br>
+if [ $UID = $rootuid ]; then
+<br>
+if [ $current_ip != $old_ip ]; then
+<br>
+....
+<br>
+....
+<br>
+else exit 0
+<br>
+fi
+<br>
+else exit 0
+<br>
+fi
+<br>
+exit 0</font></td>
+			</tr>
+		</tbody></table></td>
+	</tr>
+	<tr>
+		<td class="gris2" align="left" valign="middle" width="150"><a href="#top">Back to top</a></td>
+		<td class="gris2" nowrap="nowrap" valign="bottom" width="100%"><table border="0" cellpadding="0" cellspacing="0" height="18" width="18">
+			<tbody><tr>
+				<td nowrap="nowrap" valign="middle">   <br>  <script language="JavaScript" type="text/javascript"><!--
+
+	if ( navigator.userAgent.toLowerCase().indexOf('mozilla') != -1 && navigator.userAgent.indexOf('5.') == -1 && navigator.userAgent.indexOf('6.') == -1 )
+		document.write(' ');
+	else
+		document.write('</td><td>&nbsp;</td><td valign="top" nowrap="nowrap"><div style="position:relative"><div style="position:absolute"></div><div style="position:absolute;left:3px;top:-1px"></div></div>');
+
+				//--></script></td><td>&nbsp;</td><td nowrap="nowrap" valign="top"><div style="position: relative;"><div style="position: absolute;"></div><div style="position: absolute; left: 3px; top: -1px;"></div></div><noscript></noscript></td>
+			</tr>
+		</tbody></table></td>
+	</tr>
+	<tr>
+		<td class="categoria" colspan="2" height="2"><img src="freedns-dyndnsupdate-scripts_files/spacer.gif" alt="" height="2" width="1"></td>
+	</tr>
+	<tr align="center">
+		<td class="categoria" colspan="2"><table border="0" cellpadding="0" cellspacing="0">
+			<tbody><tr><form method="post" action="about1160-0.html"></form>
+				<td align="center"><font>Display posts from previous: <select name="postdays"><option value="0" selected="selected">All Posts</option><option value="1">1 Day</option><option value="7">7 Days</option><option value="14">2 Weeks</option><option value="30">1 Month</option><option value="90">3 Months</option><option value="180">6 Months</option><option value="364">1 Year</option></select>&nbsp;<select name="postorder"><option value="asc" selected="selected">Oldest First</option><option value="desc">Newest First</option></select>&nbsp;<input value="Go" name="submit" type="submit"></font></td>
+			</tr>
+		</tbody></table></td>
+	</tr>
+</tbody></table>
+
+<table align="center" border="0" cellpadding="2" cellspacing="2" width="100%">
+  <tbody><tr>
+	<td align="left" nowrap="nowrap" valign="middle"><a href="http://freedns.afraid.org/forums/posting.php?mode=newtopic&amp;f=1" class="imagen"><img src="freedns-dyndnsupdate-scripts_files/post.gif" alt="Post new topic" align="middle" border="0"></a>&nbsp;&nbsp;&nbsp;<a href="http://freedns.afraid.org/forums/posting.php?mode=reply&amp;t=1160" class="imagen"><img src="freedns-dyndnsupdate-scripts_files/reply.gif" alt="Reply to topic" align="middle" border="0"></a></td>
+	<td align="left" valign="middle" width="100%"><font>&nbsp;&nbsp;&nbsp;<a href="http://freedns.afraid.org/forums/index.php">freedns.afraid.org Forum Index</a>
+	  -&gt; <a href="http://freedns.afraid.org/forums/forum-1.html">General Discussion</a></font></td>
+	<td align="right" nowrap="nowrap" valign="top"><font>All times are GMT - 8 Hours<br>Goto page <b>1</b>, <a href="http://freedns.afraid.org/forums/about1160-0-asc-15.html">2</a>, <a href="http://freedns.afraid.org/forums/about1160-0-asc-30.html">3</a>&nbsp;&nbsp;<a href="http://freedns.afraid.org/forums/about1160-0-asc-15.html">Next</a></font>
+	  </td>
+  </tr>
+  <tr>
+	<td colspan="3" align="left"><font>Page <b>1</b> of <b>3</b></font></td>
+  </tr>
+</tbody></table>
+
+<table align="center" border="0" cellspacing="2" width="100%">
+  <tbody><tr>
+	<td align="left" nowrap="nowrap" valign="top" width="40%"><font><br>
+	  &nbsp;<br>
+	  </font></td>
+
+<td align="right" nowrap="nowrap" valign="top">
+</td>
+
+  </tr>
+</tbody></table>
+
+<br><br>
+<!--
+	We request you retain the full copyright notice below including the link to www.phpbb.com.
+	This not only gives respect to the large amount of time given freely by the developers
+	but also helps build interest, traffic and use of phpBB 2.0. If you cannot (for good
+	reason) retain the full copyright we request you at least leave in place the
+	Powered by phpBB  line, with phpBB linked to www.phpbb.com. If you refuse
+	to include even this then support on our forums may be affected.
+
+	The phpBB Group : 2004
+// -->
+<font>Powered by <a href="http://www.phpbb.com/" target="_blank">phpBB</a>  © 2001, 2004 phpBB Group<br><a href="http://www.esbardu.org/" target="_blank">Esbardu</a> style by <a href="http://www.altuxa.com/" target="_blank">Mikel González</a>, released under <a href="http://www.gnu.org/licenses/gpl.html" target="_blank">GNU (GNU/GPL)</a> license.<br></font>
+</td>
+  </tr>
+
+</tbody></table>
+
+		  </td>
+  </tr>
+</tbody></table>
+</td>
+  </tr>
+  <tr>
+    <td>
+	  <table border="0" cellpadding="0" cellspacing="0" width="100%">
+        <tbody><tr>
+
+    <td class="copy" align="right" width="100%">Copyright © 2004 Mikel González - Altuxa I.E.</td>
+          <td class="copy" height="15" valign="bottom" width="120"><img src="freedns-dyndnsupdate-scripts_files/copy.png" alt="" height="15" width="120"></td>
+  </tr>
+</tbody></table>
+</td>
+  </tr>
+</tbody></table>
+</body></html>

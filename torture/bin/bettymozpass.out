@@ -1,0 +1,128 @@
+--------------------------------------------------------------------------------
+Data from /home/jamesc/.mozilla/default/q49skh9f.slt/60094356.s
+--------------------------------------------------------------------------------
+Site bakunin.dev.ie.alphyra.com:80 (intra)
+  \=username=\: stellamgr
+  *\=password=\: stella
+Site bakunin.dev.ie.alphyra.com:80 (multi)
+  \=username=\: stella
+  *\=password=\: stella
+Site http://bakunin.dev.ie.alphyra.com
+  username: doolin
+  *password: intranet
+Site http://bakunin.dev.ie.alphyra.com
+  username: Doolin
+  *password: intranet
+Site http://bakunin.dev.ie.alphyra.com
+  username: alphyrawebsm
+  *password: O5uE7gpep
+Site http://bakunin.dev.ie.alphyra.com
+  username: stellamgr
+  *password: stella
+Site http://bakunin.dev.ie.alphyra.com
+  username: stellauser
+  *password: stella
+Site http://bakunin.dev.ie.alphyra.com
+  username: stella
+  *password: stella
+Site http://bugzilla.dub.ie.alphyra.com
+  Bugzilla_login: jamesc@doolin.com
+  *Bugzilla_password: ithink
+Site http://intranet.alphyra.com
+  username: doolin
+  *password: intranet
+Site http://lrnj.com
+  username: jamesc@dspsrv.com
+  *password: ithink
+Site http://owsla.ie.suberic.net
+  auth[userid]: jamesc
+  *auth[passwd]: I think.
+Site http://signin.ebay.com
+  userid: semajnameloc
+  *pass: ithink
+Site http://ticket.dub.ie.alphyra.com
+  User: jamesc@doolin.com
+  *Password: ithink
+Site http://ticket.dub.ie.alphyra.com
+  User: jamesc
+  *Password: I think.
+Site http://usermodelinux.org
+  username: weirdo
+  *user_password: ithink
+Site http://usermodelinux.org
+  username: jamesc@dspsrv.com
+  *user_password: ithink
+Site http://www.clickatell.com
+  username: jamesc
+  client_id: CJO224
+  *password: foobar
+Site http://www.debenhams.com
+  LOGIN<>userid: jamesc@dspsrv.com
+  *LOGIN<>password: tjhqvp
+Site http://www.delphion.com
+  name: jamesc@dspsrv.com
+  *password: ithink
+  reference: 
+Site http://www.dspsrv.com
+  username: jamesc@dspsrv.com
+  *password: ithink
+Site http://www.ireland.com
+  credential_0: dfrost
+  *credential_1: hello123
+Site http://www.irishastronomy.org
+  username: jamesc
+  *password: ithink
+Site http://www.kypros.org
+  username: jamesc@dspsrv.com
+  *password: ithink
+Site http://www.nytimes.com
+  USERID: jamesc@dspsrv.com
+  *PASSWORD: jamesc@dspsrv.com
+Site http://www.nytimes.com
+  USERID: cypherpunk
+  *PASSWORD: cypherpunks
+Site http://www.nytimes.com
+  USERID: jamescdspsrvcom
+  *PASSWORD: jamesc@DSPSRV.COM
+Site http://www.openoffice.org
+  loginID: jamesc@dspsrv.com
+  *password: ithink
+Site http://www.openoffice.org
+  loginID: jamesc
+  *password: ithink
+Site http://www.orkut.com
+  u: odriew
+  *p: ithink
+Site http://www2.cmg.com
+  email: jamesc@doolin.com
+  *pw: 4YR7XS4A
+Site https://betty.dev.ie.alphyra.com
+  username: test
+  *password: test
+Site https://betty.dev.ie.alphyra.com
+  username: stella
+  *password: stella
+Site https://ecs.itu.ch
+  customerid: jamesc@doolin.com
+  *password: krBAQ8kM
+Site https://mail.fsfeurope.org
+  email: jamesc@doolin.com
+  *password: ithink
+Site https://renegade.dev.ie.alphyra.com
+  username: stella
+  *password: stella
+Site https://www.buy4now.ie
+  lemail: Fionnuala.Callan@s3group.com
+  *lpassword: oscar
+Site https://www.debenhams.com
+  LOGIN<>userid: jamesc@dspsrv.com
+  *LOGIN<>password: tjhqvp
+Site https://www.irishtimesjobs.com
+  logon: jamesc@dspsrv.com
+  *password: ithink
+Site https://www.motortax.ie
+  loginRegNo: 98D13845
+  *loginPin: 954694
+Site https://www2.delphion.com
+  *password: ithink
+  reference: 
