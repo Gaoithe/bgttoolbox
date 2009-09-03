@@ -36,6 +36,18 @@
 # 
 ### TODO: hey look at Images\_PAlbTN\ dir ! every thumbnail since year DOT! sneaky !
 # nokia E65 phone
+#
+#I've thrown together an ugly script to automate sync (a dumb enough sync) of files from my phone.
+#And make an ugly blog post about the ugly script also:
+#http://gaoithe.livejournal.com/33541.html
+#
+#It would be nice to sync properly like rsync (i.e. check files size and date/times on host and device).
+#It would be nice to use rsync itself! :)
+#Possibly obexftp could be improved, commands like "get-if-changed, put-if-not-up-to-date", recursive ability.
+#Hmm. Hmm.
+#mount could mount some ugly thing + obexftp interface?   then rsync away
+# Hmmm.
+
 
 DEVICENAME=$1
 #echo all is $*
@@ -175,12 +187,12 @@ function clean_the_files () {
 
 
 
-wipe_existing_files_from_list
-echo files to get FILES=$FILES
+#wipe_existing_files_from_list
+echo "files to get FILES=$FILES"
 
-get_the_files
+#get_the_files
 
-track_the_files
+#track_the_files
 
 clean_the_files
 
