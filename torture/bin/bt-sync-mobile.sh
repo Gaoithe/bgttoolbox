@@ -1,5 +1,42 @@
 #!/bin/bash
 
+#INVOCATION:
+#$ bt-sync-mobile.sh [device [dir]]
+#$ bt-sync-mobile.sh Pooky 'C:\Data\Images\' 2>&1 |tee .btsync/bt_sync_images.log 
+#Stuff is synched to ~/.btsync/`echo $dir |sed 's/[\/ \\"]/_/g'`
+#wami*.gpx and *.jpg files are cleared off device if synced successfully
+#
+#REQUIREMENTS: 
+#linux with bluetooth hardware
+#various bluetooth linux utils, these ubuntu packages:
+#bluez bluez-utils(?) obexftp openobex-apps
+#
+# some of these come by default, and some are not needed, but this is on the system the script was tested on
+#$ dpkg -l |egrep "bluez|hci|obex" |sed 's/  */ /g'
+#ii bluez 4.32-0ubuntu4.1 Bluetooth tools and daemons
+#ii bluez-alsa 4.32-0ubuntu4.1 Bluetooth audio support
+#ii bluez-cups 4.32-0ubuntu4.1 Bluetooth printer driver for CUPS
+#ii bluez-gnome 1.8-0ubuntu5 Bluetooth utilities for GNOME
+#ii bluez-gstreamer 4.32-0ubuntu4.1 Bluetooth gstreamer support
+#ii bluez-utils 4.32-0ubuntu4.1 Transitional package
+#ii gnome-vfs-obexftp 0.4-1build1 GNOME VFS module for OBEX FTP
+#ii libopenobex1 1.5-1 OBEX protocol library
+#ii libopenobex1-dev 1.5-1 OBEX protocol library - development files
+#ii obex-data-server 0.4.4-0ubuntu1 D-Bus service for OBEX client and server sid
+#ii obexftp 0.19-7ubuntu2 file transfer utility for devices that use t
+#ii openobex-apps 1.5-1 Applications for OpenOBEX
+#ii python-bluez 0.16-1ubuntu1 Python wrappers around BlueZ for rapid bluet
+#
+#NOTES:
+#The bluetooth connect seems to fail sometimes.
+#Files with funny chars in name could cause a problem. maybe. () are okay
+#Files to clear out are hardcoded.
+#It's simple - just syncs files up if they don't exist on host.
+#There are various other TODOs
+# 
+### TODO: hey look at Images\_PAlbTN\ dir ! every thumbnail since year DOT! sneaky !
+# nokia E65 phone
+
 DEVICENAME=$1
 #echo all is $*
 BTSYNCHOME=~/.btsync
