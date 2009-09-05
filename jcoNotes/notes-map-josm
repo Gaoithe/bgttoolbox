@@ -1,0 +1,35 @@
+
+arg! 
+ josm editgpx plugin or utilsplugin
+1. plugin install is hard and stupid.
+  josm from apt has plugins dir writable by root only
+    so run josm as root and ... messy
+  ALSO josm preferences plugins is bad
+  plugins in prefs => update list, add url for plugin list, ... doesn't work?
+  get plugins .jar and copy to ~/.josm/plugins/
+2. EditGPX plugin, convert to layer, .. doesn't do anything?
+http://wiki.openstreetmap.org/wiki/JOSM/Plugins/EditGpx
+
+
+
+http://josm.openstreetmap.de/wiki/Plugins
+
+
+
+http://www.openstreetmap.org/user/gaoithe/traces/499948
+http://www.openstreetmap.org/user/gaoithe/traces/499945
+
+
+  	wami_20090901_00.gpx   ... (2,291 points) ... about 1 hour ago  more / map / edit  PUBLIC
+Trip home from Intune/park west, not on M50
+by gaoithe in motorbike, park west, dublin
+	wami_20090830_00.gpx ... (9,341 points) ... about 1 hour ago more / map / edit PUBLIC
+Dun Laoghaire walk - festival and back to Leopardstown via Cherrywood/M50
+by gaoithe in car, walk, Dun Laoghaire, Dublin
+
+
+josm layer info (not copyable :( ) says 1 track, 5:26 to 6:04 16.46k
+
+
+http://josm.openstreetmap.de/ticket/2760
+GPX layer -> data layer convert does not simplify track

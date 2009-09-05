@@ -1,0 +1,349 @@
+TODO automated sync from (/to?) phone
+TODO sync map data, photos, pics
+TODO rsync if possible, delete/tidy on phone synced older stuff
+
+see also ~/notes-ubuntu-delllaptop
+  initial setup
+ also /dev/pilot + jpilot struggle somewhere?
+================================================================================
+command-line bluetooth?
+
+jamesc@jamesc-laptop:~$ dpkg -l |grep bluez
+ii  bluez                                      4.32-0ubuntu4.1                                                        Bluetooth tools and daemons
+ii  bluez-alsa                                 4.32-0ubuntu4.1                                                        Bluetooth audio support
+ii  bluez-cups                                 4.32-0ubuntu4.1                                                        Bluetooth printer driver for CUPS
+ii  bluez-gnome                                1.8-0ubuntu5                                                           Bluetooth utilities for GNOME
+ii  bluez-gstreamer                            4.32-0ubuntu4.1                                                        Bluetooth gstreamer support
+ii  bluez-utils                                4.32-0ubuntu4.1                                                        Transitional package
+ii  python-bluez                               0.16-1ubuntu1                                                          Python wrappers around BlueZ for rapid bluet
+jamesc@jamesc-laptop:~$ dpkg -L bluez
+/.
+/usr
+/usr/bin
+/usr/bin/hcitool
+/usr/bin/rfcomm
+/usr/bin/dfutool
+/usr/bin/l2ping
+/usr/bin/sdptool
+/usr/bin/ciptool
+/usr/lib
+/usr/lib/pm-utils
+/usr/lib/pm-utils/sleep.d
+/usr/lib/pm-utils/sleep.d/48hid2hci
+/usr/lib/bluetooth
+/usr/lib/bluetooth/plugins
+/usr/lib/bluetooth/plugins/audio.so
+/usr/lib/bluetooth/plugins/hal.so
+/usr/lib/bluetooth/plugins/input.so
+/usr/lib/bluetooth/plugins/netlink.so
+/usr/lib/bluetooth/plugins/network.so
+/usr/lib/bluetooth/plugins/serial.so
+/usr/lib/bluetooth/plugins/service.so
+/usr/share
+/usr/share/doc
+/usr/share/doc/bluez
+/usr/share/doc/bluez/audio-api.txt.gz
+/usr/share/doc/bluez/agent-api.txt
+/usr/share/doc/bluez/control-api.txt
+/usr/share/doc/bluez/input-api.txt
+/usr/share/doc/bluez/manager-api.txt
+/usr/share/doc/bluez/network-api.txt
+/usr/share/doc/bluez/serial-api.txt
+/usr/share/doc/bluez/service-api.txt
+/usr/share/doc/bluez/copyright
+/usr/share/doc/bluez/adapter-api.txt.gz
+/usr/share/doc/bluez/device-api.txt.gz
+/usr/share/man
+/usr/share/man/man1
+/usr/share/man/man1/ciptool.1.gz
+/usr/share/man/man1/hcitool.1.gz
+/usr/share/man/man1/sdptool.1.gz
+/usr/share/man/man1/rfcomm.1.gz
+/usr/share/man/man1/dfutool.1.gz
+/usr/share/man/man1/l2ping.1.gz
+/usr/share/man/man8
+/usr/share/man/man8/hciattach.8.gz
+/usr/share/man/man8/hciconfig.8.gz
+/usr/share/man/man8/hid2hci.8.gz
+/usr/share/man/man8/bccmd.8.gz
+/usr/share/man/man8/bluetoothd.8.gz
+/usr/sbin
+/usr/sbin/bccmd
+/usr/sbin/bluetoothd
+/usr/sbin/hciattach
+/usr/sbin/hciconfig
+/usr/sbin/hid2hci
+/etc
+/etc/bluetooth
+/etc/bluetooth/input.conf
+/etc/bluetooth/audio.conf
+/etc/bluetooth/network.conf
+/etc/bluetooth/main.conf
+/etc/bluetooth/rfcomm.conf
+/etc/default
+/etc/default/bluetooth
+/etc/init.d
+/etc/init.d/bluetooth
+/etc/dbus-1
+/etc/dbus-1/system.d
+/etc/dbus-1/system.d/bluetooth.conf
+/lib
+/lib/udev
+/lib/udev/rules.d
+/lib/udev/rules.d/62-bluez-hid2hci.rules
+/usr/share/doc/bluez/README
+/usr/share/doc/bluez/AUTHORS
+/usr/share/doc/bluez/changelog.Debian.gz
+
+
+jamesc@jamesc-laptop:~$ dpkg -L bluez-utils
+/.
+/usr
+/usr/share
+/usr/share/doc
+/usr/share/doc/bluez-utils
+/usr/share/doc/bluez-utils/copyright
+/usr/share/doc/bluez-utils/README
+/usr/share/doc/bluez-utils/AUTHORS
+/usr/share/doc/bluez-utils/changelog.Debian.gz
+
+eh?
+
+
+http://www.bluez.org/
+
+http://www.linux.com/archive/articles/60341  2007
+
+http://hanishkvc.wordpress.com/2007/05/16/short-and-simple-commandline-bluetooth-in-any-new-linux-distros/  also 2007
+
+
+jamesc@jamesc-laptop:~$ sdptool search OPUSH
+Inquiring ...
+Failed to connect to SDP server on 00:1F:5D:BF:29:39: Host is down
+Searching for OPUSH on 00:17:E5:EE:29:18 ...
+Service Name: OBEX Object Push
+Service RecHandle: 0x10002
+Service Class ID List:
+  "OBEX Object Push" (0x1105)
+Protocol Descriptor List:
+  "L2CAP" (0x0100)
+  "RFCOMM" (0x0003)
+    Channel: 9
+  "OBEX" (0x0008)
+Language Base Attr List:
+  code_ISO639: 0x454e
+  encoding:    0x6a
+  base_offset: 0x100
+Profile Descriptor List:
+  "OBEX Object Push" (0x1105)
+    Version: 0x0100
+
+jamesc@jamesc-laptop:~$ sdptool search NOKID
+Inquiring ...
+Failed to connect to SDP server on 00:1F:5D:BF:29:39: Host is down
+Searching for NOKID on 00:17:E5:EE:29:18 ...
+
+
+obex_test -b 00:17:E5:EE:29:18
+
+jamesc@jamesc-laptop:~$ obex_test -b 00:17:E5:EE:29:18
+The program 'obex_test' is currently not installed.  You can install it by typing:
+sudo apt-get install openobex-apps
+
+
+
+jamesc@jamesc-laptop:~$ obex_test -b 00:17:E5:EE:29:18
+Using Bluetooth RFCOMM transport
+OBEX Interactive test client/server.
+> c
+Transport connect error! (Bluetooth)
+> q
+
+
+jamesc@jamesc-laptop:~$ hcitool dev
+Devices:
+	hci0	00:16:41:74:0F:0B
+jamesc@jamesc-laptop:~$ obex_test -b 00:16:41:74:0F:0B
+Using Bluetooth RFCOMM transport
+OBEX Interactive test client/server.
+> c
+Transport connect error! (Bluetooth)
+> q
+
+
+
+jamesc@jamesc-laptop:~$ hcitool info 00:16:41:74:0F:0B
+Device is not available or not connected.
+jamesc@jamesc-laptop:~$ hcitool info 00:17:E5:EE:29:18
+Requesting information ...
+Can't create connection: Operation not permitted
+jamesc@jamesc-laptop:~$ sudo hcitool info 00:17:E5:EE:29:18
+[sudo] password for jamesc: 
+Requesting information ...
+	BD Address:  00:17:E5:EE:29:18
+	Device Name: Pooky
+	LMP Version: 1.2 (0x2) LMP Subversion: 0xdb0
+	Manufacturer: Texas Instruments Inc. (13)
+	Features: 0xbf 0xee 0x0f 0x00 0x18 0x18 0x00 0x00
+		<3-slot packets> <5-slot packets> <encryption> <slot offset> 
+		<timing accuracy> <role switch> <sniff mode> <RSSI> 
+		<channel quality> <SCO link> <HV3 packets> <u-law log> 
+		<A-law log> <CVSD> <paging scheme> <power control> 
+		<transparent SCO> <AFH cap. slave> <AFH class. slave> 
+		<AFH cap. master> <AFH class. master> 
+
+
+
+jamesc@jamesc-laptop:~$ hcitool scan
+Scanning ...
+	00:1F:5D:BF:29:39	Nokia 3120 fionnuala
+	00:17:E5:EE:29:18	Pooky
+jamesc@jamesc-laptop:~$ hcitool inq
+Inquiring ...
+	00:1F:5D:BF:29:39	clock offset: 0x0626	class: 0x5a0204
+	00:17:E5:EE:29:18	clock offset: 0x6bdd	class: 0x50020c
+
+bt-sync-mobile.sh
+
+
+
+
+jamesc@jamesc-laptop:~$ sdptool browse $BTADDR
+Failed to connect to SDP server on 00:1F:5D:BF:29:39: Host is down
+jamesc@jamesc-laptop:~$ sdptool records $BTADDR
+Failed to connect to SDP server on 00:1F:5D:BF:29:39: Host is down
+
+
+
+jamesc@jamesc-laptop:~$ hcitool cc $BTADDR
+Can't create connection: Operation not permitted
+jamesc@jamesc-laptop:~$ sudo hcitool cc $BTADDR
+[sudo] password for jamesc: 
+jamesc@jamesc-laptop:~$ sudo hcitool con
+Connections:
+jamesc@jamesc-laptop:~$ sudo hcitool lq $BTADDR
+Not connected.
+jamesc@jamesc-laptop:~$ sudo hcitool cc --role=m $BTADDR
+Can't create connection: Input/output error
+jamesc@jamesc-laptop:~$ sudo hcitool con
+Connections:
+jamesc@jamesc-laptop:~$ sudo hcitool cc --ptype=dm1,dh3,dh5 $BTADDR
+jamesc@jamesc-laptop:~$ sudo hcitool con
+Connections:
+	< ACL 00:1F:5D:BF:29:39 handle 46 state 1 lm MASTER 
+jamesc@jamesc-laptop:~$ sudo hcitool clock $BTADDR
+Not connected.
+jamesc@jamesc-laptop:~$ sudo hcitool con
+Connections:
+
+
+
+
+
+
+jamesc@jamesc-laptop:~$ obexftp -b $BTADDR -v -l
+The program 'obexftp' is currently not installed.  You can install it by typing:
+sudo apt-get install obexftp
+bash: obexftp: command not found
+jamesc@jamesc-laptop:~$ obexftp -b $BTADDR -v -l
+Browsing 00:17:E5:EE:29:18 ...
+Channel: 11
+Connecting..\done
+Receiving "(null)"...|<?xml version="1.0"?>
+<!DOCTYPE folder-listing SYSTEM "obex-folder-listing.dtd"
+  [ <!ATTLIST folder mem-type CDATA #IMPLIED>
+  <!ATTLIST folder label CDATA #IMPLIED> ]>
+<folder-listing version="1.0">
+   <folder name="C:" user-perm="RW" mem-type="DEV" label="Phone memory"/>
+</folder-listing>done
+Disconnecting../done
+
+
+jamesc@jamesc-laptop:~$ obexftp -b $BTADDR -v -l "C:/"
+Browsing 00:17:E5:EE:29:18 ...
+Channel: 11
+Connecting..\done
+Receiving "C:/"... Sending "C:"...|done
+/<?xml version="1.0"?>
+<!DOCTYPE folder-listing SYSTEM "obex-folder-listing.dtd"
+  [ <!ATTLIST folder mem-type CDATA #IMPLIED>
+  <!ATTLIST folder label CDATA #IMPLIED> ]>
+<folder-listing version="1.0">
+   <parent-folder />
+   <folder name="Data" modified="20070118T000006Z" user-perm="RWD" mem-type="DEV"/>
+   <file name="Debug.txt" size="49" modified="20090117T160922Z" user-perm="RWD"/>
+   <file name="preInstalledAppsCache.dat" size="232" modified="20090827T142952Z" user-perm="RWD"/>
+   <file name="swipolicy.ini" size="537" modified="20080902T003718Z" user-perm="RWD"/>
+   <file name="trk.ini" size="33" modified="20090719T002158Z" user-perm="RWD"/>
+   <file name="YAlarms.txt" size="486" modified="20090809T213756Z" user-perm="RWD"/>
+</folder-listing>done
+Disconnecting..-done
+
+
+
+jamesc@jamesc-laptop:~$ obexftp -b $BTADDR -v -l "C:/Data/"
+Browsing 00:17:E5:EE:29:18 ...
+Channel: 11
+Connecting..\done
+Receiving "C:/Data/"... Sending "C:"...|Sending "Data".../done
+/<?xml version="1.0"?>
+<!DOCTYPE folder-listing SYSTEM "obex-folder-listing.dtd"
+  [ <!ATTLIST folder mem-type CDATA #IMPLIED>
+  <!ATTLIST folder label CDATA #IMPLIED> ]>
+<folder-listing version="1.0">
+   <parent-folder />
+   <folder name="{66de788c-2956-11db-962d-00e08161165f}Relocated" modified="20080205T152630Z" user-perm="RWD" mem-type="DEV"/>
+   <folder name="Briefcase" modified="20080220T224512Z" user-perm="RWD" mem-type="DEV"/>
+   <folder name="Cellid" modified="20081021T180310Z" user-perm="RWD" mem-type="DEV"/>
+   <folder name="Documents" modified="20070118T000006Z" user-perm="RWD" mem-type="DEV"/>
+   <folder name="Games" modified="20080122T002900Z" user-perm="RWD" mem-type="DEV"/>
+   <folder name="Images" modified="20070118T000006Z" user-perm="RWD" mem-type="DEV"/>
+   <folder name="Installs" modified="20070118T000006Z" user-perm="RWD" mem-type="DEV"/>
+   <folder name="j2me" modified="20080120T034046Z" user-perm="RWD" mem-type="DEV"/>
+   <folder name="Others" modified="20070118T000006Z" user-perm="RWD" mem-type="DEV"/>
+   <folder name="Presentations" modified="20070118T000006Z" user-perm="RWD" mem-type="DEV"/>
+   <folder name="Sheets" modified="20070118T000006Z" user-perm="RWD" mem-type="DEV"/>
+   <folder name="Sounds" modified="20070118T000006Z" user-perm="RWD" mem-type="DEV"/>
+   <folder name="temp" modified="20080125T211908Z" user-perm="RWD" mem-type="DEV"/>
+   <folder name="Videos" modified="20070118T000006Z" user-perm="RWD" mem-type="DEV"/>
+   <folder name="whereami" modified="20080825T144716Z" user-perm="RWD" mem-type="DEV"/>
+   <file name="CapsOff.sisx" size="25568" modified="20080331T131250Z" user-perm="RWD"/>
+   <file name="CapsOn.sisx" size="25628" modified="20080331T131240Z" user-perm="RWD"/>
+   <file name="CProfDriver_SISX.ldd" size="16688" modified="20080329T143106Z" user-perm="RWD"/>
+   <file name="eirkey.pl" size="1277" modified="20090731T122348Z" user-perm="RWD"/>
+   <file name="gnapplet.sis" size="31911" modified="20090725T155344Z" user-perm="RWD"/>
+   <file name="helloworldbasic.sis" size="11456" modified="20090714T014608Z" user-perm="RWD"/>
+   <file name="Log" size="164909" modified="20090827T010438Z" user-perm="RWD"/>
+   <file name="wami-20090830-00.gpx" size="1763210" modified="20090830T194026Z" user-perm="RWD"/>
+   <file name="wami-20090901-00.gpx" size="433537" modified="20090901T180246Z" user-perm="RWD"/>
+   <file name="wami-annotations-01.gpx" size="1812" modified="20090719T215148Z" user-perm="RWD"/>
+   <file name="wami-annotations-02.gpx" size="1812" modified="20090720T164508Z" user-perm="RWD"/>
+   <file name="wami-annotations-03.gpx" size="4022" modified="20090722T013150Z" user-perm="RWD"/>
+   <file name="wami-annotations-04.gpx" size="4022" modified="20090726T222406Z" user-perm="RWD"/>
+   <file name="wami-annotations-05.gpx" size="4022" modified="20090827T004530Z" user-perm="RWD"/>
+   <file name="wami-annotations-06.gpx" size="4022" modified="20090827T004842Z" user-perm="RWD"/>
+   <file name="wami-annotations-07.gpx" size="4022" modified="20090827T010426Z" user-perm="RWD"/>
+   <file name="wami-annotations-08.gpx" size="125282" modified="20090827T011918Z" user-perm="RWD"/>
+   <file name="wami-annotations-09.gpx" size="134015" modified="20090830T221404Z" user-perm="RWD"/>
+   <file name="wami-annotations-10.gpx" size="142109" modified="20090901T205432Z" user-perm="RWD"/>
+   <file name="wami-annotations-11.gpx" size="143813" modified="20090902T180742Z" user-perm="RWD"/>
+   <file name="whereami_s60_v3_jco_gsmsave.sisx" size="181456" modified="20090827T011904Z" user-perm="RWD"/>
+   <file name="whereami_s60_v3_jco.sis" size="179296" modified="20090718T221444Z" user-perm="RWD"/>
+   <file name="whereami_s60_v3_jco.sisx" size="181468" modified="20090901T205856Z" user-perm="RWD"/>
+</folder-listing>done
+Disconnecting..-done
+
+
+
+
+jamesc@jamesc-laptop:~$ bt-sync-mobile.sh Pooky C:\Data\Images 2>&1 |tee .btsync/bt_sync_images.log 
+
+jamesc@jamesc-laptop:~$ bt-sync-mobile.sh Pooky "C:\Data\Images" 2>&1 |tee .btsync/bt_sync_images.log 
+jamesc@jamesc-laptop:~$ bt-sync-mobile.sh Pooky "C:\\Data\\Images" 2>&1 |tee .btsync/bt_sync_images.log 
+
+
+##AHH need trailing /
+jamesc@jamesc-laptop:~$ bt-sync-mobile.sh Pooky 'C:\Data\Images\' 2>&1 |tee .btsync/bt_sync_images.log 
+
+
+jamesc@jamesc-laptop:~/src/james-system_jco.git$ git commit -m"bluetooth auto sync mobile photos, map traces"
