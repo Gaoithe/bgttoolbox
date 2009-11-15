@@ -4,7 +4,7 @@
 #$ bt-sync-mobile.sh [device [dir]]
 #$ bt-sync-mobile.sh Pooky 'C:\Data\Images\' 2>&1 |tee .btsync/bt_sync_images.log 
 #Stuff is synched to ~/.btsync/`echo $dir |sed 's/[\/ \\"]/_/g'`
-#wami*.gpx and *.jpg files are cleared off device if synced successfully
+#wami*.gpx and *.jpg files are cleared off device if synced successfully and mp4 or png
 #
 #REQUIREMENTS: 
 #linux with bluetooth hardware
@@ -38,7 +38,7 @@
 # nokia E65 phone
 #
 #I've thrown together an ugly script to automate sync (a dumb enough sync) of files from my phone.
-#And make an ugly blog post about the ugly script also:
+#And made an ugly blog post about the ugly script also:
 #http://gaoithe.livejournal.com/33541.html
 #
 #It would be nice to sync properly like rsync (i.e. check files size and date/times on host and device).
@@ -178,7 +178,7 @@ function clean_the_files () {
     for F in $FILES ; do
 ###if [[ -f bin/eirkey.pl && ( -n ${FG#wami} || -n ${F%gpx} ) ]] ; then echo yep; fi
         
-        if [[ -f $F && ( -n ${F#wami*.gpx} || -n ${F#*.jpg} ) ]] ; then
+        if [[ -f $F && ( -n ${F#wami*.gpx} || -n ${F#*.jpg} || -n ${F#*.mp4} || -n ${F#*.png} ) ]] ; then
             obexftp -b $BTADDR -v -c "$DIRTOSYNC" -k $F |tee -a $BTSYNCHOME/$DIRTOSYNC_HASH.clean
         fi
     done
@@ -187,12 +187,12 @@ function clean_the_files () {
 
 
 
-#wipe_existing_files_from_list
+wipe_existing_files_from_list
 echo "files to get FILES=$FILES"
 
-#get_the_files
+get_the_files
 
-#track_the_files
+track_the_files
 
 clean_the_files
 
