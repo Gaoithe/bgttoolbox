@@ -47,9 +47,25 @@
 #Hmm. Hmm.
 #mount could mount some ugly thing + obexftp interface?   then rsync away
 # Hmmm.
+#
+# 14/11/2009 Fix allow spaces in file names.
+#     probably also allow spaces in dirs and device name
+#     for F in *.amr ; do echo F=$F; done
+#     for F in *.amr ; do echo F=$F; N=${F%%.amr}; if [[ ! -e $N.ogg ]] ; then ffmpeg -i $F $N.ogg; fi; done
+# export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/local/lib
+# for F in *.amr ; do echo F=$F; N=${F%%.amr}; if [[ ! -e $N.ogg ]] ; then ffmpeg-amr -i "$F" "$N.ogg"; fi; done
+#
+# f=Sound\ clip\(10\).ogg; n=${f%%.amr}; mv "$f" "${n}_DragonSoup.ogg"
+# for f in DataSoundsDigital/Sound\ clip\({1,2}*\).ogg; do vlc "$f"; done 
+# for f in DataSoundsDigital/Sound\ clip\({1*,20,21,22,23}\).ogg; do n=${f%%.ogg}; mv "$f" "${n}_DragonSoup.ogg"; done 
+# 
+# for f in DataSoundsDigital/Sound\ clip\(*\).ogg; do vlc "$f"; done 
+# for f in *.flv; do n=${f%%.flv}; if [[ ! -e "$n.wav" ]] ; then ffmpeg -i "$f" "$n.wav"; fi; done
 
 
-DEVICENAME=$1
+
+
+DEVICENAME="$1"
 #echo all is $*
 BTSYNCHOME=~/.btsync
 
@@ -79,7 +95,7 @@ fi
 echo "BTADDR=$BTADDR DEVNAME=$DEVNAME"
 #sudo hcitool info $BTADDR
 
-DIRTOSYNC=$2
+DIRTOSYNC="$2"
 # TODO pass in dir/file to sync on cmd line in $2
 if [[ -z $DIRTOSYNC ]] ; then
     echo "usage: $0 <devicename>  <dir_to_sync>
@@ -95,25 +111,30 @@ fi
 mkdir -p $BTSYNCHOME
 
 DIRTOSYNC_HASH=`echo "$DIRTOSYNC" |sed 's/[\/ \\"]/_/g'`
-#obexftp -b $BTADDR -v -l ""
-#obexftp -b $BTADDR -v -l "C:/"
-echo DIRTOSYNC=$DIRTOSYNC DIRTOSYNC_HASH=$DIRTOSYNC_HASH
-obexftp -b $BTADDR -v -l "$DIRTOSYNC" |tee $BTSYNCHOME/$DIRTOSYNC_HASH.list
-
-
 # cd to where we are getting files
 mkdir -p $BTSYNCHOME/$DIRTOSYNC_HASH
 cd /tmp
 cd  $BTSYNCHOME/$DIRTOSYNC_HASH
 pwd
 
+#obexftp -b $BTADDR -v -l ""
+#obexftp -b $BTADDR -v -l "C:/"
+echo DIRTOSYNC=$DIRTOSYNC DIRTOSYNC_HASH=$DIRTOSYNC_HASH
+obexftp -b $BTADDR -v -l "$DIRTOSYNC" |tee $BTSYNCHOME/$DIRTOSYNC_HASH.list
+
+
+
 
 echo get list of all files
 echo TODO: parse xml safely/properly
 # <folder name="whereami" modified="20080825T144716Z" user-perm="RWD" mem-type="DEV"/>
 #  <file name="CapsOff.sisx" size="25568" modified="20080331T131250Z" user-perm="RWD"/>
-FILES=`grep "<file name=" $BTSYNCHOME/$DIRTOSYNC_HASH.list |cut -d'"' -f2 `
-echo FILES=$FILES
+#FILES=$(grep "<file name=" $BTSYNCHOME/$DIRTOSYNC_HASH.list |cut -d'"' -f2 `)
+FILES=$(grep "<file name=" $BTSYNCHOME/$DIRTOSYNC_HASH.list |sed 's/.*name="//;s/" .*//;s/ /_SPACE_/g')
+
+date >> $BTSYNCHOME/$DIRTOSYNC_HASH.log
+echo FILES=$FILES |tee -a $BTSYNCHOME/$DIRTOSYNC_HASH.log
+
 
 ## forget about first retrieve or not, just check files on each system
 #if [[ -f $BTSYNCHOME/$DIRTOSYNC_HASH.success ]] ; then
@@ -129,6 +150,7 @@ function wipe_existing_files_from_list () {
     ##file list to retrieve by eliminating ones already retrieved
     FILESTOGET=
     for F in $FILES ; do
+        #F=$(echo $F|sed 's/_SPACE_/ /g')
         if [[ ! -f $F ]] ; then
             FILESTOGET="$FILESTOGET $F"
         fi
@@ -141,7 +163,22 @@ function wipe_existing_files_from_list () {
 function get_the_files () {
     if [[ ! -z $FILES ]] ; then 
         echo get the files
-        obexftp -b $BTADDR -v -c "$DIRTOSYNC" -g $FILES |tee $BTSYNCHOME/$DIRTOSYNC_HASH.get
+        date >> $BTSYNCHOME/$DIRTOSYNC_HASH.get
+        SP_Q=$(echo $FILES|grep _SPACE_)
+        if [[ "$SP_Q" != "" ]] ; then
+            # spaces in file names so must do them induhvidually
+            for F in $FILES; do 
+                F=$(echo $F|sed 's/_SPACE_/ /g')
+                echo "obexftp get $F"
+                echo obexftp -b $BTADDR -v -c \"$DIRTOSYNC\" -g \"$F\"
+                obexftp -b $BTADDR -v -c "$DIRTOSYNC" -g "$F" |tee -a $BTSYNCHOME/$DIRTOSYNC_HASH.get
+            done 
+        else
+            echo "obexftp get $FILES"
+            echo obexftp -b $BTADDR -v -c \"$DIRTOSYNC\" -g $FILES
+            obexftp -b $BTADDR -v -c "$DIRTOSYNC" -g $FILES |tee -a $BTSYNCHOME/$DIRTOSYNC_HASH.get
+        fi
+  
         # can obexftp do a dir? would be handy.
         #obexftp -b $BTADDR -v -g "$DIRTOSYNC" |tee $BTSYNCHOME/$DIRTOSYNC_HASH.getdir
         # also -G (get and delete) could be used for some files
@@ -159,7 +196,9 @@ function track_the_files () {
 #CHECKFILES=`echo $FILES |sed 's/ / && -f /g'`
 #if [[ $CHECKFILES ]] ; then
 #   mv $BTSYNCHOME/$DIRTOSYNC_HASH $BTSYNCHOME/$DIRTOSYNC_HASH.success
+    date >> $BTSYNCHOME/$DIRTOSYNC_HASH.success
     for F in $FILES ; do
+        F=$(echo $F|sed 's/_SPACE_/ /g')
         if [[ -f $F ]] ; then
             # a file name which is part of others will cause problems 
             FILEINFO=`grep "<file name=" $BTSYNCHOME/$DIRTOSYNC_HASH.list |grep $F`
@@ -176,9 +215,10 @@ function track_the_files () {
 # we could use -G earlier (get and delete)
 function clean_the_files () { 
     for F in $FILES ; do
-###if [[ -f bin/eirkey.pl && ( -n ${FG#wami} || -n ${F%gpx} ) ]] ; then echo yep; fi
+        F=$(echo $F|sed 's/_SPACE_/ /g')
+###if [[ -f bin/eirkey.pl && ( -n ${FG#wami-2} || -n ${F%gpx} ) ]] ; then echo yep; fi
         
-        if [[ -f $F && ( -n ${F#wami*.gpx} || -n ${F#*.jpg} || -n ${F#*.mp4} || -n ${F#*.png} ) ]] ; then
+        if [[ -f $F && ( -n ${F#wami-2*.gpx} || -n ${F#*.jpg} || -n ${F#*.mp4} || -n ${F#*.png} ) ]] ; then
             obexftp -b $BTADDR -v -c "$DIRTOSYNC" -k $F |tee -a $BTSYNCHOME/$DIRTOSYNC_HASH.clean
         fi
     done
