@@ -1,0 +1,854 @@
+Bus 002 Device 004: ID 413c:8103 Dell Computer Corp. Wireless 350 Bluetooth
+Bus 002 Device 005: ID 0b97:7762 O2 Micro, Inc. Oz776 SmartCard Reader
+Bus 002 Device 003: ID 0b97:7761 O2 Micro, Inc. Oz776 1.1 Hub
+Bus 002 Device 002: ID 413c:a005 Dell Computer Corp. Internal 2.0 Hub
+Bus 002 Device 001: ID 1d6b:0001 Linux Foundation 1.1 root hub
+Bus 001 Device 003: ID 041e:4162 Creative Technology, Ltd 
+Bus 001 Device 001: ID 1d6b:0002 Linux Foundation 2.0 root hub
+Bus 005 Device 001: ID 1d6b:0001 Linux Foundation 1.1 root hub
+Bus 004 Device 001: ID 1d6b:0001 Linux Foundation 1.1 root hub
+Bus 003 Device 001: ID 1d6b:0001 Linux Foundation 1.1 root hub
+
+
+Amarok
+Gnomad2
+
+on laptop use gnomad2 to transfer files to the creative zen.
+I had to run it as  root, so "sudo gnomad2" on command-line.
+It's pretty basic and grotty.
+
+"Amarok" should also work.
+That's very shiny and fancy ... 
+
+Oh and the default ubuntu media player "RhythmBox" can so the job.
+Might have to fiddle, "enable mtp" somewhere in preferences.
+  (Edit -> Plugins -> check MTP plugin)
+
+
+http://amarok.kde.org/wiki/Media_Device:MTP
+
+Libmtp relies on your user being able to do usb operations. If you have installed libmtp yourself, be sure to read the sections on Hotplugging and Udev in the INSTALL file. Amarok will not work with MTP if you do not have the correct permissions on the MTP device. 
+
+
+sudo apt-get install mtp-tools
+sudo apt-get install mtpfs
+
+
+jamesc@jamesc-laptop:~$ mtp-detect
+libmtp version: 0.3.0
+
+Listing raw device(s)
+   No raw devices found.
+
+jamesc@jamesc-laptop:~$ mtpfs zen_dir
+fuse: bad mount point `zen_dir': No such file or directory
+
+Hmmm.
+
+mtp-detect 
+ .. 
+ .
+ *nothing*, but 
+sudo mtp-detect
+
+jamesc@jamesc-laptop:~$ sudo mtp-detect >> notes-creative-zen
+Device 0 (VID=041e and PID=4162) is UNKNOWN.
+Please report this VID/PID and the device model to the libmtp development team
+PTP: Opening session
+PTP: Closing session
+
+
+
+see below below 
+
+
+http://ubuntuforums.org/showthread.php?p=5734480
+
+# to mount
+sudo mkdir /mnt/Zen-Xfi
+sudo chmod 777 /mnt/Zen-Xfi
+
+sudo mtpfs /mnt/Zen-Xfi -o allow_other
+
+# to unmount:
+sudo fusermount -u /mnt/Zen-Xfi
+
+
+jamesc@jamesc-laptop:~/Videos/VidsToCreativeZenXifi$ sudo chmod 777 /mnt/Zen-Xfi
+jamesc@jamesc-laptop:~/Videos/VidsToCreativeZenXifi$ zen
+fusermount: option allow_other only allowed if 'user_allow_other' is set in /etc/fuse.conf
+
+
+
+
+
+jamesc@jamesc-laptop:~$ ls /mnt/Zen-Xfi/
+Albums          DevIcon.fil  Imported Files  My Organizer  My Recordings  Pictures   TV     ZENcast
+DeviceInfo.xml  DevLogo.fil  Music           My Playlists  My Slideshows  Playlists  Video
+
+
+
+In Amarok I've added a MTP Media device and provided the mount command to the pre connect and and unmount command to the post disconnect properties of the device. Connecting en disconnecting works fine. Other features of Amarok are still there for me to explore and to test.
+
+Before starting Rhythmbox I mount MyZen. In Rhythmbox I browse to the appropriate folder at the Rhythmbox preferences, music tab. Closed it, et voila, I can play music with "the box" using MyZen.
+
+
+
+  	   #10
+BaldAmI
+First Cup of Ubuntu
+ 
+Join Date: Feb 2009
+Beans: 1
+	
+Thumbs up Re: Creativ ZEN X-fi
+I had this same problem (having to run gnomad2 or really any other mp3 syncing program as root). I did some investigating and I think there's a permissions error here
+
+If you look at /etc/udev/rules.d/45-libnjb.rules you'll see that the group for the device is set to "audio". If you change it to "plugdev" for your device gnomad2 should run without root access. A normal Ubuntu user isn't in the audio group, but is in the plugdev group.
+
+I'd assume that this same scenario might apply to an mtp device since it looks like /etc/udev/rules.d/45-libmtp.rules is setup the same way.
+
+
+
+jamesc@jamesc-laptop:~$ grep aud /etc/group
+audio:x:29:pulse,finnc,family,asterisk
+
+
+wtf? heh heh 
+
+
+================================================================================
+
+transcoding ...
+
+http://www.wentnet.com/forum/viewtopic.php?f=1&t=1146
+
+I got .Avi videos working on my Creative Zen using MPEG Streamclip and xnjb, using the following specs:
+
+Compression: DivX codec
+Quality: 100
+Limit data rate: 700 kbps
+Audio: mp3 layer3, stereo, auto, 256 kbps
+24 fps
+reslution: 320 x 240
+Interlaced scaling
+
+And I also downloaded the the following codec packages:
+DivX, Flip4Mac WMV, and perian(for youtube videos) 
+
+
+
+
+http://pedrofaustino.blogspot.com/2008/03/convert-videos-to-play-on-creative-zen.html
+ffmpeg -i input_video -s 320x240 -r 24 -acodec libmp3lame -vcodec libxvid -vtag XVID -f avi -qscale 3 -g 300 -deinterlace -ab 56k -ar 24000 -async 1 output_video
+
+
+
+
+lrwxrwxrwx 1 jamesc jamesc   73 2009-12-21 00:56 music_MontyPython_AlwaysLookOnTheBrightSideOfLife_UQoGSlrkgkI.flv -> youtube/music_MontyPython_AlwaysLookOnTheBrightSideOfLife_UQoGSlrkgkI.flv
+lrwxrwxrwx 1 jamesc jamesc   26 2009-12-21 00:56 youtube -> /home/jamesc/Music/youtube
+jamesc@jamesc-laptop:~/Videos/VidsToCreativeZenXifi$ ffmpeg -i music_MontyPython_AlwaysLookOnTheBrightSideOfLife_UQoGSlrkgkI.flv  -s 320x240 -r 24 -acodec libmp3lame -vcodec libxvid -vtag XVID -f avi -qscale 3 -g 300 -deinterlace -ab 56k -ar 24000 -async 1 output_video
+FFmpeg version SVN-r20538, Copyright (c) 2000-2009 Fabrice Bellard, et al.
+  built on Nov 14 2009 21:38:33 with gcc 4.3.3
+  configuration: --prefix=/usr/local --enable-gpl --enable-pthreads --enable-version3 --enable-libopencore-amrnb --enable-libopencore-amrwb
+  libavutil     50. 4. 0 / 50. 4. 0
+  libavcodec    52.41. 0 / 52.41. 0
+  libavformat   52.39. 2 / 52.39. 2
+  libavdevice   52. 2. 0 / 52. 2. 0
+  libswscale     0. 7. 1 /  0. 7. 1
+
+Seems stream 0 codec frame rate differs from container frame rate: 1000.00 (1000/1) -> 29.97 (30000/1001)
+Input #0, flv, from 'music_MontyPython_AlwaysLookOnTheBrightSideOfLife_UQoGSlrkgkI.flv':
+  Duration: 00:03:35.30, start: 0.000000, bitrate: 149 kb/s
+    Stream #0.0: Video: flv, yuv420p, 320x240, 85 kb/s, 29.97 tbr, 1k tbn, 1k tbc
+    Stream #0.1: Audio: mp3, 22050 Hz, 1 channels, s16, 64 kb/s
+  Metadata
+    duration        : 215
+    starttime       : 0
+    totalduration   : 215
+    width           : 320
+    height          : 240
+    videodatarate   : 83
+    audiodatarate   : 64
+    totaldatarate   : 155
+    framerate       : 25
+    bytelength      : 4171618
+    canseekontime   : true
+    sourcedata      : B4A7D69C8HH
+    purl            : 
+    pmsg            : 
+Unknown encoder 'libxvid'
+jamesc@jamesc-laptop:~/Videos/VidsToCreativeZenXifi$ 
+
+
+
+--------------------------------------------------------------------------------
+http://www.anythingbutipod.com/forum/showthread.php?t=36945
+
+The Zen X-Fi is rather picky about the exact formats and codecs of video it plays (due to past experiences, I have come to the conclusion that the guys that actually coded the video player part were quite crap).
+I can encode Xvid videos for my player using mencoder or ffmpeg though. Some example command line options:
+
+mencoder input.avi -oac mp3lame -lameopts br=320 -ovc xvid -xvid -xvidencopts bitrate=500 -vf scale=320:240 -o output.avi
+-- or --
+ffmpeg -i input.avi -s 320x240 -acodec mp3 -vcodec mpeg4 -vtag XVID -b 500k -ab 320k output.avi
+
+To convert input.avi to output.avi (500kb/s Xvid, 320kb/s MP3, 320x240).
+
+It may be worth trying two-pass video encoding too, where the encoder will make a log of the input video the first time you encode, and it will read that log to decide on optimisations the second time.
+
+mencoder input.avi -oac mp3lame -ovc xvid -xvid -xvidencopts pass=1 -o output.avi
+mencoder input.avi -oac mp3lame -lameopts br=320 -ovc xvid -xvid -xvidencopts bitrate=500ass=2 -vf scale=320:240 -o output.avi
+-- or --
+ffmpeg -i input.avi -acodec mp3 -vcodec mpeg4 -vtag XVID -pass 1 output.avi
+ffmpeg -i input.avi -s 320x240 -acodec mp3 -vcodec mpeg4 -vtag XVID -b 500k -ab 320k -pass 2 output.avi
+
+(The output file doesn't matter when you do the first pass - output it to /dev/null if you're using Linux, it won't make a difference to the second pass)
+
+
+
+jamesc@jamesc-laptop:~/Videos/VidsToCreativeZenXifi$ FILE=music_MontyPython_AlwaysLookOnTheBrightSideOfLife_UQoGSlrkgkI.flv
+jamesc@jamesc-laptop:~/Videos/VidsToCreativeZenXifi$ ffmpeg -i $FILE -s 320x240 -acodec mp3 -vcodec mpeg4 -vtag XVID -b 500k -ab 320k output.avi
+
+
+Unknown encoder 'mp3'
+
+MAH!
+
+Unknown encoder 'libmp3lame'
+
+Unknown encoder 'mp3lame'
+
+
+jamesc@jamesc-laptop:~/Videos/VidsToCreativeZenXifi$ which ffmpeg
+/usr/local/bin/ffmpeg
+OH!
+OH yeah. the one for nokia mobile.
+
+YES:
+/usr/bin/ffmpeg -i $FILE -s 320x240 -acodec libmp3lame -vcodec mpeg4 -vtag XVID -b 500k -ab 320k ${FILE%%.flv}.avi
+
+
+--------------------------------------------------------------------------------
+
+
+
+http://www.squidoo.com/creative-zen
+After having some problems with the Creative Video Converter software, I found a freeware alternative SUPER © Simplified Universal Player Encoder & Renderer. Below are the settings I use to convert my video files, so they are compatible with the ZEN.
+
+SUPER © Settings
+1. Select the Output container: AVI
+2. Select the Output Video Encoder: DivX
+3. Select the Output Audio Codec: MP3
+
+You can select either ffmpeg OR MEncoder: MEncoder
+
+Video
+Video Scale Size: 320:240
+Aspect: 4:3
+Frame/Sec: 25
+Bitrate kbps: 1008
+Options: High Quality / 48k audio
+
+Audio
+Sampling Freq: 44100
+Channels: 2
+Bitrate kbps: 128
+
+
+
+
+
+
+
+
+
+================================================================================
+
+libmtp version: 0.3.0
+
+Listing raw device(s)
+   Found 1 device(s):
+   041e:4162 @ bus 0, dev 3
+Attempting to connect device(s)
+USB low-level info:
+   Using kernel interface "usbfs"
+   bcdUSB: 512
+   bDeviceClass: 255
+   bDeviceSubClass: 0
+   bDeviceProtocol: 0
+   idVendor: 041e
+   idProduct: 4162
+   IN endpoint maxpacket: 512 bytes
+   OUT endpoint maxpacket: 512 bytes
+   Raw device info:
+      Bus location: 0
+      Device number: 3
+      Device entry info:
+         Vendor: (null)
+         Vendor id: 0x041e
+         Product: (null)
+         Vendor id: 0x4162
+         Device flags: 0x00000000
+Microsoft device descriptor 0xee:
+	0000: 1203 4d00 5300 4600 5400 3100 3000 3000	..M.S.F.T.1.0.0.
+	0010: fe00                                   	..
+Microsoft device response to control message 1, CMD 0xfe:
+	0000: 2800 0000 0001 0400 0100 0000 0000 0000	(...............
+	0010: 0001 4d54 5000 0000 0000 0000 0000 0000	..MTP...........
+	0020: 0000 0000 0000 0000                    	........
+Microsoft device response to control message 2, CMD 0xfe:
+	0000: 2800 0000 0001 0400 0100 0000 0000 0000	(...............
+	0010: 0001 4d54 5000 0000 0000 0000 0000 0000	..MTP...........
+	0020: 0000 0000 0000 0000                    	........
+Device info:
+   Manufacturer: Creative Technology Ltd
+   Model: Creative ZEN X-Fi
+   Device version: 1.04.08_1.03.03
+   Serial number: 211100012672DD130002D900AC29DD13
+   Vendor extension ID: 0x00000006
+   Vendor extension description: microsoft.com: 1.0;microsoft.com/WMPPD: 10.0;microsoft.com/WMDRMPD: 10.1;audible.com: 1.0;
+   Detected object size: 64 bits
+Supported operations:
+   1001: get device info
+   1002: Open session
+   1003: Close session
+   1004: Get storage IDs
+   1005: Get storage info
+   1007: Get object handles
+   100c: Send object info
+   100d: Send object
+   100f: Format storage
+   1014: Get device property description
+   1015: Get device property value
+   1006: Get number of objects
+   1008: Get object info
+   1009: Get object
+   100b: Delete object
+   1010: Reset device
+   1012: Set object protection
+   1016: Set device property value
+   1017: Reset device property value
+   1019: Move object
+   101b: Get partial object
+   9801: Get object properties supported
+   9802: Get object property description
+   9803: Get object property value
+   9804: Set object property value
+   9805: Get object property list
+   9806: Set object property list
+   9808: Send object property list
+   9807: Get interdependent property description
+   9810: Get object references
+   9811: Set object references
+   9201: Report Added/Deleted Items
+   9101: Get secure time challenge
+   9102: Get secure time response
+   9103: Set license response
+   9104: Get sync list
+   9105: Send meter challenge query
+   9106: Get meter challenge
+   9107: Get meter response
+   9108: Clean data store
+   9109: Get license state
+   910a: Send WMDRM-PD Command
+   910b: Send WMDRM-PD Request
+Events supported:
+   0x4006
+Device Properties Supported:
+   0x5001: Battery Level
+   0xd401: Synchronization Partner
+   0xd402: Friendly Device Name
+   0xd101: Secure Time
+   0xd102: Device Certificate
+   0xd201: Unknown property
+   0xd001: Unknown property
+Playable File (Object) Types and Object Properties Supported:
+   3009: MP3
+      de99: AudioWAVECodec UINT32 data type enumeration: 85,  READ ONLY
+      de9a: AudioBitRate UINT32 data type range: MIN 8000, MAX 320000, STEP 1 READ ONLY
+      dc46: Artist STRING data type GET/SET
+      dc89: Duration UINT32 data type range: MIN 0, MAX -1, STEP 1 GET/SET
+      dc8b: Track UINT16 data type ANY 16BIT VALUE form GET/SET
+      dc8c: Genre STRING data type GET/SET
+      dc99: OriginalReleaseDate STRING data type GET/SET
+      dc9a: AlbumName STRING data type GET/SET
+      de93: SampleRate UINT32 data type enumeration: 8000, 11025, 12000, 16000, 22050, 24000, 32000, 44100, 48000,  READ ONLY
+      de94: NumberOfChannels UINT16 data type enumeration: 1, 2,  READ ONLY
+      de95: AudioBitDepth UINT32 data type enumeration: 8, 16,  READ ONLY
+      dc91: UseCount UINT32 data type ANY 32BIT VALUE form GET/SET
+      dc8a: Rating UINT16 data type range: MIN 0, MAX 100, STEP 1 GET/SET
+      d901: BuyFlag UINT8 data type ANY 8BIT VALUE form GET/SET
+      dc42: SyncID STRING data type GET/SET
+      dc01: StorageID UINT32 data type ANY 32BIT VALUE form READ ONLY
+      dc02: ObjectFormat UINT16 data type ANY 16BIT VALUE form READ ONLY
+      dc04: ObjectSize UINT64 data type READ ONLY
+      dc41: PersistantUniqueObjectIdentifier UINT128 data type READ ONLY
+      dc44: Name STRING data type GET/SET
+      dc0b: ParentObject UINT32 data type ANY 32BIT VALUE form READ ONLY
+      dc07: ObjectFileName STRING data type GET/SET
+      dc4f: NonConsumable UINT8 data type enumeration: 0, 1,  GET/SET
+      dc03: ProtectionStatus UINT16 data type enumeration: 0, 1, 32771,  READ ONLY
+      dc0d: Hidden UINT16 data type enumeration: 0, 1,  GET/SET
+   b901: WMA
+      de99: AudioWAVECodec UINT32 data type enumeration: 352, 353,  READ ONLY
+      de9a: AudioBitRate UINT32 data type range: MIN 5000, MAX 505000, STEP 1 READ ONLY
+      dc46: Artist STRING data type GET/SET
+      dc89: Duration UINT32 data type range: MIN 0, MAX -1, STEP 1 GET/SET
+      dc8b: Track UINT16 data type ANY 16BIT VALUE form GET/SET
+      dc8c: Genre STRING data type GET/SET
+      dc99: OriginalReleaseDate STRING data type GET/SET
+      dc9a: AlbumName STRING data type GET/SET
+      de93: SampleRate UINT32 data type enumeration: 8000, 11025, 12000, 16000, 22050, 24000, 32000, 44100, 48000,  READ ONLY
+      de94: NumberOfChannels UINT16 data type enumeration: 1, 2,  READ ONLY
+      de95: AudioBitDepth UINT32 data type enumeration: 8, 16,  READ ONLY
+      dc91: UseCount UINT32 data type ANY 32BIT VALUE form GET/SET
+      dc8a: Rating UINT16 data type range: MIN 0, MAX 100, STEP 1 GET/SET
+      d901: BuyFlag UINT8 data type ANY 8BIT VALUE form GET/SET
+      dc42: SyncID STRING data type GET/SET
+      dc01: StorageID UINT32 data type ANY 32BIT VALUE form READ ONLY
+      dc02: ObjectFormat UINT16 data type ANY 16BIT VALUE form READ ONLY
+      dc04: ObjectSize UINT64 data type READ ONLY
+      dc41: PersistantUniqueObjectIdentifier UINT128 data type READ ONLY
+      dc44: Name STRING data type GET/SET
+      dc0b: ParentObject UINT32 data type ANY 32BIT VALUE form READ ONLY
+      dc07: ObjectFileName STRING data type GET/SET
+      dc4f: NonConsumable UINT8 data type enumeration: 0, 1,  GET/SET
+      dc03: ProtectionStatus UINT16 data type enumeration: 0, 1, 32771,  READ ONLY
+      dc0d: Hidden UINT16 data type enumeration: 0, 1,  GET/SET
+   3008: MS Wave
+      dc46: Artist STRING data type GET/SET
+      dc89: Duration UINT32 data type range: MIN 0, MAX -1, STEP 1 GET/SET
+      dc8b: Track UINT16 data type ANY 16BIT VALUE form GET/SET
+      dc8c: Genre STRING data type GET/SET
+      dc99: OriginalReleaseDate STRING data type GET/SET
+      dc9a: AlbumName STRING data type GET/SET
+      de93: SampleRate UINT32 data type enumeration: 8000, 11025, 12000, 16000, 22050, 24000, 32000, 44100, 48000,  READ ONLY
+      de94: NumberOfChannels UINT16 data type enumeration: 1, 2,  READ ONLY
+      de95: AudioBitDepth UINT32 data type enumeration: 8, 16,  READ ONLY
+      dc91: UseCount UINT32 data type ANY 32BIT VALUE form GET/SET
+      dc8a: Rating UINT16 data type range: MIN 0, MAX 100, STEP 1 GET/SET
+      d901: BuyFlag UINT8 data type ANY 8BIT VALUE form GET/SET
+      dc42: SyncID STRING data type GET/SET
+      dc01: StorageID UINT32 data type ANY 32BIT VALUE form READ ONLY
+      dc02: ObjectFormat UINT16 data type ANY 16BIT VALUE form READ ONLY
+      dc04: ObjectSize UINT64 data type READ ONLY
+      dc41: PersistantUniqueObjectIdentifier UINT128 data type READ ONLY
+      dc44: Name STRING data type GET/SET
+      dc0b: ParentObject UINT32 data type ANY 32BIT VALUE form READ ONLY
+      dc07: ObjectFileName STRING data type GET/SET
+      dc4f: NonConsumable UINT8 data type enumeration: 0, 1,  GET/SET
+      dc03: ProtectionStatus UINT16 data type enumeration: 0, 1, 32771,  READ ONLY
+      dc0d: Hidden UINT16 data type enumeration: 0, 1,  GET/SET
+   b904: Audible.com Codec
+      da01: unknown(da01) UINT32 data type enumeration: 2, 3, 4,  GET/SET
+      da02: unknown(da02) array of UINT16 data type ANY 16BIT VALUE form GET/SET
+      da03: unknown(da03) UINT32 data type ANY 32BIT VALUE form READ ONLY
+      dc46: Artist STRING data type GET/SET
+      dc89: Duration UINT32 data type range: MIN 0, MAX -1, STEP 1 GET/SET
+      dc8b: Track UINT16 data type ANY 16BIT VALUE form GET/SET
+      dc8c: Genre STRING data type GET/SET
+      dc99: OriginalReleaseDate STRING data type GET/SET
+      dc9a: AlbumName STRING data type GET/SET
+      de93: SampleRate UINT32 data type enumeration: 8000, 11025, 12000, 16000, 22050, 24000, 32000, 44100, 48000,  READ ONLY
+      de94: NumberOfChannels UINT16 data type enumeration: 1, 2,  READ ONLY
+      de95: AudioBitDepth UINT32 data type enumeration: 8, 16,  READ ONLY
+      dc91: UseCount UINT32 data type ANY 32BIT VALUE form GET/SET
+      dc8a: Rating UINT16 data type range: MIN 0, MAX 100, STEP 1 GET/SET
+      d901: BuyFlag UINT8 data type ANY 8BIT VALUE form GET/SET
+      dc42: SyncID STRING data type GET/SET
+      dc01: StorageID UINT32 data type ANY 32BIT VALUE form READ ONLY
+      dc02: ObjectFormat UINT16 data type ANY 16BIT VALUE form READ ONLY
+      dc04: ObjectSize UINT64 data type READ ONLY
+      dc41: PersistantUniqueObjectIdentifier UINT128 data type READ ONLY
+      dc44: Name STRING data type GET/SET
+      dc0b: ParentObject UINT32 data type ANY 32BIT VALUE form READ ONLY
+      dc07: ObjectFileName STRING data type GET/SET
+      dc4f: NonConsumable UINT8 data type enumeration: 0, 1,  GET/SET
+      dc03: ProtectionStatus UINT16 data type enumeration: 0, 1, 32771,  READ ONLY
+      dc0d: Hidden UINT16 data type enumeration: 0, 1,  GET/SET
+   b982: MP4
+      de99: AudioWAVECodec UINT32 data type enumeration: 41222,  READ ONLY
+      de9a: AudioBitRate UINT32 data type range: MIN 8000, MAX 320000, STEP 1 READ ONLY
+      dc46: Artist STRING data type GET/SET
+      dc89: Duration UINT32 data type range: MIN 0, MAX -1, STEP 1 GET/SET
+      dc8b: Track UINT16 data type ANY 16BIT VALUE form GET/SET
+      dc8c: Genre STRING data type GET/SET
+      dc99: OriginalReleaseDate STRING data type GET/SET
+      dc9a: AlbumName STRING data type GET/SET
+      de93: SampleRate UINT32 data type enumeration: 8000, 11025, 12000, 16000, 22050, 24000, 32000, 44100, 48000,  READ ONLY
+      de94: NumberOfChannels UINT16 data type enumeration: 1, 2,  READ ONLY
+      de95: AudioBitDepth UINT32 data type enumeration: 8, 16,  READ ONLY
+      dc91: UseCount UINT32 data type ANY 32BIT VALUE form GET/SET
+      dc8a: Rating UINT16 data type range: MIN 0, MAX 100, STEP 1 GET/SET
+      d901: BuyFlag UINT8 data type ANY 8BIT VALUE form GET/SET
+      dc42: SyncID STRING data type GET/SET
+      dc01: StorageID UINT32 data type ANY 32BIT VALUE form READ ONLY
+      dc02: ObjectFormat UINT16 data type ANY 16BIT VALUE form READ ONLY
+      dc04: ObjectSize UINT64 data type READ ONLY
+      dc41: PersistantUniqueObjectIdentifier UINT128 data type READ ONLY
+      dc44: Name STRING data type GET/SET
+      dc0b: ParentObject UINT32 data type ANY 32BIT VALUE form READ ONLY
+      dc07: ObjectFileName STRING data type GET/SET
+      dc4f: NonConsumable UINT8 data type enumeration: 0, 1,  GET/SET
+      dc03: ProtectionStatus UINT16 data type enumeration: 0, 1, 32771,  READ ONLY
+      dc0d: Hidden UINT16 data type enumeration: 0, 1,  GET/SET
+   ba03: Abstract Audio Album
+      dc86: RepresentativeSampleData array of UINT8 data type byte array:  GET/SET
+      dc81: RepresentativeSampleFormat UINT16 data type enumeration: 14337,  READ ONLY
+      dc83: RepresentativeSampleHeight UINT32 data type range: MIN 0, MAX 180, STEP 1 READ ONLY
+      dc82: RepresentativeSampleSize UINT32 data type range: MIN 0, MAX 24576, STEP 1 READ ONLY
+      dc84: RepresentativeSampleWidth UINT32 data type range: MIN 0, MAX 180, STEP 1 READ ONLY
+      dc01: StorageID UINT32 data type ANY 32BIT VALUE form READ ONLY
+      dc02: ObjectFormat UINT16 data type ANY 16BIT VALUE form READ ONLY
+      dc04: ObjectSize UINT64 data type READ ONLY
+      dc41: PersistantUniqueObjectIdentifier UINT128 data type READ ONLY
+      dc44: Name STRING data type GET/SET
+      dc0b: ParentObject UINT32 data type ANY 32BIT VALUE form READ ONLY
+      dc07: ObjectFileName STRING data type GET/SET
+      dc4f: NonConsumable UINT8 data type enumeration: 0, 1,  GET/SET
+      dc03: ProtectionStatus UINT16 data type enumeration: 0, 1, 32771,  READ ONLY
+      dc0d: Hidden UINT16 data type enumeration: 0, 1,  GET/SET
+   ba05: Abstract Audio Video Playlist
+      dc01: StorageID UINT32 data type ANY 32BIT VALUE form READ ONLY
+      dc02: ObjectFormat UINT16 data type ANY 16BIT VALUE form READ ONLY
+      dc04: ObjectSize UINT64 data type READ ONLY
+      dc41: PersistantUniqueObjectIdentifier UINT128 data type READ ONLY
+      dc44: Name STRING data type GET/SET
+      dc0b: ParentObject UINT32 data type ANY 32BIT VALUE form READ ONLY
+      dc07: ObjectFileName STRING data type GET/SET
+      dc4f: NonConsumable UINT8 data type enumeration: 0, 1,  GET/SET
+      dc03: ProtectionStatus UINT16 data type enumeration: 0, 1, 32771,  READ ONLY
+      dc0d: Hidden UINT16 data type enumeration: 0, 1,  GET/SET
+   ba01: Abstract Multimedia Album
+      dc01: StorageID UINT32 data type ANY 32BIT VALUE form READ ONLY
+      dc02: ObjectFormat UINT16 data type ANY 16BIT VALUE form READ ONLY
+      dc04: ObjectSize UINT64 data type READ ONLY
+      dc41: PersistantUniqueObjectIdentifier UINT128 data type READ ONLY
+      dc44: Name STRING data type GET/SET
+      dc0b: ParentObject UINT32 data type ANY 32BIT VALUE form READ ONLY
+      dc07: ObjectFileName STRING data type GET/SET
+      dc4f: NonConsumable UINT8 data type enumeration: 0, 1,  GET/SET
+      dc03: ProtectionStatus UINT16 data type enumeration: 0, 1, 32771,  READ ONLY
+      dc0d: Hidden UINT16 data type enumeration: 0, 1,  GET/SET
+   3801: JPEG
+      dc88: Height UINT32 data type range: MIN 0, MAX 3328, STEP 1 GET/SET
+      dc86: RepresentativeSampleData array of UINT8 data type byte array:  GET/SET
+      dc81: RepresentativeSampleFormat UINT16 data type enumeration: 14337,  READ ONLY
+      dc83: RepresentativeSampleHeight UINT32 data type range: MIN 0, MAX 96, STEP 1 READ ONLY
+      dc82: RepresentativeSampleSize UINT32 data type range: MIN 0, MAX 8192, STEP 1 READ ONLY
+      dc84: RepresentativeSampleWidth UINT32 data type range: MIN 0, MAX 96, STEP 1 READ ONLY
+      dc87: Width UINT32 data type range: MIN 0, MAX 4992, STEP 1 GET/SET
+      dc01: StorageID UINT32 data type ANY 32BIT VALUE form READ ONLY
+      dc02: ObjectFormat UINT16 data type ANY 16BIT VALUE form READ ONLY
+      dc04: ObjectSize UINT64 data type READ ONLY
+      dc41: PersistantUniqueObjectIdentifier UINT128 data type READ ONLY
+      dc44: Name STRING data type GET/SET
+      dc0b: ParentObject UINT32 data type ANY 32BIT VALUE form READ ONLY
+      dc07: ObjectFileName STRING data type GET/SET
+      dc4f: NonConsumable UINT8 data type enumeration: 0, 1,  GET/SET
+      dc03: ProtectionStatus UINT16 data type enumeration: 0, 1, 32771,  READ ONLY
+      dc0d: Hidden UINT16 data type enumeration: 0, 1,  GET/SET
+   300a: MS AVI
+      de99: AudioWAVECodec UINT32 data type enumeration: 85, 17, 1,  READ ONLY
+      de9a: AudioBitRate UINT32 data type range: MIN 8000, MAX 1536000, STEP 1 READ ONLY
+      de9d: FramesPerThousandSeconds UINT32 data type range: MIN 20, MAX 30000, STEP 1 READ ONLY
+      dc88: Height UINT32 data type range: MIN 0, MAX 240, STEP 1 GET/SET
+      de91: TotalBitRate UINT32 data type range: MIN 0, MAX 4000000, STEP 1 READ ONLY
+      de9b: VideoFourCCCodec UINT32 data type enumeration: 844515635, 878070084, 1482049860, 808802372, 1196444237, 1145656920,  READ ONLY
+      de9c: VideoBitRate UINT32 data type range: MIN 0, MAX 3000000, STEP 1 READ ONLY
+      dc87: Width UINT32 data type range: MIN 0, MAX 320, STEP 1 GET/SET
+      dc86: RepresentativeSampleData array of UINT8 data type byte array:  GET/SET
+      dc81: RepresentativeSampleFormat UINT16 data type enumeration: 14337,  READ ONLY
+      dc83: RepresentativeSampleHeight UINT32 data type range: MIN 0, MAX 96, STEP 1 READ ONLY
+      dc82: RepresentativeSampleSize UINT32 data type range: MIN 0, MAX 8192, STEP 1 READ ONLY
+      dc84: RepresentativeSampleWidth UINT32 data type range: MIN 0, MAX 96, STEP 1 READ ONLY
+      dc89: Duration UINT32 data type range: MIN 0, MAX -1, STEP 1 GET/SET
+      de93: SampleRate UINT32 data type enumeration: 8000, 11025, 12000, 16000, 22050, 24000, 32000, 44100, 48000,  READ ONLY
+      de94: NumberOfChannels UINT16 data type enumeration: 1, 2,  READ ONLY
+      de95: AudioBitDepth UINT32 data type enumeration: 8, 16,  READ ONLY
+      dc01: StorageID UINT32 data type ANY 32BIT VALUE form READ ONLY
+      dc02: ObjectFormat UINT16 data type ANY 16BIT VALUE form READ ONLY
+      dc04: ObjectSize UINT64 data type READ ONLY
+      dc41: PersistantUniqueObjectIdentifier UINT128 data type READ ONLY
+      dc44: Name STRING data type GET/SET
+      dc0b: ParentObject UINT32 data type ANY 32BIT VALUE form READ ONLY
+      dc07: ObjectFileName STRING data type GET/SET
+      dc4f: NonConsumable UINT8 data type enumeration: 0, 1,  GET/SET
+      dc03: ProtectionStatus UINT16 data type enumeration: 0, 1, 32771,  READ ONLY
+      dc0d: Hidden UINT16 data type enumeration: 0, 1,  GET/SET
+   300c: ASF
+      de99: AudioWAVECodec UINT32 data type enumeration: 352, 353,  READ ONLY
+      de9a: AudioBitRate UINT32 data type range: MIN 5000, MAX 505000, STEP 1 READ ONLY
+      de9d: FramesPerThousandSeconds UINT32 data type range: MIN 20, MAX 30000, STEP 1 READ ONLY
+      dc88: Height UINT32 data type range: MIN 0, MAX 240, STEP 1 GET/SET
+      de91: TotalBitRate UINT32 data type range: MIN 0, MAX 850000, STEP 1 READ ONLY
+      de9b: VideoFourCCCodec UINT32 data type enumeration: 861293911,  READ ONLY
+      de9c: VideoBitRate UINT32 data type range: MIN 0, MAX 850000, STEP 1 READ ONLY
+      dc87: Width UINT32 data type range: MIN 0, MAX 320, STEP 1 GET/SET
+      dc86: RepresentativeSampleData array of UINT8 data type byte array:  GET/SET
+      dc81: RepresentativeSampleFormat UINT16 data type enumeration: 14337,  READ ONLY
+      dc83: RepresentativeSampleHeight UINT32 data type range: MIN 0, MAX 96, STEP 1 READ ONLY
+      dc82: RepresentativeSampleSize UINT32 data type range: MIN 0, MAX 8192, STEP 1 READ ONLY
+      dc84: RepresentativeSampleWidth UINT32 data type range: MIN 0, MAX 96, STEP 1 READ ONLY
+      dc89: Duration UINT32 data type range: MIN 0, MAX -1, STEP 1 GET/SET
+      de93: SampleRate UINT32 data type enumeration: 8000, 11025, 12000, 16000, 22050, 24000, 32000, 44100, 48000,  READ ONLY
+      de94: NumberOfChannels UINT16 data type enumeration: 1, 2,  READ ONLY
+      de95: AudioBitDepth UINT32 data type enumeration: 8, 16,  READ ONLY
+      dc01: StorageID UINT32 data type ANY 32BIT VALUE form READ ONLY
+      dc02: ObjectFormat UINT16 data type ANY 16BIT VALUE form READ ONLY
+      dc04: ObjectSize UINT64 data type READ ONLY
+      dc41: PersistantUniqueObjectIdentifier UINT128 data type READ ONLY
+      dc44: Name STRING data type GET/SET
+      dc0b: ParentObject UINT32 data type ANY 32BIT VALUE form READ ONLY
+      dc07: ObjectFileName STRING data type GET/SET
+      dc4f: NonConsumable UINT8 data type enumeration: 0, 1,  GET/SET
+      dc03: ProtectionStatus UINT16 data type enumeration: 0, 1, 32771,  READ ONLY
+      dc0d: Hidden UINT16 data type enumeration: 0, 1,  GET/SET
+   b981: WMV
+      de99: AudioWAVECodec UINT32 data type enumeration: 352, 353,  READ ONLY
+      de9a: AudioBitRate UINT32 data type range: MIN 5000, MAX 505000, STEP 1 READ ONLY
+      de9d: FramesPerThousandSeconds UINT32 data type range: MIN 20, MAX 30000, STEP 1 READ ONLY
+      dc88: Height UINT32 data type range: MIN 0, MAX 240, STEP 1 GET/SET
+      de91: TotalBitRate UINT32 data type range: MIN 0, MAX 850000, STEP 1 READ ONLY
+      de9b: VideoFourCCCodec UINT32 data type enumeration: 861293911,  READ ONLY
+      de9c: VideoBitRate UINT32 data type range: MIN 0, MAX 850000, STEP 1 READ ONLY
+      dc87: Width UINT32 data type range: MIN 0, MAX 320, STEP 1 GET/SET
+      dc86: RepresentativeSampleData array of UINT8 data type byte array:  GET/SET
+      dc81: RepresentativeSampleFormat UINT16 data type enumeration: 14337,  READ ONLY
+      dc83: RepresentativeSampleHeight UINT32 data type range: MIN 0, MAX 96, STEP 1 READ ONLY
+      dc82: RepresentativeSampleSize UINT32 data type range: MIN 0, MAX 8192, STEP 1 READ ONLY
+      dc84: RepresentativeSampleWidth UINT32 data type range: MIN 0, MAX 96, STEP 1 READ ONLY
+      dc89: Duration UINT32 data type range: MIN 0, MAX -1, STEP 1 GET/SET
+      de93: SampleRate UINT32 data type enumeration: 8000, 11025, 12000, 16000, 22050, 24000, 32000, 44100, 48000,  READ ONLY
+      de94: NumberOfChannels UINT16 data type enumeration: 1, 2,  READ ONLY
+      de95: AudioBitDepth UINT32 data type enumeration: 8, 16,  READ ONLY
+      dc01: StorageID UINT32 data type ANY 32BIT VALUE form READ ONLY
+      dc02: ObjectFormat UINT16 data type ANY 16BIT VALUE form READ ONLY
+      dc04: ObjectSize UINT64 data type READ ONLY
+      dc41: PersistantUniqueObjectIdentifier UINT128 data type READ ONLY
+      dc44: Name STRING data type GET/SET
+      dc0b: ParentObject UINT32 data type ANY 32BIT VALUE form READ ONLY
+      dc07: ObjectFileName STRING data type GET/SET
+      dc4f: NonConsumable UINT8 data type enumeration: 0, 1,  GET/SET
+      dc03: ProtectionStatus UINT16 data type enumeration: 0, 1, 32771,  READ ONLY
+      dc0d: Hidden UINT16 data type enumeration: 0, 1,  GET/SET
+   bb83: vCard3
+      dc01: StorageID UINT32 data type ANY 32BIT VALUE form READ ONLY
+      dc02: ObjectFormat UINT16 data type ANY 16BIT VALUE form READ ONLY
+      dc04: ObjectSize UINT64 data type READ ONLY
+      dc41: PersistantUniqueObjectIdentifier UINT128 data type READ ONLY
+      dc44: Name STRING data type GET/SET
+      dc0b: ParentObject UINT32 data type ANY 32BIT VALUE form READ ONLY
+      dc07: ObjectFileName STRING data type GET/SET
+      dc4f: NonConsumable UINT8 data type enumeration: 0, 1,  GET/SET
+      dc03: ProtectionStatus UINT16 data type enumeration: 0, 1, 32771,  READ ONLY
+      dc0d: Hidden UINT16 data type enumeration: 0, 1,  GET/SET
+   be03: vCalendar2
+      dc01: StorageID UINT32 data type ANY 32BIT VALUE form READ ONLY
+      dc02: ObjectFormat UINT16 data type ANY 16BIT VALUE form READ ONLY
+      dc04: ObjectSize UINT64 data type READ ONLY
+      dc41: PersistantUniqueObjectIdentifier UINT128 data type READ ONLY
+      dc44: Name STRING data type GET/SET
+      dc0b: ParentObject UINT32 data type ANY 32BIT VALUE form READ ONLY
+      dc07: ObjectFileName STRING data type GET/SET
+      dc4f: NonConsumable UINT8 data type enumeration: 0, 1,  GET/SET
+      dc03: ProtectionStatus UINT16 data type enumeration: 0, 1, 32771,  READ ONLY
+      dc0d: Hidden UINT16 data type enumeration: 0, 1,  GET/SET
+   b802: Firmware
+      dc01: StorageID UINT32 data type ANY 32BIT VALUE form READ ONLY
+      dc02: ObjectFormat UINT16 data type ANY 16BIT VALUE form READ ONLY
+      dc04: ObjectSize UINT64 data type READ ONLY
+      dc41: PersistantUniqueObjectIdentifier UINT128 data type READ ONLY
+      dc44: Name STRING data type GET/SET
+      dc0b: ParentObject UINT32 data type ANY 32BIT VALUE form READ ONLY
+      dc07: ObjectFileName STRING data type GET/SET
+      dc4f: NonConsumable UINT8 data type enumeration: 0, 1,  GET/SET
+      dc03: ProtectionStatus UINT16 data type enumeration: 0, 1, 32771,  READ ONLY
+      dc0d: Hidden UINT16 data type enumeration: 0, 1,  GET/SET
+   3000: Undefined Type
+      dc01: StorageID UINT32 data type ANY 32BIT VALUE form READ ONLY
+      dc02: ObjectFormat UINT16 data type ANY 16BIT VALUE form READ ONLY
+      dc04: ObjectSize UINT64 data type READ ONLY
+      dc41: PersistantUniqueObjectIdentifier UINT128 data type READ ONLY
+      dc44: Name STRING data type GET/SET
+      dc0b: ParentObject UINT32 data type ANY 32BIT VALUE form READ ONLY
+      dc07: ObjectFileName STRING data type GET/SET
+      dc4f: NonConsumable UINT8 data type enumeration: 0, 1,  GET/SET
+      dc03: ProtectionStatus UINT16 data type enumeration: 0, 1, 32771,  READ ONLY
+      dc0d: Hidden UINT16 data type enumeration: 0, 1,  GET/SET
+   3001: Association/Directory
+      dc01: StorageID UINT32 data type ANY 32BIT VALUE form READ ONLY
+      dc02: ObjectFormat UINT16 data type ANY 16BIT VALUE form READ ONLY
+      dc04: ObjectSize UINT64 data type READ ONLY
+      dc41: PersistantUniqueObjectIdentifier UINT128 data type READ ONLY
+      dc44: Name STRING data type GET/SET
+      dc0b: ParentObject UINT32 data type ANY 32BIT VALUE form READ ONLY
+      dc07: ObjectFileName STRING data type GET/SET
+      dc4f: NonConsumable UINT8 data type enumeration: 0, 1,  GET/SET
+      dc03: ProtectionStatus UINT16 data type enumeration: 0, 1, 32771,  READ ONLY
+      dc0d: Hidden UINT16 data type enumeration: 0, 1,  GET/SET
+Storage Devices:
+   StorageID: 0x00010001
+      StorageType: 0x0003
+      FilesystemType: 0x0002
+      AccessCapability: 0x0000
+      MaxCapacity: 16030302208
+      FreeSpaceInBytes: 15522070528
+      FreeSpaceInObjects: 4294967295
+      StorageDescription: Storage Media
+      VolumeIdentifier: 211100012672DD130002D900AC29DD13
+Special directories:
+   Default music folder: 0x00000058
+   Default playlist folder: 0x0000005c
+   Default picture folder: 0x00000068
+   Default video folder: 0x0000006c
+   Default organizer folder: 0x00000064
+   Default zencast folder: 0x00000074
+   Default album folder: 0x0000008f
+   Default text folder: 0x00000000
+MTP-specific device properties:
+   Friendly name: My ZEN
+   Synchronization partner: (NULL)
+   Battery level 252 of 255 (98%)
+libmtp supported (playable) filetypes:
+   ISO MPEG-1 Audio Layer 3
+   Microsoft Windows Media Audio
+   RIFF WAVE file
+   Audible.com Audio Codec
+   MPEG-4 Part 14 Container Format (Audio+Video Empahsis)
+   JPEG file
+   Audio Video Interleave
+   Microsoft Advanced Systems Format
+   Microsoft Windows Media Video
+   VCard version 3
+   VCalendar version 2
+   Firmware file
+
+Secure Time:
+<DRMCLOCK type="status"><VALUE>#20080201 07:13:45Z#</VALUE><FLAG>DRM_CLK_NOT_SET</FLAG></DRMCLOCK>
+
+Device Certificate:
+<DEVCERT version="1.0"><CERTIFICATE type="DEVICE"><DATA><UNIQUEID private="1">AQARIRPdciYA2QIAE90prAAAAAA=</UNIQUEID><PUBLICKEY private="1">RoGj1BdygS2pYu3BrYGk2iA/HVPMNhtnLC5d1EWWEp+U0787naDZgw==</PUBLICKEY><KEYDATA>khYkHB/fFa5LdNjmFPr5zb0VJIo=</KEYDATA></DATA><MSDRM_SIGNATURE_VALUE>Lpx1vT9ZmSrRIKInEgf9M2RwyxGlBhwAjssKMBAd4oL/fKXta7gmgw==</MSDRM_SIGNATURE_VALUE><SYMSIGNATURE>qxIuRw8lSMhzvyEuwJOcq4hpZiw=</SYMSIGNATURE></CERTIFICATE><FALLBACK><SECURITYVERSION>2.4.108.193</SECURITYVERSION><CERTIFICATE private="1">RoGj1BdygS2pYu3BrYGk2iA/HVPMNhtnLC5d1EWWEp+U0787naDZgwIEbMFKvZZwdlhybOAeZO1m/edcjL6ib/n/6K1s/z1BgIJn7K7e/pJtGchf</CERTIFICATE></FALLBACK><CERTIFICATE type="GROUP"><DATA><NAME>Creative ZEN</NAME>
+  <MANUFACTURER>CL Direct Pte Ltd.</MANUFACTURER>
+  <MODEL>DVP-FL0001</MODEL>
+  <SECURITYLEVEL>2000</SECURITYLEVEL>
+  <HARDWARE_VER_MAJOR>1</HARDWARE_VER_MAJOR>
+  <HARDWARE_VER_MINOR>0</HARDWARE_VER_MINOR>
+  <FIRMWARE_VER_MAJOR>1</FIRMWARE_VER_MAJOR>
+  <FIRMWARE_VER_MINOR>0</FIRMWARE_VER_MINOR>
+  <FEATURES>
+    <CLOCK>2</CLOCK>
+    <SECURECLOCK>
+      <URL>http://go.microsoft.com/fwlink/?LinkId=25817</URL>
+      <PUBLICKEY>!CNhvvz1WaNV1AFUmetxkvm9iD4UrE9cnGUi!qcqdxMiXmD1*ikYGA==</PUBLICKEY>
+    </SECURECLOCK>
+    <METERING>1</METERING>
+    <LICENSE_ACQ>0</LICENSE_ACQ>
+    <LICENSE_SYNC>1</LICENSE_SYNC>
+    <ENCRYPTION>0</ENCRYPTION>
+    <SYMMETRIC_OPT>1</SYMMETRIC_OPT>
+  </FEATURES>
+  <LIMITS>
+    <MAXCHAINDEPTH>2</MAXCHAINDEPTH>
+    <MAXLICENSESIZE>10240</MAXLICENSESIZE>
+    <MAXHEADERSIZE>5120</MAXHEADERSIZE>
+  </LIMITS><PUBLICKEY>01jSNo4LLYCkLWpnsvVOxk1wvxbm2krcn20LgpXL9Zf91opCNsMyAQ==</PUBLICKEY></DATA><MSDRM_SIGNATURE_VALUE>DrK/bNN2aO5ImZHdepevdhlT6UePVcdaxTWOMvw/8RYKeQFjSPwWUw==</MSDRM_SIGNATURE_VALUE></CERTIFICATE><CERTIFICATE type="AUTHORIZATION"><DATA><SECURITYLEVEL>2000</SECURITYLEVEL><AUTH_ID>2085</AUTH_ID><PUBLICKEY>U3xlv/ZHjD1bOwjB+VKpZuAf3UI+x+5XtTYc7TvHKdQeGpyFrOmOEw==</PUBLICKEY></DATA><MSDRM_SIGNATURE_VALUE>iBzmFZxhy/VC9d2REO5iicO+dguqv8zhB7QPZe0JOj7BNKAwmrQoew==</MSDRM_SIGNATURE_VALUE></CERTIFICATE><CERTIFICATE type="AUTHORIZATION_ROOT"><DATA><AUTH_ID>1</AUTH_ID><PUBLICKEY>a1t3hxrg!qbOgktnbYaEEi4teCse!gz6RvTPuC!zizKJlpU7xoduSw==</PUBLICKEY></DATA><MSDRM_SIGNATURE_VALUE>Ko25GwcWTT0R8xP4rS9+h4Z/EHX03y7Gb/281mD8U0nQGG3Rk9O+TA==</MSDRM_SIGNATURE_VALUE></CERTIFICATE></DEVCERT>
+WMPInfo.xml Does not exist on this device
+OK.
+
+================================================================================
+
+youtube vids
+
+
+FILES="youtube/muppets_WeWishYouAMerryChristmas_B2DHvCc7MoY.flv
+youtube/music_BandAid_DoTheyKnowItsChristmas_0NwkpTxuHps.flv
+youtube/music_BoneyM_HoorayHoorayItsAHoliday_owUgop9PJ9s.flv
+youtube/music_BoneyM_MarysBoyChild_C7-4GC828rM.flv
+youtube/music_BoneyM_Rasputin_kvDMlk3kSYg.flv
+youtube/music_CelticWoman_CarolOfTheBells_dlbJToqI3nU.flv
+youtube/music_chipmunks_rudolph_qXoWpi2DRHo.flv
+youtube/music_Claymation_BellChorus_H5m9_LXNOYM.flv
+youtube/music_Claymation_WeThreeKings_87wGHfAi17Q.flv
+youtube/music_DingDongMerrilyonHighbyJohnBrownUniversitysCathedralChoir_OYPJwnFm9Z0.flv
+youtube/music_HomeAlone_JingleBellRock_n50r-EwCuLw.flv
+youtube/music_IwantaHippopotamusforChristmas_KtqIM_bPTws.flv
+youtube/music_JohnLennon_HappyXmasWarIsOver_WUCbZhIfQbA.flv
+youtube/music_JohnnyMathis_SleighRide_bBFXAEhWsio.flv
+youtube/music_JohnnyMathis_WalkinInAWinterWonderland_6JBz14mekfM.flv
+youtube/music_JohnnyMathis_WeNeedALittleChristmas__FB3h8IFCro.flv
+youtube/music_JohnnyMathis_WhenAChildIsBorn_DasqYiQK7HQ.flv
+youtube/music_MontyPython_AlwaysLookOnTheBrightSideOfLife_UQoGSlrkgkI.flv
+youtube/music_MuppetsAndJohnDenver_12daysOfChristmas_M4j1paMC5SM.flv
+youtube/music_MuppetsChristmasCarol_FeelsLikeChristmas_pR_8kmOmxyk.flv
+youtube/music_NeilDiamond_JingleBellRock_TYa78dT0qgI.flv
+youtube/music_original_FrostyTheSnowman_C19KEuozt-0.flv
+youtube/music_PaulMcCartney_WonderfulChristmasTime_hWuKimtUEas.flv
+youtube/music_RolfHarris_6WhiteBoomers_hlSsffF2xhA.flv
+youtube/music_ShakinStevens_MerryChristmasEveryone_5PkUWkxGWj0.flv
+youtube/music_TheCrystals_SantaClausIsComing_jnB_AeRdOUM.flv
+youtube/music_ThePogues_FairytaleOfNewYork_mK9tkqs0Obg.flv
+youtube/music_TheSupremes_SantaClausIsComing_2gGRfMtbWm4.flv
+youtube/music_TheWiggles_HereComeTheReindeer_BWeb6dnmKg4.flv
+youtube/music_TheWiggles_JimmyTheElf_ddkfiKEng7w.flv
+youtube/music_TheWiggles_JingleBells_jehN1EpqbeY.flv
+youtube/music_TheWiggles_MurraysChristmasSamba_0V6IjhiTaV8.flv
+youtube/music_TheWiggles_WigglyWigglyChristmas_pcTLKh46ufI.flv
+youtube/music_TOTPSlade_MerryChristmasEverybody_6OAUs0rcsA4.flv
+youtube/music_TransSiberianOrchestra_ChristmasEveSarajevo_alIcwofkrS8.flv
+youtube/music_WestlifeAndCranberries_DrummerBoy_vwugqvlyzSo.flv
+youtube/music_DavidBowie_LifeOnMars_ueUOTImKp0k.flv"
+for f in $FILES ; do flv_to_zen.sh $f; done
+
+
+================================================================================
+
+26 dec 2009 how to connect to zen without using root/sudo ...
+
+http://ubuntuforums.org/showthread.php?p=5734480
+xen device numbers do match.
+
+
+family@jamesc-laptop:~$ lsusb 
+Bus 001 Device 003: ID 041e:4162 Creative Technology, Ltd 
+
+
+jamesc@jamesc-laptop:~$ sudo mtp-detect
+libmtp version: 0.3.0
+
+Listing raw device(s)
+Device 0 (VID=041e and PID=4162) is UNKNOWN.
+Please report this VID/PID and the device model to the libmtp development team
+   Found 1 device(s):
+   041e:4162 @ bus 0, dev 3
+Attempting to connect device(s)
+PTP: Opening session
+
+
+As at that url add these:
+ but is adding them in /lib/udev instead of /etc/udev effective????
+AND group plugdev instead of audio for both (as another user suggests on thread).
+
+jamesc@jamesc-laptop:~$ grep -A1 X-fi /lib/udev/rules.d/45-lib*
+/lib/udev/rules.d/45-libmtp8.rules:# Creative Zen X-fi
+/lib/udev/rules.d/45-libmtp8.rules-ATTR{idVendor}=="041e", ATTR{idProduct}=="4162", SYMLINK+="libmtp-%k", MODE="770", GROUP="audio"
+--
+/lib/udev/rules.d/45-libnjb5.rules:# Creative Zen X-fi
+/lib/udev/rules.d/45-libnjb5.rules-SYSFS{idVendor}=="041e", SYSFS{idProduct}=="4162", GROUP="plugdev", MODE="0770"
+
+
+
+
+jamesc@jamesc-laptop:~$ sudo /etc/init.d/udev restart
+ * Stopping kernel event manager...                                                                    [ OK ] 
+ * Starting kernel event manager...                                                                    [ OK ] 
+
+ 
+jamesc@jamesc-laptop:~$ sudo cp /lib/udev/rules.d/45-* /etc/udev/rules.d/
+jamesc@jamesc-laptop:~$ sudo /etc/init.d/udev restart
+ * Stopping kernel event manager...                                                                    [ OK ] 
+ * Starting kernel event manager...                                                                    [ OK ]
+
+family@jamesc-laptop:~$ groups
+family adm dialout fax cdrom floppy tape audio dip video plugdev scanner fuse
+

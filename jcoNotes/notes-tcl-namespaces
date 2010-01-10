@@ -1,0 +1,95 @@
+
+Requirement to have SUT config in a config file.
+Loaded by different test systems.
+Configured GUI/manually - local config, default common config.
+Create default config, save config, load config.
+
+Global config. okay but can only express 1 system in it.
+OO or structured config could have several default or template systems.
+
+Magic config editor - don't have to rewrite editor if add config vars.
+Use a namespace. Load namespace. Save all namespace, present all of namespace in GUI editor. .. ... merge of config.
+
+It sounds like by doing all this we're making a simple thing complicated :(
+
+
+http://www.tcl.tk/man/tcl8.4/TclCmd/namespace.htm
+
+
+The main reason to use namespaces is to avoid namespace collision, where you have two variables called the same thing.
+
+    namespace eval mypackage {}
+
+    Then create the procedures using their fully qualified name as such:
+
+    proc mypackage::get {} {}
+    proc mypackage::set {} {}
+
+
+
+http://wiki.tcl.tk/1489
+
+Also highly recommended is William Duquette's tutorial [2] on the use of namespaces and packages. The "XML Namespaces FAQ" [3] has valuable background information on the general use of namespaces in computing, and Sam Ruby provides "A Gentle Introduction to Namespaces" [4] for the XML-focused.
+
+See also _namespace import_ and _rename_ to appreciate the extraordinary freedom won through the use of namespaces.
+
+
+namespace children ?namespace? ?pattern?
+
+namespace code script
+
+namespace current
+
+namespace delete ?namespace namespace ...?
+
+namespace ensemble option ?arg ...?
+
+namespace eval namespace arg ?arg ...?
+
+namespace exists namespace
+
+namespace export ?-clear? ?pattern pattern ...?
+
+namespace forget ?pattern pattern ...?
+
+namespace import ?-force? ?pattern pattern ...?
+
+namespace inscope namespace script ?arg ...?
+
+namespace origin command
+
+namespace parent ?namespace?
+
+namespace path ?namespaceList? --> new in Tcl 8.5 (TIP: [1])
+
+namespace qualifiers string
+
+namespace tail string
+
+namespace upvar namespace otherVar myVar ?otherVar myVar ...?
+
+namespace unknown ?script?
+
+namespace which ?-command? ?-variable? name
+
+
+
+
+
+
+http://www.wjduquette.com/tcl/namespaces.html
+good, but just all on tcl packages, we're using most of it.
+
+http://wiki.tcl.tk/17869
+data is code
+interesting.
+
+http://en.wikipedia.org/wiki/Data#Usage_in_English
+datum. data. data are. data is. "Some British and international academic, scientific and professional style guides[2] require that authors treat data as a plural noun. Other international organizations, such as the IEEE Computer Society,[3] allow its usage as either a mass noun or plural based on author preference. "
+
+
+
+http://www.rpbourret.com/xml/NamespacesFAQ.htm
+meh. not that relevant
+
+

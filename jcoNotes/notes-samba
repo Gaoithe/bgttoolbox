@@ -1,0 +1,54 @@
+
+
+jamesc@jamesc-laptop:~/work$ sudo apt-get install smbfs smbclient
+
+
+jamesc@jamesc-laptop:~/work$ smbclient -L 192.168.1.1 -U%
+Domain=[MSHOME] OS=[Windows 5.1] Server=[Windows 2000 LAN Manager]
+
+	Sharename       Type      Comment
+	---------       ----      -------
+Error returning browse list: NT_STATUS_ACCESS_DENIED
+session request to 192.168.1.1 failed (Called name not present)
+session request to 192 failed (Called name not present)
+Domain=[MSHOME] OS=[Windows 5.1] Server=[Windows 2000 LAN Manager]
+
+	Server               Comment
+	---------            -------
+	D7MRM91J             Oscar
+
+	Workgroup            Master
+	---------            -------
+	MSHOME               D7MRM91J
+jamesc@jamesc-laptop:~/work$ smbclient -L 192.168.20.100 -U%
+Domain=[INTUNE-SERVER] OS=[Windows 5.1] Server=[Windows 2000 LAN Manager]
+
+	Sharename       Type      Comment
+	---------       ----      -------
+Error returning browse list: NT_STATUS_ACCESS_DENIED
+session request to 192.168.20.100 failed (Called name not present)
+session request to 192 failed (Called name not present)
+Domain=[INTUNE-SERVER] OS=[Windows 5.1] Server=[Windows 2000 LAN Manager]
+
+	Server               Comment
+	---------            -------
+
+	Workgroup            Master
+	---------            -------
+jamesc@jamesc-laptop:~/work$ smbclient -L 192.168.20.42 -U%
+Domain=[INTUNE-SERVER] OS=[Windows 5.1] Server=[Windows 2000 LAN Manager]
+
+	Sharename       Type      Comment
+	---------       ----      -------
+Error returning browse list: NT_STATUS_ACCESS_DENIED
+session request to 192.168.20.42 failed (Called name not present)
+session request to 192 failed (Called name not present)
+Domain=[INTUNE-SERVER] OS=[Windows 5.1] Server=[Windows 2000 LAN Manager]
+
+	Server               Comment
+	---------            -------
+
+	Workgroup            Master
+	---------            -------
+jamesc@jamesc-laptop:~/work$ 
+

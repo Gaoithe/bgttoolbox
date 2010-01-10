@@ -1,0 +1,142 @@
+
+notes-ubuntu-*
+
+-rw-r--r-- 1 jamesc jamesc 22984 2009-07-23 01:26 notes-ubuntu-delllaptop
+-rw-r--r-- 1 jamesc jamesc 22677 2009-07-22 00:52 notes-ubuntu-delllaptop~
+-rw-r--r-- 1 jamesc jamesc    17 2009-10-13 22:41 notes-ubuntu-delllaptop-undoubuntuupdate
+-rwxr-xr-x 1 jamesc jamesc 282 2009-10-09 21:09 bin/getmtrr
+-rw-r--r-- 1 jamesc jamesc 846 2009-10-09 21:37 bin/lnmtrr.sh
+#HowtoIntelVideoXorgshowthread.html:		overflow: auto">$ 
+sudo wget http://launchpadlibrarian.net/26193373/fixmtrr.sh -O /usr/local/bin/fixmtrr.sh
+#showthread-gnomesess.html:		overflow: auto">$ sudo wget http://launchpadlibrarian.net/26193373/fixmtrr.sh -O /usr/local/bin/fixmtrr.sh
+#sudo ln -s /usr/local/bin/fixmtrr.sh /etc/gdm/PostLogin/Default
+
+sudo apt-key adv --recv-keys --keyserver keyserver.ubuntu.com AF1CDFA9
+ sudo apt-get update
+ sudo apt-get dist-upgrade
+
+#sudo apt-key adv --recv-keys --keyserver keyserver.ubuntu.com 8844C542
+# sudo apt-get update
+# sudo apt-get dist-upgrade
+
+#sudo apt-get install libdrm-dev/jaunty libdrm2/jaunty libdrm-intel1/jaunty xserver-xorg-video-intel/jaunty libdrm-nouveau1/jaunty libgl1-mesa-dri/jaunty libgl1-mesa-glx/jaunty libgl1-mesa-dev/jaunty libglu1-mesa/jaunty mesa-common-dev/jaunty mesa-utils/jaunty xserver-common/jaunty xserver-xorg-core/jaunty xserver-xorg-input-evdev/jaunty xserver-xorg-input-evdev/jaunty xserver-xorg-input-synaptics/jaunty xserver-xorg-video-ati/jaunty xserver-xorg-video-nv/jaunty xserver-xorg-video-openchrome/jaunty xserver-xorg-video-radeon/jaunty
+
+
+
+
+
+-rw-r----- 1 root adm  67786 2009-10-09 21:38 /var/log/dpkg.log
+-rw-r----- 1 root adm 170646 2009-09-30 22:29 /var/log/dpkg.log.1
+-rw-r----- 1 root adm  11807 2009-08-29 15:37 /var/log/dpkg.log.2.gz
+-rw-r----- 1 root adm  14195 2009-07-25 19:12 /var/log/dpkg.log.3.gz
+-rw-r----- 1 root adm  10240 2009-07-01 20:36 /var/log/dpkg.log.4.gz
+-rw-r----- 1 root adm  20238 2009-05-28 00:14 /var/log/dpkg.log.5.gz
+-rw-r----- 1 root adm 144355 2009-04-29 00:35 /var/log/dpkg.log.6.gz
+-rw-r----- 1 root adm  26584 2009-03-31 22:06 /var/log/dpkg.log.7.gz
+-rw-r----- 1 root adm  97009 2009-02-28 22:22 /var/log/dpkg.log.8.gz
+grep -E -v " (status|configure) " /var/log/dpkg.log |less
+grep -E -v " (status|configure) " /var/log/dpkg.log |less
+grep -E -v " (status|configure) " /var/log/dpkg.log |less
+grep -E -v " (status|configure) " /var/log/dpkg.log |less
+2009-10-02 23:57:21 startup archives unpack
+2009-10-02 23:57:47 upgrade openoffice.org-emailmerge 1:3.0.1-9ubuntu3 1:3.0.1-9ubuntu3.1
+2009-10-02 23:57:58 upgrade libwbclient0 2:3.3.2-1ubuntu3.1 2:3.3.2-1ubuntu3.2
+2009-10-02 23:57:58 upgrade libsmbclient 2:3.3.2-1ubuntu3.1 2:3.3.2-1ubuntu3.2
+2009-10-02 23:57:59 upgrade ure 1.4.1+OOo3.0.1-9ubuntu3 1.4.1+OOo3.0.1-9ubuntu3.1
+2009-10-02 23:58:00 upgrade uno-libs3 1.4.1+OOo3.0.1-9ubuntu3 1.4.1+OOo3.0.1-9ubuntu3.1
+2009-10-02 23:58:01 upgrade openoffice.org-calc 1:3.0.1-9ubuntu3 1:3.0.1-9ubuntu3.1
+2009-10-02 23:58:04 upgrade openoffice.org-impress 1:3.0.1-9ubuntu3 1:3.0.1-9ubuntu3.1
+2009-10-02 23:58:05 upgrade openoffice.org-draw 1:3.0.1-9ubuntu3 1:3.0.1-9ubuntu3.1
+2009-10-02 23:58:06 upgrade openoffice.org-style-human 1:3.0.1-9ubuntu3 1:3.0.1-9ubuntu3.1
+2009-10-02 23:58:07 upgrade openoffice.org-common 1:3.0.1-9ubuntu3 1:3.0.1-9ubuntu3.1
+2009-10-02 23:58:15 upgrade openoffice.org-gtk 1:3.0.1-9ubuntu3 1:3.0.1-9ubuntu3.1
+2009-10-02 23:58:15 upgrade openoffice.org-gnome 1:3.0.1-9ubuntu3 1:3.0.1-9ubuntu3.1
+2009-10-02 23:58:16 upgrade python-uno 1:3.0.1-9ubuntu3 1:3.0.1-9ubuntu3.1
+2009-10-02 23:58:16 upgrade openoffice.org-math 1:3.0.1-9ubuntu3 1:3.0.1-9ubuntu3.1
+2009-10-02 23:58:17 upgrade ttf-opensymbol 1:3.0.1-9ubuntu3 1:3.0.1-9ubuntu3.1
+2009-10-02 23:58:17 upgrade openoffice.org-writer 1:3.0.1-9ubuntu3 1:3.0.1-9ubuntu3.1
+2009-10-02 23:58:20 upgrade openoffice.org-base-core 1:3.0.1-9ubuntu3 1:3.0.1-9ubuntu3.1
+2009-10-02 23:58:20 upgrade openoffice.org-core 1:3.0.1-9ubuntu3 1:3.0.1-9ubuntu3.1
+2009-10-02 23:58:31 upgrade smbclient 2:3.3.2-1ubuntu3.1 2:3.3.2-1ubuntu3.2
+2009-10-02 23:58:33 upgrade winbind 2:3.3.2-1ubuntu3.1 2:3.3.2-1ubuntu3.2
+2009-10-02 23:58:34 upgrade samba-common 2:3.3.2-1ubuntu3.1 2:3.3.2-1ubuntu3.2
+2009-10-02 23:58:36 upgrade xserver-xorg-video-radeon 1:6.12.99+git20090926.7968e1fb-0ubuntu0tormod~jaunty 1:6.12.99+git20090930.d3024814-0ubuntu0tormod~jaunty
+2009-10-02 23:58:36 upgrade xserver-xorg-video-ati 1:6.12.99+git20090926.7968e1fb-0ubuntu0tormod~jaunty 1:6.12.99+git20090930.d3024814-0ubuntu0tormod~jaunty
+2009-10-02 23:58:36 upgrade xserver-xorg-video-intel 2:2.8.99.902~git20090923.a92bbcc9-0ubuntu0tormod~jaunty 2:2.9.0~git20090930.2841a4cd-0ubuntu0tormod~jaunty
+2009-10-02 23:58:37 trigproc man-db 2.5.5-1build1 2.5.5-1build1
+2009-10-02 23:58:38 trigproc menu 2.1.41ubuntu1 2.1.41ubuntu1
+2009-10-02 23:58:39 trigproc shared-mime-info 0.60-1 0.60-1
+2009-10-02 23:58:42 startup packages configure
+2009-10-02 23:59:04 trigproc libc6 2.9-4ubuntu6.1 2.9-4ubuntu6.1
+2009-10-02 23:59:05 trigproc menu 2.1.41ubuntu1 2.1.41ubuntu1
+2009-10-08 21:52:08 startup archives unpack
+2009-10-08 21:52:35 upgrade openswan 1:2.4.12+dfsg-1.3 1:2.4.12+dfsg-1.3+lenny2build0.9.04.1
+2009-10-08 21:52:38 upgrade tzdata-java 2009m-0ubuntu0.9.04 2009n-0ubuntu0.9.04
+2009-10-08 21:52:40 upgrade tzdata 2009m-0ubuntu0.9.04 2009n-0ubuntu0.9.04
+2009-10-08 21:52:41 trigproc man-db 2.5.5-1build1 2.5.5-1build1
+2009-10-08 21:52:48 trigproc doc-base 0.8.20 0.8.20
+2009-10-08 21:52:51 startup packages configure
+2009-10-08 21:52:54 startup archives unpack
+2009-10-08 21:52:54 upgrade wget 1.11.4-2ubuntu1 1.11.4-2ubuntu1.1
+2009-10-08 21:52:55 upgrade cscope 15.6-6 15.6-6+lenny1build0.9.04.1
+2009-10-08 21:52:56 upgrade libdrm2 2.4.14-0ubuntu0tormod~jaunty 2.4.14+git20091007.3a7dfcdf-0ubuntu0tormod~jaunty
+2009-10-08 21:52:56 upgrade libdrm-intel1 2.4.14-0ubuntu0tormod~jaunty 2.4.14+git20091007.3a7dfcdf-0ubuntu0tormod~jaunty
+2009-10-08 21:52:57 upgrade libdrm-radeon1 2.4.14-0ubuntu0tormod~jaunty 2.4.14+git20091007.3a7dfcdf-0ubuntu0tormod~jaunty
+2009-10-08 21:52:57 upgrade libgl1-mesa-dri 7.7.0~git20090928.d492e7b0-0ubuntu0tormod~jaunty 7.7.0~git20091007.0083d2e4-0ubuntu0tormod~jaunty
+2009-10-08 21:53:01 upgrade libgl1-mesa-glx 7.7.0~git20090928.d492e7b0-0ubuntu0tormod~jaunty 7.7.0~git20091007.0083d2e4-0ubuntu0tormod~jaunty
+2009-10-08 21:53:02 upgrade libglib2.0-dev 2.20.1-0ubuntu2 2.20.1-0ubuntu2.1
+2009-10-08 21:53:03 upgrade libglib2.0-0 2.20.1-0ubuntu2 2.20.1-0ubuntu2.1
+2009-10-08 21:53:04 upgrade libglib2.0-data 2.20.1-0ubuntu2 2.20.1-0ubuntu2.1
+2009-10-08 21:53:04 upgrade libglu1-mesa 7.7.0~git20090928.d492e7b0-0ubuntu0tormod~jaunty 7.7.0~git20091007.0083d2e4-0ubuntu0tormod~jaunty
+2009-10-08 21:53:05 upgrade libicu38 3.8.1-3ubuntu1 3.8.1-3ubuntu1.1
+2009-10-08 21:53:09 upgrade mesa-utils 7.7.0~git20090928.d492e7b0-0ubuntu0tormod~jaunty 7.7.0~git20091007.0083d2e4-0ubuntu0tormod~jaunty
+2009-10-08 21:53:10 upgrade playonlinux 3.6 3.7
+2009-10-08 21:53:11 upgrade xserver-xorg-video-radeon 1:6.12.99+git20090930.d3024814-0ubuntu0tormod~jaunty 1:6.12.99+git20091007.e59ae082-0ubuntu0tormod~jaunty
+2009-10-08 21:53:12 upgrade xserver-xorg-video-ati 1:6.12.99+git20090930.d3024814-0ubuntu0tormod~jaunty 1:6.12.99+git20091007.e59ae082-0ubuntu0tormod~jaunty
+2009-10-08 21:53:15 upgrade xserver-xorg-video-intel 2:2.9.0~git20090930.2841a4cd-0ubuntu0tormod~jaunty 2:2.9.0~git20091007.03e8e64f-0ubuntu0tormod3~jaunty
+2009-10-08 21:53:16 trigproc man-db 2.5.5-1build1 2.5.5-1build1
+2009-10-08 21:53:19 trigproc menu 2.1.41ubuntu1 2.1.41ubuntu1
+2009-10-08 21:53:38 startup packages configure
+2009-10-08 21:53:47 trigproc libc6 2.9-4ubuntu6.1 2.9-4ubuntu6.1
+2009-10-08 21:53:48 trigproc menu 2.1.41ubuntu1 2.1.41ubuntu1
+2009-10-09 21:38:09 startup archives unpack
+2009-10-09 21:38:35 upgrade libdrm2 2.4.14+git20091007.3a7dfcdf-0ubuntu0tormod~jaunty 2.4.14+git20091007.3a7dfcdf-0ubuntu0tormod~jaunty2
+2009-10-09 21:38:36 upgrade libdrm-intel1 2.4.14+git20091007.3a7dfcdf-0ubuntu0tormod~jaunty 2.4.14+git20091007.3a7dfcdf-0ubuntu0tormod~jaunty2
+2009-10-09 21:38:36 upgrade libdrm-radeon1 2.4.14+git20091007.3a7dfcdf-0ubuntu0tormod~jaunty 2.4.14+git20091007.3a7dfcdf-0ubuntu0tormod~jaunty2
+2009-10-09 21:38:36 upgrade libgl1-mesa-dri 7.7.0~git20091007.0083d2e4-0ubuntu0tormod~jaunty 7.7.0~git20091008.f49d5359-0ubuntu0tormod~jaunty
+2009-10-09 21:38:40 upgrade libgl1-mesa-glx 7.7.0~git20091007.0083d2e4-0ubuntu0tormod~jaunty 7.7.0~git20091008.f49d5359-0ubuntu0tormod~jaunty
+2009-10-09 21:38:40 upgrade libglu1-mesa 7.7.0~git20091007.0083d2e4-0ubuntu0tormod~jaunty 7.7.0~git20091008.f49d5359-0ubuntu0tormod~jaunty
+2009-10-09 21:38:40 upgrade mesa-utils 7.7.0~git20091007.0083d2e4-0ubuntu0tormod~jaunty 7.7.0~git20091008.f49d5359-0ubuntu0tormod~jaunty
+2009-10-09 21:38:41 upgrade nvidia-173-modaliases 173.14.16-0ubuntu1 173.14.16-0ubuntu2
+2009-10-09 21:38:41 upgrade nvidia-180-modaliases 185.18.14-0ubuntu1~xup~1~jaunty 185.18.14-0ubuntu1
+2009-10-09 21:38:41 upgrade nvidia-96-modaliases 96.43.10-0ubuntu1 96.43.10-0ubuntu2
+2009-10-09 21:38:41 upgrade xserver-xorg-input-synaptics 0.99.3-2ubuntu4 0.99.3-2ubuntu5
+2009-10-09 21:38:42 upgrade xserver-xorg-input-vmmouse 1:12.5.1-4ubuntu5 1:12.6.4-0ubuntu1~xup~1
+2009-10-09 21:38:42 upgrade xserver-xorg-video-radeon 1:6.12.99+git20091007.e59ae082-0ubuntu0tormod~jaunty 1:6.12.99+git20091008.02e12ae6-0ubuntu0tormod~jaunty
+2009-10-09 21:38:43 upgrade xserver-xorg-video-ati 1:6.12.99+git20091007.e59ae082-0ubuntu0tormod~jaunty 1:6.12.99+git20091008.02e12ae6-0ubuntu0tormod~jaunty
+2009-10-09 21:38:43 upgrade xserver-xorg-video-sisusb 1:0.9.0-4 1:0.9.1-1build1
+2009-10-09 21:38:43 trigproc man-db 2.5.5-1build1 2.5.5-1build1
+2009-10-09 21:38:47 trigproc hal 0.5.12~rc1+git20090403-0ubuntu4 0.5.12~rc1+git20090403-0ubuntu4
+2009-10-09 21:38:51 startup packages configure
+2009-10-09 21:38:51 trigproc libc6 2.9-4ubuntu6.1 2.9-4ubuntu6.1
+  521  grep " upgrade " /var/log/dpkg.log.1 |sed "s/^/TS='/;s/ /_/;s/ /';C=/"
+  522  grep " upgrade " /var/log/dpkg.log.1 |sed "s/^/TS='/;s/ /_/;s/ /';C=/;s/ /;P='/;s/ /;OLD='/;s/ /;NEW='/;s/$/'; goto $1 $2"
+  523  grep " upgrade " /var/log/dpkg.log.1 |sed "s/^/TS='/;s/ /_/;s/ /';C=/;s/ /;P='/;s/ /;OLD='/;s/ /;NEW='/;s/$/'; goto \$1 \$2"
+  524  grep " upgrade " /var/log/dpkg.log.1 |sed "s/^/TS='/;s/ /_/;s/ /'\;C=/;s/ /;P='/;s/ /;OLD='/;s/ /;NEW='/;s/$/'; goto \$1 \$2"
+  525  grep " upgrade " /var/log/dpkg.log.1 |sed "s/^/TS='/;s/ /_/;s/ /';C=/;s/ /;P='/;s/ /;OLD='/;s/ /;NEW='/;s/\$/'; goto \$1 \$2"
+  526  grep " upgrade " /var/log/dpkg.log.1 |sed "s/^/TS='/;s/ /_/;s/ /';C=/;s/ /;P='/;s/ /;OLD=' /;s/ /;NEW='/;s/\$/'; goto \$1 \$2"
+  527  grep " upgrade " /var/log/dpkg.log.1 |sed "s/^/TS='/;s/ /_/;s/ /';C=/;s/ /;P='/;s/ /;OLD='/;s/ /;NEW='/;s/\$/'; goto \$1 \$2/"
+  528  echo ( grep " upgrade " /var/log/dpkg.log.1 |sed "s/^/TS='/;s/ /_/;s/ /';C=/;s/ /;P='/;s/ /;OLD='/;s/ /;NEW='/;s/\$/'; goto \$1 \$2/" )
+  529  history 
+  530  history  |tail >> notes-ubuntu-delllaptop-undoubuntuupdate 
+for f in xorg.conf.*; do echo f=$f; sudo cp $f xorg.conf; /etc/init.d/gdm restart; read; done
+for f in xorg.conf.*; do echo f=$f; sudo cp $f xorg.conf; /etc/init.d/gdm restart; read; done
+for f in xorg.conf.*; do echo f=$f; sudo cp $f xorg.conf; /etc/init.d/gdm restart; read; done
+for f in xorg.conf.*; do echo f=$f; sudo cp $f xorg.conf; /etc/init.d/gdm restart; read; done
+for P in $PS; do echo P=$P; dpkg -s $P; done |less
+for P in $PS; do echo P=$P; dpkg -s $P; done |less
+for P in $PS; do echo P=$P; dpkg -s $P; done |less
+for P in $PS; do echo P=$P; dpkg -s $P; done |less
+for P in $PS; do echo P=$P; apt-cache showpkg $P; done |less
+for P in $PS; do echo P=$P; apt-cache showpkg $P; done |less
+for P in $PS; do echo P=$P; apt-cache showpkg $P; done |less

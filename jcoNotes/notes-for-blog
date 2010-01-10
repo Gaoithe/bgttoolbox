@@ -1,0 +1,60 @@
+notes on how to run cron and locatedb windows
+
+
+Also cruise control was gebrokened (after windows update reboot it was not started).
+
+I had accessed it one day before it went broken so I thought I was doing something wrong. Quick google shows on windows JavaService wrapper can be used to install it as windows service. Hmmm. I wonder could cygrunsrv do that.
+
+2 builds after it is reenabled someone breaks the build! :) Good timing :)
+
+
+<pre>
+$ cygrunsrv -I cron -p /usr/sbin/cron -a -D
+$ cygrunsrv -L
+cron
+
+$ net start cron
+The cron service is starting.
+The cron service was started successfully.
+
+$ cygrunsrv -Q cron
+Service             : cron
+Current State       : Running
+Controls Accepted   : Stop
+Command             : /usr/sbin/cron -D
+
+$ crontab -e
+44 4 * * * "/cygdrive/c/Documents and
+Settings/user/bin"/run_updatedb_intune.sh 2> /dev/null
+55 9 * * * echo "james cron test" > /tmp/jamesCronTest.txt
+# at 4:44am daily
+
+
+$ export EDITOR=vi
+$ cat ~/bin/run_updatedb_intune.sh 
+
+updatedb  --prunepaths='/proc /cygdrive/c/program_disk/cygwin
+ /cygdrive/c/Documents.and.Settings/[^/]*/Local.Settings/Temp
+/cygdrive/c/Documents.and.Settings/[^/]*/Local.Settings/Temporary.Intern
+et.Files
+/cygdrive/c/Documents.and.Settings/[^/]*/Local.Settings/Application.Data
+/Mozilla/Firefox/Profiles/[^/]*/Cache
+ /cygdrive/[^/]*/System.Volume.Information
+ /cygdrive/c/data/System.Volume.Information
+ /cygdrive/c/backup/System.Volume.Information
+ /cygdrive/c/shared/System.Volume.Information
+ /cygdrive/c/program_disk/System.Volume.Information
+ /cygdrive/s/[a-ik-zA-Z].*
+ /cygdrive/r 
+ /cygdrive/h '
+
+# /cygdrive/s is share
+# u is user
+# h is home (software/...)
+# r is read-only svn
+</pre>
+
+
+================================================================================ 
+
+ 
