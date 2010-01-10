@@ -363,3 +363,325 @@ drwxr-xr-x 431 root   root     16384 2009-04-26 21:27 ..
 lrwxrwxrwx   1 root   root        31 2009-04-26 23:07 josm.jar -> /usr/share/josm/josm-latest.jar
 -rw-r--r--   1 jamesc jamesc 4623023 2009-04-26 23:04 josm-latest.jar
 drwxr-xr-x   2 root   root      4096 2009-04-26 21:27 plugins
+
+
+
+
+================================================================================
+
+
+jamesc@jamesc-laptop:~$ glxinfo  |grep rend
+get fences failed: -1
+param: 6, val: 0
+direct rendering: Yes
+OpenGL renderer string: Mesa DRI Intel(R) 945GM GEM 20090326 2009Q1 RC2 x86/MMX/SSE2
+
+
+
+jamesc@jamesc-laptop:~$ lsmod
+Module                  Size  Used by
+i915                   65668  2 
+drm                    96296  3 i915
+binfmt_misc            16776  1 
+ppdev                  15620  0 
+bridge                 56340  0 
+stp                    10500  1 bridge
+bnep                   20224  2 
+vboxnetflt             91016  0 
+vboxdrv               117544  1 vboxnetflt
+input_polldev          11912  0 
+lp                     17156  0 
+parport                42220  2 ppdev,lp
+snd_hda_intel         434100  3 
+snd_pcm_oss            46336  0 
+snd_mixer_oss          22656  1 snd_pcm_oss
+arc4                    9856  2 
+snd_pcm                82948  2 snd_hda_intel,snd_pcm_oss
+snd_seq_dummy          10756  0 
+ecb                    10752  2 
+snd_seq_oss            37760  0 
+snd_seq_midi           14336  0 
+snd_rawmidi            29696  1 snd_seq_midi
+snd_seq_midi_event     15104  2 snd_seq_oss,snd_seq_midi
+iwl3945                97912  0 
+snd_seq                56880  7 snd_seq_dummy,snd_seq_oss,snd_seq_midi,snd_seq_midi_event
+pcmcia                 44748  0 
+mac80211              217464  1 iwl3945
+joydev                 18368  0 
+snd_timer              29704  2 snd_pcm,snd_seq
+snd_seq_device         14988  5 snd_seq_dummy,snd_seq_oss,snd_seq_midi,snd_rawmidi,snd_seq
+led_class              12036  1 iwl3945
+iTCO_wdt               19108  0 
+iTCO_vendor_support    11652  1 iTCO_wdt
+snd                    62628  16 snd_hda_intel,snd_pcm_oss,snd_mixer_oss,snd_pcm,snd_seq_oss,snd_rawmidi,snd_seq,snd_timer,snd_seq_device
+yenta_socket           32396  1 
+intel_agp              34108  1 
+btusb                  19608  2 
+soundcore              15200  1 snd
+cfg80211               38288  2 iwl3945,mac80211
+rsrc_nonstatic         19328  1 yenta_socket
+pcmcia_core            43540  3 pcmcia,yenta_socket,rsrc_nonstatic
+agpgart                42696  3 drm,intel_agp
+snd_page_alloc         16904  2 snd_hda_intel,snd_pcm
+video                  25360  0 
+psmouse                61972  0 
+dcdbas                 15264  0 
+output                 11008  1 video
+serio_raw              13316  0 
+tg3                   131204  0 
+fbcon                  46112  0 
+tileblit               10752  1 fbcon
+font                   16384  1 fbcon
+bitblit                13824  1 fbcon
+softcursor              9984  1 bitblit
+jamesc@jamesc-laptop:~$ lsmod |grep vid
+video                  25360  0 
+output                 11008  1 video
+
+
+
+    sudo dpkg-reconfigure xserver-xorg
+
+
+sudo lspci -v
+
+00:02.0 VGA compatible controller: Intel Corporation Mobile 945GM/GMS, 943/940GML Express Integrated Graphics Controller (rev 03)
+	Subsystem: Dell Device 01c2
+	Flags: bus master, fast devsel, latency 0, IRQ 16
+	Memory at eff00000 (32-bit, non-prefetchable) [size=512K]
+	I/O ports at eff8 [size=8]
+	Memory at d0000000 (32-bit, prefetchable) [size=256M]
+	Memory at efec0000 (32-bit, non-prefetchable) [size=256K]
+	Capabilities: [90] Message Signalled Interrupts: Mask- 64bit- Queue=0/0 Enable-
+	Capabilities: [d0] Power Management version 2
+	Kernel modules: intelfb
+
+00:02.1 Display controller: Intel Corporation Mobile 945GM/GMS/GME, 943/940GML Express Integrated Graphics Controller (rev 03)
+	Subsystem: Dell Device 01c2
+	Flags: bus master, fast devsel, latency 0
+	Memory at eff80000 (32-bit, non-prefetchable) [size=512K]
+	Capabilities: [d0] Power Management version 2
+
+
+http://codeidol.com/unix/ubuntu/X11/Enable-3-D-Video-Acceleration/
+
+
+sudo dpkg-reconfigure xserver-xorg
+
+jamesc@jamesc-laptop:~$ ls -al /etc/X11/xorg.*
+-rw-r--r-- 1 root root 1037 2009-04-10 01:47 /etc/X11/xorg.conf
+-rw-r--r-- 1 root root 1037 2009-04-10 01:47 /etc/X11/xorg.conf.dist-upgrade-200904100147
+jamesc@jamesc-laptop:~$ cp /etc/X11/xorg.conf  /etc/X11/xorg.conf.jco.backup.20090721
+cp: cannot create regular file `/etc/X11/xorg.conf.jco.backup.20090721': Permission denied
+jamesc@jamesc-laptop:~$ sudo cp /etc/X11/xorg.conf  /etc/X11/xorg.conf.jco.backup.20090721
+[sudo] password for jamesc: 
+jamesc@jamesc-laptop:~$ 
+
+
+
+
+Saturday, March 22, 2008
+Ubuntu Hardy - Intel 945 Graphics Driver Needs Some Tweaking
+I have this driver integrated with the motherboard and, although a Hardy install detects it and sets everything up correctly, the current driver doesn't quite give the performance that it should, especially if you have compiz-fusion running. Typically, you will notice that Firefox scrolling is slow and/or jerky.
+
+I have found two things (searching ubuntuforums.org, where else?) that improve things:
+
+    * Update your /etc/X11/xorg.conf to look like this:
+
+    Section "Device"
+    Identifier "Configured Video Device"
+    Option "AccelMethod" "exa"
+    Option "MigrationHeuristic" "greedy"
+    Option "ExaNoComposite" "false"
+    EndSection
+
+    * Add the following as a separate line to your /etc/environment file:
+
+    INTEL_BATCH = "1"
+
+http://grumpymole.blogspot.com/2008/03/ubuntu-hardy-intel-945-graphics-driver.html
+
+
+
+Broken intel 945GM hardware acceleration in intrepid?
+
+
+
+
+http://www.linuxquestions.org/questions/linux-hardware-18/intel-945gm-and-3d-acceleration-625937/
+Section "Monitor"
+	#DisplaySize	  300   190	# mm
+	Identifier   "Monitor0"
+	VendorName   "SEC"
+	ModelName    "4442"
+EndSection
+
+Section "Device"
+        ### Available Driver options are:-
+        ### Values: <i>: integer, <f>: float, <bool>: "True"/"False",
+        ## <string>: "String", <freq>: "<f> Hz/kHz/MHz"
+        ### [arg]: arg optional
+        #Option     "NoAccel"            	# [<bool>]
+        #Option     "SWcursor"           	# [<bool>]
+        #Option     "ColorKey"           	# <i>
+        #Option     "CacheLines"         	# <i>
+        #Option     "Dac6Bit"            	# [<bool>]
+        Option      "DRI"                	"true"
+        #Option     "NoDDC"              	# [<bool>]
+        #Option     "ShowCache"          	# [<bool>]
+        #Option     "XvMCSurfaces"       	# <i>
+        #Option     "PageFlip"           	# [<bool>]
+	Option      "AccelMethod"               "EXA"
+        Option      "MigrationHeuristic"        "greedy"
+	Identifier  "Card0"
+	Driver      "intel"
+	VendorName  "Intel Corporation"
+	BoardName   "Mobile 945GM/GMS, 943/940GML Express Integrated Graphics Controller"
+	BusID       "PCI:0:2:0"
+EndSection
+
+
+
+
+
+
+package "xserver-xorg-video-intel"
+
+This package provides the driver for the Intel i8xx and i9xx family
+of chipsets, including i810, i815, i830, i845, i855, i865, i915, i945
+and i965 series chips.
+
+This package also provides an XvMC (XVideo Motion Compensation) driver
+for i810 and i815 chipsets.
+
+More information about X.Org can be found at:
+<URL:http://www.X.org>
+<URL:http://xorg.freedesktop.org>
+<URL:http://lists.freedesktop.org/mailman/listinfo/xorg>
+
+This package is built from the X.org xf86-video-intel driver module.
+
+Canonical provides critical updates for xserver-xorg-video-intel until October 2010.
+
+
+
+
+jamesc@jamesc-laptop:~$ glxgears 
+get fences failed: -1
+param: 6, val: 0
+1036 frames in 5.0 seconds = 207.082 FPS
+986 frames in 5.0 seconds = 197.025 FPS
+545 frames in 5.0 seconds = 108.628 FPS
+221 frames in 5.0 seconds = 44.173 FPS
+175 frames in 5.0 seconds = 34.916 FPS
+175 frames in 5.0 seconds = 34.899 FPS
+
+http://bbs.archlinux.org/viewtopic.php?id=24481
+
+http://www.phoronix.com/scan.php?page=news_item&px=NzM3OQ
+  via http://forums.opensuse.org/hardware/laptop/418072-video-performance-intel-945gm-kernel-2-6-30-a.html
+Intel Releases xf86-video-intel 2.8 RC Driver
+Posted by Michael Larabel on July 13, 2009
+
+
+
+
+
+
+sudo aptitude install dontzap && sudo dontzap -d
+
+jamesc@jamesc-laptop:~$ grep -C3 -i dont /etc/X11/xorg.conf
+EndSection
+
+Section "ServerFlags"
+	Option	"DontZap"	"False"
+EndSection
+
+
+	
+
+Instead of using don’t zap, try using Alt GR - SysRq - K instead. It does things a little more kindly than Ctrl-Alt-Backspace :-) 
+
+
+
+
+http://en.wikipedia.org/wiki/Magic_SysRq_key
+http://www.kernel.org/doc/Documentation/sysrq.txt
+sudo /etc/init.d/gdm restart 
+ ## => hang :(
+
+
+change resolution
+ => ... ? no difference?  so far.
+ouch 1024x768 v corrupt display! :(
+  1152x864  ... something still seems wrong.
+
+
+
+
+
+
+
+
+
+
+
+
+http://blog.programmerslog.com/?m=200906
+
+http://blog.programmerslog.com/?p=378
+
+How to install the latest Intel drivers on Ubuntu
+June 20th, 2009
+No comments
+
+This is a fairly painless process to get the latest and greatest drivers for Intel integrated graphics (like the 945GM). Since it is on the more or less bleeding edge of development there can be some issues, but personally I tend to see more issues with outdated drivers than running the latest.
+
+There reason that this process is so simple on Ubuntu is that some nice and clever people have packaged it all up on xorg-edgers. The instructions here are for Ubuntu Jaunty 9.04.
+
+There are some commandline incantations to make and some text files to edit.
+
+Create a file /etc/apt/sources.list.d/xorg-edgers.list that contains the following text:
+
+deb http://ppa.launchpad.net/xorg-edgers/ppa/ubuntu jaunty main
+deb-src http://ppa.launchpad.net/xorg-edgers/ppa/ubuntu jaunty main
+
+Now execute the following commands:
+
+sudo apt-key adv --recv-keys --keyserver keyserver.ubuntu.com 0x165d673674a995b3e64bf0cf4f191a5a8844c542
+sudo apt-get update
+sudo apt-get upgrade
+
+Now you should have pulled in the latest Intel drivers and related dependencies. You might have also updated other packages on your system if you are not fully up to date with your software – don’t worry this should be fine. If you reboot now your system should use these latest drivers with some spiffing UXA acceleration…. but that is not all.
+
+There are some stability issues if you are using a 945 based card, so you need some minor configuration changes. Run the following commandline:
+
+dpkg-reconfigure xserver-xorg
+
+Now you need to edit your /etc/X11/xorg.conf and edit the device section so it looks a bit like this:
+
+Section "Device"
+    Identifier "Configured Video Device"
+    Driver "intel"
+    Option "Tiling" "false"
+    Option "FramebufferCompression" "False"
+EndSection
+
+The most important part is to get those two lines containing “Option” which fixes the problems.
+
+If you are using stock Jaunty then you will not have Kernel Mode Setting which provides better mode detection and switching for Linux. This requires a new kernel, but I will blog about that tomorrow.
+
+
+
+
+
+
+
+
+deb http://ppa.launchpad.net/kernel-ppa/ppa/ubuntu YOUR_UBUNTU_VERSION_HERE main 
+deb-src http://ppa.launchpad.net/kernel-ppa/ppa/ubuntu YOUR_UBUNTU_VERSION_HERE mai
+
+
+
+deb http://ppa.launchpad.net/kernel-ppa/ppa/ubuntu jaunty main 
+deb-src http://ppa.launchpad.net/kernel-ppa/ppa/ubuntu jaunty main

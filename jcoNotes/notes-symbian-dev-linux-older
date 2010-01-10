@@ -1,64 +1,22 @@
-howto setup symbian dev environment linux
-tags: howto, symbian, linux, whereami
-
-You can set up a symbian development environment in a couple of hours.
-Follow these instructions: http://www.martin.st/symbian/ they are very good.
-Here are my extra notes on the install.
-They might be useful to someone else (or myself again in future).
-
-I have a nokia E65 and although it is very grotty (interface-wise) it has nice hardware. I like being able to make software for my electronic devices. I played with python apps on the phone a bit. Symbian signing is very awkward for sharing and even playing/experimenting/developing little apps. 
-
-I http://www.openstreetmap.org a bit and I use a bluetooth GPS with my mobile to collect the data with WhereAmI http://www.symbianos.org/whereami which is a really nice map display and GPS collection tool. It can also collect GSM cellid information, or rather, it hints it can but it doesn't on my phone.  So I want to get the source and see what the  problem is and can I get it working.
-
-================================================================================
-
-
 http://www.google.ie/search?q=symbian+development+linux
 
+
 http://wiki.forum.nokia.com/index.php/Symbian_development_on_Linux_and_OS_X
-The three main approaches.  Realistically there seems to be one sensible approach.
+ The three main approaches are:
 
-Symbian's build system is based mostly on perl. And a bit of make. 
-It seems heavyish and they should have used make perhaps but the symbian apps are all going to be small enough really. These scripts are modified to work on unix. This matches symbian build system very closely. Seems to be best supported.
+    * Replacing the build system with makefiles (and include files for the makefiles). Pros of this approach are that the build system is much lighter and more customisable. Cons are that all applications need both the traditional mmp-file based approach (used in the official SDKs) and makefiles specifically for this environment. This kind of approach is available in the sdk2unix package by Rudolf König. This is only available for EKA1 SDKs, i.e. S60 1st and 2nd ed., and UIQ 2. 
 
-Other options: Replacing the build system with makefiles giving a lighter build system or integrating the build system with IDEs don't seem to be well supported.
+    * Modifying the perl build scripts to work in an unix environment. The build system is almost identically similar to the one in the official SDKs, and one single mmp-file works everywhere. The downside is that it is as heavy and inflexible as the original one. Initial work on this was done by Alfred E. Heggestad in the GnuPoc project, and updated GnuPoc SDK patches are maintained by Martin Storsjö. The latter package also includes support for S60 3rd ed and UIQ 3 SDKs, including new tools, enabling building completely without wine. 
+
+    * Importing the mmp files into an IDE. There's an Xcode plugin by Tom Sutcliffe, which supports both S60, UIQ and S80, but currently only for EKA1. 
 
 
 
-
-<h3>Start here.</h3>
 http://www.martin.st/symbian/   based on GnuPoc project
 "for S60 3rd ed and UIQ 3, you need the EKA2 toolchain."
-Of course we're going to build the compiler from source and not take binaries >;)
-And of course we're going to install the extra gnupoc tools so we don't have to use wine too much.
 
-
-<h4>What is going to be installed.</h4>
-
-1. Working in this area and tools/scripts + source code are going here:
- export SYM_WORKING_DIR=$HOME/src/mobile
-
-2. compiler is going here:
- export SYM_COMPILER_DIR=$HOME/csl-gcc
-
-3. SDK is going here:
- export EPOCROOT=$HOME/symbian-sdks/s60_3_fp2_v11/
-
-
-<h4>Install steps.</h4>
-
-<h5>0. Signup to nokia and start SDK download</h5>
-
-http://www.forum.nokia.com/Tools_Docs_and_Code/Tools/Platforms/S60_Platform_SDKs/
-3rd ed fp2 v1.1 430Mish
-
-
-<h5>1. install gnupoc tools and 2. install compiler</h5>
-
-<pre>
-mkdir -p $SYM_WORKING_DIR; cd $SYM_WORKING_DIR
 wget http://www.martin.st/symbian/gnupoc-package-1.13.tar.gz
-# http://www.codesourcery.com/sgpp/lite/arm/releases/2005Q1C  # and form fill and get OR:
+# http://www.codesourcery.com/sgpp/lite/arm/releases/2005Q1C
 wget http://www.martin.st/symbian/gnu-csl-arm-2005Q1C-arm-none-symbianelf.src.tar.bz2
 
 tar -zxvf gnupoc-package-1.13.tar.gz
@@ -66,24 +24,21 @@ cd gnupoc-package-1.13
 cd tools
 
 less README
-# I needed to install bison, I also do other development so possibly already had a
-# bunch of other devel packages and tools installed. If it needs bison it probably
-# needs make/autoconf/gcc packages 
 sudo apt-get install bison
+sudo apt-get install flex   #(no)
 
-./install_csl_gcc ../../gnu-csl-arm-2005Q1C-arm-none-symbianelf.src.tar.bz2 $SYM_COMPILER_DIR
+./install_csl_gcc ../../gnu-csl-arm-2005Q1C-arm-none-symbianelf.src.tar.bz2 ~/csl-gcc
 
-# I also did need libssl-dev and already had zlib
+
 sudo apt-get install libssl-dev
 dpkg -l |grep zlib
 
-./install_eka2_tools $SYM_COMPILER_DIR
-#that goes off and gets cross-binutils and compiler and builds them .... 
-</pre>
+./install_eka2_tools ~/csl-gcc
 
-Here is the error I got that showed I needed bison.  "Unexcpected(sic) error" 
-Flailing newbie help trap.
-<pre>
+ #.... 
+ #binutils
+
+
 bison  -d -o gengtype-yacc.c gengtype-yacc.y
 make[1]: bison: Command not found
 make[1]: [gengtype-yacc.h] Error 127 (ignored)
@@ -92,81 +47,89 @@ gcc -c   -g -O2 -DIN_GCC -DCROSS_COMPILE  -W -Wall -Wwrite-strings -Wstrict-prot
 gcc: gengtype-lex.c: No such file or directory
 gcc: no input files
 make[1]: *** [gengtype-lex.o] Error 1
-make[1]: Leaving directory `$HOME/src/mobile/gnupoc-package-1.13/tools/csl-build/gcc-csl-arm/gcc'
+make[1]: Leaving directory `/home/jamesc/src/mobile/gnupoc-package-1.13/tools/csl-build/gcc-csl-arm/gcc'
 make: *** [all-gcc] Error 2
 Unexcpected error: aborting.
-</pre>
 
-Here is the error I got that showed I needed ssl-dev package.
-It actually did say you needed openssl in the README.
-Flailing newbie help trap.
-<pre>
+
+
 g++ -Wall -gstabs+ -I../include -DTEST -ggdb -c signutils.cpp -o signutils.o
 signutils.cpp:36:25: error: openssl/evp.h: No such file or directory
 signutils.cpp:37:25: error: openssl/pem.h: No such file or directory
 signutils.cpp:44:25: error: openssl/err.h: No such file or directory
-</pre>
 
 
-<h5>2-and-a-half. Read up on symbian build tools and </h5>
-
-No excuses for slacking off while compiling/installing/downloading.
-
-Also poke inside the scripts you've installed.
-
-Read more about gnupoc here:  http://gnupoc.sourceforge.net/HOWTO/
 http://gnupoc.sourceforge.net/
 gnupoc_install gnupoc-utils
+
+
 http://web.archive.org/web/*/http://www.wayfinder.it/resources/uiq_gnupoc.php
 
-Reading the "Build tools guide" is helpful to know more about what the build scripts are doing. 
-http://developer.symbian.com/main/documentation/sdl/symbian94/sdk/doc_source/ToolsAndUtilities94/BuildTools/index.html
-How to use bldmake, How to use abld, etc.
 
 
-<h5>3. install the SDK</h5>
-<pre>
-# Example on(sic) installing an SDK:
 
-## no! don't get your own unshield. sudo apt-get install unshield
+
+
+jamesc@jamesc-laptop:~/src/mobile$ svn co https://svn.symbianos.org/whereami/trunk/ whereami_trunk
+
+
+jc234567   unlockXXXXXXxxxxxx
+http://www.unlockme.co.uk/phpBB2/viewtopic.php?f=14&t=85311#p269779
+
+
+
+
+
+
+
+
+http://www.symbianos.org/admin.php?nav=projects_mapping
+jamesc@   pxxxXXXFxxxx
+ https://www.symbiansigned.com/
+ixxxxx
+http://www.forum.nokia.com/    SDK   gaoithe
+
+http://www.forum.nokia.com/Tools_Docs_and_Code/Tools/
+http://www.forum.nokia.com/Tools_Docs_and_Code/Tools/Platforms/S60_Platform_SDKs/
+3rd ed fp2 v1.1 430Mish
+
+
+
+
+# Example on installing an SDK:
+
+## no! sudo apt-get install unshield
 export PATH=`pwd`/unshield:$PATH
 
-cd $SYM_WORKING_DIR/gnupoc-package-1.13/sdks
-mv ~/Downloads/S60_3rd_Edition_SDK_Feature_Pack_2_v1_1_en.zip ../..
-
+cd ~/src/mobile/gnupoc-package-1.13/sdks
+mv ~/Desktop/S60_3rd_Edition_SDK_Feature_Pack_2_v1_1_en.zip ../..
+#jamesc@jamesc-laptop:~/src/mobile/gnupoc-package-1.13/sdks$ 
 ./install_gnupoc_s60_32 ../../S60_3rd_Edition_SDK_Feature_Pack_2_v1_1_en.zip ~/symbian-sdks/s60_3_fp2_v11
 
-# needed to do this (lzma_decoder.h and any SDK includes need to be findable from working area)
-# perhaps should be working inside the SDK dir structure
-cd $SYM_WORKING_DIR/whereami_trunk/sis
- ln -s $HOME/symbian-sdks/s60_3_fp2_v11/epoc32 ../../
-
-## I did this:  don't know did it work, switched to using gcc
-cp $HOME/symbian-sdks/s60_3_fp2_v11/epoc32/tools/uidcrc.exe $HOME/.wine/drive_c/windows/
-cp $HOME/symbian-sdks/s60_3_fp2_v11/epoc32/tools/make.exe $HOME/.wine/drive_c/windows/
-#MESSY:
-cp $HOME/symbian-sdks/s60_3_fp2_v11/epoc32/tools/*.exe $HOME/.wine/drive_c/windows/
-ls $HOME/symbian-sdks/s60_3_fp2_v11/epoc32/release/winscw/udeb/sdkw.exe
-</pre>
 
 
-Info on figuring out problems with how to set up environment for SDK:
-<pre>
-### unshield did not work for me initially at this stage until I figured out where it was and set PATH
-./unshield/unshield -V
+
+jamesc@jamesc-laptop:~/src/mobile/gnupoc-package-1.13/sdks$ ./unshield/unshield -V
 ./unshield/unshield -D3 l _e/data2.cab
-find $HOME/symbian-sdks/s60_3_fp2_v11/epoc32/tools -name \*.orig -exec rm {} \;
-cd $HOME/symbian-sdks/s60_3_fp2_v11/epoc32/tools; chmod a+x *.pl bldmake abld makmake bmconv rcomp makesis epoc eshell petran pfsdump setupcomms elf2e32 mifconv makekeys signsis extmake rtf2ptml cjpeg
 
-### Take a look at the SDK, the install doc, the examples
 
-ls $HOME/symbian-sdks/s60_3_fp2_v11/
+
+
+find /home/jamesc/symbian-sdks/s60_3_fp2_v11/epoc32/tools -name \*.orig -exec rm {} \;
+cd /home/jamesc/symbian-sdks/s60_3_fp2_v11/epoc32/tools; chmod a+x *.pl bldmake abld makmake bmconv rcomp makesis epoc eshell petran pfsdump setupcomms elf2e32 mifconv makekeys signsis extmake rtf2ptml cjpeg
+
+
+
+
+
+
+
+jamesc@jamesc-laptop:~/src/mobile/gnupoc-package-1.13/sdks$ ls /home/jamesc/symbian-sdks/s60_3_fp2_v11/
 epoc32/                                                             S60_3rd_Edition_FP2_SDK_for_Symbian_OS_Installation_Guide_V1.1.pdf
 examples/                                                           s60cppexamples/
 GCCE_readme.txt                                                     s60tools/
 Nokia_EULA.txt                                                      series60doc/
-
-ls $HOME/symbian-sdks/s60_3_fp2_v11/s60cppexamples/
+jamesc@jamesc-laptop:~/src/mobile/gnupoc-package-1.13/sdks$ ls /home/jamesc/symbian-sdks/s60_3_fp2_v11/s60cppexamples/
 addressbook         clientserverasync     dynamicsettinglist  helperfunctions   localization                   note        progressbar     webclient
 aiwconsumerbasics   clientserversync      filelist            helpexample       locationlandmarksrefappfors60  npbitmap    query
 animation           contacts              finditemtestapp     hwrmtestapp       locationlandmarksuirefapp      ocrexample  readme.txt
@@ -174,15 +137,38 @@ audiostreamexample  datamobility          focusevent          imopenapiexample  
 brctlsampleapp      directorylocalizerex  graphics            isvtelcallapp     locationsatviewrefapp          openglex    richtexteditor
 chat                _doc                  guiengine           isvtelinfoapp     messaging                      popupfield  sipexample
 clfexample          driveinfo             helloworldbasic     listbox           myview                         popuplist   uniteditorex
+jamesc@jamesc-laptop:~/src/mobile/gnupoc-package-1.13/sdks$ cat /home/jamesc/symbian-sdks/s60_3_fp2_v11/s60cppexamples/readme.txt 
 
-cat $HOME/symbian-sdks/s60_3_fp2_v11/s60cppexamples/readme.txt 
 To open the Example Application Help documentation, please go to the _doc folder 
 and double-click the index.htm file found there.
+
+
+
+
+
+
+export PATH=$PATH:/home/jamesc/symbian-sdks/s60_3_fp2_v11/epoc32/tools
+export PATH=$PATH:/home/jamesc/csl-gcc/bin
+export EPOCROOT=/home/jamesc/symbian-sdks/s60_3_fp2_v11/
+
+cd ~/src/mobile/whereami_trunk
+cd group/s60_v3
+bldmake bldfiles
+abld build winscw udeb 2>&1 |tee build.log      
+
 
 wine: could not load L"C:\\windows\\system32\\make.exe": Module not found
 make: *** [FINALicons] Error 126
 
-ls $HOME/csl-gcc/bin/
+whereami\group\s60_v3> bldmake bldfiles
+whereami\group\s60_v3> abld build winscw udeb 2>&1 |tee build.log      
+whereami\group\s60_v3> abld build gcce urel 2>&1 |tee build_gcce.log      
+
+
+
+
+
+jamesc@jamesc-laptop:~/src/mobile/whereami_trunk/group/s60_v3$ ls /home/jamesc/csl-gcc/bin/
 arm-none-symbianelf-addr2line  arm-none-symbianelf-cpp        arm-none-symbianelf-gcov     arm-none-symbianelf-ranlib   bmconv   makekeys  signsis
 arm-none-symbianelf-ar         arm-none-symbianelf-g++        arm-none-symbianelf-ld       arm-none-symbianelf-readelf  copy     makesis   uidcrc
 arm-none-symbianelf-as         arm-none-symbianelf-gcc        arm-none-symbianelf-nm       arm-none-symbianelf-size     del      mifconv
@@ -190,159 +176,27 @@ arm-none-symbianelf-c++        arm-none-symbianelf-gcc-3.4.3  arm-none-symbianel
 arm-none-symbianelf-c++filt    arm-none-symbianelf-gccbug     arm-none-symbianelf-objdump  arm-none-symbianelf-strip    extmake  rem
 
 
-find $EPOCROOT -name make.exe
-$HOME/symbian-sdks/s60_3_fp2_v11/epoc32/tools/make.exe
-$HOME/symbian-sdks/s60_3_fp2_v11/epoc32/tools_orig/make.exe
+jamesc@jamesc-laptop:~/src/mobile/whereami_trunk/group/s60_v3$ find $EPOCROOT -name make.exe
+/home/jamesc/symbian-sdks/s60_3_fp2_v11/epoc32/tools/make.exe
+/home/jamesc/symbian-sdks/s60_3_fp2_v11/epoc32/tools_orig/make.exe
 
 
-cp $HOME/symbian-sdks/s60_3_fp2_v11/epoc32/tools/uidcrc.exe $HOME/.wine/drive_c/windows/
-cp $HOME/symbian-sdks/s60_3_fp2_v11/epoc32/tools/make.exe $HOME/.wine/drive_c/windows/
+cp /home/jamesc/symbian-sdks/s60_3_fp2_v11/epoc32/tools/uidcrc.exe /home/jamesc/.wine/drive_c/windows/
+cp /home/jamesc/symbian-sdks/s60_3_fp2_v11/epoc32/tools/make.exe /home/jamesc/.wine/drive_c/windows/
 
 
-perl -S makmake.pl  -D $HOME/src/mobile/whereami_trunk/group/s60_v3/whereami WINSCW  
+
+perl -S makmake.pl  -D /home/jamesc/src/mobile/whereami_trunk/group/s60_v3/whereami WINSCW  
 ERROR: Unable to identify a valid CodeWarrior for Symbian OS installation
 make: *** [MAKEFILEwhereami] Error 255
 
 
+
 MESSY:
-cp $HOME/symbian-sdks/s60_3_fp2_v11/epoc32/tools/*.exe $HOME/.wine/drive_c/windows/
-$HOME/symbian-sdks/s60_3_fp2_v11/epoc32/release/winscw/udeb/sdkw.exe
-
-</pre>
+cp /home/jamesc/symbian-sdks/s60_3_fp2_v11/epoc32/tools/*.exe /home/jamesc/.wine/drive_c/windows/
 
 
-
-
-<h5>4. try out hello world</h5>
-<pre>
-cd ~/symbian-sdks/s60_3_fp2_v11/s60cppexamples
-cd helloworldbasic/group/
-bldmake bldfiles
- abld build gcce urel
- cd ../sis
- makesis helloworldbasic_gcce.pkg helloworldbasic.sis
-</pre>
-
-<h2>Yay. Install finished</h2>
-
-
-<h3>Install this in your .bashrc</h3>
-
-<pre>
-# This goes in my .bashrc or symbian environment setup script:
-export SYM_WORKING_DIR=$HOME/src/mobile
-export SYM_COMPILER_DIR=$HOME/csl-gcc
-export PATH=$PATH:$HOME/symbian-sdks/s60_3_fp2_v11/epoc32/tools
-export PATH=$PATH:$SYM_COMPILER_DIR/bin
-export EPOCROOT=$HOME/symbian-sdks/s60_3_fp2_v11/
-</pre>
-
-
-
-<h3>Now play with WhereAmI</h3>
-<pre>
- # everyday commands:
- cd $SYM_WORKING_DIR/whereami_trunk
- cd group/s60_v3
-
- bldmake bldfiles
- abld build gcce urel    # this works instead
-
- cd ../../sis
- makesis whereami_s60_v3.pkg whereami_s60_v3_jco.sis
- signsis whereami_s60_v3_jco.sis whereami_s60_v3_jco.sisx mycert.cer mykey.key
- cd ../../group/s60_v3
-</pre>
-
-
-<pre>
-cd $SYM_WORKING_DIR
-svn co https://svn.symbianos.org/whereami/trunk/ whereami_trunk
-
-# And this is how I can work quickly compile and make .sis for whereami
-# put this in a script or README or notes or blog somewhere
-cd $SYM_WORKING_DIR/whereami_trunk
-cd group/s60_v3
- bldmake bldfiles
- #abld build winscw udeb  #?  needs wine, .. make.exe problem?
- abld build gcce urel    # this works instead
-
- cd ../../sis
- makesis whereami_s60_v3.pkg whereami_s60_v3_jco.sis
-
- # and key signing to make sisx, don't know does this help much?
- # privately made key.  My phone is a bit hacked so I can install any .sis on it.
- # first make key and cert for yourself
- [[ ! -f mykey.key ]] || [[ ! -f mycert.cer ]] &&
-   makekeys -cert -expdays 3650 -dname "CN=Name Surname OU=Development O=Company Name C=UK EM=foo@bar.com" mykey.key mycert.cer
- # sign application each time you need to
- signsis whereami_s60_v3_jco.sis whereami_s60_v3_jco.sisx mycert.cer mykey.key
-
- # how clean make/build?
- # this does a bit of it anyway:
- rm $HOME/symbian-sdks/s60_3_fp2_v11/epoc32/build${HOME}/src/mobile/whereami_trunk/group/s60_v3/whereami*/*/urel/*.{o,exe}
-</pre>
-
-
-
-<h4>WhereAmI needed lzma_decoder.h</h4>  
-
-This is done above to resolve this problem:
-<pre>
-cd $SYM_WORKING_DIR/whereami_trunk/sis
- ln -s $HOME/symbian-sdks/s60_3_fp2_v11/epoc32 ../../
-</pre>
-
-<pre>
-WARNING: Can't find following headers in User or System Include Paths
- "lzma_decoder.h"
-(User Inc Paths "$HOME/src/mobile/whereami_trunk/src/" "$HOME/src/mobile/whereami_trunk/group/s60_v3/" "$HOME/src/mobile/whereami_trunk/inc/" "$HOME/src/mobile/whereami_trunk/data/")
-Dependency list for "$HOME/src/mobile/whereami_trunk/src/nmeaparser.cpp" may be incomplete
-</pre>
-
-<pre>
-dpkg-query -L lzma-dev # no, LzmaDecode.h
-# here it is:
-svn co https://svn.symbianos.org/lzma/
-cd lzma/C/Symbian/group
-#oops! it's part of SDK:
-$HOME/symbian-sdks/s60_3_fp2_v11/epoc32/include/lzma_decoder.h
-</pre>
-
-
-
-<h4>GSM_LOCATION enable</h4>
-
-GSM_LOCATION is compiled out in the source code as you get it now.
-
-<pre>
-+++ add to this file group/s60_v3/whereami.mmp  (after GPS_LBS)
-MACRO		GSM_LOCATION
-#define		GSM_LOCATION
-</pre>
-
-svn diff >../whereami_enable_gsm_location.patch
-meld .
-
-================================================================================
-
-
-
-
-
-
-
-
-
-
-
-mozilla symbian build methods
-[info]gaoithe
-2009-07-15 12:43 am UTC (link) DeleteFreezeScreenTrack This Select
-Comment Posted Successfully
-And here's an example of how to use symbian SDK and use your own build makefiles.
-https://wiki.mozilla.org/Mobile/Symbian/Build
-
+/home/jamesc/symbian-sdks/s60_3_fp2_v11/epoc32/release/winscw/udeb/sdkw.exe
 
 
 
@@ -357,33 +211,33 @@ https://wiki.mozilla.org/Mobile/Symbian/Build
 cd ~/symbian-sdks/s60_3_fp2_v11/s60cppexamples
 cd helloworldbasic/group/
 bldmake bldfiles
- abld build gcce urel
- cd ../sis
- makesis helloworldbasic_gcce.pkg helloworldbasic.sis
+abld build gcce urel 2>&1 |tee build_gcce.log      
+cd ../sis
+makesis helloworldbasic_gcce.pkg helloworldbasic.sis
 
 
 
 sudo apt-get install lzma-dev
-cd $SYM_WORKING_DIR/whereami_trunk/group/s60_v3
+cd ~/src/mobile/whereami_trunk/group/s60_v3
 bldmake bldfiles
- abld build gcce urel
+abld build gcce urel
 
 
 
-$HOME/src/mobile/whereami_trunk/inc/whereamicontroller.h:28:26: lzma_decoder.h: No such file or directory
-In file included from $HOME/src/mobile/whereami_trunk/inc/whereamiview.h:36,
-$HOME/src/mobile/whereami_trunk/inc/whereamicontroller.h:538: error: ISO C++ forbids declaration of `CLzmaDecoder' with no type
-$HOME/src/mobile/whereami_trunk/inc/whereamicontroller.h:538: error: expected `;' before '*' token
+/home/jamesc/src/mobile/whereami_trunk/inc/whereamicontroller.h:28:26: lzma_decoder.h: No such file or directory
+In file included from /home/jamesc/src/mobile/whereami_trunk/inc/whereamiview.h:36,
+/home/jamesc/src/mobile/whereami_trunk/inc/whereamicontroller.h:538: error: ISO C++ forbids declaration of `CLzmaDecoder' with no type
+/home/jamesc/src/mobile/whereami_trunk/inc/whereamicontroller.h:538: error: expected `;' before '*' token
 
 
 
 WARNING: Can't find following headers in User or System Include Paths
  "lzma_decoder.h"
-(User Inc Paths "$HOME/src/mobile/whereami_trunk/src/" "$HOME/src/mobile/whereami_trunk/group/s60_v3/" "$HOME/src/mobile/whereami_trunk/inc/" "$HOME/src/mobile/whereami_trunk/data/")
-Dependency list for "$HOME/src/mobile/whereami_trunk/src/nmeaparser.cpp" may be incomplete
+(User Inc Paths "/home/jamesc/src/mobile/whereami_trunk/src/" "/home/jamesc/src/mobile/whereami_trunk/group/s60_v3/" "/home/jamesc/src/mobile/whereami_trunk/inc/" "/home/jamesc/src/mobile/whereami_trunk/data/")
+Dependency list for "/home/jamesc/src/mobile/whereami_trunk/src/nmeaparser.cpp" may be incomplete
 
 
-jamesc@jamesc-laptop:$SYM_WORKING_DIR/whereami_trunk/group/s60_v3$ dpkg-query -L lzma-dev
+jamesc@jamesc-laptop:~/src/mobile/whereami_trunk/group/s60_v3$ dpkg-query -L lzma-dev
 /.
 /usr
 /usr/include
@@ -411,27 +265,27 @@ jamesc@jamesc-laptop:$SYM_WORKING_DIR/whereami_trunk/group/s60_v3$ dpkg-query -L
 svn co https://svn.symbianos.org/lzma/
 cd lzma/C/Symbian/group
 
-cd $SYM_WORKING_DIR/whereami_trunk/sis
- ln -s $HOME/symbian-sdks/s60_3_fp2_v11/epoc32 ../../
+cd ~/src/mobile/whereami_trunk/sis
+ ln -s /home/jamesc/symbian-sdks/s60_3_fp2_v11/epoc32 ../../
 
-cd $SYM_WORKING_DIR/whereami_trunk/group/s60_v3
+cd ~/src/mobile/whereami_trunk/group/s60_v3
 bldmake bldfiles
- abld build gcce urel
- cd ../../sis
- makesis whereami_s60_v3.pkg whereami_s60_v3_jco.sis
+abld build gcce urel  2>&1 |tee build.log      
+cd ../../sis
+makesis whereami_s60_v3.pkg whereami_s60_v3_jco.sis
 
 ### how clean make/build?
-rm $HOME/symbian-sdks/s60_3_fp2_v11/epoc32/build${HOME}/src/mobile/whereami_trunk/group/s60_v3/whereami*/*/urel/*.{o,exe}
+rm /home/jamesc/symbian-sdks/s60_3_fp2_v11/epoc32/build/home/jamesc/src/mobile/whereami_trunk/group/s60_v3/whereami*/*/urel/*.{o,exe}
 
 
-jamesc@jamesc-laptop:$SYM_WORKING_DIR/whereami_trunk/sis$ makesis whereami_s60_v3.pkg whereami_s60_v3_jco.sis
+jamesc@jamesc-laptop:~/src/mobile/whereami_trunk/sis$ makesis whereami_s60_v3.pkg whereami_s60_v3_jco.sis
 executing makesis.exe
  Error : Cannot find file : ..\..\epoc32\release\gcce\urel\whereami.exe
 
 (24) : error: file I/O fault.
-jamesc@jamesc-laptop:$SYM_WORKING_DIR/whereami_trunk/sis$ find $HOME/symbian-sdks/ -name whereami.exe
-$HOME/symbian-sdks/s60_3_fp2_v11/epoc32/release/gcce/urel/whereami.exe
-$HOME/symbian-sdks/s60_3_fp2_v11/epoc32/build${HOME}/src/mobile/whereami_trunk/group/s60_v3/whereami/gcce/urel/whereami.exe
+jamesc@jamesc-laptop:~/src/mobile/whereami_trunk/sis$ find /home/jamesc/symbian-sdks/ -name whereami.exe
+/home/jamesc/symbian-sdks/s60_3_fp2_v11/epoc32/release/gcce/urel/whereami.exe
+/home/jamesc/symbian-sdks/s60_3_fp2_v11/epoc32/build/home/jamesc/src/mobile/whereami_trunk/group/s60_v3/whereami/gcce/urel/whereami.exe
 
 
 
@@ -453,7 +307,7 @@ GSM_LOCATION is compiled out :(
 ../group/uiq_v3/whereami.mmp:#ifdef GSM_LOCATION
 
 
-jamesc@jamesc-laptop:$SYM_WORKING_DIR/whereami_trunk$ svn status 
+jamesc@jamesc-laptop:~/src/mobile/whereami_trunk$ svn status 
 ?      aif/s60_v3/qgn_menu_whereami_jco.svg
 ?      aif/s60_v3/qgn_menu_whereami.orig.svg
 M      aif/s60_v3/qgn_menu_whereami.svg
@@ -466,10 +320,8 @@ M      group/s60_v3/whereami.rls
 M      group/s60_v3/whereami.mmp
 M      group/s60_v3/whereami_common.rb
 ?      sis/whereami_s60_v3_jco.sis
-jamesc@jamesc-laptop:$SYM_WORKING_DIR/whereami_trunk$ svn diff >../whereami_enable_gsm_location.patch
-jamesc@jamesc-laptop:$SYM_WORKING_DIR/whereami_trunk$ meld .
-
-
+jamesc@jamesc-laptop:~/src/mobile/whereami_trunk$ svn diff >../whereami_enable_gsm_location.patch
+jamesc@jamesc-laptop:~/src/mobile/whereami_trunk$ meld .
 
 
 
@@ -477,19 +329,15 @@ jamesc@jamesc-laptop:$SYM_WORKING_DIR/whereami_trunk$ meld .
 
 ================================================================================
 
-jc234567   unlockXXXXXXxxxxxx
-http://www.unlockme.co.uk/phpBB2/viewtopic.php?f=14&t=85311#p269779
-
-http://www.symbianos.org/admin.php?nav=projects_mapping
-jamesc@   pxxxXXXFxxxx
- https://www.symbiansigned.com/
-ixxxxx
-http://www.forum.nokia.com/    SDK   gaoithe
-
-http://www.forum.nokia.com/Tools_Docs_and_Code/Tools/
-http://www.forum.nokia.com/Tools_Docs_and_Code/Tools/Platforms/S60_Platform_SDKs/
-3rd ed fp2 v1.1 430Mish
 
 
-makekeys -cert -expdays 3650 -dname "CN=James OU=Development O=BrocG C=IE EM=four@no.co" mykey.key mycert.cer
+  make -r  -f "/home/jamesc/symbian-sdks/s60_3_fp2_v11/epoc32/build/home/jamesc/src/mobile/whereami_trunk/group/s60_v3/gcce.make" MAKEFILE VERBOSE=-s
+EPOCROOT=\\home\\jamesc\\symbian-sdks\\s60_3_fp2_v11\\ extmake -s  -C \\home\\jamesc\\src\\mobile\\whereami_trunk\\group\\s60_v3 -f "icons.mk" TO_ROOT=..\\..\\..\\..\\..\\..\\.. EPOCBLD=..\\..\\..\\..\\..\\..\\..\\home\\jamesc\\symbian-sdks\\s60_3_fp2_v11\\epoc32\\build\\home\\jamesc\\src\\mobile\\whereami_trunk\\group\\s60_v3\\icons\\gcce TO_BLDINF=..\\..\\..\\..\\..\\..\\..\\home\\jamesc\\src\\mobile\\whereami_trunk\\group\\s60_v3 PLATFORM=GCCE MAKMAKE
+EPOCROOT=\\home\\jamesc\\symbian-sdks\\s60_3_fp2_v11\\ extmake -s  -C \\home\\jamesc\\src\\mobile\\whereami_trunk\\group\\s60_v3 -f "icons_e0008869.mk" TO_ROOT=..\\..\\..\\..\\..\\..\\.. EPOCBLD=..\\..\\..\\..\\..\\..\\..\\home\\jamesc\\symbian-sdks\\s60_3_fp2_v11\\epoc32\\build\\home\\jamesc\\src\\mobile\\whereami_trunk\\group\\s60_v3\\icons_e0008869\\gcce TO_BLDINF=..\\..\\..\\..\\..\\..\\..\\home\\jamesc\\src\\mobile\\whereami_trunk\\group\\s60_v3 PLATFORM=GCCE MAKMAKE
+perl -S makmake.pl  -D /home/jamesc/src/mobile/whereami_trunk/group/s60_v3/whereami GCCE  
+	perl -S ecopyfile.pl "/home/jamesc/symbian-sdks/s60_3_fp2_v11/epoc32/build/home/jamesc/src/mobile/whereami_trunk/group/s60_v3/whereami/gcce/whereami.rsg" "/home/jamesc/symbian-sdks/s60_3_fp2_v11/epoc32/include/whereami.rsg"
+	perl -S ecopyfile.pl "/home/jamesc/symbian-sdks/s60_3_fp2_v11/epoc32/build/home/jamesc/src/mobile/whereami_trunk/group/s60_v3/whereami/gcce/whereami_reg.rsg" "/home/jamesc/symbian-sdks/s60_3_fp2_v11/epoc32/include/whereami_reg.rsg"
+/home/jamesc/src/mobile/whereami_trunk/src/whereamicontroller.cpp:654:35: macro "LOG2" requires 3 arguments, but only 2 given
+ERROR: arm-none-symbianelf-cpp failure
+make: *** [MAKEFILEwhereami] Error 1
 

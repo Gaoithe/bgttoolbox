@@ -10,21 +10,28 @@ TODO: is it uploading the cell info?
  can only query 1 cell at a time unless write some wsdl client yokiebobby
 TODO: download cells?  is there code to do that?
  does celldb.org allow groups of cells by location to be selected?
-TODO: save cell info to file (save named saves 
+
+DONE: save cell info to file (save named saves 
  Annotation - ?All(Private,Blog,Map Corre,Postcode)
  Osm - Places,Streets,Poi 
  Postcode 
  GSM CellIds
+ +TODO: save file viewable in JOSM, uploadable to OSM?
+ +TODO: can we also log timestamp, power of cells and other cells
+   (need real access to phone internals! :-7)
+
 TODO: tool to open whereami.db  or also .gpx files and plot route on map, plot altitude graph, plot speed.  host tools or phone tools.    draw a route and show altitude plot/other info.
 TODO: load .gpx back and show  on map?
 TODO: load cell info back (is it stored in whereami.db? or just memory?
   must be in .db as it the cells display goes away on map but when phone finds 
   cell again the cell area is known
+ yes and they appear when saving to file also.
 TODO: cycle mode or other mode - don't save every .gpx point?
   compress/optimize points?  save compressed .gpx?
 TODO: what's being shown on debug screen
 TODO: logging, LOG levels/log categories ... urk ... argued with that alright  LOG1 LOG2 LOG3 annoying but require messing with compiler. sod it!   messed debugging getNetworkInfo - was a caps problem, 
 TODO: how to overcome GetNetworkInfo caps without hacking?   get a cert from nokia?  certified apps seem to say nothing about caps at install time? they prompt user at runtime to allow the cap ... API to do this without cert?
+ ... for now using Carbide hack on my phone
 
 TODO: stats/persistent stats
  xxx km of track made   x tracks,  x1 tracks completed, x2 tracks phone dies, x3 tracks GPS goes away
@@ -711,3 +718,47 @@ inc/whereamidoc.h:		void SaveNamedToFileL(const TDesC& aDes);
 src/whereamiappui.cpp:				((CWhereAmIDocument*)Document())->SaveNamedToFileL(fileName);
 src/whereamidoc.cpp:void CWhereAmIDocument::SaveNamedToFileL(const TDesC& aDes)
 src/whereamidoc.cpp:	LOG("CWhereAmIDocument::SaveNamedToFileL");
+
+
+
+================================================================================
+
+
+  <node id='38953344' timestamp='2007-09-02T23:20:27Z' user='robfitz' visible='true' version='1' lat='53.2696374' lon='-6.2116657'>
+    <tag k='created_by' v='JOSM' />
+  </node>
+
+  <way id='5409397' timestamp='2007-09-08T12:45:53Z' user='mackerski' visible='true' version='1'>
+    <nd ref='38953357' />
+    <nd ref='38953636' />
+    <nd ref='38953344' />
+    <nd ref='38953352' />
+    <nd ref='38953638' />
+    <nd ref='38953364' />
+    <nd ref='38953357' />
+    <tag k='created_by' v='JOSM' />
+    <tag k='junction' v='roundabout' />
+    <tag k='highway' v='tertiary' />
+    <tag k='oneway' v='yes' />
+  </way>
+
+
+
+  <relation id='57845' timestamp='2009-05-02T16:54:45Z' user='mackerski' visible='true' version='99'>
+    <member type='way' ref='2701568' role='' />
+    <member type='way' ref='2793175' role='' />
+    <member type='way' ref='3424080' role='' />
+  .
+.
+.
+  .
+    <member type='way' ref='33411032' role='' />
+    <member type='way' ref='33922733' role='' />
+    <member type='way' ref='23007371' role='' />
+    <tag k='ref' v='E 01' />
+    <tag k='route' v='road' />
+    <tag k='url_ref' v='http://www.unece.org/trans/conventn/ECE-TRANS-SC1-384e.pdf' />
+    <tag k='type' v='route' />
+    <tag k='int_ref' v='E 01' />
+    <tag k='network' v='e-road' />
+  </relation>
