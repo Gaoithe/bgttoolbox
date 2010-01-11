@@ -818,10 +818,9 @@ http://www.mp3raid.com/search/download-mp3/2514077/jackson_5_abc.html
 http://www.sing365.com/music/lyric.nsf/A-B-C-lyrics-The-Jackson-5/BA0857D1DBD0C97C48256A8C0020C9E8
 A B C Lyrics
 Artist(Band):The Jackson 5
-Review The Song (4)	Print the Lyrics
 
-
- Send "A B C" Ringtones to Cell 
+Capo on first fret.
+Chords - G - C, D
 
 Michael: A buh-buh buh buh-buh
 J5: A buh-buh buh buh-buh
@@ -836,7 +835,7 @@ J5: All about love
 Jermaine: Sit yourself down, take a seat
 All you gotta do is repeat after me.
 
-CHORUS:
+CHORUS:  CHORDS: G C, G C, G C D(123) C (G)
 J5: ABC
 Michael: Easy as...
 J5: 123
@@ -922,10 +921,30 @@ http://www.mp3raid.com/search/download-mp3/141719/want_you_back.html
 
 I Want You Back Lyrics
 Artist(Band):The Jackson 5
-Review The Song (1)	Print the Lyrics
+lateape@rock
 
+intro
 
- Send "I Want You Back" Ringtones to Cell 
+//: G                /       Cmaj7         /
+
+  Em7  G  Cmaj7  G   /  Am7   D   G     G  ://
+
+/ G                    /   Cmaj7         /
+when i had u to myself i didnt want u aroun those
+  Em7  G    Cmaj7  G     / Am7   D   G     G  /
+pretty faces always made u stand out in the crowd
+
+someone picked you from the bunch
+one glance was all it took
+now if far too late for me to take a sedcond look
+
+//  G                    /   Cmaj7         /
+oh baby give me one more chance
+Em7  G    Cmaj7  G / Am7   D   G     G  /
+won't you please let me       back to your heart
+  G             //
+i want you back
+
 
 Uh-huh huh huh huh
 Let me tell ya now
@@ -1012,6 +1031,7 @@ I tell ya that I love you
 
 
 http://www.mp3raid.com/search/download-mp3/5110608/dont_blame_it_on_the_sunshine.html
+http://www.ultimate-guitar.com/tabs/j/jackson_5/blame_it_on_the_boogie_crd.htm
 
 Blame It On The Boogie Lyrics
 Artist(Band):The Jackson 5
@@ -1020,20 +1040,31 @@ Review The Song (1)	Print the Lyrics
 
  Send "Blame It On The Boogie" Ringtones to Cell 
 
+   Bm7
 My baby's always dancin'
+       D
 And it wouldn't be a bad thing
+    G
 But I don't get no loving
+              D
 And that's no lie
 
+   Bm7
 We spent the night in Frisco
+   D
 At every kind of disco
+    G
 And from that night I kissed
+             Asus4
 Our love goodbye
 
-CHORUS:
+CHORUS:           D
 Don't blame it on sunshine
+                  Bbmaj7
 Don't blame it on moonlight
+                  C
 Don't blame it on good times
+                D
 Blame it on the boogie
 
 Don't blame it on sunshine
@@ -1052,43 +1083,22 @@ I've seen the lightning leave me
 My baby just can't take
 Her eyes off me
 
-CHORUS:
+CHORUS X 2:
 Don't blame it on sunshine
-Don't blame it on moonlight
-Don't blame it on good times
-Blame it on the boogie
-
+...
 Don't you blame it on sunshine
-Don't blame it on moonlight
-Don't blame it on good times
-Blame it on the boogie
+...
 
+D
 I just can't
+D/A
 I just can't
+D/A                          Asus4
 I just can't control my feet
 
-I just can't
-I just can't
-I just can't control my feet
+  X 4 times
 
-I just can't
-I just can't
-I just can't control my feet
-
-I just can't
-I just can't
-I just can't control my feet
-
-CHORUS:
-Don't blame it on sunshine
-Don't blame it on moonlight
-Don't blame it on good times
-Blame it on the boogie
-
-Don't blame it on sunshine
-Don't blame it on moonlight
-Don't blame it on good times
-Blame it on the boogie
+CHORUS X 2
 
 VERSE:
 This magic music grooves me
@@ -1101,16 +1111,7 @@ And fire burns inside me
 Boogie's got me in a
 Super trance
 
-CHORUS:
-Don't blame it on sunshine
-Don't blame it on moonlight
-Don't blame it on good times
-Blame it on the boogie
-
-Don't blame it on sunshine
-Don't blame it on moonlight
-Don't blame it on good times
-Blame it on the boogie
+CHORUS X 2
 
 Owww - sunshine
 Whoo - moonlight
@@ -1142,6 +1143,336 @@ But yours and that funky funky boogie al night long - goodtimes
 
 
 
+
+================================================================================
+more want you back:
+
+http://www.youtube.com/watch?v=xANiW9yWvGE
+
+ I Want You Back Chords by Jackson 5, www.Ultimate-Guitar.Com
+	Listen to I Want You Back
+	Add to favourites
+	Difficulty: intermediate
+
+   ____________________________________
+  / KT Tunstall                       /  The meaning of the song is in the
+ / I Want You Back (Jackson 5 cover) /  title, simple as it is. This song was
+/___________________________________/  Jackson 5's breakthrough single back in
+                                      1969, and it was written by some of the
+songwriters working for the newly-started record company Motown, on which it was
+also released. Motown was the first record company ever to be owned by African
+American's and it was therefore obvious that fice black boys were chosen to
+front the label. Back then Jackson 5 were still just figurehead for the company
+and hadn't really any influence on their career yet. It was all yet a concept
+band just the way popstars are branded today, where an entire company really is
+behind everything.
+...and then the lovely Kate Tunstall does this beautiful cover, love her ;)
+
+
+ Chords:
+     E  G#dim  A    C#m7  G#m7  F#m7   B7  E(bar)  E/C#   E/B  Aadd9  Asus2#11
+E:---0----0----0-----------------------2-------------------------0-------0-----:
+B:---0----0----2-----9-----4-----2-----0-----9------9------9-----0-------0-----:
+G:---1----4----2-----9-----4-----2-----2-----9------9------9-----6-------8-----:
+D:---2----0----2-----9-----4-----2-----1-----9------9------9-----7-------9-----:
+A:---2----x----0-----x-----x-----x-----2-----7------x------x-----0-------0-----:
+E:---0----4----------9-----4-----2------------------9------7-------------------:
+
+
+
+Intro:
+ (similar to a verse)
+
+
+1st Verse:
+  E                   G#dim   A
+  When I had you to myself, I didn't want you around
+  C#m7   G#m7  A      E        F#m7      B7   E      A  E
+  Pretty faces always make you stand out in a crowd
+  E                                G#dim A
+  Someone picked you from the bunch, one glance is all it took
+  C#m7     G#m7     A        E     F#m7   B7     E     A  E
+  Now it's much too late for me to take a second look
+
+
+
+Chorus:
+  E(bar)    E/C#    E/B      Aadd9       Asus2#11
+  Ooh baby, give me one more chance – to show you that I love you
+  C#m7  G#m7 A          E  F#m7    B7   E      A  E
+  Won't you  please let me back in your heart
+  E(bar)       E/C#  E/B      Aadd9       Asus2#11
+  Ooh darling, I was blind to let you go
+      C#m7 G#m7  A    E    F#m7   B7 E   A  E
+  And now  since I've seen you it is on
+
+
+
+Interlude:
+
+  I want you back, ooh, ooh, yeah, yeah
+  I want you back, ooh, ooh, baby, yeah 
+  I want you back, yeah, yeah, yeah, yeah
+  I want you back, oh, oh, darling
+
+  |-------------------------------------|
+  |-------------------------------------|
+  |-------------------------------------|
+  |-----x-----------x------------x------|
+  |-----x-----------x------------x------|
+  |-0-0-x-12---12---x-0---0---12-x-12---|
+  (play this figure 4 times)
+
+
+
+2nd Verse:
+
+  Trying to live without your love is one long sleepless night
+  Let me show you, girl, that I know wrong from right
+  Every street I’ve walked on, it had tear stains on the ground
+  Following the girl I didn't even want around
+
+
+
+Chorus:
+
+  Ooh baby, give me one more chance – to show you that I love you
+  Won't you please let me back in your heart
+  Ooh darling, I was blind to let you go
+  Now since I've seen you it is on
+  I want you back, ooh, ooh, yeah, yeah
+  I want you back, ooh, ooh, baby, yeah 
+  I want you back, oh, oh, nana
+  Want you back
+
+
+
+Interlude:
+
+  I want you back
+
+  All I want
+  I want you back
+  All I need
+  I want you back
+
+
+
+Chorus:
+
+  Oh baby, I was blind to let you go
+  I want you to please let me back in your heart
+  Oh baby, give me one more chance – to show you that I love you
+  Oh, since I’ve seen you in his arms
+
+
+
+Outro-Interlude:
+
+  I want you back, oh, oh, yeah, yeah
+  I want you back, ooh, ooh, baby
+  I want you back, oh, oh, yeah, yeah
+  I want you back
+
+
+
+................................................................................
+: To try out something new here, I've indicated the beats of the bars above the
+: chords, which also allows me to describe the rhythms of the chords precisely.
+: It may seem a bit hard to see through, but it's actually rather easy if you
+: just know how to count to 4, and there're only three lines to learn.
+:
+:
+:
+: Intro & Verse progression
+:
+:  | 1   +   2   +   3   +   4   +   | 1   +   2   +   3   +   4   +   |
+:  | E                   G#dim       | A                               |
+:
+:
+:  | 1   +   2   +   3   +   4   +   | 1   +   2   +   3   +   4   +   |
+:  | C#m7    G#m7    A     E         | F#m7    B7    E     A   E       |
+:
+:
+:
+: Chorus progression
+:
+:  | 1   +   2   +   3   +   4   +   | 1   +   2   +   3   +   4   +   |
+:  | E(bar)          E/C#    E/B     | Aadd9           Asus2#11        |
+:
+:
+:  | 1   +   2   +   3   +   4   +   | 1   +   2   +   3   +   4   +   |
+:  | C#m7    G#m7    A     E         | F#m7    B7    E     A   E       |
+:
+:...............................................................................
+
+
+--------------------------------------------------
+Intro:
+
+G, C, G, Em, Am, C, G, D, C x 3
+
+
+G
+
+When I had you to myself
+
+C
+I didn't want you around
+
+   G             Em       Am         C 
+Those Pretty Faces always make you 
+
+G               D            G
+stand out in a crowd
+
+G
+But someone picked you from the bunch 
+
+C
+when love was all it took
+
+G             Em       Am         C
+now it's much too late for me, 
+
+G                 D            G
+to take a second look
+
+G
+Oh baby
+
+C
+ give me one more
+
+G
+ chance 
+
+G             Em       Am         C
+won't you please let me.....
+
+G
+back in your heart
+
+G
+Oh darlin
+
+C
+ I was blind
+
+G
+to let you go.....
+
+G            Em        Am          C
+But now since I see you in his arms
+
+            G
+I want you back
+================================================================================
+http://www.queensongs.info/tabs/news-of-the-world/we-will-rock-you-chords.html
+News Of The World - We Will Rock You
+
+
+ E
+Buddy you're a boy make a big noise 
+                                      G   D    E
+Playin' in the street gonna be a big man some day 
+         E
+You got mud on yo' face 
+You big disgrace 
+ D                   E
+Kickin' your can all over the place 
+Singin' 
+
+
+  G  D    C  G    E
+'We will we will rock you 
+We will we will rock you' 
+
+
+Buddy you're a young man hard man 
+Shoutin' in the street gonna take on the world some day 
+You got blood on yo' face 
+You big disgrace 
+Wavin' your banner all over the place 
+
+
+'We will we will rock you' 
+Singin' 
+'We will we will rock you' 
+
+
+Buddy you're an old man poor man 
+Pleadin' with your eyes gonna make you some peace some day 
+You got mud on your face 
+You big disgrace 
+Somebody better put you back into your place 
+
+
+'We will we will rock you' 
+Singin' 
+'We will we will rock you' 
+Everybody 
+'We will we will rock you' 
+  G  D    C  G    C
+'We will we will rock you' 
+Alright
+
+
+A  D/A  A  D/A  
+A  C A
+
+
+
+http://www.ultimate-guitar.com/tabs/q/queen/we_will_rock_you_crd.htm
+Em
+Buddy you're a boy makin big noise
+                                                               G
+Playin' in the street gonna be a big man some day
+              Em
+You got mud on yo' face
+You big disgrace
+D
+Kickin' your can all over the place
+
+Singin' 
+G   D    Em C2  Em
+We will we will rock you
+G   D    Em C2  Em
+We will we will rock you
+
+Em
+Buddy you're a young man hard man
+                                                                       G
+Shoutin' in the street gonna take on the world some day
+               Em
+You got blood on yo' face
+You big disgrace
+D
+Wavin' your banner all over the place
+
+G   D    Em C2  Em
+We will we will rock you
+
+Singin'
+G   D    Em C2  Em
+We will we will rock you
+
+Em
+Buddy you're an old man poor man
+                                                                                  G
+Pleadin' with your eyes gonna make you some peace some day
+               Em
+You got mud on your face
+You big disgrace
+D               
+Somebody better put you back into your place
+
+G   D    Em C2  Em
+We will we will rock you
+
+Singin'
+G   D    Em C2  Em
+We will we will rock you
 
 ================================================================================
 
