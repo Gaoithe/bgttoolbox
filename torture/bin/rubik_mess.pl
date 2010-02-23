@@ -51,7 +51,16 @@ R O Y W G B
 
 use strict;
 
-## how define/load in from file? 
+=head2 definition of cube in script
+
+How define/load in from file? 
+North South East West Up Down  NSEWUD
+Y/W facing N/S, R/O E/W, G/B U/D
+
+=head3 simple
+
+=cut 
+
 my $cube_str = qq(
 ...YYY...
 ...YYY...
@@ -67,8 +76,34 @@ RRRGGGOOO
 ...BBB...
 );
 
-## 26 pieces, how define orientation. 
-## facing out from face ... facing "up"
+=head3 physical
+
+phys rep means add in all sides of pieces
+North South East West Up Down  NSEWUD
+this is interesting. sides have a particular place in structure, defines cube well.
+
+=cut 
+
+my $cube_str_trip_phys = qq(
+... ... ... YxRxxB YxxxxB YxxOxB ... ... ...
+... ... ... YxRxxx Yxxxxx YxxOxx ... ... ...
+... ... ... YxRxGx YxxxGx YxxOGx ... ... ...
+...  xxRxxx xxRxGx xxxxGx xxxOGx xxxOxx  ...
+... ... ... xWRxGx xWxxGx xWxOGx ... ... ...
+... ... ... xWRxxx xWxxxx xWxOxx ... ... ...
+... ... ... xWRxxB xWxxxB xWxOxB ... ... ...
+... ... ... xxRxxB xxxxxB xxxOxB ... ... ...
+);
+
+=head3 not simple, not messy but missing orientation
+
+26 pieces, how define orientation. 
+facing out from face ... facing "up"
+
+uhmmm.
+
+=cut 
+
 my $cube_str_triplets = qq(
 ... ... ... YBR YBx YBO ... ... ...
 ... ... ... YRx Yxx YOx ... ... ...
@@ -80,19 +115,40 @@ my $cube_str_triplets = qq(
 ... ... ... BRx Bxx BOx ... ... ...
 );
 
-#my $cube_str_trip_orient = qq(
-#phys rep means add in all sides of pieces
-# North South East West Up Down  NSEWUD
-my $cube_str_trip_phys = qq(
-... ... ... YxRxxB YxxxxB YxxOxB ... ... ...
-... ... ... YxRxxx Yxxxxx YxxOxx ... ... ...
-... ... ... YxRxGx YxxxGx YxxOGx ... ... ...
-... ... Rxx GRx Gxx GOx Oxx ... ...
-... ... ... WGR WGx WGO ... ... ...
-... ... ... WRx Wxx WOx ... ... ...
-... ... ... WBR WBx WBO ... ... ...
-... ... ... BRx Bxx BOx ... ... ...
-);
+=head3 position combined with physical
+
+  positions 123 456 789 UP
+  positions 10-18 MID
+  positions 19-27 DOWN
+  1 Up + East + North
+  rotate pieces into these positions.
+
+ e.g. corner YxRxxB (NSEWUD) Rotate E side (U to N) 
+  E side (R) stays put, U=>N=>D=>S
+   YxRxxB in pos 19 => pos 25 xBRxxY
+   YxRxGx in pos 1  => pos 19 GxRxxY 
+   xWRxGx in pos 7  => pos 1  GxRxWx
+   xWRxxB in pos 25 => pos 7  xBRxWx
+  rotate again
+   xBRxxY in pos 25 => pos 7  xYRxBx 
+  rotate again
+   xYRxBx in pos 7  => pos 1  BxRxYx 
+
+... ... ... YxRxxB 19  YxxxxB 20  YxxOxB 21 ... ... ...
+... ... ... YxRxxx 10  Yxxxxx 11  YxxOxx 12 ... ... ...
+... ... ... YxRxGx 1   YxxxGx 2   YxxOGx 3 ... ... ...
+.xxRxxx 13  xxRxGx 4   xxxxGx 5   xxxOGx 6  xxxOxx 15 ...
+... ... ... xWRxGx 7   xWxxGx 8   xWxOGx 9 ... ... ...
+... ... ... xWRxxx 16  xWxxxx 17  xWxOxx 18 ... ... ...
+... ... ... xWRxxB 25  xWxxxB 26  xWxOxB 27 ... ... ...
+... ... ... xxRxxB 22  xxxxxB 23  xxxOxB 24 ... ... ...
+
+=cut 
+
+=head3 3D array ?
+
+=cut
+
 
 print $cube_str;
 
