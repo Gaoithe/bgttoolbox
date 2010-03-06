@@ -64,6 +64,19 @@
 
 
 
+# TODO: if match ^- option parse
+# -n - do nothing
+# -v - verbose
+# -c - clean files after
+while [[ "${1#-}" != "$1" ]] ; do
+    [ "$1" == "-n" ] && OPTS_DONOTHING="$1";
+    [ "$1" == "-v" ] && OPTS_VERBOSE="$1";
+    [ "$1" == "-c" ] && OPTS_CLEAN="$1";
+    shift
+done
+
+#[ "$OPTS_DONOTHING" != "" ] && echo "optn";
+#[ "$OPTS_DONOTHING" == "" ] && echo "not optn";
 
 DEVICENAME="$1"
 #echo all is $*
@@ -84,10 +97,14 @@ DEVNAME=`echo "$HCISCAN_S" |cut -d' ' -f2-`
 #BTADDR=$BTADDR DEVNAME=$DEVNAME"
 
 if [[ $DEVCOUNT -ne 1 ]] ; then
-    echo "usage: $0 <devicename>  <dir_to_sync>
+    echo "usage: $0 [<opts>] <devicename>  <dir_to_sync>
   e.g. $0 42:54:41:44:44:52 \"C:/Data/\"
 Which device?
 $HCISCAN
+options:
+  -n - do nothing
+  -v - verbose
+  -c - clean files after
 "
     exit;
 fi
@@ -96,13 +113,17 @@ echo "BTADDR=$BTADDR DEVNAME=$DEVNAME"
 #sudo hcitool info $BTADDR
 
 DIRTOSYNC="$2"
-# TODO pass in dir/file to sync on cmd line in $2
+# DONE pass in dir/file to sync on cmd line in $2
 if [[ -z $DIRTOSYNC ]] ; then
-    echo "usage: $0 <devicename>  <dir_to_sync>
+    echo "usage: $0 [<opts>] <devicename>  <dir_to_sync>
   e.g. $0 42:54:41:44:44:52 \"C:/Data/\"
   e.g. $0 \$BTADDR \"C:/Data/Images/\"
   e.g. $0 $BTADDR \"C:/Data/Videos/\"
   e.g. $0 42:54:41:44:44:52 \"C:/Data/Sounds/\"
+options:
+  -n - do nothing
+  -v - verbose
+  -c - clean files after
 "
     DIRTOSYNC="C:/Data/"
     #exit;
@@ -150,8 +171,11 @@ function wipe_existing_files_from_list () {
     ##file list to retrieve by eliminating ones already retrieved
     FILESTOGET=
     for F in $FILES ; do
-        #F=$(echo $F|sed 's/_SPACE_/ /g')
-        if [[ ! -f $F ]] ; then
+        F2=$(echo $F|sed 's/_SPACE_/ /g')
+        if [ "$OPTS_VERBOSE" != "" ] ; then
+            echo F $F F2 $F2
+        fi
+        if [[ ! -f $F && ! -f $F2 ]] ; then
             FILESTOGET="$FILESTOGET $F"
         fi
     done   
@@ -230,9 +254,16 @@ function clean_the_files () {
 wipe_existing_files_from_list
 echo "files to get FILES=$FILES"
 
-get_the_files
+if [ "$OPTS_DONOTHING" == "" ] ; then
 
-track_the_files
+  get_the_files
 
-clean_the_files
+  track_the_files
 
+  if [ "$OPTS_CLEAN" != "" ] ; then
+
+    clean_the_files
+
+  fi
+
+fi
