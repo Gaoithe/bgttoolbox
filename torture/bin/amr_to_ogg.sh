@@ -3,15 +3,18 @@
 
 # default out format is ogg
 OFORMAT=ogg
+FFAUDOPTS="-acodec vorbis -ac 2"
 while [[ "${1#-}" != "$1" ]] ; do
     [ "$1" == "-n" ] && OPTS_DONOTHING="$1";
     [ "$1" == "-v" ] && OPTS_VERBOSE="$1";
     [ "$1" == "-a" ] && OPTS_ALWAYS="$1";
-    [ "$1" == "-f" ] && { OPTS_FORMAT="$1"; shift; OFORMAT="$1";}
+    [ "$1" == "-f" ] && { OPTS_FORMAT="$1"; shift; OFORMAT="$1"; shift; FFAUDOPTS="$1";}
+    [ "$1" == "-h" ] && { echo "usage: $0 [-n] [-v] [-a] [-h] [-f ogg \"ogg_ffmpeg_opts\"] <files>"; }
     shift
 done
 
-FFAUDOPTS="-ar 8000 -ab 12.2k -ac 1"
+OFORMAT1=ogg
+#FFAUDOPTS="-ar 8000 -ab 12.2k -ac 1"
 # -ar 1000, much smaller size, squeaky/fast playing
 # -ab 6000 or 1000 no difference in size, playing quality seems unchanged
 # see below comments/notes on sizing files, ffmpeg options for ogg output, ...
@@ -19,9 +22,9 @@ while [[ "$1" != "" ]] ; do
   for F in $1 ; do 
     echo F=$F; N=${F%%.amr}; 
     if [[ "$OPTS_ALWAYS" != ""|| ! -e "$N.${OFORMAT}" ]] ; then 
-      ffmpeg-amr -i "$F" -y "$N_inter.${OFORMAT}"; 
-      /usr/bin/ffmpeg -i "$N_inter.${OFORMAT}" -y -acodec vorbis -ac 2 "$N.${OFORMAT}";
-      rm "$N_inter.${OFORMAT}"
+      ffmpeg-amr -i "$F" -y "$N_inter.${OFORMAT1}"; 
+      /usr/bin/ffmpeg -i "$N_inter.${OFORMAT1}" -y $FFAUDOPTS "$N.${OFORMAT}";
+      rm "$N_inter.${OFORMAT1}"
     fi; 
   done
   shift
