@@ -26,6 +26,18 @@ Feb 2010
 
 R O Y W G B 
 
+=head2 Visualisation .. and tools for working out manipulation/solving methods
+
+Visualisation - ascii, 2D, 3D
+Use existing code - xmpuzzles xpuzzles ...
+
+Visualisation of changes, e.g. this sequence of moves results in these changes
+Display current cube, history of rotates, last few cubes.
+How to modify location + orientation 
+cmd line rotates, save, diff against saved, record sequence of moves
+score for how close to solved.
+diff score for how different from other cube
+
 =head2 rubik in skype :)
 
                   (flag:NU)
