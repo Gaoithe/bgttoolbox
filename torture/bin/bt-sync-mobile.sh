@@ -170,6 +170,7 @@ function wipe_existing_files_from_list () {
     echo for now we check if file exists already and wipe from list
     ##file list to retrieve by eliminating ones already retrieved
     FILESTOGET=
+    FILESTODEL="$FILES"
     for F in $FILES ; do
         F2=$(echo $F|sed 's/_SPACE_/ /g')
         if [ "$OPTS_VERBOSE" != "" ] ; then
@@ -238,7 +239,7 @@ function track_the_files () {
 # cleanup files matching certain patterns on mobile if they were successfully retrieved
 # we could use -G earlier (get and delete)
 function clean_the_files () { 
-    for F in $FILES ; do
+    for F in $FILESTODEL ; do
         F=$(echo $F|sed 's/_SPACE_/ /g')
 ###if [[ -f bin/eirkey.pl && ( -n ${FG#wami-2} || -n ${F%gpx} ) ]] ; then echo yep; fi
         
