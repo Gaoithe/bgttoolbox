@@ -1,0 +1,30 @@
+#!/bin/bash
+
+CMD=$1
+shift
+#echo CMD=$CMD
+
+rm cerevesa.stderr
+case $CMD in
+ "diff")
+  for i in $*; do 
+   cvs diff -u $i 2>>cerevesa.stderr |grep -v ^?
+  done
+  ;;
+ "st"|"status")
+  for i in $*; do 
+   cvs st $i 2>>cerevesa.stderr |grep Status: |grep -v "tatus: Up-to-date"
+  done
+  ;;
+ "up"|"update")
+  for i in $*; do 
+   cvs -nq up -dP $i 2>>cerevesa.stderr |grep -v ^?
+  done
+  ;;
+ *)
+  cvs $CMD $*
+  ;;
+esac;
+grep . cerevesa.stderr
+
+ 
