@@ -62,7 +62,7 @@ If that was incorrectly used as address:port to send a message to it would not c
 
 +--------------------------------------------------------------------+
 
-http://tools.ietf.org/html/rfc3608
+from http://tools.ietf.org/html/rfc3608
 
     3.  Discussion of Mechanism, 6.1. Procedures at the UA
     The client should use that Service-Route in Route headers on initial requests other than REGISTERS.
