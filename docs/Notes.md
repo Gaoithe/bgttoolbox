@@ -8,9 +8,11 @@ This Repo doesn't contain anything yet!
 
 Miscellaneous scripts and notes
 
-* script details
-* notes details
-* [dspsrv](http://www.dspsrv.com/~jamesc/)
+*   script details
+    moop
+*   notes details
+    moop
+*   [dspsrv](http://www.dspsrv.com/~jamesc/)
 
 ## Call flow
 
