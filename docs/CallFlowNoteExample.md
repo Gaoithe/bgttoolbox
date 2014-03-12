@@ -11,6 +11,7 @@ Use iptables on phones to forward IMS core Amazon internal 10.x.x.x address to p
 Open port 5054 in amazon security group - not needed - I think the forwarding of port on phones is working.
 
 @12:10:43 in log
+
     |   1. SIP REGISTER               |                   |
     |-------------------------------->|                   |
     |   2. SIP 401 (Unauthorized)     |<----------------->|
@@ -47,11 +48,14 @@ Open port 5054 in amazon security group - not needed - I think the forwarding of
     WORKAROUND: iptables map addr:port to p-cscf_public:5060
 
 8. REGISTER 401 Unauthorized with new nonce
+
 9. REGISTER (with response)
+
 10. SIP 200 OK
     The handsets can do IMS again (select the SMS/Chat tab). 
 
 @12:13:14 in log
+
     |                .                |                   |
     |   11. SIP REGISTER(reusing old nonce,response,opaque)
     |----------iptables-------------->|                   |
@@ -66,11 +70,15 @@ Open port 5054 in amazon security group - not needed - I think the forwarding of
     FUNNY#3 - 13. SIP REGISTER with empty auth values gets a 200 OK response. Maybe minimal auth works this way? Auth not needed yet? It’s funny/suspicious though.
 
 11. FUNNY#1 REGISTER(reusing old nonce,response,opaque)
+
 12. REGISTER 401 (with new nonce)
+
 13. FUNNY#2 REGISTER(with empty auth values)
+
 14. FUNNY#3 SIP 200 ok in response to empty auth values
 
 @12:15:44 in log
+
     |                .                |                   |
     |   15. SIP REGISTER(empty auth values)               |
     |---------iptables--------------->|                   |
@@ -79,10 +87,13 @@ Open port 5054 in amazon security group - not needed - I think the forwarding of
     |                .                |                   |
     FUNNY#2 and FUNNY#3 again
     FUNNY#4 ~~ combination of FUNNY#2 and FUNNY#3 ~~ REGISTER with empty auth values now sent
+
 15. FUNNY#2 REGISTER(with empty auth values)
+
 16. FUNNY#3 SIP 200 ok in response to empty auth values
 
 @12:16:48 in log
+
     |                .                |                   |
     |   17. SIP OPTIONS               |                   |
     |---------iptables--------------->|                   |
