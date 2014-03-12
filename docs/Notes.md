@@ -8,5 +8,10 @@ This Repo doesn't contain anything yet!
 
 Miscellaneous scripts and notes
 
-* To build and run sprout, see the [Notes](docs/Notes.md) page.
+* script details
+* notes details
 * [dspsrv](http://www.dspsrv.com/~jamesc/)
+
+## Call flow
+
+See [CallFlowNoteExample](CallFlowNoteExample.md)
