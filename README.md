@@ -15,7 +15,7 @@ This Repo doesn't contain anything yet!
 
     cd bgttoolbox
     git remote set-url origin https://[<username>@]github.com/Gaoithe/bgttoolbox
-    # optionally edit the url/username/... directly in project .git/config
+    \# optionally edit the url/username/... directly in project .git/config
     vi .git/config
 
 3.  Put entry in $PATH in ~/.bashrc
