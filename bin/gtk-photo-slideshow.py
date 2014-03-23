@@ -1,3 +1,5 @@
+#!/usr/bin/python
+
 # Taken and customed from Jack Valmadre's Blog:
 # http://jackvalmadre.wordpress.com/2008/09/21/resizable-image-control/
 # 
@@ -8,7 +10,42 @@
 #  fix the dir walk and file list didn't pick up files
 #  add debug file counts
 #  pass in dir(s) on cmd line argv
-"""gtk-photo-slideshow.py [dirs]
+# 
+# 6/10/2012 sort files by datetime, freezing on pics?, or failing to load, adding debug. It is slow to load. And the next image is triggered on a timer. So a series of images failing to load looks like  a freeze. What happens me is it seems images are shown till a freeze. Next showing it gets further. Some kind of buffering/caching? Showing slideshow on laptop over wireless mount of NAS. The problem seems to be worse with fullscreen. 
+# FAIL:
+# set from pixbuf 2
+# display index 156
+# display true 20120912to23JohnAndCarlyVisitDubAndKillarney40thAnniversaryMumAndDad/P1070550.JPG
+# SUCCESS draw:
+# set from pixbuf 2
+# display index 157
+# display true 20120912to23JohnAndCarlyVisitDubAndKillarney40thAnniversaryMumAndDad/P1070551.JPG
+# draw
+# paint
+#
+#set from pixbuf 2
+#set from pixbuf fin
+#display index 0
+#display true 20120912to23JohnAndCarlyVisitDubAndKillarney40thAnniversaryMumAndDad/P1070359.JPG
+#draw1
+#draw2
+#draw3
+#draw
+#paint1
+#paint2
+#paint
+#happiness
+#
+# 7/10/2012 start window maximised
+#
+# TODO: keyboard control, next previous ...
+# TODO: don't catch exceptions, handle file not found, slow reading (show warning) 
+
+"""gtk-photo-slideshow.py [-hwrd] [dirs]
+ -h --help
+ -w --window
+ -r --repeat
+ -d --delay (TODO: doesn't take a number yet)
 
 python script quick and simplish photo slideshow of directories
 """
@@ -19,6 +56,11 @@ import pygtk
 pygtk.require('2.0')
 import gtk
 import glib
+
+slide_time = 3
+fullscreen = False
+repeat = False
+lastpainted = -1
 
 def is_image(filename):
     """ File is image if it has a common suffix and it is a regular file """
@@ -117,18 +159,23 @@ class ResizableImage(gtk.DrawingArea):
 
     def expose(self, widget, event):
         # Load Cairo drawing context.
+        print "draw1"
         self.context = self.window.cairo_create()
+        print "draw2"
         # Set a clip region.
         self.context.rectangle(
             event.area.x, event.area.y,
             event.area.width, event.area.height)
+        print "draw3"
         self.context.clip()
         # Render image.
+        print "draw"
         self.draw(self.context)
         return False
 
     def draw(self, context):
         # Get dimensions.
+        print "paint1"
         rect = self.get_allocation()
         x, y = rect.x, rect.y
         # Remove parent offset, if any.
@@ -144,6 +191,7 @@ class ResizableImage(gtk.DrawingArea):
             context.fill_preserve()
         # Check if there is an image.
         if not self.pixbuf:
+            print "ERR: no image :("
             return
         width, height = resizeToFit(
             (self.pixbuf.get_width(), self.pixbuf.get_height()),
@@ -152,32 +200,41 @@ class ResizableImage(gtk.DrawingArea):
             self.enlarge)
         x = x + (rect.width - width) / 2
         y = y + (rect.height - height) / 2
+        print "paint2"
         context.set_source_pixbuf(
             self.pixbuf.scale_simple(width, height, self.interp), x, y)
+        print "paint"
+        #print "paint", self.index
+        #self.lastpainted = self.index
         context.paint()
 
     def set_from_pixbuf(self, pixbuf):
         width, height = pixbuf.get_width(), pixbuf.get_height()
         # Limit size of internal pixbuf to increase speed.
         if not self.max or (width < self.max[0] and height < self.max[1]):
+            print "set from pixbuf 1"
             self.pixbuf = pixbuf
         else:
+            print "set from pixbuf 2"
             width, height = resizeToFit((width, height), self.max)
             self.pixbuf = pixbuf.scale_simple(
                 width, height,
                 gtk.gdk.INTERP_BILINEAR)
         self.invalidate()
+        print "set from pixbuf fin"
 
     def set_from_file(self, filename):
         self.set_from_pixbuf(gtk.gdk.pixbuf_new_from_file(filename))
+        global lastpainted
+        lastpainted = filename
 
     def invalidate(self):
         self.queue_draw()
 
 class DemoGtk:
 
-    SECONDS_BETWEEN_PICTURES = 2
-    FULLSCREEN = True
+    SECONDS_BETWEEN_PICTURES = slide_time
+    FULLSCREEN = fullscreen
     WALK_INSTEAD_LISTDIR = True
 
     def __init__(self,args):
@@ -196,6 +253,9 @@ class DemoGtk:
 
             if self.FULLSCREEN:
                 self.window.fullscreen()
+            else: 
+                self.window.maximize()
+                print "window size:", self.window.get_size()
 
             glib.timeout_add_seconds(self.SECONDS_BETWEEN_PICTURES, self.on_tick)
             self.display()
@@ -219,7 +279,7 @@ class DemoGtk:
                     filepath = os.path.join(directory, filename)
                     if is_image(filepath):
                         self.files.append(filepath)
-                        #print "File:", filename
+                        print "dirFile:", filename
                 print "%d images."% len(self.files)
           else:
             for filename in os.listdir(arg):
@@ -230,22 +290,41 @@ class DemoGtk:
 
         #print "Images:", self.files
         print "TOTAL: %d images."% len(self.files)
+        # sort in order of date of file
+        self.files.sort(key=lambda s: os.path.getmtime(s))
 
     def display(self):
         """ Sent a request to change picture if it is possible """
         if 0 <= self.index < len(self.files):
             self.image.set_from_file(self.files[self.index])
+            print "display index", self.index
+            print "display true", self.files[self.index]
             return True
         else:
+            print "display false"
             return False
 
     def on_tick(self):
         """ Skip to another picture.
 
         If this picture is last, go to the first one. """
+
+        # TODO: check did we manage to show the last image?
+        if lastpainted == self.files[self.index]:
+            print "happiness"
+        else:
+            print "much SADness, we should wait some more", lastpainted
+            print "much SADness, we should wait some more", self.index
+            print "much SADness, we should wait some more", self.files[self.index]
+
         self.index += 1
         if self.index >= len(self.files):
-            self.index = 0
+            if repeat:
+                print "wrap"
+                self.index = 0
+            else:
+                # end of show
+                sys.exit(0)
 
         return self.display()
 
@@ -256,16 +335,25 @@ import getopt
 def process_args():
     # parse command line options
     try:
-        opts, args = getopt.getopt(sys.argv[1:], "h", ["help"])
+        opts, args = getopt.getopt(sys.argv[1:], "hwrdf", ["help","window","repeat","delay"] )
     except getopt.error, msg:
         print msg
         print "for help use --help"
         sys.exit(2)
     # process options
+    #global fullscreen
     for o, a in opts:
         if o in ("-h", "--help"):
             print __doc__
             sys.exit(0)
+        if o in ("-w", "--window"):
+            fullscreen = False
+        if o in ("-f", "--fullscreen"):
+            fullscreen = True
+        if o in ("-r", "--repeat"):
+            repeat = True
+        if o in ("-d", "--delay"):
+            slide_time = 3
     # e.g. process arguments
     #for arg in args:
     #    process(arg) # process() is defined elsewhere
