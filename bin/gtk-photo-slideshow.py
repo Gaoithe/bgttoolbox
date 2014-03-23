@@ -1,5 +1,14 @@
 #!/usr/bin/python
 
+"""gtk-photo-slideshow.py [-hwrd] [dirs]
+ -h --help
+ -w --window
+ -r --repeat
+ -d --delay (TODO: doesn't take a number yet)
+
+python script quick and simplish photo slideshow of directories
+"""
+
 # Taken and customed from Jack Valmadre's Blog:
 # http://jackvalmadre.wordpress.com/2008/09/21/resizable-image-control/
 # 
@@ -38,17 +47,24 @@
 #
 # 7/10/2012 start window maximised
 #
-# TODO: keyboard control, next previous ...
+# TODO: keyboard control, next previous photo ... next album/dir
 # TODO: don't catch exceptions, handle file not found, slow reading (show warning) 
+# TODO: disable  screensaver
+# TODO: profile prog in fullscreen and windowed mode, is there a slowdown? where is it?
+# TODO: loading file list, show loading info and start showing images earlier
+'''
+23/10/2012
+ODO: configurable debug and logging messages 
+TODO: track time it takes to build list of images, time to display images/dirs, use for profiling and debug info
+TODO: HOW TO control: right or left mouse click -> menu For/Back 1, jump 10, next dir, next ...
+TODO: turn mouse arrow into mostly transparent thing
+TODO: exclude __private, __thumb, hidden dirs.
+TODO: forward/back scrool list of photos, m of n photo est time,   *mark photo (fir attention, rotating, hiding, ...) 
+TODO: time/play bar like video
 
-"""gtk-photo-slideshow.py [-hwrd] [dirs]
- -h --help
- -w --window
- -r --repeat
- -d --delay (TODO: doesn't take a number yet)
+cd /mnt/GreenSpaceMultimedia/FamilyPhotos/AllPictures/
 
-python script quick and simplish photo slideshow of directories
-"""
+'''
 
 import os
 
