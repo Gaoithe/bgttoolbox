@@ -10,8 +10,14 @@
 #define RESTRDUP(a,b) strdup(b)
 
 
+char *tbx_strcatf(char *dest, char *format, char *src)
+{
+    int l = strlen(dest);
+    sprintf(dest+l,format,src);
+    return dest;
+}
 
-void do_contact_test(char *contact_from_invite)
+void old_contact_test(char *contact_from_invite)
 {
 // void mcs_ac_set_contact_uri_fn(struct mcs_state_machine_instance *mcs_smi)   from mas/ims/chat_session_actions.c
 
@@ -43,10 +49,100 @@ void do_contact_test(char *contact_from_invite)
         }
 }
 
+void do_contact_test(char *contact_from_invite, char *expected)
+{
+// void mcs_ac_set_contact_uri_fn(struct mcs_state_machine_instance *mcs_smi)   from mas/ims/chat_session_actions.c
+
+    const char *tmpPtr = NULL;
+    static char *tokBuf = NULL;
+    static char *conBuf = NULL;
+    char *tokStr = NULL;
+    char *contact = NULL;
+    char *semi = NULL;
+    char *seminext = NULL;
+
+    tmpPtr = contact_from_invite; //imf_hdr_get(mcs_smi->oa_invite_imf, corrib_sip_ihd_contact_num, 0);
+        if (strlen(tmpPtr) > 0) {
+	    SBUG_SOME("contact from invite [%s]", tmpPtr);
+            tokBuf = RESTRDUP(tokBuf, tmpPtr);
+            if ((tokStr = strstr(tokBuf, "sip:")) != NULL) {
+
+		printf("DEBUG tokStr:%s\n", tokStr);
+		// 2. start after sip:, contact is string up to next > or end(strtok sets > to nul)
+                contact = strtok(tokStr+4, ">");
+                SBUG_SOME("1st token [%s]", contact);
+		// 3. next get string up to semi-colon
+		semi = strtok(contact, ";");
+		if (semi != NULL) {
+		    seminext = strtok(NULL, ";");
+		    SBUG_SOME("semi token [%s], seminext [%s]", semi, seminext);
+		    // 4. next get string up to colon (if present)
+		    contact = strtok(semi, ":");
+		    SBUG_SOME("contact [%s], semi token [%s], seminext [%s]", contact, semi, seminext);
+		    // 5. copy back in from semi-colon to end(the > or real end)  (might be doing nothing if semi-colon was not present)
+		    if (seminext != NULL) {
+			//seminext[-1]=';'; // THIS JOINS contact and seminext back together! Not if there has been a :<port> strip
+			//strcat(contact,";"); // which way do you prefer >;-)   // duhrrr, I prefer the way that works.
+			//strcat(contact,seminext);
+
+			// careful now, the contact and seminext strings are pointers into tokBuf area
+			contact = tbx_strcatf(contact,";%s",seminext);
+
+		    }
+		}
+
+                {
+                    SBUG_SOME("Contact [%s]", contact);
+                    printf("Result:\nContact: <sip:%s>", contact);
+
+		    if (expected[0] != 0) { // no test result if blank compare
+			if (strcmp(expected,contact) == 0) {
+			    printf("Test Result: PASS\n\n");
+			} else {
+			    printf("Test Result: FAIL\n");
+			    printf("Expected Contact: <sip:%s>\n\n",expected);
+			}
+		    }
+
+                    //mcs_smi->contact_uri = STRDUP(contact);
+                }
+
+            }
+            else {
+                // Is this default correct ?
+                //mcs_smi->contact_uri = STRDUP(mcs_smi->app_server->as_uri);
+                SBUG_SOME("No sip: in contact, using as_uri");
+            }
+        }
+}
+
+// unit test contacts  (original and expected (all after > stripped is expected)
+char *contact_tests[] = {
+    "Contact: <sip:+353894017257@omn-ims.test;gr=urn:gsma:imei:35592104-359095-7>;+g.oma.sip-im",
+    "+353894017257@omn-ims.test;gr=urn:gsma:imei:35592104-359095-7",
+    "Contact: <sip:+353894017257@omn-ims.test>",
+    "+353894017257@omn-ims.test",
+    "Contact: <sip:10.220.105.213:60860>",
+    "10.220.105.213",
+    "Contact: <sip:10.220.105.213>",
+    "10.220.105.213",
+    "Contact: <sip:10.220.105.213:5054>;expires=300",
+    "10.220.105.213",
+    "Contact: <sip:+353861953134@192.168.127.239:48865;ob>;q=0.5;+sip.instance=\"<urn:gsma:imei:35287606-388013-9>\";+g.3gpp.cs-voice;+g.3gpp.iari-ref=\"urn%3Aurn-7%3A3gpp-application.ims.iari.gsma-is\";+g.3gpp.icsi-ref=\"urn%3Aurn-7%3A3gpp-service.ims.icsi.oma.cpm.msg\";+g.oma.sip-im",
+    "+353861953134@192.168.127.239;ob",
+    "Contact: <sip:+353894017258@192.168.127.78:55750;ob>;+g.oma.sip-im;+sip.instance=\"<urn:gsma:imei:35592104-358960-3>\"",
+    "+353894017258@192.168.127.78;ob",
+    "Contact: sip:+353894017258@192.168.127.78:4444;ob;q=0.5",
+    "+353894017258@192.168.127.78;ob;q=0.5",
+    "Contact: sip:+353894017258@192.168.127.78:41876;ob;q=0.5;expires=300;+sip.instance=\"<urn:gsma:imei:35592104-358960-3\";+g.3gpp.cs-voice;+g.3gpp.iari-ref=\"urn%3Aurn-7%3A3gpp-application.ims.iari.gsma-is\";+g.3gpp.icsi-ref=\"urn%3Aurn-7%3A3gpp-service.ims.icsi.oma.cpm.msg\";+g.oma.sip-im",
+    "+353894017258@192.168.127.78;ob;q=0.5;expires=300;+sip.instance=\"<urn:gsma:imei:35592104-358960-3\";+g.3gpp.cs-voice;+g.3gpp.iari-ref=\"urn%3Aurn-7%3A3gpp-application.ims.iari.gsma-is\";+g.3gpp.icsi-ref=\"urn%3Aurn-7%3A3gpp-service.ims.icsi.oma.cpm.msg\";+g.oma.sip-im",
+    "",
+};
+
 int main(int argc, char**argv)
 {
     char *contact_from_invite = "Contact: <sip:+353894017257@omn-ims.test;gr=urn:gsma:imei:35592104-359095-7>;+g.oma.sip-im";
-    do_contact_test(contact_from_invite);
+    do_contact_test(contact_from_invite,"");
 
     if (argc>=2) {
 	char *c = NULL;
@@ -60,12 +156,21 @@ int main(int argc, char**argv)
 	while ((read = getline(&c, &len, f)) != -1) {
 	    printf("contact length %zu :\n", read);
 	    printf("%s\n", c);
-	    do_contact_test(c);
+	    do_contact_test(c,"");
 	}
 	if (c) free(c);   // free here - getline does the initial malloc, realloc if needed during loops
 	
 	fclose(f);
+    } else {
+
+	char *c,*e;
+	int i = 0;
+	while((c = contact_tests[i++]) != NULL && (e = contact_tests[i++]) != NULL) {
+	    printf("TEST %s\n", c);
+	    do_contact_test(c,e);
+	}
     }
+
     return 0;
 }
 
@@ -77,7 +182,7 @@ Hi Garv,
 Thanks for pointing directly to where change is needed :)
  from chat_session_actions.c in mcs_ac_set_contact_uri_fn the contact is set . . .
 
-Simple change I think but it probably is in a place which could break things so I've looked at a selection of Contact: samples.
+Simple change I think but it probably is in a place which could break things so I have looked at a selection of Contact: samples.
 The main thing is we want to strip out :<port> after the <user>@<server> part in sip and we want to keep all parameters.
 I assume we wish to keep all parameters inside <> and outside.
 Right? :)
