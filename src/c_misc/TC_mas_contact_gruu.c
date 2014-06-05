@@ -1,6 +1,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <stdarg.h>
 //#define SBUG_SOME printf
 //#define SBUG_SOME(format, ...) { printf("%s:%d ",__FILE__,__LINE__); printf(format, ## __VA_ARGS__); printf("\n"); }
 #define SBUG_SOME(format, ...) { printf("%s:%d ",__FILE__ ":" ,__LINE__); printf(format, ## __VA_ARGS__); printf("\n"); }
@@ -10,10 +11,27 @@
 #define RESTRDUP(a,b) strdup(b)
 
 
+char *tbx_strcatf_va(char *dest, char *format, ...)
+{
+    va_list ap;
+    va_start(ap, format);
+    int l = strlen(dest);
+    sprintf(dest+l,format,ap);
+    va_end(ap);
+    return dest;
+}
+
 char *tbx_strcatf(char *dest, char *format, char *src)
 {
     int l = strlen(dest);
     sprintf(dest+l,format,src);
+    return dest;
+}
+
+char *tbx_strcatf_2(char *dest, char *format, char *src1, char *src2)
+{
+    int l = strlen(dest);
+    sprintf(dest+l,format,src1,src2);
     return dest;
 }
 
@@ -71,24 +89,37 @@ void do_contact_test(char *contact_from_invite, char *expected)
 		// 2. start after sip:, contact is string up to next > or end(strtok sets > to nul)
                 contact = strtok(tokStr+4, ">");
                 SBUG_SOME("1st token [%s]", contact);
-		// 3. next get string up to semi-colon
+		// 3. next get string up to semi-colon (or end)
+		// test is there actually a ';' first
+		seminext = strchr(contact, ';');   // bah, strchrnul doesn't seem to work ??
+		if (seminext == NULL) printf("well ,DUHHHH, that explains it");
+		if (seminext != NULL && seminext[0] == 0) seminext = NULL;
+		if (seminext != NULL) seminext++;  // INCREMENT to just after semicolon
 		semi = strtok(contact, ";");
-		if (semi != NULL) {
-		    seminext = strtok(NULL, ";");
-		    SBUG_SOME("semi token [%s], seminext [%s]", semi, seminext);
-		    // 4. next get string up to colon (if present)
-		    contact = strtok(semi, ":");
-		    SBUG_SOME("contact [%s], semi token [%s], seminext [%s]", contact, semi, seminext);
+		SBUG_SOME("semi token [%s], seminext [%s]", semi, seminext==NULL?"NULL":seminext+1); // +1 because strtok would've just cleared it
+		// 4. next get string up to colon (if present)
+		contact = strtok(semi, ":");
+		
+		// 5. put contact back together without the port, if there was one or more ; that bit needs to be added back
+		if (seminext != NULL) {
+
+		    // doesn't work in case port stripped
+		    // *seminext=';';
+		    
+		    // doesn't work strcat func gets confused (copying into end of contact FROM ptrs in same area!)
+		    //contact = tbx_strcatf(contact,";%s",seminext);
+
+		    //contact = tbx_strcatf(contact,"%s;%s",contact,seminext);
+//extern struct tbx_string *tbx_strcat_multi(struct tbx_string *dst,
+//extern struct tbx_string *tbx_strcpy_multi(struct tbx_string *dst,
+		    char *newcontact = RESTRDUP(blehcontact,newcontact);
+		    tbx_strcatf_2(newcontact,"%s;%s",contact,seminext);		    
+		    //contact = tbx_strcatf_2(newcontact,"%s;%s",contact,seminext);		    
+		    SBUG_SOME("STRCAT newcontact [%s] = contact [%s] + ';' + seminext [%s]", newcontact, contact, seminext);
+		    contact = newcontact;
+
 		    // 5. copy back in from semi-colon to end(the > or real end)  (might be doing nothing if semi-colon was not present)
-		    if (seminext != NULL) {
-			//seminext[-1]=';'; // THIS JOINS contact and seminext back together! Not if there has been a :<port> strip
-			//strcat(contact,";"); // which way do you prefer >;-)   // duhrrr, I prefer the way that works.
-			//strcat(contact,seminext);
-
-			// careful now, the contact and seminext strings are pointers into tokBuf area
-			contact = tbx_strcatf(contact,";%s",seminext);
-
-		    }
+		    // careful now, the contact and seminext strings are pointers into tokBuf area
 		}
 
                 {
