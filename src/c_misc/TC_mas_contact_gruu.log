@@ -1,0 +1,69 @@
+/home/james/c/TC_mas_contact_gruu.c::57 contact from invite [Contact: <sip:+353894017257@omn-ims.test;gr=urn:gsma:imei:35592104-359095-7>;+g.oma.sip-im]
+/home/james/c/TC_mas_contact_gruu.c::62 1st token [sip]
+/home/james/c/TC_mas_contact_gruu.c::65 Contact [+353894017257@omn-ims.test;gr=urn]
+Result:
+Contact: <sip:+353894017257@omn-ims.test;gr=urn>Test Result: FAIL
+
+TEST Contact: <sip:+353894017257@omn-ims.test;gr=urn:gsma:imei:35592104-359095-7>;+g.oma.sip-im
+/home/james/c/TC_mas_contact_gruu.c::57 contact from invite [Contact: <sip:+353894017257@omn-ims.test;gr=urn:gsma:imei:35592104-359095-7>;+g.oma.sip-im]
+/home/james/c/TC_mas_contact_gruu.c::62 1st token [sip]
+/home/james/c/TC_mas_contact_gruu.c::65 Contact [+353894017257@omn-ims.test;gr=urn]
+Result:
+Contact: <sip:+353894017257@omn-ims.test;gr=urn>Test Result: FAIL
+
+TEST Contact: <sip:+353894017257@omn-ims.test>
+/home/james/c/TC_mas_contact_gruu.c::57 contact from invite [Contact: <sip:+353894017257@omn-ims.test>]
+/home/james/c/TC_mas_contact_gruu.c::62 1st token [sip]
+/home/james/c/TC_mas_contact_gruu.c::65 Contact [+353894017257@omn-ims.test]
+Result:
+Contact: <sip:+353894017257@omn-ims.test>Test Result: PASS
+
+TEST Contact: <sip:10.220.105.213:60860>
+/home/james/c/TC_mas_contact_gruu.c::57 contact from invite [Contact: <sip:10.220.105.213:60860>]
+/home/james/c/TC_mas_contact_gruu.c::62 1st token [sip]
+/home/james/c/TC_mas_contact_gruu.c::65 Contact [10.220.105.213]
+Result:
+Contact: <sip:10.220.105.213>Test Result: PASS
+
+TEST Contact: <sip:10.220.105.213>
+/home/james/c/TC_mas_contact_gruu.c::57 contact from invite [Contact: <sip:10.220.105.213>]
+/home/james/c/TC_mas_contact_gruu.c::62 1st token [sip]
+/home/james/c/TC_mas_contact_gruu.c::65 Contact [10.220.105.213]
+Result:
+Contact: <sip:10.220.105.213>Test Result: PASS
+
+TEST Contact: <sip:10.220.105.213:5054>;expires=300
+/home/james/c/TC_mas_contact_gruu.c::57 contact from invite [Contact: <sip:10.220.105.213:5054>;expires=300]
+/home/james/c/TC_mas_contact_gruu.c::62 1st token [sip]
+/home/james/c/TC_mas_contact_gruu.c::65 Contact [10.220.105.213]
+Result:
+Contact: <sip:10.220.105.213>Test Result: PASS
+
+TEST Contact: <sip:+353861953134@192.168.127.239:48865;ob>;q=0.5;+sip.instance="<urn:gsma:imei:35287606-388013-9>";+g.3gpp.cs-voice;+g.3gpp.iari-ref="urn%3Aurn-7%3A3gpp-application.ims.iari.gsma-is";+g.3gpp.icsi-ref="urn%3Aurn-7%3A3gpp-service.ims.icsi.oma.cpm.msg";+g.oma.sip-im
+/home/james/c/TC_mas_contact_gruu.c::57 contact from invite [Contact: <sip:+353861953134@192.168.127.239:48865;ob>;q=0.5;+sip.instance="<urn:gsma:imei:35287606-388013-9>";+g.3gpp.cs-voice;+g.3gpp.iari-ref="urn%3Aurn-7%3A3gpp-application.ims.iari.gsma-is";+g.3gpp.icsi-ref="urn%3Aurn-7%3A3gpp-service.ims.icsi.oma.cpm.msg";+g.oma.sip-im]
+/home/james/c/TC_mas_contact_gruu.c::62 1st token [sip]
+/home/james/c/TC_mas_contact_gruu.c::65 Contact [+353861953134@192.168.127.239]
+Result:
+Contact: <sip:+353861953134@192.168.127.239>Test Result: FAIL
+
+TEST Contact: <sip:+353894017258@192.168.127.78:55750;ob>;+g.oma.sip-im;+sip.instance="<urn:gsma:imei:35592104-358960-3>"
+/home/james/c/TC_mas_contact_gruu.c::57 contact from invite [Contact: <sip:+353894017258@192.168.127.78:55750;ob>;+g.oma.sip-im;+sip.instance="<urn:gsma:imei:35592104-358960-3>"]
+/home/james/c/TC_mas_contact_gruu.c::62 1st token [sip]
+/home/james/c/TC_mas_contact_gruu.c::65 Contact [+353894017258@192.168.127.78]
+Result:
+Contact: <sip:+353894017258@192.168.127.78>Test Result: FAIL
+
+TEST Contact: sip:+353894017258@192.168.127.78:4444;ob;q=0.5
+/home/james/c/TC_mas_contact_gruu.c::57 contact from invite [Contact: sip:+353894017258@192.168.127.78:4444;ob;q=0.5]
+/home/james/c/TC_mas_contact_gruu.c::62 1st token [sip]
+/home/james/c/TC_mas_contact_gruu.c::65 Contact [+353894017258@192.168.127.78]
+Result:
+Contact: <sip:+353894017258@192.168.127.78>Test Result: FAIL
+
+TEST Contact: sip:+353894017258@192.168.127.78:41876;ob;q=0.5;expires=300;+sip.instance="<urn:gsma:imei:35592104-358960-3";+g.3gpp.cs-voice;+g.3gpp.iari-ref="urn%3Aurn-7%3A3gpp-application.ims.iari.gsma-is";+g.3gpp.icsi-ref="urn%3Aurn-7%3A3gpp-service.ims.icsi.oma.cpm.msg";+g.oma.sip-im
+/home/james/c/TC_mas_contact_gruu.c::57 contact from invite [Contact: sip:+353894017258@192.168.127.78:41876;ob;q=0.5;expires=300;+sip.instance="<urn:gsma:imei:35592104-358960-3";+g.3gpp.cs-voice;+g.3gpp.iari-ref="urn%3Aurn-7%3A3gpp-application.ims.iari.gsma-is";+g.3gpp.icsi-ref="urn%3Aurn-7%3A3gpp-service.ims.icsi.oma.cpm.msg";+g.oma.sip-im]
+/home/james/c/TC_mas_contact_gruu.c::62 1st token [sip]
+/home/james/c/TC_mas_contact_gruu.c::65 Contact [+353894017258@192.168.127.78]
+Result:
+Contact: <sip:+353894017258@192.168.127.78>Test Result: FAIL
+
