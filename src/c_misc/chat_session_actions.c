@@ -663,6 +663,8 @@ void mcs_ac_set_contact_uri_fn(struct mcs_state_machine_instance *mcs_smi)
     static char *tokBuf = NULL;
     char *tokStr = NULL;
     char *contact = NULL;
+    char *contactb4semi = NULL;
+    char *seminext = NULL;
 
     if (mcs_smi->is_group_chat_leg){
         SBUG_SOME("Group chat leg");
@@ -724,19 +726,40 @@ void mcs_ac_set_contact_uri_fn(struct mcs_state_machine_instance *mcs_smi)
         SBUG_SOME("oa_user_tel_uri [%s]", mcs_smi->oa_user_tel_uri);
 
         // Only need number@host from this contact
+        // convert sip:number@host<:port><;params> to sip:number@host<;params>
         tmpPtr = NULL;
         tmpPtr = imf_hdr_get(mcs_smi->oa_invite_imf, corrib_sip_ihd_contact_num, 0);
+
         if (strlen(tmpPtr) > 0) {
+	    SBUG_SOME("contact from invite [%s]", tmpPtr);
             tokBuf = RESTRDUP(tokBuf, tmpPtr);
+	    // 1. find sip: (may or may not be within <>s) 
             if ((tokStr = strstr(tokBuf, "sip:")) != NULL) {
 
-                contact = strtok(tokStr, ":>");
+		// 2. start after sip:, take contact from string up to next > or end (strtok tokenised sets > char to nul)
+                contact = strtok(tokStr+4, ">");
                 SBUG_SOME("1st token [%s]", contact);
-                if ((contact = strtok(NULL, ":>")) != NULL)
-                {
-                    SBUG_SOME("Contact [%s]", contact);
-                    mcs_smi->contact_uri = STRDUP(contact);
-                }
+		// 3. now take that contact and check are there parameters (find semi-colon)
+		seminext = strchr(contact, ';');
+		// check was there a semi-colon, split string and prepare seminext pointer to be added back if so
+                // set semicolon to end-of-string and INCREMENT ptr to just after semicolon
+		if (seminext != NULL) { *seminext=0; seminext++; }  
+		// 4. tokenize contact on colon (if present), this removes :<port> part
+		contactb4semi = strtok(contact, ":");
+		SBUG_SOME("b4 semi [%s], seminext [%s]", contactb4semi, seminext==NULL?"NULL":seminext);
+		
+		// 5. put contact back together without the port, if there was one (or more) semi-colon that bit needs to be added back
+		if (seminext != NULL) {
+		    // careful now, the contact and seminext strings are pointers into tokBuf area
+		    static struct tbx_string *newcontact = NULL;
+                    newcontact = tbx_strcat_multi(newcontact, contactb4semi, ";", seminext);
+		    contact = STRDUP(tbx_strget(newcontact));
+		    SBUG_SOME("STRCAT newcontact [%s] = contact [%s] + ';' + seminext [%s]", contact, contactb4semi, seminext);
+		}
+
+		SBUG_SOME("Contact [%s]", contact);
+		mcs_smi->contact_uri = STRDUP(contact);
+
             }
             else {
                 // Is this default correct ?
