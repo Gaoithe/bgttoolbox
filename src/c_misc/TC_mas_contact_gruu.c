@@ -228,26 +228,31 @@ void do_contact_test(char *contact_from_invite, char *expected)
         }
 }
 
-// unit test contacts  (original and expected (all after > stripped is expected)
+
+// Fri 6/6/2014 change mind! we want to keep the port in.
+// NOTE Contact: sip:stuff;params;params2  the params are assoc with Contact in that case not with the sip: so they should be removed when taking contact
+// contractor john did the strtok stuff.
+// also where :5060 is hardcoded into contact need to fix . . . - review any strtok stuff
+// unit test contacts  (original and expected (all after > stripped is expected))
 char *contact_tests[] = {
     "Contact: <sip:+353894017257@omn-ims.test;gr=urn:gsma:imei:35592104-359095-7>;+g.oma.sip-im",
     "+353894017257@omn-ims.test;gr=urn:gsma:imei:35592104-359095-7",
     "Contact: <sip:+353894017257@omn-ims.test>",
     "+353894017257@omn-ims.test",
     "Contact: <sip:10.220.105.213:60860>",
-    "10.220.105.213",
+    "10.220.105.213:60860",
     "Contact: <sip:10.220.105.213>",
     "10.220.105.213",
     "Contact: <sip:10.220.105.213:5054>;expires=300",
-    "10.220.105.213",
+    "10.220.105.213:5054",
     "Contact: <sip:+353861953134@192.168.127.239:48865;ob>;q=0.5;+sip.instance=\"<urn:gsma:imei:35287606-388013-9>\";+g.3gpp.cs-voice;+g.3gpp.iari-ref=\"urn%3Aurn-7%3A3gpp-application.ims.iari.gsma-is\";+g.3gpp.icsi-ref=\"urn%3Aurn-7%3A3gpp-service.ims.icsi.oma.cpm.msg\";+g.oma.sip-im",
-    "+353861953134@192.168.127.239;ob",
+    "+353861953134@192.168.127.239:48865;ob",
     "Contact: <sip:+353894017258@192.168.127.78:55750;ob>;+g.oma.sip-im;+sip.instance=\"<urn:gsma:imei:35592104-358960-3>\"",
-    "+353894017258@192.168.127.78;ob",
+    "+353894017258@192.168.127.78:55750;ob",
     "Contact: sip:+353894017258@192.168.127.78:4444;ob;q=0.5",
-    "+353894017258@192.168.127.78;ob;q=0.5",
+    "+353894017258@192.168.127.78:4444",
     "Contact: sip:+353894017258@192.168.127.78:41876;ob;q=0.5;expires=300;+sip.instance=\"<urn:gsma:imei:35592104-358960-3\";+g.3gpp.cs-voice;+g.3gpp.iari-ref=\"urn%3Aurn-7%3A3gpp-application.ims.iari.gsma-is\";+g.3gpp.icsi-ref=\"urn%3Aurn-7%3A3gpp-service.ims.icsi.oma.cpm.msg\";+g.oma.sip-im",
-    "+353894017258@192.168.127.78;ob;q=0.5;expires=300;+sip.instance=\"<urn:gsma:imei:35592104-358960-3\";+g.3gpp.cs-voice;+g.3gpp.iari-ref=\"urn%3Aurn-7%3A3gpp-application.ims.iari.gsma-is\";+g.3gpp.icsi-ref=\"urn%3Aurn-7%3A3gpp-service.ims.icsi.oma.cpm.msg\";+g.oma.sip-im",
+    "+353894017258@192.168.127.78:41876",
     "",
 };
 
