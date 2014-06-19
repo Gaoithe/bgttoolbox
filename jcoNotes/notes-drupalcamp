@@ -1,0 +1,606 @@
+Leon
+http://www.galwayflux.com
+Blog, content, themes
+Where host? http://groups.drupal.org/node/13277
+ http://themegarden.org/drupal6/?q=buy-best-drupal-hosting
+ http://www.seekdotnet.com/drupalhosting.aspx
+
+ blacknight hosting365 digiweb letshost.ie novara
+ _________    ____      ____
+Requirements: php5.2 (for ImageCache/ various modules reqs might be more)
+
+
+Alan Burke - Drupal
+
+joomla/Plone/Wordpress, Sharepoint, .. .
+
+Usability for non geeks.
+Discussion in B&B and Alan Burke
+Changes made on webserver.
+If there's a theme + module that does what you want then interface is clicky-draggy.  If something goes wrong ... good logging/view into internals but this usable really only for more tech people.
+
+me? IMHO proper coding process for websites: use of templates, seperate design and content is in place if you use Drupal.
+
+Powerful but also complex.
+
+Who?
+* standard sites, community sites
+* Private, member only, company intranet sites
+ ajax one person access database at a time MANY companies
+
+Michael Jackson
+Britney Spears - Sony BMG - full time Drupal workers. whew. Views/QueryBuilder.
+Obama recovery.gov
+World Food Program - UN
+Trinity Sci Gallery
+Oxygen festival/Electric Picnic - last year Drupal, this year joomla
+
+
+
+--------------------------------------------------
+http://groups.drupal.org/node/20936#comment-72425
+
+Leon Burke presented his Drupal site: GalwayFLUX http://galwayflux.com/
+
+Alan mentioned a few sites:
+  http://www.sciencegallery.ie/  Trinity Science Gallery
+
+Oxygen festival/Electric Picnic - last year Drupal, this year Joomla
+ http://www.oxegen.ie/2009/
+ http://www.electricpicnic.ie/
+
+Non-Irish:
+Michael Jackson, Britney Spears and other artists by Sony BMG
+ http://community.michaeljackson.com/
+ http://www.britney.com/
+President of the USA, Obama
+ http://www.recovery.gov
+World Food Program - UN
+ http://www.wfp.org/
+
+
+These guys are also with SonyBMG, is  this site a Drupal site?
+ http://www.thepriests.com/
+
+
+Stella is creating: http://www.shadowboxireland.com/
+
+
+This is a good page:  http://websites.usandv.com/who-is-using-drupal
+--------------------------------------------------
+
+
+
+
+me: how do pdf/doc/other content -after all it is a CMS
+ video?nd yeah, complexity)
+ 
+Administer -> Site Building ->
+* Themes
+* Modules  (and modules working together)   flexibility (a
+
+http://themegarden.org/drupal6/
+http://drupal.org/project/themes
+
+
+DON'T HACK the CORE
+
+
+Some installers (ole-click fantastico) easy ish  acquia (good) but
+ties into them to upgrade/fix/extend.
+http://acquia.com/products-services/acquia-drupal-supported-platforms
+
+
+zen recommended as v good starting theme
+http://themegarden.org/drupal6/?q=node/2&theme=zen
+
+
+
+Taxonomy - tags?   scope: ireland uk europe ...
+used to categorize content:  pages, images
+views
+
+
+================================================================================
+Shadowbox site create - Stella
+NOT THISONE:http://www.shadowboxtheatre.com
+http://www.shadowboxireland.com/
+
+blog
+about page
+contact
+image gallery - afternoon
+
+0. hosting arrangement, domain name register
+ this is tricky for non tech people
+ what is your hosting interface
+  how can you upload modules and themes? (even can you?)
+    how do you develop - dev env on own laptop/pc
+hosters + votes + reviews + advice by country (does country matter?)    
+
+
+1. install
+Also download modules (not enabled yet)
+and unpackage
+
+2. can't live without modules: Administration menu
+ Wyzywig module enable
+ IMCE (add images using wysywig)
+  editor TinyMCE download and add seperately
+ Administer -> Site Building -> Modules (enable ...)
+ Administer -> Site Config -> configure wyzywig
+
+3. create page/story
+ story - date and who - good for news
+ 
+
+
+
+Site created at DrupalCamp Galway 2009: http://groups.drupal.org/node/18452
+
+Activelink.ie http://www.activelink.ie/irish/organisation.php?id=416
+
+
+================================================================================
+add1sun - documentation
+
+3 forms docs:
+
+
+
+me: download zen theme
+
+http://drupal.org/project/themes?text=zen
+
+urg - yes, docs install theme - says how to for 4.7 or 5.0 but not Drupal 6 ????
+http://drupal.org/node/456
+
+Docs home/Drupal handbook: http://drupal.org/handbooks
+Theming guide: http://drupal.org/theme-guide
+about theming: http://drupal.org/node/221881
+http://drupal.org/getting-started/5/install-contrib/themes
+
+jamesc@jamesc-laptop:/var/www/drupal$ mkdir sites/all/themes
+jamesc@jamesc-laptop:/var/www/drupal$ cd sites/all/themes
+jamesc@jamesc-laptop:/var/www/drupal/sites/all/themes$ tar -zxvf /home/jamesc/Desktop/zen-6.x-1.0.tar.gz 
+
+.... initial load of admin page had sql error 
+ ... it went away ...
+
+so admin
+ zet zen as default
+ in garland config play with colours
+ for zen upload logo and icon image  (gimp - to rgb layers - filters blur, cleanup
+
+
+
+make a theme:
+http://tips.webdesign10.com/how-to-make-a-drupal-theme
+later
+
+
+edit a theme:
+ good tip: set an Admin theme so don't get stuck in WHITE SCREEN OF DEATH while messing
+ 
+good tip: in zen info file turn on wire frames - can see where stuff is
+
+good  tip: FireBug + // extensions
+
+
+
+good tip:  core modules enable: Path (url aliasing)
+
+================================================================================
+
+Stella  for shadowbox images
+ modules CCK and .... ImageCache
+
+
+http://drupal.org/project/cck
+Content Construction Kit (CCK)
+
+http://drupal.org/project/ImageCache
+
+
+ ImageCache
+  add new preset e.g. name Thumbnail - resize, ...
+
+
+
+http://drupal.org/node/70151
+installing contributed modules
+
+
+for drupal 5.x and 6.x  
+  modules to sites/all/modules  (in modules are core modules)
+  themes to sites/all/themes  (in themes are core themes)
+
+
+http://drupal.org/project/lightbox2
+
+ImageCache stuff needs ImageAPI
+http://drupal.org/node/405820
+
+
+this is wrong:
+Preview:  http://localhost/drupal/sites/default/files/imagecache/umPreset/imagecache_sample.png?1238854562
+
+
+jamesc@jamesc-laptop:/var/www/drupal$ ls sites/default/files/
+color  imagecache_sample.png  zen_favicon.png  zen_logo.png
+
+
+
+add Gallery
+http://drupal.org/project/gallery
+
+
+
+http://drupal.org/node/144725
+Create an image gallery using CCK and Views
+
+
+
+
+This is what I used:
+
+• Drupal 5.x
+• CCK 5.x-1.3 (the module is called 'Content Construction Kit', not CCK)
+• Imagefield 5.x-1.x-dev (2007-Feb-23)
+• Imagecache 5.x-1.1
+• Views 5.x-1.5
+• Views Bonus Pack 5.x-1.0
+• Custom Pagers 5.x-1.7
+• Thickbox 5.x-1.x-dev (2007-May-05)
+
+create presets:
+a. 'Square Thumbnail' – scale to 150 x 150 then crop to 75 x 75
+b. 'Display' – scale to 650 x 650
+
+
+
+
+jamesc@jamesc-laptop:/var/www/drupal/sites/all/modules$ ls /home/jamesc/Desktop/*.gz
+/home/jamesc/Desktop/cck-6.x-2.2.tar.gz
+/home/jamesc/Desktop/cdgtools-0.3.1.tar.gz
+/home/jamesc/Desktop/custom_pagers-6.x-1.10-beta1.tar.gz
+/home/jamesc/Desktop/gallery-6.x-1.0.tar.gz
+/home/jamesc/Desktop/imageapi-6.x-1.5.tar.gz
+/home/jamesc/Desktop/imagecache-6.x-2.0-beta8.tar.gz
+/home/jamesc/Desktop/imagefield-6.x-3.0-rc1.tar.gz
+/home/jamesc/Desktop/lightbox2-6.x-1.9.tar.gz
+/home/jamesc/Desktop/thickbox-6.x-1.2.tar.gz
+/home/jamesc/Desktop/views-6.x-2.3.tar.gz
+/home/jamesc/Desktop/views_bonus-6.x-1.0-beta2.tar.gz
+/home/jamesc/Desktop/zen-6.x-1.0.tar.gz
+
+
+uohhhhhh
+Fatal error: Allowed memory size of 16777216 bytes exhausted (tried to allocate 264250 bytes) in /var/www/drupal/includes/database.mysqli.inc on line 303
+
+ http://localhost/drupal/?q=admin/build/modules/list/confirm
+
+after try enable views/bonus views modules
+
+Fatal error: Allowed memory size of 16777216 bytes exhausted (tried to allocate 185274 bytes) in /var/www/drupal/includes/database.mysql-common.inc on line 41
+
+http://localhost/drupal/?q=admin/build/modules
+Fatal error: Allowed memory size of 16777216 bytes exhausted (tried to allocate 451 bytes) in /var/www/drupal/includes/database.mysql-common.inc on line 41
+
+http://drupal.org/node/259479
+ google => views need alot of memory (php limit in apache2)
+
+
+ 
+jamesc@jamesc-laptop:/var/www/drupal/sites/all/modules$ sudo vi /etc/php5/apache2/php.ini 
+[sudo] password for jamesc: 
+jamesc@jamesc-laptop:/var/www/drupal/sites/all/modules$ grep 32 /etc/php5/apache2/php.ini 
+memory_limit = 32M      ; Maximum amount of memory a script may consume (16MB)
+
+
+
+
+http://localhost/drupal/?q=admin/settings/gallery
+no gallery dir error?
+no, follow instructions,
+ don't do this yet:
+jamesc@jamesc-laptop:/var/www/drupal/sites/all/modules$ sudo mkdir /var/www/drupal/gallery2
+jamesc@jamesc-laptop:/var/www/drupal/sites/all/modules$ sudo chown www-data /var/www/gallery2
+
+
+add Image/image content type 
+and to that add image/field_image field (type Text?) 
+http://localhost/drupal/?q=admin/content/types/add
+
+add Image_Gallery view   ? no type of  Bonus View yadda ?????
+
+
+jamesc@jamesc-laptop:/var/www/drupal/sites/all/modules$ tar -zxvf /home/jamesc/Desktop/advanced_help-6.x-1.1.tar.gz 
+
+5. Now create a View (admin/build/views). I called mine 'Image Gallery'. You just need a Page, not a Block. Choose 'gallery' for the Page URL (or whatever you want).
+
+a. In the Page settings, choose the 'Bonus: Grid View' for the View Type. I used 24 nodes per page – shooting for a 6 wide by 4 tall grid (max size).
+
+b. In the fields section add the fields 'Title' and 'Image' (your CCK image field created in 2 above). 
+
+
+OUCH OUCH OUCH   (see below UNOUCH a bit)
+
+
+
+right.
+goto http://localhost/drupal/gallery2/
+ that bounces to install procedure
+
+http://localhost/drupal/gallery2/install/index.php?step=1&G2SETUPSID=b622f8318aa86985903004e7faf8d145
+jamesc@jamesc-laptop:~$ sudo cp Desktop/login.txt /var/www/drupal/gallery2/
+
+
+system checks: good
+missing files warning?:
+lib/adodb/license.txt
+lib/adodb/readme.txt
+lib/smarty/COPYING.lib
+lib/smarty/*
+modified:
+lib/adodb/*
+lib/adodb/tohtml.inc.php
+lib/pear/HTMLSax3.php
+old:
+lib/adodb/drivers/adodb-mssql.inc.php
+lib/adodb/drivers/adodb-mssqlpo.inc.php
+lib/adodb/drivers/adodb-odbc.inc.php
+lib/adodb/drivers/adodb-postgres.inc.php
+
+
+
+standard (not multisite although .,.)
+
+dir: /var/lib/gallery2/g2data
+ sudo mkdir /var/lib/gallery2/g2data
+ sudo chmod 755 /var/lib/gallery2/g2data
+ sudo chown www-data:www-data /var/lib/gallery2/g2data
+
+
+gallery pass: galGAL
+
+
+--------------------------------------------------
+sudo apt-get install lighttpd
+
+edit /etc/lighttpd/lighttpd.conf and use port 81 not 80
+TODO: enable ssh, public_html dirs, php, svn? trac? https?
+
+
+Hey hello Stella,
+
+
+Do you know your lighttpd has  dir-listing enabled?
+
+http://www.zikomo.org/sites/zikomo.org/files/
+
+## virtual directory listings
+dir-listing.encoding        = "utf-8"
+#server.dir-listing          = "enable"
+
+
+
+http://www.zikomo.org/sites/zikomo.org/modules/
+
+Index of /sites/zikomo.org/modules/
+Name	Last Modified	Size	Type
+Parent Directory/	 	-  	Directory
+admin_menu/	2009-Jan-24 05:45:03	-  	Directory
+adminrole/	2009-Jan-19 03:35:02	-  	Directory
+backup_migrate/	2009-Apr-06 13:03:30	-  	Directory
+better_formats/	2009-Apr-05 13:19:52	-  	Directory
+cck/	2009-Mar-18 21:10:14	-  	Directory
+filefield/	2009-Apr-01 21:20:53	-  	Directory
+google_analytics/	2009-Apr-01 19:21:07	-  	Directory
+imageapi/	2009-Mar-18 10:15:35	-  	Directory
+imagecache/	2009-Feb-17 22:01:13	-  	Directory
+imagefield/	2009-Apr-01 21:35:52	-  	Directory
+imce/	2009-Feb-21 14:45:25	-  	Directory
+imce_wysiwyg/	2009-Mar-04 15:55:23	-  	Directory
+lightbox2/	2009-Jan-08 13:30:39	-  	Directory
+mimemail/	2009-Feb-22 12:10:57	-  	Directory
+mollom/	2009-Jan-12 10:00:38	-  	Directory
+pathauto/	2009-Mar-31 01:14:56	-  	Directory
+seo_checklist/	2009-Feb-20 19:45:58	-  	Directory
+simplenews/	2009-Mar-09 08:55:51	-  	Directory
+token/	2008-Aug-02 18:30:38	-  	Directory
+views/	2009-Feb-07 04:35:51	-  	Directory
+wysiwyg/	2009-Apr-05 10:40:37	-  	Directory
+zikomo_custom/	2009-Apr-07 13:24:06	-  	Directory
+
+
+
+
+jamesc@jamesc-laptop:~$ ls /var/www/drupal/modules/
+aggregator  color    forum   openid  profile     system       trigger
+block       comment  help    path    README.txt  taxonomy     update
+blog        contact  locale  php     search      throttle     upload
+blogapi     dblog    menu    ping    statistics  tracker      user
+book        filter   node    poll    syslog      translation
+
+nope. those are core. watch out
+
+jamesc@jamesc-laptop:/var/www/drupal/sites/all/modules$ ls
+advanced_help  fckeditor  image         imagecache  thickbox
+cck            gallery    imageapi      imagefield  views
+custom_pagers  gmap       imagebrowser  lightbox2   views_bonus
+
+
+
+Index of /sites/zikomo.org/modules/wysiwyg/
+Name	Last Modified	Size	Type
+Parent Directory/	 	-  	Directory
+editors/	2009-Apr-02 01:30:33	-  	Directory
+examples/	2009-Apr-04 11:47:52	-  	Directory
+fckeditor/	2009-Apr-05 10:40:41	-  	Directory
+jscripts/	2009-Mar-26 13:25:18	-  	Directory
+plugins/	2009-Apr-02 01:30:33	-  	Directory
+tinymce/	2009-Apr-04 11:49:14	-  	Directory
+translations/
+
+
+
+
+
+
+imce
+
+How to integrate into text editors:
+FCKeditor: Admin->Settings->Fckeditor profile->File browser settings->IMCE integration
+TinyMCE with WYSIWYG API: Install IMCE Wysiwyg API bridge and enable IMCE in the plugin list of your wysiwyg profile.
+TinyMCE: See http://drupal.org/node/241753#comment-792305
+
+
+So install fckeditor module
+ install fckeditor
+ install wysywig module
+  tinymce   or http://drupal.org/project/imce_wysiwyg
+  imce
+
+
+
+
+
+
+
+WOAH.  UNOUCH a bit:
+Views Edit is not intuitive.
+
+Read the Views Getting Started help.
+http://localhost/drupal/?q=help/views/getting-started&popup=1
+
+
+http://localhost/drupal/?q=admin/build/views/edit/gallery_view
+
+
+http://drupalworx.com/node/80
+
+
+To Add view
+Goto Administer -> Site Building -> Views, click Add tab
+http://localhost/drupal/?q=admin/build/views/add
+This is obvious enough
+
+Name image_gallery Desc Image Gallery type node
+Also obvious enough (though node?)
+
+Now. First thing, on the left click Add Display (of type Page is default in the select)
+Then in Page settings set path to the URL "gallery"
+
+ Live preview will show helpful warnings or errors e.g.:
+    * Display "Defaults" uses fields but there are none defined for it or all are excluded.
+    * Display "Page" uses fields but there are none defined for it or all are excluded.
+
+
+
+
+
+"5. Now create a View (admin/build/views). I called mine 'Image Gallery'. You just need a Page, not a Block. Choose 'gallery' for the Page URL (or whatever you want).
+
+a. In the Page settings, choose the 'Bonus: Grid View' for the View Type. I used 24 nodes per page – shooting for a 6 wide by 4 tall grid (max size).
+
+b. In the fields section add the fields 'Title' and 'Image' (your CCK image field created in 2 above). 
+"
+
+
+
+.....
+
+wysiwyg module install
+imce install
+
+
+wysywig module config
+ to operate when ?full html? edit set
+ enable IMCE ... bunch of other buttons
+http://localhost/drupal/?q=admin/settings/wysiwyg/profile
+
+================================================================================
+z malawi
+EMAIL LIST - sign up and email news
+field blog
+
+
+
+... googlemaps - gmap module
+
+
+
+
+
+
+
+10:00 	Registrations 	Registrations
+10:30 	What is Drupal, GalwayFlux.com - Leon Butler 	What's new in Drupal 7?
+11:00 	Introduction to Drupal, a quick overview 	
+11:30 	Building a simple site, the case of Shadowbox - Stella 	
+12:30 	Lunch 	Lunch
+1:30 	Documentation is hot! - Add1sun 	Simpletest - John
+2:00 	" (con'd) 	Theming - Martin
+2:30 	CCK + Views 	Docs - Add1sun
+3:00 	"(cont'd) 	RDF CCK - scor
+3:30 	Theming Drupal - Alan & Heather 	What's new in Drupal 7 - scor
+4:00 	Installing Drupal - Alan 	Security - John
+4:30 	Drupal N'Go start - including short presentations from non-profits 	
+
+
+Feedback for Drupal
+
+
+http://groups.drupal.org/node/21027#comment-72674
+
+
+
+Feedback from a Drupal newbie developer's perspective.
+
+Great weekend! Thanks loads to everyone especially the organisers for all the work put in. Not only were they organising the event but also were the key speakers! So well done!  And brilliant to meet such a nice friendly bunch or weird and wonderful people :)
+
+The format was really good IMHO. Sometimes at a 'proper' conference you attend a really good talk and learn something but it can be a very passive experience and I've learned a ton of stuff at this event.
+
+As an experienced developer (not in Drupal) the whole weekend gave a really good insight into good designs for sites and how Drupal site spec/design/implement process works.  You can only gain this stuff with experience and it is really valuable to get an insight there and have access to really excellent Drupal people. Also meeting some real end users and seeing some graphics/theme design was very interesting.
+
+Saturday 
+
+I stayed with the newbie track on Sat and absorbed a load of stuff.
+There was a better defined structure in the "newbie" room and I found every presentation had elements of very good value. Where I already was familiar with what was going on I could tune out a little and try and catch up reading Drupal docs on some areas or work on my Drupal Install/Configure.
+
+You can only really learn something properly by doing it fully yourself but seeing GalwayFLUX site overview and ShadowBox Theatre site created gives a huge jump start ~kindof~ background reassurance that what you're doing (especially with regard to Modules used) is sensible, stable, tried and trusted.   
+
+It sounded like in the experienced track people didn't stay on topic long enough to get full satisfaction and feel they fully learned something or answered questions fully. Perhaps that is where a proper unconference/barcamp style works better? If the whole experienced/intermediate group tries to stay together you can only cover any issue lightly. If the experienced track was split up even more into smaller workshops which really delved into some one thing it could work. 
+
+
+Sunday - website build
+
+Sunday was very nice, fantastic atmosphere.
+At the start (especially as a newbie) it wasn't possible to get involved.
+We shoulder-surfed module config and development a bit.
+Alan was very good setting up and then introducing what work was ongoing and delegating and  pulling people in when possible. 
+It was good to be accidentally sitting in the middle of the design people working on the theme.  It would be nice for me to do the day again and pay attention to the design and see what was happening there.
+Later on I just helped upload a bunch of images into the gallery. Very simple but nice as worked with Margaret from Zikomo who could explain what was going on and give them good titles which adds a great deal to the gallery.
+
+What might make maximum use of this sort of event is if the project work was tracked and recorded and presented out loud while the work was happening.
+The presenter (one person or one person for design/dev/content) would:
+ * follow what was happening,
+ * explain it aloud (as best they could) to the general group (people half paying attention could pay more attention for interesting things)
+ * record issues or tasks ongoing/completed/new. (record on web or on whiteboard)
+Doing this could be a bit distracting for the work (especially if the explaination is wrong! :)).
+You might feel like a bit of an eejit. :-P
+It is probably hard to do this.
+But I think this approach could reveal what was happening in general and even allow for enhanced synergistic intra-team communication :).  
+
+
+Finally thanks again for such a good event.
+There was loads going on and I felt it would have been handy if I could aplit myself in at least 2.
+Tons of activity and material and ideas so I definately am looking forward to future events.
+
+--------------------------------------------------
+ By te way
+ http://www.zikomo.org/malawi
+fix
+
+Some questions can be hard to communicate in the first placeand sanswers neccessarily vague.

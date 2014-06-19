@@ -1,0 +1,74 @@
+https://csc.eflow.ie/violationprocess/detail.aspx?cid=5549711
+Penalty Detail
+
+This is the detail record of penalty:   1055497113
+
+ Please print this page for your records.
+Account Information
+Reference:  	63480685
+M50 penalty Record
+License Plate: 	06D25150
+Date:	02/04/2009 10:31:00
+Plaza | Lane:	M50 N4N3|GantryController 1
+Original Toll Fare:	3.00
+Original Amt Paid | Amt Due:	0.00|3.00
+Fare Class:	2
+Date Paid:	
+Comment: 
+
+
+ASSERT: *** Search: _installLocation: engine has no file!
+Stack Trace: 
+0:ENSURE_WARN(false,_installLocation: engine has no file!,2147500037)
+1:()
+2:()
+3:()
+4:epsGetAttr([object Object],hidden)
+5:()
+6:()
+7:currentEngine()
+8:get_currentEngine()
+9:updateDisplay()
+10:init()
+11:([object XULElement],-4)
+
+
+
+
+
+
+click on pay by credit card ...
+ASSERT: *** Search: _installLocation: engine has no file!
+Stack Trace: 
+0:ENSURE_WARN(false,_installLocation: engine has no file!,2147500037)
+1:()
+2:()
+3:()
+4:epsGetAttr([object Object],alias)
+5:()
+6:SRCH_SVC_getEngineByAlias(http://www.amazon.co.uk/b/?node=203041011)
+7:getEngineByAlias(http://www.amazon.co.uk/b/?node=203041011)
+8:getShortcutOrURI(http://www.amazon.co.uk/b/?node=203041011,[object Object])
+9:canonizeUrl([object KeyboardEvent],[object Object])
+10:handleURLBarCommand([object KeyboardEvent])
+11:anonymous(textentered,[object KeyboardEvent])
+12:fireEvent(textentered,[object KeyboardEvent])
+13:onTextEntered()
+
+.... .. . ?amazon ?
+also I'm sudo apt-ing upgrade firefox or deps caused this?
+
+
+
+ Print  Print
+
+Thank you for your payment.
+Reference: 	63480685
+Number Plate: 	06D25150
+Payment Number: 	410171
+Payment Type/Last 4 digits: 	Credit/ 9153
+Amount Charged: 	€47.50
+Date: 	29/04/2009
+	
+
+Click to continue  Here

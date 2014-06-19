@@ -1,0 +1,111 @@
+
+Make it easier to convert whole document from A4 to A5 would be nice.
+Use document settings and change to A5.
+But then need to manually select all on page (click on page and ctrl-A) 
+and resize.
+ Would be very useful: 
+  Command to select all on each page and fit/scale into page.
+ Command to fix errors on page where stuff go outside page would be nice. 
+
+Resized to A5 and margins 40 40 40 40 stayed same.
+ In view don't see that you'r eusing margins.
+
+Resized to A5, then resized pages manually (difficult, move and  snap to grid/guidelines, but quite  manual). Then PDF generation has artifacts from adjoining pages, I think where a page goes outside it's own border or margin.
+
+http://www.dspsrv.com/~jamesc/music/MyFairLady_Prog_009.pdf
+http://www.dspsrv.com/~jamesc/music/MyFairLady_Prog_009.sla
+http://www.dspsrv.com/~jamesc/music/MyFairLady_Prog_011.pdf
+http://www.dspsrv.com/~jamesc/music/MyFairLady_Prog_011.sla
+
+
+
+Import in PDF/image good.
+Someone sent an image in word doc :-7
+Could print to image writer and printed greyscale tiff, then converted to jpeg.
+
+
+Editing text is painful.
+In-situ or in text editor.
+Ctrl-I to italicize and other shortcuts would be nice.
+
+
+Flow of content from page to page would be nice.
+
+
+Adds coming in now and being added.
+TODO: last few bios, all mugshots, get pictures right (caption etc also)
+ copyright requirements
+ 
+
+================================================================================
+
+3 missed calls
+1938 liam 087
+noel reid
+best wishes from
+    
+
+2055 liam
+2157 john power  CD    
+
+================================================================================
+
+Maeve wanted a job (at about 7:45 (past time for bed) so I asked would she like a financial position, an engineering job, ... We fired up kturtle and discovered foreward <n> (fw <n>), turnleft/turnright <n degrees> (tl/tr <n>). She liked typing in the commands.
+
+maeve_1.turtle
+
+kturtle-script-v1.0
+@(forward) 2
+@(tl) 90
+@(fw) 100
+@(tl) 90
+@(fw) 100
+@(fw) 10
+@(fw) 100
+@(tr) 90
+@(tr) 100
+
+THEN we discovered with a clear at the end of a sequence of moves that it's real easy to make spiral patterns! Adding a space after commands wasn't intuitive.
+Kate joined in and was quite adventurous "pencolor 234444432,333" "fw 1110".
+
+#clear
+@(pencolor) 0@(,)255@(,)0
+@(forward) 27
+@(tl) 90
+@(fw) 100
+@(tl) 90
+@(fw) 100
+@(tl) 33
+@(fw) 10
+@(tr) 77
+@(fw) 100
+@(tr) 90
+@(fw) 10
+@(tr) 100
+@(fw) 100
+@(center)
+
+Past bedtime! Maeve gets ready herself completely. Then we make a repeat 675 loop to run Kate's sequence while she gets ready for bed. 
+
+kate_and_maeve_turt_wheel3.turtle
+
+#clear 
+pencolor 255,255,0
+repeat 675 {
+forward 27
+tl 90
+fw 100
+tl 10
+fw 100
+tl 33
+fw 10
+tr 66
+fw 1110
+tr 90
+fw 10
+tr 100
+fw 100
+center
+}
+
+Read Maeve's story which is mixed-up fairy tales. Then Kate's from library.

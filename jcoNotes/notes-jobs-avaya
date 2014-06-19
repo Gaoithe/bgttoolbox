@@ -1,0 +1,133 @@
+
+* job spec
+* company - web/wikipedia/linkedin  also office location
+* people - linkedin
+* products, tech areas, protocols,
+
+/me looking for 65k
+Jonathan Hart cpl
+ interview ? Tue next week
+
+Sandyford, Avaya
+
+c/c++ unix, piece of bought code, working with 1 other person
+what does it do?
+Avaya often J2EE, websphere, weblogic development
+
+
+Vincent Lalor (lawlor?) in Avaya
+ Marconi - naval military  - Paolo Matteucci
+ Euristix 
+ 
+http://www.linkedin.com/companies/avaya?trk=co_search_results&goback=.cps_1239272917856_1
+also Aoife O'Halloran
+ 
+
+Avaya delivers Intelligent Communications solutions that help companies transform their businesses to achieve marketplace advantage. More than one million businesses worldwide, including more than 90 percent of the FORTUNE 500®, use Avaya solutions for IP Telephony, Unified Communications, Contact Centers and Communications-Enabled Business Processes. Avaya Global Services provides comprehensive service and support for companies, small to large. see less
+
+http://en.wikipedia.org/wiki/Avaya
+
+http://avaya.ie/
+
+
+
+================================================================================
+Company
+Avaya designs, builds and manages communications networks for more than one million businesses worldwide, including more than 90 percent of the Fortune 500 companies.  Avaya is a world leader in secure and reliable Internet Protocol (IP) telephony software applications, systems and services.  We employ approximately 20,000 people including 2,500 in research and product development.  We are expanding our Irish R&D operation with openings for all levels of relevant experience in software development.
+Role: Software Engineer (all levels)
+You will be expected to work as a member of the Avaya R&D Presence & Instant Messaging software team. This team of experienced C++ & Java developers create Presence technology components to support the company’s communications & Contact Centre platforms. You will be required to deliver robust, highly scalable and maintainable software solutions using leading edge technologies. 
+Specific tasks would include:-
+Architecture and design using OO principles based on industry best practice and your own experience. 
+Take a lead role in the design and implementation of new components and new functionality.
+Production of quality documentation including use cases, functional and design specifications to support the development process.
+Design/development of automated test cases derived from those use cases and determine quality metrics using code coverage and profiling tools.
+
+REQUIRED SKILLS:
+Minimum of 5 years full-time industry experience with Java and  C/C++
+Experience developing on Linux or another UNIX (Solaris, BSD, AIX, HP-UX)
+Ability to work in a team environment and own initiative
+
+
+DESIREABLE SKILLS:
+Knowledge of of the following technologies: TCP/IP, SIP or XMPP, XML, SQL 
+Experience developing and debugging multithreaded applications in a modern IDE
+Experience in Networking or Telecommunications,ideally VoIP (SIP, RTP)
+Experience of implementing or measuring high performance in networking, information processing or database systems
+Experience using agile development methodologies (XP, Scrum, Crystal)
+Experience with open source software
+
+PERSONAL SKILLS:
+Capable of accurately planning and scheduling own work, intrinsically self-motivated
+Ability to present complex ideas in a convincing and understandable manner
+Ability to cope with changing priorities and multiple assignments
+Ability to work in a team environment and communicate effectively with peers
+
+EDUCATION/QUALIFICATIONS:
+BS/MS/PhD in Computer Science
+Please send CVs to dublinjobs@avaya.com
+
+
+================================================================================
+
+
+SIP quite like HTTP, setup session for other protocol
+SIP user agent -> proxy ... -> proxy -> SIP user agent
+
+http://en.wikipedia.org/wiki/Session_Initiation_Protocol
+http://tools.ietf.org/html/rfc2327  Session Description Protocol
+
+
+what SIP and VoIP software is out there?
+And applications? GoogleTalk Jabber Skype ....
+Wikipedia is  wonderful:
+http://en.wikipedia.org/wiki/List_of_SIP_software
+
+http://en.wikipedia.org/wiki/Voice_over_IP
+e.g.
+    * SIP/RTP
+    * IMS
+    * H.323
+    * Skype
+
+RTP
+http://tools.ietf.org/html/rfc1889
+http://en.wikipedia.org/wiki/Real-time_Transport_Protocol
+
+http://en.wikipedia.org/wiki/H.323 umberella combination of protocols
+ H.323 Network Signaling ASN.1 PER :)
+
+http://en.wikipedia.org/wiki/Asterisk_(PBX)
+http://www.asterisk.org/about
+http://www.linuxdevices.com/articles/AT5348974740.html
+ELJonline: VOCAL: Open Source VoIP Software for Linux
+ vodiva.org wiki is soo spammed
+ vodiva VOCAL BSD licence became part of Asterisk I think.
+
+http://en.wikipedia.org/wiki/Comparison_of_VoIP_software
+
+Interesting:
+http://www.google.ie/search?q=avaya+asterisk
+On connecting Asterix to Avaya
+and Digium open source vs Avaya
+http://www.asteriskvoipnews.com/asterisk_news/why_asterisk_doesnt_sell_against_avaya_response.html
+
+http://en.wikipedia.org/wiki/Extensible_Messaging_and_Presence_Protocol
+
+
+
+
+================================================================================
+
+other/off topic/unrelated:
+ronan devins
+http://www.linkedin.com/companies/10490/C%C3%BAram+Software?trk=pro_other_cmpy&goback=.psr_*1_ronan+devins_*1_*1_*1_*1_*1_*1_*1_*1_I_ie_*1_*1_*1_*2_*2_*2_Y_Y_*1_Relevance
+
+
+http://www.dataedge.ie/index.php?content=news.htm
+(intune)
+
+
+
+-- 
+
+================================================================================

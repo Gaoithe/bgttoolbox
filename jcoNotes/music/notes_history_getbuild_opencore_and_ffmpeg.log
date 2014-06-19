@@ -1,0 +1,500 @@
+   58  sudo /etc/init.d/gdm restart
+   59  sudo /sbin/shutdown -h now
+   60  sudo /etc/init.d/gdm restart
+   61  cd /etc/X11/xinit/
+   62  ls
+   63  less xserverrc 
+   64  cd ..
+   65  ls
+   66  ls -al xorg*
+   67  for f in xorg.conf.*; do echo f=$f; done
+   68  for f in xorg.conf.*; do echo f=$f; read; done
+   69  for f in xorg.conf.*; do echo f=$f; sudo echo cp $f xorg.conf; read; done
+   70  echo for f in xorg.conf.*; do echo f=$f; sudo cp $f xorg.conf; /etc/init.d/gdm restart; read; done
+   71  echo "for f in xorg.conf.*; do echo f=$f; sudo cp $f xorg.conf; /etc/init.d/gdm restart; read; done"
+   72  echo 'for f in xorg.conf.*; do echo f=$f; sudo cp $f xorg.conf; /etc/init.d/gdm restart; read; done'
+   73  echo 'for f in xorg.conf.*; do echo f=$f; sudo cp $f xorg.conf; /etc/init.d/gdm restart; read; done' >> ~/notes-ubuntu-delllaptop-undoubuntuupdate 
+   74  for f in xorg.conf.*; do echo f=$f; sudo cp $f xorg.conf; /etc/init.d/gdm restart; read; done
+   75  ls -alstr
+   76  less xorg.conf
+   77  grep sudo xorg.conf
+   78  grep sudo xorg.conf|sed s/^#//
+   79  $(grep sudo xorg.conf|sed s/^#//)
+   80  less xorg.conf
+   81  ls -alstr
+   82  sudo /sbin/shutdown -r now
+   83  links
+   84  less /boot/grub/menu.lst
+   85  ls /etc/apt/sources.list
+   86  lesss /etc/apt/sources.list
+   87  less /etc/apt/sources.list
+   88  sudo vi /etc/apt/sources.list
+   89  grep apt notes-ubuntu-delllaptop-undoubuntuupdate 
+   90  grep dpkg notes-ubuntu-delllaptop-undoubuntuupdate 
+   91  grep dpkg notes-ubuntu-delllaptop-undoubuntuupdate  |less
+   92  dpkg-query 
+   93  dpkg-query -a
+   94  dpkg-query -h
+   95  dpkg-query -L
+   96  dpkg-query -L all
+   97  dpkg-query -L ?
+   98  dpkg-query -L -h
+   99  dpkg-query -L -h |less
+  100  dpkg-query -S xorg
+  101  sudo apt-get upgrade
+  102  sudo vi /etc/apt/sources.list
+  103  links
+  104  sudo apt-get update
+  105  sudo apt-get upgrade
+  106  sudo /etc/init.d/gdm stop
+  107  sudo /etc/init.d/gdm start
+  108  dpkg -q
+  109  dpkg --help |less
+  110  dpkg -l 
+  111  dpkg --help |less
+  112  apt-cache 
+  113  apt-cache |less
+  114  apt-cache show
+  115  apt-cache dumpavail
+  116  apt-cache dumpavail|less
+  117  apt
+  118  apt |less
+  119  apt 2>&1 |less
+  120  apt-config 
+  121  apt-get -h
+  122  apt-get check
+  123  sudo apt-get check
+  124  apt-get -h |less
+  125  ls /etc/dp
+  126  ls /etc/dpkg/
+  127  grep ppa /etc/dpkg/
+  128  grep ppa /etc/dpkg/*
+  129  grep ppa /etc/dpkg/*/*
+  130  grep ppa /etc/dpkg/*/*/*
+  131  grep ppa /etc/apt/*/*/*
+  132  grep ppa /etc/apt/*/*
+  133  grep ppa /etc/apt/*
+  134  grep ppa /etc/apt/*/*
+  135  vi /etc/apt/sources.list.d/xorg-edgers.list
+  136  sudo vi /etc/apt/sources.list.d/xorg-edgers.list
+  137  sudo apt-get update
+  138  sudo apt-get upgrade
+  139  dpkg -l
+  140  dpkg -la
+  141  dpkg -lA
+  142  dpkg -l -h
+  143  dpkg -l |grep ppa
+  144  dpkg -l |grep xorg
+  145  dpkg -l |grep git
+  146  dpkg -l |grep [~+]git
+  147  sudo apt-get downgrade xserver-xorg-video-intel
+  148  sudo apt-get depends xserver-xorg-video-intel
+  149  sudo spkg depends xserver-xorg-video-intel
+  150  sudo dpkg depends xserver-xorg-video-intel
+  151  dpkg -l |grep [~+]git
+  152  dpkg -l |grep [~+]git |awk print $2
+  153  dpkg -l |grep [~+]git |awk 'print $2'
+  154  dpkg -l |grep [~+]git |awk 'printf $2'
+  155  dpkg -l |grep [~+]git |awk -e 'print $2'
+  156  dpkg -l |grep [~+]git |awk -- 'print $2'
+  157  dpkg -l |grep [~+]git |awk -f 'print $2'
+  158  dpkg -l |grep [~+]git |awk 'print $2'
+  159  dpkg -l |grep [~+]git |awk ''
+  160  man awk
+  161  dpkg -l |grep [~+]git |gawk 'print $2'
+  162  dpkg -l |grep [~+]git |gawk "print $2"
+  163  dpkg -l |grep [~+]git 
+  164  dpkg -l |grep [~+]git |awk
+  165  dpkg -l |grep [~+]git |gawk "{print $2}"
+  166  dpkg -l |grep [~+]git |gawk '{print $2}'
+  167  dpkg -l |grep [~+]git |gawk '{print $2}' >packages_funny_maybe_ppa.txt
+  168  PS=$(dpkg -l |grep [~+]git |gawk '{print $2}' )
+  169  for P in $PS; do echo P=$P; done
+  170  for P in $PS; do echo P=$P; dpkg -L $P; done
+  171  for P in $PS; do echo P=$P; dpkg -q $P; done
+  172  dpkg --help
+  173  dpkg --help |less
+  174  for P in $PS; do echo P=$P; dpkg -s $P; done
+  175  for P in $PS; do echo P=$P; dpkg -s $P; done |less
+  176  echo 'for P in $PS; do echo P=$P; dpkg -s $P; done |less'
+  177  echo 'for P in $PS; do echo P=$P; dpkg -s $P; done |less' >> notes-ubuntu-delllaptop-undoubuntuupdate 
+  178  for P in $PS; do echo P=$P; apt-cache -l $P; done |less
+  179  apt-cache -h
+  180  for P in $PS; do echo P=$P; apt-cache showpkg $P; done |less
+  181  echo 'for P in $PS; do echo P=$P; apt-cache showpkg $P; done |less'
+  182  echo 'for P in $PS; do echo P=$P; apt-cache showpkg $P; done |less' >> notes-ubuntu-delllaptop-undoubuntuupdate 
+  183  apt-get 
+  184  apt-get  |less
+  185  for P in $PS; do echo P=$P; done |less
+  186  sudo apt-get remove xserver-xorg-video-intel
+  187  sudo apt-get install xserver-xorg-video-intel
+  188  for P in $PS; do echo P=$P; sudo apt-get remove $P; done 
+  189  for P in $PS; do echo P=$P; sudo apt-get install $P; done 
+  190  sudo apt-get update
+  191  sudo /etc/init.d/gdm restart
+  192  sudo apt-get install X
+  193  sudo apt-get install xorg
+  194  ping google.com
+  195  ping www.google.com
+  196  sudo /sbin/shutdown -r now
+  197  sudo apt-get install xserver
+  198  sudo apt-get install xserver-xorg-core
+  199  ifconfig
+  200  /etc/init.d/networking 
+  201  /etc/init.d/networking start
+  202  sudo /etc/init.d/networking start
+  203  ifconfig
+  204  links
+  205  ppp
+  206  /etc/init.d/wpa-ifupdown 
+  207  /etc/init.d/wpa-ifupdown start
+  208  ping www.google.com
+  209  ifconfig
+  210  grep wire /etc/*
+  211  grep wire /etc/*/*
+  212  /etc/wpa_supplicant/ifupdown.sh 
+  213  /etc/wpa_supplicant/ifupdown.sh start
+  214  /etc/wpa_supplicant/ifupdown.sh 
+  215  grep wire /etc/*/*
+  216  /etc/acpi/wireless.sh 
+  217  /etc/acpi/wireless.sh status
+  218  /etc/acpi/wireless.sh help
+  219  less/etc/acpi/wireless.sh 
+  220  less /etc/acpi/wireless.sh 
+  221  /sbin/wpa_cli 
+  222  sudo /sbin/wpa_cli 
+  223  sudo /sbin/wpa_action 
+  224  sudo /sbin/wpa_action GreenEagle up
+  225  sudo /sbin/wpa_action GreenEagle connect
+  226  sudo /sbin/wpa_action GreenEagle 
+  227  sudo /sbin/wpa_action GreenEagle help
+  228  sudo /sbin/wpa_action GreenEagle start
+  229  sudo /sbin/wpa_supplicant 
+  230  apropos wireless
+  231  iwlist
+  232  iwlist GreenEagle
+  233  iwlist eth0
+  234  ifconfig
+  235  iwlist inet
+  236  iwlist scanning
+  237  iwlist rate
+  238  iwevent 
+  239  apropos wireless
+  240  wireless
+  241  man wireless
+  242  iwpriv -a
+  243  iwconfig
+  244  man wireless
+  245  ifup wlan0
+  246  sudo ifup wlan0
+  247  sudo ifup 
+  248  sudo ifup --help
+  249  sudo ifup wlan
+  250  sudo ifup wlan0
+  251  ifupdown
+  252  wireless
+  253  man wireless
+  254  less /etc/network/interfaces 
+  255  ls -alstr
+  256  less packages_funny_maybe_ppa.txt 
+  257  sudo apt-get install ppp
+  258  sudo apt-get install xserver-common
+  259  less packages_funny_maybe_ppa.txt 
+  260  PS=`cat packages_funny_maybe_ppa.txt `
+  261  tail notes-ubuntu-delllaptop-undoubuntuupdate 
+  262  for P in $PS; do apt-get install $P; done
+  263  for P in $PS; do sudo apt-get install $P; done
+  264  ls -al
+  265  ifconfig 
+  266  ifconfig wlan0
+  267  ifup wlan0
+  268  sudo ifup wlan0
+  269  man ifconfig
+  270  man wireless
+  271  less  /etc/network/if-pre-up.d/wireless-tools 
+  272  /etc/network/if-pre-up.d/wireless-tools 
+  273  less  /etc/network/if-pre-up.d/wireless-tools 
+  274  man wireless
+  275  ping www.google.com
+  276  ifconfig
+  277  ifup
+  278  ifup eth0
+  279  sudo ifup eth0
+  280  sudo ifup eth
+  281  ifconfig
+  282  sudo ifup inet
+  283  ip
+  284  ping www.google.com
+  285  mount
+  286  ifconfig
+  287  NetworkManager
+  288  sudo apt-get install network-manager
+  289  ls /dev/scd0 
+  290  mount /dev/scd0 
+  291  mount
+  292  ls -al /media/cdrom
+  293  ls -al /media/cdrom/
+  294  ls -al /media/cdrom/dists/
+  295  ls -al /media/cdrom/dists/jaunty/
+  296  ls -al /media/cdrom/dists/jaunty/main/
+  297  ls -al /media/cdrom/dists/jaunty/main/binary-i386/
+  298  ls -al /media/cdrom/dists/jaunty/main/binary-i386/Packages.gz 
+  299  gzcat /media/cdrom/dists/jaunty/main/binary-i386/Packages.gz  |less
+  300  ls -al /media/cdrom/
+  301  ls -al /media/cdrom/install/
+  302  ls -al /media/cdrom/pool/
+  303  ls -al /media/cdrom/pool/main/
+  304  ls -al /media/cdrom/pool/main/*
+  305  ls -al /media/cdrom/pool/main/*/*
+  306  ls -al /media/cdrom/pool/main/*/n*
+  307  NetworkManager
+  308  less /var/log/dmesg
+  309  less /var/log/messages
+  310  grep eth /var/log/messages
+  311  date
+  312  date |less
+  313  grep eth /var/log/messages |less
+  314  grep net /var/log/messages |less
+  315  grep wlan /var/log/messages |less
+  316  less /var/log/syslog
+  317  if
+  318  ifconfig
+  319  ifnames
+  320  ifup
+  321  ifup eth0
+  322  sudo ifup eth0
+  323  sudo ifup eth
+  324  sudo ifconfig 
+  325  netstat
+  326  cd /media/cdrom
+  327  ls 
+  328  ls ubuntu
+  329  find . -name *.deb
+  330  wormux 
+  331  winemine
+  332  less /etc/networks
+  333  ntop 
+  334  sudo ntop 
+  335  sudo ntop start
+  336  ntop
+  337  less /etc/network/if-up.d/wpasupplicant 
+  338  less /etc/network/if-up.d/wpasupplicant eth0
+  339  /etc/network/if-up.d/wpasupplicant eth0
+  340  /etc/network/if-up.d/wpasupplicant eth0 up
+  341  less /etc/network/if-up.d/wpasupplicant eth0
+  342  ifup
+  343  ifup eth0
+  344  sudo ifup eth0
+  345  sudo ifup wlan0
+  346  less /etc/ifplugd/action.d/action_wpa 
+  347  sudo  /etc/ifplugd/action.d/action_wpa 
+  348  less /etc/ifplugd/action.d/action_wpa 
+  349  sudo  /etc/ifplugd/action.d/action_wpa wlan0 up
+  350  ifconfig
+  351  sudo  /etc/ifplugd/action.d/action_wpa wlan0 up
+  352  less /etc/ifplugd/action.d/action_wpa 
+  353  wpa_cli 
+  354  wpa_cli  -i wlan0
+  355  wpa_cli  -i wlan0 up
+  356  wpa_cli  -i wlan0 reconnect
+  357  wpa_cli  -i wlan
+  358  wpa_action 
+  359  wpa_action wlan0 up
+  360  wpa_action wlan0 reconnect
+  361  man ifup
+  362  less /etc/network/interfaces 
+  363  ifup
+  364  ifup inet
+  365  ifup inet up
+  366  sudo ifup inet up
+  367  sudo ifup inet0
+  368  sudo ifup inet0 wlan0
+  369  sudo ifup inet0 wlan0 lo
+  370  sudo ifup inet0 wlan0 lo all
+  371  sudo ifup inet0 wlan0 lo all ?
+  372  ifconfig
+  373  install-menu
+  374  info network
+  375  man ifup
+  376  man interfaces
+  377  iwconfig
+  378  man interfaces
+  379  sudo vi /etc/network/interfaces 
+  380  ifup eth0
+  381  sudo ifup eth0
+  382  sudo apt-get install hal
+  383  sudo apt-get install network-manager
+  384  cd 
+  385  PS=`cat packages_funny_maybe_ppa.txt` 
+  386  cat packages_funny_maybe_ppa.txt
+  387  tail notes-ubuntu-delllaptop-undoubuntuupdate 
+  388  for P in $PS; do sudo apt-get install $P; done
+  389  sudo /etc/init.d/gdm start
+  390  wormux 
+  391  playonlinux
+  392  glxgears 
+  393  sudo apt-get install glx
+  394  sudo apt-get install glxgears
+  395  scorched
+  396  scor
+  397  wish
+  398  tclsh
+  399  locate bofi*
+  400  locate *bofi*
+  401  cat /home/jamesc/src/james-system_jco.git/torture/bin/bofi-james.pl
+  402  cat /home/jamesc/src/james-system_jco.git/torture/bin/bofi-james.pl |head -20
+  403  cd Music/TinWhistle/
+  404  ls
+  405  mplayer South\ Wind.mp3 
+  406  mplayer Inis\ thiar.ogg 
+  407  ifup
+  408  ifup wlan0
+  409  sudo ifup wlan0
+  410  sudo ifup 
+  411  sudo ifup --help
+  412  sudo ifup inet0
+  413  sudo ifup ipv4
+  414  net
+  415  /etc/init.d/networking start
+  416  sudo /etc/init.d/networking start
+  417  sudo /etc/init.d/networking stop
+  418  sudo /etc/init.d/networking start
+  419  sudo /etc/init.d/wpa-ifupdown start
+  420  sudo /etc/init.d/wpa-ifupdown restart
+  421  sudo /etc/init.d/wpa-ifupdown stop
+  422  sudo /etc/init.d/wpa-ifupdown start
+  423  df -h .
+  424  mount
+  425  cd Videos/
+  426  ls -al
+  427  ls /media/
+  428  mount
+  429  lsusb
+  430  mount
+  431  mkdir /media/hddsony
+  432  sudo mkdir /media/hddsony
+  433  mount 
+  434  mount /dev/usbdev5.1_ep /media/
+  435  mount /dev/usbdev5.1_ep /media/foo
+  436  sudo mount /dev/usbdev5.1_ep /media/foo
+  437  ls /media/
+  438  ls /media/hddsony
+  439  sudo mount /dev/usbdev5.1_ep /media/hddsony/
+  440  sudo mount /media/hddsony /dev/usbdev5.1_ep81 
+  441  sudo mount /dev/usbdev5.1_ep81 /media/hddsony/
+  442  sudo mount /dev/usbdev1.1_ep00 /media/hddsony/
+  443  sudo mount /dev/sdb /media/hddsony/
+  444  ls /media/hddsony/
+  445  mount
+  446  sudo mkdir /media/hddsony0
+  447  sudo mount /dev/sdb1 /media/hddsony0
+  448  ls /media/
+  449  ls /media/hddsony
+  450  ls /media/hddsony0
+  451  ls /media/hddsony0/mp_root/
+  452  ls /media/hddsony0/mp_root/100pnv01/
+  453  ls -alstr /media/hddsony0/mp_root/100pnv01/
+  454  df -h /media/hddsony0/mp_root/100pnv01/
+  455  mv /tmp/WargamesTheCellars.jpg Pictures/
+  456  ls bin
+  457  run-bt-sync-mobile.sh 
+  458  export DISPLAY=:0.0
+  459  thunderbird &
+  460  sudo apt-get install ddclient
+  461  less  /etc/ddclient.conf
+  462  sudo less  /etc/ddclient.conf
+  463  ps -elf |grep dd
+  464  cat /etc/resolv.conf
+  465  sudo vi /etc/resolv.conf
+  466  /usr/sbin/ddclient -daemon=0 -noquiet -debug
+  467  ps -elf |grep ddc
+  468  netmanager -r all
+  469  /etc/init.d/networking restart
+  470  sudo /etc/init.d/networking restart
+  471  sudo /etc/init.d/dns-clean 
+  472  ls /etc/init.d/*dns*
+  473  ls mp3
+  474  ls Music/
+  475  grip &
+  476  ls -alstr
+  477  ls -alstr ogg/
+  478  ln -s ogg Music/
+  479  ls -al ogg/
+  480  ls -al ogg/various_artists
+  481  ls -al ogg/various_artists/christmas_hits_cd3/
+  482  df -h .
+  483  ls -al ogg/various_artists/christmas_hits_cd3/
+  484  mount
+  485  grip &
+  486  ls -al ogg/
+  487  ls -al ogg/various_artists/
+  488  ls -al ogg/various_artists/christmas_hits_cd3/
+  489  gnome-about
+  490  eject /dev/sda1
+  491  eject /dev/sda2
+  492  mount
+  493  eject /dev/sda5
+  494  sudo eject /dev/sda5
+  495  df 
+  496  df -h
+  497  ls /dev/scd0 
+  498  eject /dev/scd0 
+  499  grip &
+  500  eject /dev/scd0 
+  501  sudo apt-get install g++ subversion nasm zlib1g-dev libx264-dev
+  502  mkdir Music/amr
+  503  cd Music/amr/
+  504  ls -al
+  505  tar -jxvf amrwb-7.0.0.3.tar.bz2 
+  506  cd amrwb-7.0.0.3/
+  507  ls -al
+  508  ./configure --prefix=/usr/local
+  509  less README 
+  510  less TODO 
+  511  ls -al
+  512  lstree
+  513  make 
+  514  sudo make install
+  515  cd ..
+  516  ls -al
+  517  tar -jxvf amrnb-7.0.0.2.tar.bz2 
+  518  cd amrnb-7.0.0.2/
+  519  less README 
+  520  ./configure --prefix=/usr/local
+  521  make 
+  522  sudo make install
+  523  cd ..
+  524  svn checkout svn://svn.mplayerhq.hu/ffmpeg/trunk ffmpeg-svn
+  525  cd ffmpeg-svn
+  526  ./configure --prefix=/usr/local --enable-gpl --enable-pthreads --enable-libx264 --enable-libamr-nb --enable-libamr-wb
+  527  ./configure --help |grep amr
+  528  ./configure --prefix=/usr/local --enable-gpl --enable-pthreads --enable-libx264 --enable-libopencore-amrnb --enable-libopencore-amrwb
+  529  ./configure --prefix=/usr/local --enable-gpl --enable-pthreads --enable-libx264 --enable-version3  --enable-libopencore-amrnb --enable-libopencore-amrwb
+  530  sudo apt-get install libopencore
+  531  sudo apt-get install libopencore-amr
+  532  sudo apt-get install libopencore-amrnb
+  533  cd ..
+  534  $ git clone --depth=1 git://opencore-amr.git.sourceforge.net/gitroot/opencore-amr 
+  535  $ cd opencore-amr
+  536  $ make
+  537  $ sudo make install
+  538  git clone --depth=1 git://opencore-amr.git.sourceforge.net/gitroot/opencore-amr 
+  539  mv /home/jamesc/Desktop/opencore-amr-0.1.2.tar.gz .
+  540  tar -zxvf opencore-amr-0.1.2.tar.gz 
+  541  cd opencore-amr-0.1.2/
+  542  less README 
+  543  ls -al
+  544  less README 
+  545  ./configure --prefix=/usr/local
+  546  make
+  547  sudo make install
+  548  cd ../ffmpeg-svn/
+  549  ./configure --prefix=/usr/local --enable-gpl --enable-pthreads --enable-libx264 --enable-version3  --enable-libopencore-amrnb --enable-libopencore-amrwb
+  550  ./configure --prefix=/usr/local --enable-gpl --enable-pthreads --enable-version3  --enable-libopencore-amrnb --enable-libopencore-amrwb
+  551  make
+  552  sudo make install 
+  553  cd ..
+  554  ls -al /usr/local/
+  555  ls -al /usr/local/bin/
+  556  ls -al /usr/local/sbin/
+  557  history >notes_history_getbuild_opencore_and_ffmpeg.log

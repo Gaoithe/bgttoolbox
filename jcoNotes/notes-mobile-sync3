@@ -1,0 +1,508 @@
+
+http://ubuntuforums.org/showthread.php?t=260676
+
+
+4 drwxr-xr-x 4 jamesc jamesc 4096 2009-07-25 18:51 ..
+jamesc@jamesc-laptop:~/src/mobile/whereami_trunk/group/s60_v3$ cp build_gcce.log build_working_withgcc.log
+jamesc@jamesc-laptop:~/src/mobile/whereami_trunk/group/s60_v3$ rm build-withcppchanges.log build.log 
+jamesc@jamesc-laptop:~/src/mobile/whereami_trunk/group/s60_v3$ msynctool --addgroup nokia
+jamesc@jamesc-laptop:~/src/mobile/whereami_trunk/group/s60_v3$ msynctool --addmember nokia evo2-sync
+jamesc@jamesc-laptop:~/src/mobile/whereami_trunk/group/s60_v3$ msynctool --addmember nokia syncml-obex-client
+Unable to instance plugin with name syncml-obex-client: Unable to find the plugin "syncml-obex-client"
+jamesc@jamesc-laptop:~/src/mobile/whereami_trunk/group/s60_v3$ msynctool --addmember nokia syncml-obex-client
+jamesc@jamesc-laptop:~/src/mobile/whereami_trunk/group/s60_v3$ 
+
+
+packages added: libsyncml* and opensync-plugin-syncml
+prior to that, lots added:
+
+
+gnokii xgnokii?
+gammu wgammu ?
+evolution + opensync?
+
+
+ egrep "install|start" /var/log/dpkg.log |grep -v "half-inst"   >  ~/install-nokia-opensync.log
+
+
+2009-07-25 16:38:48 status installed xgnokii 0.6.26.dfsg-3
+2009-07-25 16:38:48 status installed gnokii 0.6.26.dfsg-3
+
+
+
+2009-07-25 16:42:27 status installed gammu 1.22.1-1
+
+2009-07-25 16:46:32 status installed python-bluez 0.16-1ubuntu1
+2009-07-25 16:46:32 status installed python-gammu 0.28-1ubuntu2
+2009-07-25 16:46:32 status installed wammu 0.29-1
+
+
+2009-07-25 18:59:19 status installed libopensync0 0.22-2build1
+2009-07-25 18:59:19 status installed opensync-plugin-evolution 0.22-2ubuntu2
+2009-07-25 18:59:20 status installed opensync-plugin-file 0.22-2
+2009-07-25 18:59:20 status installed opensync-plugin-gnokii 0.22-1
+2009-07-25 18:59:20 status installed opensyncutils 0.22-2build1
+
+
+2009-07-25 19:08:40 startup packages configure
+2009-07-25 19:08:40 status installed multisync 0.82-8.1ubuntu2
+2009-07-25 19:08:40 status installed libmultisync-plugin-backup 0.82-8.1ubuntu2
+2009-07-25 19:08:40 status installed libmultisync-plugin-evolution 0.82-8.1ubuntu2
+2009-07-25 19:08:40 status installed libmultisync-plugin-irmc 0.82-8.1ubuntu2
+2009-07-25 19:08:40 status installed multisync-tools 0.92.0~svn355-1
+
+
+2009-07-25 19:12:10 install libsyncml-dev <none> 0.4.6-3build1
+2009-07-25 19:12:10 install libsyncml-utils <none> 0.4.6-3build1
+2009-07-25 19:12:10 install opensync-plugin-syncml <none> 0.22-2
+
+
+
+
+
+http://ubuntuforums.org/showthread.php?t=260676
+
+
+jamesc@jamesc-laptop:~/src/mobile/whereami_trunk/group/s60_v3$ hcitool scan
+Scanning ...
+	00:17:E5:EE:29:18	Pooky
+	00:1F:5D:BF:29:39	Nokia 3120 fionnuala
+<?xml version="1.0"?>
+<config>
+        <bluetooth_address>00:17:E5:EE:29:18</bluetooth_address>
+        <bluetooth_channel>10</bluetooth_channel>
+        <interface>0</interface>
+        <identifier>PC Suite</identifier>
+        <version>1</version>
+        <wbxml>1</wbxml>
+        <username></username>
+        <password></password>
+        <type>2</type>
+        <usestringtable>1</usestringtable>
+        <onlyreplace>0</onlyreplace>
+        <!-- This needs to be set to 10 000, otherwise you'll be sending more data than your phone can handle. -->
+        <recvLimit>10000</recvLimit>
+        <maxObjSize>0</maxObjSize>
+        <contact_db>Contacts</contact_db>
+        <calendar_db></calendar_db>
+        <note_db></note_db>
+</config>
+
+jamesc@jamesc-laptop:~/src/mobile/whereami_trunk/group/s60_v3$ msynctool --configure nokia 2
+jamesc@jamesc-laptop:~/src/mobile/whereami_trunk/group/s60_v3$ msynctool --configure nokia 1
+jamesc@jamesc-laptop:~/src/mobile/whereami_trunk/group/s60_v3$ msynctool --sync nokia
+Synchronizing group "nokia" 
+Member 1 of type evo2-sync just connected
+Member 2 of type syncml-obex-client had an error while connecting: Bluetooth connect error
+Member 1 of type evo2-sync just disconnected
+All clients have disconnected
+The sync failed: Unable to connect one of the members
+Error while synchronizing: Unable to connect one of the members
+
+
+
+
+
+
+
+jamesc@jamesc-laptop:~/src/mobile/whereami_trunk/group/s60_v3$ msynctool --showgroup nokia
+Groupname: nokia
+Member 1: evo2-sync
+	Configuration : <?xml version="1.0"?>
+<config>
+<address_path>file:///home/jamesc/.evolution/addressbook/local/system</address_path>
+</config>
+
+Member 2: syncml-obex-client
+	Configuration : <?xml version="1.0"?>
+<config>
+        <bluetooth_address>00:17:E5:EE:29:18</bluetooth_address>
+        <bluetooth_channel>10</bluetooth_channel>
+        <interface>0</interface>
+        <identifier>PC Suite</identifier>
+        <version>1</version>
+        <wbxml>1</wbxml>
+        <username></username>
+        <password></password>
+        <type>2</type>
+        <usestringtable>1</usestringtable>
+        <onlyreplace>0</onlyreplace>
+        <!-- This needs to be set to 10 000, otherwise you'll be sending more data than your phone can handle. -->
+        <recvLimit>10000</recvLimit>
+        <maxObjSize>0</maxObjSize>
+        <contact_db>Contacts</contact_db>
+        <calendar_db></calendar_db>
+        <note_db></note_db>
+</config>
+
+
+
+jamesc@jamesc-laptop:~/src/mobile/whereami_trunk/group/s60_v3$ ls /home/jamesc/.evolution/addressbook/local/system
+addressbook.db
+
+
+
+
+
+
+After right-click bluetooth + browse files on device:
+
+
+
+jamesc@jamesc-laptop:~/src/mobile/whereami_trunk/group/s60_v3$ msynctool --sync nokia
+Synchronizing group "nokia" 
+Member 1 of type evo2-sync just connected
+received contact dsession
+Member 2 of type syncml-obex-client just connected
+All clients connected or error
+Member 1 of type evo2-sync just sent all changes
+Received an reply to our Alert
+Going to receive 168 changes
+Received an entry 2 with data of size 4 from member 2 (syncml-obex-client). Changetype ADDED
+Received an entry 3 with data of size 4 from member 2 (syncml-obex-client). Changetype ADDED
+Received an entry 5 with data of size 4 from member 2 (syncml-obex-client). Changetype ADDED
+Received an entry 7 with data of size 4 from member 2 (syncml-obex-client). Changetype ADDED
+Received an entry 8 with data of size 4 from member 2 (syncml-obex-client). Changetype ADDED
+Received an entry 9 with data of size 4 from member 2 (syncml-obex-client). Changetype ADDED
+Received an entry 10 with data of size 4 from member 2 (syncml-obex-client). Changetype ADDED
+Received an entry 11 with data of size 4 from member 2 (syncml-obex-client). Changetype ADDED
+Received an entry 12 with data of size 4 from member 2 (syncml-obex-client). Changetype ADDED
+Received an entry 13 with data of size 4 from member 2 (syncml-obex-client). Changetype ADDED
+Received an entry 14 with data of size 4 from member 2 (syncml-obex-client). Changetype ADDED
+Received an entry 15 with data of size 4 from member 2 (syncml-obex-client). Changetype ADDED
+Received an entry 16 with data of size 4 from member 2 (syncml-obex-client). Changetype ADDED
+Received an entry 17 with data of size 4 from member 2 (syncml-obex-client). Changetype ADDED
+Received an entry 18 with data of size 4 from member 2 (syncml-obex-client). Changetype ADDED
+Received an entry 19 with data of size 4 from member 2 (syncml-obex-client). Changetype ADDED
+Received an entry 20 with data of size 4 from member 2 (syncml-obex-client). Changetype ADDED
+Received an entry 21 with data of size 4 from member 2 (syncml-obex-client). Changetype ADDED
+Received an entry 22 with data of size 4 from member 2 (syncml-obex-client). Changetype ADDED
+Received an entry 23 with data of size 4 from member 2 (syncml-obex-client). Changetype ADDED
+Received an entry 24 with data of size 4 from member 2 (syncml-obex-client). Changetype ADDED
+Received an entry 25 with data of size 4 from member 2 (syncml-obex-client). Changetype ADDED
+Received an entry 26 with data of size 4 from member 2 (syncml-obex-client). Changetype ADDED
+Received an entry 27 with data of size 4 from member 2 (syncml-obex-client). Changetype ADDED
+Received an entry 28 with data of size 4 from member 2 (syncml-obex-client). Changetype ADDED
+Received an entry 29 with data of size 4 from member 2 (syncml-obex-client). Changetype ADDED
+Received an entry 30 with data of size 4 from member 2 (syncml-obex-client). Changetype ADDED
+Received an entry 32 with data of size 4 from member 2 (syncml-obex-client). Changetype ADDED
+Received an entry 34 with data of size 4 from member 2 (syncml-obex-client). Changetype ADDED
+Received an entry 35 with data of size 4 from member 2 (syncml-obex-client). Changetype ADDED
+Received an entry 36 with data of size 4 from member 2 (syncml-obex-client). Changetype ADDED
+Received an entry 37 with data of size 4 from member 2 (syncml-obex-client). Changetype ADDED
+Received an entry 38 with data of size 4 from member 2 (syncml-obex-client). Changetype ADDED
+Received an entry 39 with data of size 4 from member 2 (syncml-obex-client). Changetype ADDED
+Received an entry 40 with data of size 4 from member 2 (syncml-obex-client). Changetype ADDED
+Received an entry 41 with data of size 4 from member 2 (syncml-obex-client). Changetype ADDED
+Received an entry 42 with data of size 4 from member 2 (syncml-obex-client). Changetype ADDED
+Received an entry 43 with data of size 4 from member 2 (syncml-obex-client). Changetype ADDED
+Received an entry 44 with data of size 4 from member 2 (syncml-obex-client). Changetype ADDED
+Received an entry 45 with data of size 4 from member 2 (syncml-obex-client). Changetype ADDED
+Received an entry 46 with data of size 4 from member 2 (syncml-obex-client). Changetype ADDED
+Received an entry 47 with data of size 4 from member 2 (syncml-obex-client). Changetype ADDED
+Received an entry 48 with data of size 4 from member 2 (syncml-obex-client). Changetype ADDED
+Received an entry 49 with data of size 4 from member 2 (syncml-obex-client). Changetype ADDED
+Received an entry 50 with data of size 4 from member 2 (syncml-obex-client). Changetype ADDED
+Received an entry 51 with data of size 4 from member 2 (syncml-obex-client). Changetype ADDED
+Received an entry 53 with data of size 4 from member 2 (syncml-obex-client). Changetype ADDED
+Received an entry 54 with data of size 4 from member 2 (syncml-obex-client). Changetype ADDED
+Received an entry 55 with data of size 4 from member 2 (syncml-obex-client). Changetype ADDED
+Received an entry 56 with data of size 4 from member 2 (syncml-obex-client). Changetype ADDED
+Received an entry 57 with data of size 4 from member 2 (syncml-obex-client). Changetype ADDED
+Received an entry 58 with data of size 4 from member 2 (syncml-obex-client). Changetype ADDED
+Received an entry 59 with data of size 4 from member 2 (syncml-obex-client). Changetype ADDED
+Received an entry 60 with data of size 4 from member 2 (syncml-obex-client). Changetype ADDED
+Received an entry 62 with data of size 4 from member 2 (syncml-obex-client). Changetype ADDED
+Received an entry 63 with data of size 4 from member 2 (syncml-obex-client). Changetype ADDED
+Received an entry 64 with data of size 4 from member 2 (syncml-obex-client). Changetype ADDED
+Received an entry 65 with data of size 4 from member 2 (syncml-obex-client). Changetype ADDED
+Received an entry 66 with data of size 4 from member 2 (syncml-obex-client). Changetype ADDED
+Received an entry 67 with data of size 4 from member 2 (syncml-obex-client). Changetype ADDED
+Received an entry 68 with data of size 4 from member 2 (syncml-obex-client). Changetype ADDED
+Received an entry 69 with data of size 4 from member 2 (syncml-obex-client). Changetype ADDED
+Received an entry 70 with data of size 4 from member 2 (syncml-obex-client). Changetype ADDED
+Received an entry 71 with data of size 4 from member 2 (syncml-obex-client). Changetype ADDED
+Received an entry 72 with data of size 4 from member 2 (syncml-obex-client). Changetype ADDED
+Received an entry 73 with data of size 4 from member 2 (syncml-obex-client). Changetype ADDED
+Received an entry 74 with data of size 4 from member 2 (syncml-obex-client). Changetype ADDED
+Received an entry 75 with data of size 4 from member 2 (syncml-obex-client). Changetype ADDED
+Received an entry 76 with data of size 4 from member 2 (syncml-obex-client). Changetype ADDED
+Received an entry 77 with data of size 4 from member 2 (syncml-obex-client). Changetype ADDED
+Received an entry 78 with data of size 4 from member 2 (syncml-obex-client). Changetype ADDED
+Received an entry 79 with data of size 4 from member 2 (syncml-obex-client). Changetype ADDED
+Received an entry 80 with data of size 4 from member 2 (syncml-obex-client). Changetype ADDED
+Received an entry 81 with data of size 4 from member 2 (syncml-obex-client). Changetype ADDED
+Received an entry 83 with data of size 4 from member 2 (syncml-obex-client). Changetype ADDED
+Received an entry 84 with data of size 4 from member 2 (syncml-obex-client). Changetype ADDED
+Received an entry 85 with data of size 4 from member 2 (syncml-obex-client). Changetype ADDED
+Received an entry 86 with data of size 4 from member 2 (syncml-obex-client). Changetype ADDED
+Received an entry 87 with data of size 4 from member 2 (syncml-obex-client). Changetype ADDED
+Received an entry 88 with data of size 4 from member 2 (syncml-obex-client). Changetype ADDED
+Received an entry 89 with data of size 4 from member 2 (syncml-obex-client). Changetype ADDED
+Received an entry 90 with data of size 4 from member 2 (syncml-obex-client). Changetype ADDED
+Received an entry 91 with data of size 4 from member 2 (syncml-obex-client). Changetype ADDED
+Received an entry 92 with data of size 4 from member 2 (syncml-obex-client). Changetype ADDED
+Received an entry 93 with data of size 4 from member 2 (syncml-obex-client). Changetype ADDED
+Received an entry 94 with data of size 4 from member 2 (syncml-obex-client). Changetype ADDED
+Received an entry 95 with data of size 4 from member 2 (syncml-obex-client). Changetype ADDED
+Received an entry 96 with data of size 4 from member 2 (syncml-obex-client). Changetype ADDED
+Received an entry 97 with data of size 4 from member 2 (syncml-obex-client). Changetype ADDED
+Received an entry 98 with data of size 4 from member 2 (syncml-obex-client). Changetype ADDED
+Received an entry 99 with data of size 4 from member 2 (syncml-obex-client). Changetype ADDED
+Received an entry 100 with data of size 4 from member 2 (syncml-obex-client). Changetype ADDED
+Received an entry 101 with data of size 4 from member 2 (syncml-obex-client). Changetype ADDED
+Received an entry 102 with data of size 4 from member 2 (syncml-obex-client). Changetype ADDED
+Received an entry 103 with data of size 4 from member 2 (syncml-obex-client). Changetype ADDED
+Received an entry 104 with data of size 4 from member 2 (syncml-obex-client). Changetype ADDED
+Received an entry 105 with data of size 4 from member 2 (syncml-obex-client). Changetype ADDED
+Received an entry 106 with data of size 4 from member 2 (syncml-obex-client). Changetype ADDED
+Received an entry 107 with data of size 4 from member 2 (syncml-obex-client). Changetype ADDED
+Received an entry 108 with data of size 4 from member 2 (syncml-obex-client). Changetype ADDED
+Received an entry 109 with data of size 4 from member 2 (syncml-obex-client). Changetype ADDED
+Received an entry 110 with data of size 4 from member 2 (syncml-obex-client). Changetype ADDED
+Received an entry 111 with data of size 4 from member 2 (syncml-obex-client). Changetype ADDED
+Received an entry 112 with data of size 4 from member 2 (syncml-obex-client). Changetype ADDED
+Received an entry 113 with data of size 4 from member 2 (syncml-obex-client). Changetype ADDED
+Received an entry 114 with data of size 4 from member 2 (syncml-obex-client). Changetype ADDED
+Received an entry 115 with data of size 4 from member 2 (syncml-obex-client). Changetype ADDED
+Received an entry 116 with data of size 4 from member 2 (syncml-obex-client). Changetype ADDED
+Received an entry 119 with data of size 4 from member 2 (syncml-obex-client). Changetype ADDED
+Received an entry 120 with data of size 4 from member 2 (syncml-obex-client). Changetype ADDED
+Received an entry 121 with data of size 4 from member 2 (syncml-obex-client). Changetype ADDED
+Received an entry 122 with data of size 4 from member 2 (syncml-obex-client). Changetype ADDED
+Received an entry 123 with data of size 4 from member 2 (syncml-obex-client). Changetype ADDED
+Received an entry 124 with data of size 4 from member 2 (syncml-obex-client). Changetype ADDED
+Received an entry 125 with data of size 4 from member 2 (syncml-obex-client). Changetype ADDED
+Received an entry 126 with data of size 4 from member 2 (syncml-obex-client). Changetype ADDED
+Received an entry 127 with data of size 4 from member 2 (syncml-obex-client). Changetype ADDED
+Received an entry 128 with data of size 4 from member 2 (syncml-obex-client). Changetype ADDED
+Received an entry 129 with data of size 4 from member 2 (syncml-obex-client). Changetype ADDED
+Received an entry 131 with data of size 4 from member 2 (syncml-obex-client). Changetype ADDED
+Received an entry 132 with data of size 4 from member 2 (syncml-obex-client). Changetype ADDED
+Received an entry 133 with data of size 4 from member 2 (syncml-obex-client). Changetype ADDED
+Received an entry 134 with data of size 4 from member 2 (syncml-obex-client). Changetype ADDED
+Received an entry 135 with data of size 4 from member 2 (syncml-obex-client). Changetype ADDED
+Received an entry 136 with data of size 4 from member 2 (syncml-obex-client). Changetype ADDED
+Received an entry 137 with data of size 4 from member 2 (syncml-obex-client). Changetype ADDED
+Received an entry 138 with data of size 4 from member 2 (syncml-obex-client). Changetype ADDED
+Received an entry 139 with data of size 4 from member 2 (syncml-obex-client). Changetype ADDED
+Received an entry 140 with data of size 4 from member 2 (syncml-obex-client). Changetype ADDED
+Received an entry 141 with data of size 4 from member 2 (syncml-obex-client). Changetype ADDED
+Received an entry 142 with data of size 4 from member 2 (syncml-obex-client). Changetype ADDED
+Received an entry 143 with data of size 4 from member 2 (syncml-obex-client). Changetype ADDED
+Received an entry 144 with data of size 4 from member 2 (syncml-obex-client). Changetype ADDED
+Received an entry 145 with data of size 4 from member 2 (syncml-obex-client). Changetype ADDED
+Received an entry 146 with data of size 4 from member 2 (syncml-obex-client). Changetype ADDED
+Received an entry 147 with data of size 4 from member 2 (syncml-obex-client). Changetype ADDED
+Received an entry 148 with data of size 4 from member 2 (syncml-obex-client). Changetype ADDED
+Received an entry 149 with data of size 4 from member 2 (syncml-obex-client). Changetype ADDED
+Received an entry 150 with data of size 4 from member 2 (syncml-obex-client). Changetype ADDED
+Received an entry 151 with data of size 4 from member 2 (syncml-obex-client). Changetype ADDED
+Received an entry 152 with data of size 4 from member 2 (syncml-obex-client). Changetype ADDED
+Received an entry 153 with data of size 4 from member 2 (syncml-obex-client). Changetype ADDED
+Received an entry 154 with data of size 4 from member 2 (syncml-obex-client). Changetype ADDED
+Received an entry 155 with data of size 4 from member 2 (syncml-obex-client). Changetype ADDED
+Received an entry 156 with data of size 4 from member 2 (syncml-obex-client). Changetype ADDED
+Received an entry 157 with data of size 4 from member 2 (syncml-obex-client). Changetype ADDED
+Received an entry 159 with data of size 4 from member 2 (syncml-obex-client). Changetype ADDED
+Received an entry 160 with data of size 4 from member 2 (syncml-obex-client). Changetype ADDED
+Received an entry 161 with data of size 4 from member 2 (syncml-obex-client). Changetype ADDED
+Received an entry 162 with data of size 4 from member 2 (syncml-obex-client). Changetype ADDED
+Received an entry 163 with data of size 4 from member 2 (syncml-obex-client). Changetype ADDED
+Received an entry 164 with data of size 4 from member 2 (syncml-obex-client). Changetype ADDED
+Received an entry 165 with data of size 4 from member 2 (syncml-obex-client). Changetype ADDED
+Received an entry 166 with data of size 4 from member 2 (syncml-obex-client). Changetype ADDED
+Received an entry 167 with data of size 4 from member 2 (syncml-obex-client). Changetype ADDED
+Received an entry 168 with data of size 4 from member 2 (syncml-obex-client). Changetype ADDED
+Received an entry 169 with data of size 4 from member 2 (syncml-obex-client). Changetype ADDED
+Received an entry 170 with data of size 4 from member 2 (syncml-obex-client). Changetype ADDED
+Received an entry 171 with data of size 4 from member 2 (syncml-obex-client). Changetype ADDED
+Received an entry 172 with data of size 4 from member 2 (syncml-obex-client). Changetype ADDED
+Received an entry 173 with data of size 4 from member 2 (syncml-obex-client). Changetype ADDED
+Received an entry 174 with data of size 4 from member 2 (syncml-obex-client). Changetype ADDED
+Received an entry 175 with data of size 4 from member 2 (syncml-obex-client). Changetype ADDED
+Received an entry 176 with data of size 4 from member 2 (syncml-obex-client). Changetype ADDED
+Received an entry 177 with data of size 4 from member 2 (syncml-obex-client). Changetype ADDED
+Received an entry 178 with data of size 4 from member 2 (syncml-obex-client). Changetype ADDED
+Received an entry 179 with data of size 4 from member 2 (syncml-obex-client). Changetype ADDED
+Received an entry 180 with data of size 4 from member 2 (syncml-obex-client). Changetype ADDED
+Member 2 of type syncml-obex-client just sent all changes
+All clients sent changes or error
+All conflicts have been reported
+Sent an entry pas-id-4A6B4ED200000000 of size 85 to member 1 (evo2-sync). Changetype ADDED
+Sent an entry pas-id-4A6B4ED200000001 of size 79 to member 1 (evo2-sync). Changetype ADDED
+Sent an entry pas-id-4A6B4ED200000002 of size 109 to member 1 (evo2-sync). Changetype ADDED
+Sent an entry pas-id-4A6B4ED200000003 of size 89 to member 1 (evo2-sync). Changetype ADDED
+Sent an entry pas-id-4A6B4ED200000004 of size 86 to member 1 (evo2-sync). Changetype ADDED
+Sent an entry pas-id-4A6B4ED200000005 of size 100 to member 1 (evo2-sync). Changetype ADDED
+Sent an entry pas-id-4A6B4ED200000006 of size 135 to member 1 (evo2-sync). Changetype ADDED
+Sent an entry pas-id-4A6B4ED200000007 of size 104 to member 1 (evo2-sync). Changetype ADDED
+Sent an entry pas-id-4A6B4ED200000008 of size 96 to member 1 (evo2-sync). Changetype ADDED
+Sent an entry pas-id-4A6B4ED200000009 of size 102 to member 1 (evo2-sync). Changetype ADDED
+Sent an entry pas-id-4A6B4ED20000000A of size 88 to member 1 (evo2-sync). Changetype ADDED
+Sent an entry pas-id-4A6B4ED20000000B of size 103 to member 1 (evo2-sync). Changetype ADDED
+Sent an entry pas-id-4A6B4ED20000000C of size 101 to member 1 (evo2-sync). Changetype ADDED
+Sent an entry pas-id-4A6B4ED20000000D of size 89 to member 1 (evo2-sync). Changetype ADDED
+Sent an entry pas-id-4A6B4ED20000000E of size 86 to member 1 (evo2-sync). Changetype ADDED
+Sent an entry pas-id-4A6B4ED20000000F of size 94 to member 1 (evo2-sync). Changetype ADDED
+Sent an entry pas-id-4A6B4ED200000010 of size 90 to member 1 (evo2-sync). Changetype ADDED
+Sent an entry pas-id-4A6B4ED200000011 of size 98 to member 1 (evo2-sync). Changetype ADDED
+Sent an entry pas-id-4A6B4ED200000012 of size 105 to member 1 (evo2-sync). Changetype ADDED
+Sent an entry pas-id-4A6B4ED200000013 of size 95 to member 1 (evo2-sync). Changetype ADDED
+Sent an entry pas-id-4A6B4ED200000014 of size 94 to member 1 (evo2-sync). Changetype ADDED
+Sent an entry pas-id-4A6B4ED200000015 of size 95 to member 1 (evo2-sync). Changetype ADDED
+Sent an entry pas-id-4A6B4ED200000016 of size 92 to member 1 (evo2-sync). Changetype ADDED
+Sent an entry pas-id-4A6B4ED200000017 of size 103 to member 1 (evo2-sync). Changetype ADDED
+Sent an entry pas-id-4A6B4ED200000018 of size 102 to member 1 (evo2-sync). Changetype ADDED
+Sent an entry pas-id-4A6B4ED200000019 of size 96 to member 1 (evo2-sync). Changetype ADDED
+Sent an entry pas-id-4A6B4ED20000001A of size 110 to member 1 (evo2-sync). Changetype ADDED
+Sent an entry pas-id-4A6B4ED20000001B of size 208 to member 1 (evo2-sync). Changetype ADDED
+Sent an entry pas-id-4A6B4ED20000001C of size 124 to member 1 (evo2-sync). Changetype ADDED
+Sent an entry pas-id-4A6B4ED20000001D of size 91 to member 1 (evo2-sync). Changetype ADDED
+Sent an entry pas-id-4A6B4ED20000001E of size 102 to member 1 (evo2-sync). Changetype ADDED
+Sent an entry pas-id-4A6B4ED20000001F of size 83 to member 1 (evo2-sync). Changetype ADDED
+Sent an entry pas-id-4A6B4ED200000020 of size 84 to member 1 (evo2-sync). Changetype ADDED
+Sent an entry pas-id-4A6B4ED200000021 of size 93 to member 1 (evo2-sync). Changetype ADDED
+Sent an entry pas-id-4A6B4ED200000022 of size 101 to member 1 (evo2-sync). Changetype ADDED
+Sent an entry pas-id-4A6B4ED200000023 of size 106 to member 1 (evo2-sync). Changetype ADDED
+Sent an entry pas-id-4A6B4ED200000024 of size 100 to member 1 (evo2-sync). Changetype ADDED
+Sent an entry pas-id-4A6B4ED200000025 of size 173 to member 1 (evo2-sync). Changetype ADDED
+Sent an entry pas-id-4A6B4ED200000026 of size 103 to member 1 (evo2-sync). Changetype ADDED
+Sent an entry pas-id-4A6B4ED200000027 of size 84 to member 1 (evo2-sync). Changetype ADDED
+Sent an entry pas-id-4A6B4ED200000028 of size 86 to member 1 (evo2-sync). Changetype ADDED
+Sent an entry pas-id-4A6B4ED200000029 of size 170 to member 1 (evo2-sync). Changetype ADDED
+Sent an entry pas-id-4A6B4ED20000002A of size 107 to member 1 (evo2-sync). Changetype ADDED
+Sent an entry pas-id-4A6B4ED20000002B of size 90 to member 1 (evo2-sync). Changetype ADDED
+Sent an entry pas-id-4A6B4ED20000002C of size 89 to member 1 (evo2-sync). Changetype ADDED
+Sent an entry pas-id-4A6B4ED20000002D of size 82 to member 1 (evo2-sync). Changetype ADDED
+Sent an entry pas-id-4A6B4ED20000002E of size 91 to member 1 (evo2-sync). Changetype ADDED
+Sent an entry pas-id-4A6B4ED20000002F of size 140 to member 1 (evo2-sync). Changetype ADDED
+Sent an entry pas-id-4A6B4ED200000030 of size 142 to member 1 (evo2-sync). Changetype ADDED
+Sent an entry pas-id-4A6B4ED200000031 of size 106 to member 1 (evo2-sync). Changetype ADDED
+Sent an entry pas-id-4A6B4ED200000032 of size 139 to member 1 (evo2-sync). Changetype ADDED
+Sent an entry pas-id-4A6B4ED200000033 of size 103 to member 1 (evo2-sync). Changetype ADDED
+Sent an entry pas-id-4A6B4ED200000034 of size 103 to member 1 (evo2-sync). Changetype ADDED
+Sent an entry pas-id-4A6B4ED200000035 of size 98 to member 1 (evo2-sync). Changetype ADDED
+Sent an entry pas-id-4A6B4ED200000036 of size 113 to member 1 (evo2-sync). Changetype ADDED
+Sent an entry pas-id-4A6B4ED200000037 of size 148 to member 1 (evo2-sync). Changetype ADDED
+Sent an entry pas-id-4A6B4ED200000038 of size 102 to member 1 (evo2-sync). Changetype ADDED
+Sent an entry pas-id-4A6B4ED200000039 of size 100 to member 1 (evo2-sync). Changetype ADDED
+Sent an entry pas-id-4A6B4ED20000003A of size 92 to member 1 (evo2-sync). Changetype ADDED
+Sent an entry pas-id-4A6B4ED20000003B of size 88 to member 1 (evo2-sync). Changetype ADDED
+Sent an entry pas-id-4A6B4ED20000003C of size 90 to member 1 (evo2-sync). Changetype ADDED
+Sent an entry pas-id-4A6B4ED20000003D of size 101 to member 1 (evo2-sync). Changetype ADDED
+Sent an entry pas-id-4A6B4ED20000003E of size 95 to member 1 (evo2-sync). Changetype ADDED
+Sent an entry pas-id-4A6B4ED20000003F of size 86 to member 1 (evo2-sync). Changetype ADDED
+Sent an entry pas-id-4A6B4ED200000040 of size 88 to member 1 (evo2-sync). Changetype ADDED
+Sent an entry pas-id-4A6B4ED200000041 of size 100 to member 1 (evo2-sync). Changetype ADDED
+Sent an entry pas-id-4A6B4ED200000042 of size 136 to member 1 (evo2-sync). Changetype ADDED
+Sent an entry pas-id-4A6B4ED200000043 of size 239 to member 1 (evo2-sync). Changetype ADDED
+Sent an entry pas-id-4A6B4ED200000044 of size 174 to member 1 (evo2-sync). Changetype ADDED
+Sent an entry pas-id-4A6B4ED200000045 of size 148 to member 1 (evo2-sync). Changetype ADDED
+Sent an entry pas-id-4A6B4ED200000046 of size 307 to member 1 (evo2-sync). Changetype ADDED
+Sent an entry pas-id-4A6B4ED200000047 of size 103 to member 1 (evo2-sync). Changetype ADDED
+Sent an entry pas-id-4A6B4ED200000048 of size 129 to member 1 (evo2-sync). Changetype ADDED
+Sent an entry pas-id-4A6B4ED200000049 of size 130 to member 1 (evo2-sync). Changetype ADDED
+Sent an entry pas-id-4A6B4ED20000004A of size 110 to member 1 (evo2-sync). Changetype ADDED
+Sent an entry pas-id-4A6B4ED20000004B of size 72 to member 1 (evo2-sync). Changetype ADDED
+Sent an entry pas-id-4A6B4ED20000004C of size 160 to member 1 (evo2-sync). Changetype ADDED
+Sent an entry pas-id-4A6B4ED20000004D of size 119 to member 1 (evo2-sync). Changetype ADDED
+Sent an entry pas-id-4A6B4ED20000004E of size 114 to member 1 (evo2-sync). Changetype ADDED
+Sent an entry pas-id-4A6B4ED20000004F of size 131 to member 1 (evo2-sync). Changetype ADDED
+Sent an entry pas-id-4A6B4ED200000050 of size 92 to member 1 (evo2-sync). Changetype ADDED
+Sent an entry pas-id-4A6B4ED200000051 of size 287 to member 1 (evo2-sync). Changetype ADDED
+Sent an entry pas-id-4A6B4ED200000052 of size 128 to member 1 (evo2-sync). Changetype ADDED
+Sent an entry pas-id-4A6B4ED200000053 of size 119 to member 1 (evo2-sync). Changetype ADDED
+Sent an entry pas-id-4A6B4ED200000054 of size 101 to member 1 (evo2-sync). Changetype ADDED
+Sent an entry pas-id-4A6B4ED200000055 of size 110 to member 1 (evo2-sync). Changetype ADDED
+Sent an entry pas-id-4A6B4ED200000056 of size 106 to member 1 (evo2-sync). Changetype ADDED
+Sent an entry pas-id-4A6B4ED200000057 of size 112 to member 1 (evo2-sync). Changetype ADDED
+Sent an entry pas-id-4A6B4ED200000058 of size 100 to member 1 (evo2-sync). Changetype ADDED
+Sent an entry pas-id-4A6B4ED200000059 of size 70 to member 1 (evo2-sync). Changetype ADDED
+Sent an entry pas-id-4A6B4ED20000005A of size 113 to member 1 (evo2-sync). Changetype ADDED
+Sent an entry pas-id-4A6B4ED20000005B of size 97 to member 1 (evo2-sync). Changetype ADDED
+Sent an entry pas-id-4A6B4ED20000005C of size 140 to member 1 (evo2-sync). Changetype ADDED
+Sent an entry pas-id-4A6B4ED20000005D of size 177 to member 1 (evo2-sync). Changetype ADDED
+Sent an entry pas-id-4A6B4ED20000005E of size 110 to member 1 (evo2-sync). Changetype ADDED
+Sent an entry pas-id-4A6B4ED20000005F of size 188 to member 1 (evo2-sync). Changetype ADDED
+Sent an entry pas-id-4A6B4ED200000060 of size 157 to member 1 (evo2-sync). Changetype ADDED
+Sent an entry pas-id-4A6B4ED200000061 of size 114 to member 1 (evo2-sync). Changetype ADDED
+Sent an entry pas-id-4A6B4ED200000062 of size 162 to member 1 (evo2-sync). Changetype ADDED
+Sent an entry pas-id-4A6B4ED200000063 of size 162 to member 1 (evo2-sync). Changetype ADDED
+Sent an entry pas-id-4A6B4ED200000064 of size 248 to member 1 (evo2-sync). Changetype ADDED
+Sent an entry pas-id-4A6B4ED200000065 of size 171 to member 1 (evo2-sync). Changetype ADDED
+Sent an entry pas-id-4A6B4ED200000066 of size 180 to member 1 (evo2-sync). Changetype ADDED
+Sent an entry pas-id-4A6B4ED200000067 of size 130 to member 1 (evo2-sync). Changetype ADDED
+Sent an entry pas-id-4A6B4ED200000068 of size 217 to member 1 (evo2-sync). Changetype ADDED
+Sent an entry pas-id-4A6B4ED200000069 of size 187 to member 1 (evo2-sync). Changetype ADDED
+Sent an entry pas-id-4A6B4ED20000006A of size 419 to member 1 (evo2-sync). Changetype ADDED
+Sent an entry pas-id-4A6B4ED20000006B of size 226 to member 1 (evo2-sync). Changetype ADDED
+Sent an entry pas-id-4A6B4ED20000006C of size 103 to member 1 (evo2-sync). Changetype ADDED
+Sent an entry pas-id-4A6B4ED20000006D of size 92 to member 1 (evo2-sync). Changetype ADDED
+Sent an entry pas-id-4A6B4ED20000006E of size 182 to member 1 (evo2-sync). Changetype ADDED
+Sent an entry pas-id-4A6B4ED20000006F of size 199 to member 1 (evo2-sync). Changetype ADDED
+Sent an entry pas-id-4A6B4ED200000070 of size 108 to member 1 (evo2-sync). Changetype ADDED
+Sent an entry pas-id-4A6B4ED200000071 of size 125 to member 1 (evo2-sync). Changetype ADDED
+Sent an entry pas-id-4A6B4ED200000072 of size 108 to member 1 (evo2-sync). Changetype ADDED
+Sent an entry pas-id-4A6B4ED200000073 of size 235 to member 1 (evo2-sync). Changetype ADDED
+Sent an entry pas-id-4A6B4ED200000074 of size 113 to member 1 (evo2-sync). Changetype ADDED
+Sent an entry pas-id-4A6B4ED200000075 of size 103 to member 1 (evo2-sync). Changetype ADDED
+Sent an entry pas-id-4A6B4ED200000076 of size 117 to member 1 (evo2-sync). Changetype ADDED
+Sent an entry pas-id-4A6B4ED200000077 of size 66 to member 1 (evo2-sync). Changetype ADDED
+Sent an entry pas-id-4A6B4ED200000078 of size 117 to member 1 (evo2-sync). Changetype ADDED
+Sent an entry pas-id-4A6B4ED200000079 of size 146 to member 1 (evo2-sync). Changetype ADDED
+Sent an entry pas-id-4A6B4ED20000007A of size 98 to member 1 (evo2-sync). Changetype ADDED
+Sent an entry pas-id-4A6B4ED20000007B of size 93 to member 1 (evo2-sync). Changetype ADDED
+Sent an entry pas-id-4A6B4ED20000007C of size 97 to member 1 (evo2-sync). Changetype ADDED
+Sent an entry pas-id-4A6B4ED20000007D of size 95 to member 1 (evo2-sync). Changetype ADDED
+Sent an entry pas-id-4A6B4ED20000007E of size 102 to member 1 (evo2-sync). Changetype ADDED
+Sent an entry pas-id-4A6B4ED20000007F of size 91 to member 1 (evo2-sync). Changetype ADDED
+Sent an entry pas-id-4A6B4ED200000080 of size 110 to member 1 (evo2-sync). Changetype ADDED
+Sent an entry pas-id-4A6B4ED200000081 of size 112 to member 1 (evo2-sync). Changetype ADDED
+Sent an entry pas-id-4A6B4ED200000082 of size 153 to member 1 (evo2-sync). Changetype ADDED
+Sent an entry pas-id-4A6B4ED300000083 of size 122 to member 1 (evo2-sync). Changetype ADDED
+Sent an entry pas-id-4A6B4ED300000084 of size 128 to member 1 (evo2-sync). Changetype ADDED
+Sent an entry pas-id-4A6B4ED300000085 of size 118 to member 1 (evo2-sync). Changetype ADDED
+Sent an entry pas-id-4A6B4ED300000086 of size 128 to member 1 (evo2-sync). Changetype ADDED
+Sent an entry pas-id-4A6B4ED300000087 of size 130 to member 1 (evo2-sync). Changetype ADDED
+Sent an entry pas-id-4A6B4ED300000088 of size 106 to member 1 (evo2-sync). Changetype ADDED
+Sent an entry pas-id-4A6B4ED300000089 of size 109 to member 1 (evo2-sync). Changetype ADDED
+Sent an entry pas-id-4A6B4ED30000008A of size 97 to member 1 (evo2-sync). Changetype ADDED
+Sent an entry pas-id-4A6B4ED30000008B of size 127 to member 1 (evo2-sync). Changetype ADDED
+Sent an entry pas-id-4A6B4ED30000008C of size 103 to member 1 (evo2-sync). Changetype ADDED
+Sent an entry pas-id-4A6B4ED30000008D of size 62 to member 1 (evo2-sync). Changetype ADDED
+Sent an entry pas-id-4A6B4ED30000008E of size 139 to member 1 (evo2-sync). Changetype ADDED
+Sent an entry pas-id-4A6B4ED30000008F of size 207 to member 1 (evo2-sync). Changetype ADDED
+Sent an entry pas-id-4A6B4ED300000090 of size 109 to member 1 (evo2-sync). Changetype ADDED
+Sent an entry pas-id-4A6B4ED300000091 of size 106 to member 1 (evo2-sync). Changetype ADDED
+Sent an entry pas-id-4A6B4ED300000092 of size 116 to member 1 (evo2-sync). Changetype ADDED
+Sent an entry pas-id-4A6B4ED300000093 of size 125 to member 1 (evo2-sync). Changetype ADDED
+Sent an entry pas-id-4A6B4ED300000094 of size 107 to member 1 (evo2-sync). Changetype ADDED
+Sent an entry pas-id-4A6B4ED300000095 of size 140 to member 1 (evo2-sync). Changetype ADDED
+Sent an entry pas-id-4A6B4ED300000096 of size 133 to member 1 (evo2-sync). Changetype ADDED
+Sent an entry pas-id-4A6B4ED300000097 of size 132 to member 1 (evo2-sync). Changetype ADDED
+Sent an entry pas-id-4A6B4ED300000098 of size 94 to member 1 (evo2-sync). Changetype ADDED
+Sent an entry pas-id-4A6B4ED300000099 of size 115 to member 1 (evo2-sync). Changetype ADDED
+Sent an entry pas-id-4A6B4ED30000009A of size 124 to member 1 (evo2-sync). Changetype ADDED
+Sent an entry pas-id-4A6B4ED30000009B of size 120 to member 1 (evo2-sync). Changetype ADDED
+Sent an entry pas-id-4A6B4ED30000009C of size 145 to member 1 (evo2-sync). Changetype ADDED
+Sent an entry pas-id-4A6B4ED30000009D of size 111 to member 1 (evo2-sync). Changetype ADDED
+Sent an entry pas-id-4A6B4ED30000009E of size 101 to member 1 (evo2-sync). Changetype ADDED
+Sent an entry pas-id-4A6B4ED30000009F of size 182 to member 1 (evo2-sync). Changetype ADDED
+Sent an entry pas-id-4A6B4ED3000000A0 of size 115 to member 1 (evo2-sync). Changetype ADDED
+Sent an entry pas-id-4A6B4ED3000000A1 of size 123 to member 1 (evo2-sync). Changetype ADDED
+Sent an entry pas-id-4A6B4ED3000000A2 of size 105 to member 1 (evo2-sync). Changetype ADDED
+Sent an entry pas-id-4A6B4ED3000000A3 of size 69 to member 1 (evo2-sync). Changetype ADDED
+Sent an entry pas-id-4A6B4ED3000000A4 of size 82 to member 1 (evo2-sync). Changetype ADDED
+Sent an entry pas-id-4A6B4ED3000000A5 of size 103 to member 1 (evo2-sync). Changetype ADDED
+Sent an entry pas-id-4A6B4ED3000000A6 of size 79 to member 1 (evo2-sync). Changetype ADDED
+Sent an entry pas-id-4A6B4ED3000000A7 of size 97 to member 1 (evo2-sync). Changetype ADDED
+Member 1 of type evo2-sync committed all changes.
+Member 1 of type evo2-sync just disconnected
+Received an reply to our sync
+Member 2 of type syncml-obex-client committed all changes.
+All clients have written
+Member 2 of type syncml-obex-client just disconnected
+All clients have disconnected
+The sync was successful
+jamesc@jamesc-laptop:~/src/mobile/whereami_trunk/group/s60_v3$ 

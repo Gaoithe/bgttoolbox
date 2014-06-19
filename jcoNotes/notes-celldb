@@ -1,0 +1,191 @@
+http://celldb.org/api/?method=celldb.getcell&username=gaoithe&hash=c035256efd7d3511cbc80f59fcccdd41&mcc=272
+
+http://en.wikipedia.org/wiki/Mobile_network_code
+
+272 	01 	Vodafone 	Vodafone Ireland 	Operational 	GSM 900 / GSM 1800 / UMTS 2100 	[53]
+272 	02 	O2 	O2 Ireland 	Operational 	GSM 900 / GSM 1800 / UMTS 2100
+272 	03 	Meteor 		Operational 	GSM 900 / GSM 1800
+272 	04 		Access Telecom 	Unknown 	Unknown
+272 	05 	3 	Hutchison 3G Ireland limited 	Operational 	UMTS 2100
+272 	07 		Eircom 	Unknown 	Unknown
+272 	09 		Clever Communications 	Unknown 	Unknown
+
+
+
+http://celldb.org/api/?method=celldb.getcell&username=gaoithe&hash=c035256efd7d3511cbc80f59fcccdd41&mcc=272&mnc=01&&lac=1&cellid=1&format=xml
+
+
+
+
+
+
+
+
+
+Sending a single cell can be done with a GET request to http://celldb.org/api/?method=celldb.addcell with the folowing parameters:
+Parameters:
+
+    * username=Your username for using the API. You can create an accout
+    * hash=Your hashcode for using the API, shown to you when you create an accout
+    * mcc=Mobile Country Code of the network. 3 digit INT. See Mobile_network_code for a list.
+    * mnc=Mobile Network Code of the network. See Mobile_network_code for a list.
+    * lac=Location Area Code of the cell.
+    * celllid= number of the cell
+    * latitude=the latitude where the cell was received.
+    * longitude=the longitude where the cell was received.
+    * timestamp=the timestamp the cell was received. INT, in UNIX time, seconds since 1 Jan 1970. Defaults to current timestamp of insertion.
+    * type=either 'received' or 'tower'. Defaults to 'received'.
+    * signalstrength= The strength of the received signal, if available, between 1 and 99. Defaults to 0, unknown for received cells, and 100 for tower cells.
+    * enduserid= A free text field, up to 100 chars, to identify the end user by the API user. Will only be returned to the API user that created the record. This can be used to see which user, within your application, created the point. Defaults to empty string.
+    * format= Output format. Either xml/json/debug. Defaults to xml.
+
+
+
+
+http://celldb.org/api/?method=celldb.getcell&username=gaoithe&hash=c035256efd7d3511cbc80f59fcccdd41&mcc=272&mnc=1&lac=14&cellid=15537&format=xml
+
+eh?
+http://celldb.org/api/?method=celldb.getcell&username=gaoithe&hash=c035256efd7d3511cbc80f59fcccdd41&mcc=272&mnc=1&lac=14&cellid=15868&format=xml
+http://celldb.org/api/?method=celldb.getcell&username=gaoithe&hash=c035256efd7d3511cbc80f59fcccdd41&mcc=272&mnc=1&lac=14&cellid=37293&format=xml
+
+
+
+http://www.nulaz.net/about/mobile
+ Gxxxxxx gthmj
+
+When Nulaz installed it didn't show caps at install time, it ASKED at runtime
+to allow net services.
+Good to do that inside WhereAmI
+
+
+WhereAmI
+how does it decide location of cell?
+can it get power of cell?
+did it upload cells?
+
+In the phone application, why do I get a popup that asks me to allow network?
+
+Unfortunately phone manufacturers have implemented this as a security measure to prevent people receiving an unexpected high phone bill at the end of the month. With a lot of phones you can configure these security messages.
+
+If you have a Nokia, you should find the Installation Manager. We could prevent these warnings by buying expensive certificates, but prefer to leave the warning in there for unsuspecting users. If you check 'ask first time' it will only happen on startup.
+
+Some phones have been branded in a way that makes it impossible to select a 'only ask first time' option. Please check your settings menu, if you can set it in the permissions for applications. If you can not do this, you should probably unlock your phone.
+[Top]
+Why does my Nokia keep asking permission for positioning?
+
+By default the positioning permission is set to 'ask every time'. It is not possible to change this to ask first time from the program, you need to do this from the Application Manager. The application Manager can usually be found in:
+
+Main Menu > Applications > App. Mgr.
+Open Nulaz (Installed) > Positioning > Ask First Time.
+
+Now, it will only ask you for permission when launching the application. [Top]
+
+
+
+
+
+
+Netherlands (Kingdom of the Netherlands)
+MCC 	MNC 	Brand 	Operator 	Status 	Bands (MHz) 	References and notes
+204 	01 		OneFoon 			[84]
+204 	02 	Tele2 	Tele2 Netherlands 	Operational 	
+204 	03 	Blyk 	Blyk Netherlands 	Operational 	
+204 	04 	Vodafone 	Vodafone Netherlands 	Operational 	GSM 900 / GSM 1800 / UMTS 2100
+204 	05 		Elephant Talk 		
+204 	06 		Barablu Mobile 		
+204 	07 		Teleena 		
+204 	08 	KPN 	KPN 	Operational 	GSM 900 / GSM 1800 / UMTS 2100
+204 	09 		Lycamobile 		
+204 	10 	KPN 	KPN 	Operational 	GSM 900 / GSM 1800 / UMTS 2100
+204 	12 	Telfort 	KPN 	Operational 	GSM 900 / GSM 1800
+204 	14 		BT InMo 		
+204 	16 	T-Mobile 	T-Mobile Netherlands B.V 	Operational 	GSM 900 / GSM 1800 / UMTS 2100
+204 	18 	Telfort 	KPN 	Operational 	GSM 900 / GSM 1800
+204 	20 	Orange Nederland 	T-Mobile Netherlands B.V 	Operational 	GSM 1800
+204 	21 		NS Railinfrabeheer B.V. 	Operational 	GSM-R
+204 	67 		RadioAccess 		
+204 	69 		KPN Mobile 		
+
+
+
+
+
+
+gxxxxxx pteXXXxxx
+http://www.locle.com/
+Ronan. Blackrock.
+
+What is Locle?
+
+Locle is an easy, free application that lets you find your friends on your mobile without the need for GPS.
+
+You can access Locle on a mobile phone (http://m.locle.com) or from a PC (http://www.locle.com).
+
+Locle is similar to Bebo, MySpace or Facebook : you can connect with friends and send them messages. But Locle does more: it lets you discover where your friends are. The thing about Locle is that you share your location only with people you have selected. And of course, if you don’t want friends to find you, you can temporarily disable it until you’re feeling more sociable.
+ 
+
+
+
+
+http://celldb.org/api/?method=celldb.getcell&username=gaoithe&hash=c035256efd7d3511cbc80f59fcccdd41&mcc=272&mnc=1&lac=14&cellid=%25
+
+
+
+http://celldb.org/api/?method=celldb.getcell&username=gaoithe&hash=c035256efd7d3511cbc80f59fcccdd41&mcc=204&mnc=4&lac=%&cellid=21461
+
+
+
+
+aaaand
+https://www.iyouit.eu/portal/Quickstart.aspx
+http://cellid.telin.nl:8080/wasp/jsp/CellStats.jsp
+
+No	ID	Country	Average cell range (m)	Average signal strength (%)	#Cells	Modified
+1 	410 	Pakistan 	768 	16 	321 	2008-03-15
+2 	274 	Iceland 	1999 	98 	44 	2009-01-22
+3 	272 	Ireland 	1830 	78 	1137 	2009-04-13
+4 	280 	Cyprus 	2000 	0 	8 	2007-01-18
+5 	404 	India 	1095 	98 	353 	2009-06-18
+
+
+List with networks
+No	Country	Network	Name	Average cell range (m)	Average signal strength (%)	#Cells	Modified
+1 	204 	815 	NL KPN 	787 	89 	9834 	2009-07-19
+2 	228 	315 	CH Orange 	892 	78 	162 	2008-06-28
+3 	228 	215 	sunrise 	367 	78 	464 	2008-10-09
+4 	204 	161 	T-Mobile 	961 	79 	5227 	2009-06-21
+5 	204 	415 	vodafone N 	809 	86 	7512 	2009-07-18
+6 	262 	215 	vodafone D 	1163 	68 	11779 	2009-07-19
+.
+.
+.
+48 	272 	215 	Digifone 	1832 	79 	1071 	2008-08-15
+51 	272 	115 	Vodafone IRL 	1774 	41 	62 	2009-04-13
+120 	272 	315 	Meteor 	2000 	0 	4 	2008-03-29
+.
+.
+.
+
+
+
+
+contributor imeis
+330 	353383002711631 		336
+331 	353383004203066 		524
+332 	353387001515356 		234
+333 	353387004693465 		25
+334 	353387005172857 		196
+
+
+
+
+
+
+
+http://www.nokiasoftware.net/symbian-series-60-applications/14160-how-unlocked-hack-n73.html
+http://en.wikipedia.org/wiki/Symbian_OS
+http://www.jaspp.net/2008/05/s60-3rd-edition-hack-hello-carbide/
+
+
+
+http://janus.liebregts.nl/cellid/

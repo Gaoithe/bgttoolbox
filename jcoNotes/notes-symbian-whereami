@@ -1,0 +1,764 @@
+TODO: on web .sis/.sisx (dev signed only - Needs Location caps - so not useful to you unless you've a fancy nokia cert to sign it yourself with or else a hack for your phone) on web
+
+DONE Collect cell info  (HelloCarbide + CapsOff hack :-7)
+TODO: WhereAmI CellTrack91  TRK(hackX0rz)  Nulaz  Locle  IYOUIT   gpsmid
+  http://wiki.openstreetmap.org/wiki/GpsMid
+  cellid databases    
+  Locle/Nulaz - parents tracking kids (but 3G needed)
+  store track of user so can show cute scribbles (but also track where+when)
+TODO: is it uploading the cell info?
+ can only query 1 cell at a time unless write some wsdl client yokiebobby
+TODO: download cells?  is there code to do that?
+ does celldb.org allow groups of cells by location to be selected?
+
+DONE: save cell info to file (save named saves 
+ Annotation - ?All(Private,Blog,Map Corre,Postcode)
+ Osm - Places,Streets,Poi 
+ Postcode 
+ GSM CellIds
+ +TODO: save file viewable in JOSM, uploadable to OSM?
+ +TODO: can we also log timestamp, power of cells and other cells
+   (need real access to phone internals! :-7)
+
+TODO: tool to open whereami.db  or also .gpx files and plot route on map, plot altitude graph, plot speed.  host tools or phone tools.    draw a route and show altitude plot/other info.
+TODO: load .gpx back and show  on map?
+TODO: load cell info back (is it stored in whereami.db? or just memory?
+  must be in .db as it the cells display goes away on map but when phone finds 
+  cell again the cell area is known
+ yes and they appear when saving to file also.
+TODO: cycle mode or other mode - don't save every .gpx point?
+  compress/optimize points?  save compressed .gpx?
+TODO: what's being shown on debug screen
+TODO: logging, LOG levels/log categories ... urk ... argued with that alright  LOG1 LOG2 LOG3 annoying but require messing with compiler. sod it!   messed debugging getNetworkInfo - was a caps problem, 
+TODO: how to overcome GetNetworkInfo caps without hacking?   get a cert from nokia?  certified apps seem to say nothing about caps at install time? they prompt user at runtime to allow the cap ... API to do this without cert?
+ ... for now using Carbide hack on my phone
+
+TODO: stats/persistent stats
+ xxx km of track made   x tracks,  x1 tracks completed, x2 tracks phone dies, x3 tracks GPS goes away
+ xxx time tracking/logging
+ xxxxxx gpx gps points logged, xxx uploaded
+ xx cellids logged, xxx downloaded, xx uploaded (x new/unique, x already known updated, x ?)
+ x all mem used error, x all disk space used error, 
+
+TODO: celldb.org get irish cells
+ celldb.org get irish cells, see src/git_jco/jcoNotes/notes-celldb
+ other open cell dbs?
+ https://www.iyouit.eu/portal/Quickstart.aspx
+ http://cellid.telin.nl:8080/wasp/jsp/CellStats.jsp
+ nulaz uses?   locle uses?   OSM?
+ http://www.opencellid.org/
+
+
+
+================================================================================ 
+http://www.opencellid.org/
+
+  Cell/get is used to get the position associated with a cell. For example:
+  http://www.opencellid.org/cell/get?mcc=250&mnc=99&cellid=29513&lac=0 
+  http://mobiforge.com/developing/story/adding-location-a-non-gps-phone-introducing-cellid
+
+
+http://www.opencellid.org/measure/add?key=myapikey&mnc=1&mcc=2&lac=200&cellid=234&lat=3.42&lon=3.12
+The OpenCellID API is a simple REST API. There are only two relevant calls: measure/add and get/cell. 
+
+Cell/get is used to get the position associated with a cell. For example:
+http://www.opencellid.org/cell/get?mcc=250&mnc=99&cellid=29513&lac=0
+You need to provide at least mcc, mnc (mobile country code, and mobile network code of the operator), and cellid. Lac (location area code) is an optional parameter
+
+
+================================================================================
+building,... installing and capabilities
+
+export SYM_WORKING_DIR=$HOME/src/mobile
+export SYM_COMPILER_DIR=$HOME/csl-gcc
+export PATH=$PATH:/home/jamesc/symbian-sdks/s60_3_fp2_v11/epoc32/tools
+export PATH=$PATH:$SYM_COMPILER_DIR/bin
+export EPOCROOT=/home/jamesc/symbian-sdks/s60_3_fp2_v11/
+
+
+<h3>Now play with WhereAmI</h3>
+<pre>
+# everyday commands:
+cd $SYM_WORKING_DIR/whereami_trunk
+cd group/s60_v3
+
+bldmake bldfiles
+abld build gcce urel 2>&1 |tee build_gcce.log    # this works instead
+
+cd $SYM_WORKING_DIR/whereami_trunk/sis
+makesis whereami_s60_v3.pkg whereami_s60_v3_jco.sis
+signsis whereami_s60_v3_jco.sis whereami_s60_v3_jco.sisx mycert.cer mykey.key
+</pre>
+
+
+<pre>
+cd $SYM_WORKING_DIR
+svn co https://svn.symbianos.org/whereami/trunk/ whereami_trunk
+
+# And this is how I can work quickly compile and make .sis for whereami
+# put this in a script or README or notes or blog somewhere
+cd $SYM_WORKING_DIR/whereami_trunk
+cd group/s60_v3
+ bldmake bldfiles
+ #abld build winscw udeb  #?  needs wine, .. make.exe problem?
+ abld build gcce urel    # this works instead
+
+ cd ../../sis
+ makesis whereami_s60_v3.pkg whereami_s60_v3_jco.sis
+
+ # and key signing to make sisx, don't know does this help much?
+ # privately made key.  My phone is a bit hacked so I can install any .sis on it.
+ # first make key and cert for yourself
+ [[ ! -f mykey.key ]] || [[ ! -f mycert.cer ]] &&
+   makekeys -cert -expdays 3650 -dname "CN=Name Surname OU=Development O=Company Name C=UK EM=foo@bar.com" mykey.key mycert.cer
+ # sign application each time you need to
+ signsis whereami_s60_v3_jco.sis whereami_s60_v3_jco.sisx mycert.cer mykey.key
+
+ # how clean make/build?
+ # this does a bit of it anyway:
+ rm $HOME/symbian-sdks/s60_3_fp2_v11/epoc32/build${HOME}/src/mobile/whereami_trunk/group/s60_v3/whereami*/*/urel/*.{o,exe}
+</pre>
+
+
+================================================================================
+
+/**
+System wide error code -46 : an operation cannot be performed due to
+a potential security violation.
+
+A system wide error code indicates an error in the environment, or in
+user input from which a program may recover.
+*/
+const TInt KErrPermissionDenied=(-46);
+
+
+~/src/mobile/whereami_trunk/group/s60_v3/whereami.mmp
+
+
+#if !defined(MARM) || (defined(GCCE) && defined(MARM))
+#ifdef GPS_LBS
+CAPABILITY LocalServices Location NetworkServices ReadDeviceData UserEnvironment
+#else
+CAPABILITY LocalServices NetworkServices UserEnvironment
+#endif
+#endif
+
+http://www.forum.nokia.com/Technology_Topics/Device_Platforms/S60/Platform_Security/Capability_Descriptions.xhtml
+
+###########  AAAAAAAAAAAAAAAAAAAAAAAAAND needed to clean build
+not exactly clean build, modify mmp file and makediles/reg files/? not updated?
+but not sure  how to do that
+jamesc@jamesc-laptop:~/src/mobile/whereami_trunk$ find /home/jamesc/symbian-sdks/  -newer group/s60_v3/whereami.mmp  
+mv /home/jamesc/symbian-sdks/s60_3_fp2_v11/epoc32/build/home/jamesc/src/mobile/whereami_trunk /home/jamesc/symbian-sdks/s60_3_fp2_v11/epoc32/build/home/jamesc/src/mobile/whereami_trunk_cb
+# vbuild again, makesis
+### Yeah now on install it says in caps list "Access Positioning Data" 
+but :( now Unable to execute file for security reasons
+
+http://www.google.ie/search?q=Unable+to+execure+file+for+security+reasons
+
+
+================================================================================
+
+HD=/home/jamesc/symbian-sdks/s60_3_fp2_v11/epoc32/build/home/jamesc
+WGD=src/mobile/whereami_trunk/group/s60_v3
+jamesc@jamesc-laptop:~/$WGD$ find /home/jamesc/symbian-sdks/  -newer whereami.mmp   -exec grep -Hn Location {} \;
+$HD/$WGD/whereami/gcce/whereami.gcce:328:		 --capability=LocalServices+Location+NetworkServices+UserEnvironment --fpu=softvfp --targettype=EXE --output="$@" --elfinput="$(EPOCBLDUREL)/whereami.exe" --linkas=whereami{000a0000}[a0001f0c].exe --libpath="$(EPOCLIB)/lib/"
+$HD/$WGD/whereami/gcce/whereami.gcce:517:		 --capability=LocalServices+Location+NetworkServices+UserEnvironment --fpu=softvfp --targettype=EXE --output="$@" --elfinput="$(EPOCBLDUDEB)/whereami.exe" --linkas=whereami{000a0000}[a0001f0c].exe --libpath="$(EPOCLIB)/lib/"
+$HD/$WGD/whereami_e0008869/gcce/whereami_e0008869.gcce:330:		 --capability=LocalServices+Location+NetworkServices+ReadDeviceData+UserEnvironment --fpu=softvfp --targettype=EXE --output="$@" --elfinput="$(EPOCBLDUREL)/whereami_e0008869.exe" --linkas=whereami_e0008869{000a0000}[e0008869].exe --libpath="$(EPOCLIB)/lib/"
+$HD/$WGD/whereami_e0008869/gcce/whereami_e0008869.gcce:521:		 --capability=LocalServices+Location+NetworkServices+ReadDeviceData+UserEnvironment --fpu=softvfp --targettype=EXE --output="$@" --elfinput="$(EPOCBLDUDEB)/whereami_e0008869.exe" --linkas=whereami_e0008869{000a0000}[e0008869].exe --libpath="$(EPOCLIB)/lib/"
+
+
+
+sudo apt-get install rapidsvn
+sudo apt-get install meld
+
+sudo apt-get install git-gui
+cd ~/src/git_jco
+git gui &
+
+
+ sudo apt-get install cscope
+cd ~/src/mobile/whereami_trunk
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+http://wiki.forum.nokia.com/index.php/How_to_use_GCCE_and_Open_C
+
+
+
+
+
+
+
+
+
+
+
+jamesc@jamesc-laptop:~/symbian-sdks/s60_3_fp2_v11$ find . -name "*.h" -exec grep -Hn printf {} \;  |head -30
+./s60cppexamples/openc_ex/antiword/inc/debug.h:17:#define DBG_MSG(t)	(void)fprintf(stderr,\
+./s60cppexamples/openc_ex/antiword/inc/debug.h:21:#define DBG_STRN(t,m)	(void)fprintf(stderr,\
+./s60cppexamples/openc_ex/antiword/inc/debug.h:26:#define DBG_CHR(m)    (void)fprintf(stderr,\
+./s60cppexamples/openc_ex/antiword/inc/debug.h:32:#define DBG_DEC(m)	(void)fprintf(stderr,\
+./s60cppexamples/openc_ex/antiword/inc/debug.h:36:#define DBG_HEX(m)	(void)fprintf(stderr,\
+./s60cppexamples/openc_ex/antiword/inc/debug.h:40:#define DBG_FLT(m)	(void)fprintf(stderr,\
+./s60cppexamples/openc_ex/antiword/inc/debug.h:44:#define DBG_FIXME()	(void)fprintf(stderr,\
+./s60cppexamples/openc_ex/antiword/inc/debug.h:105:			(void)fprintf(stderr,\
+./s60cppexamples/openc_ex/opencstringutilitiesex/exe/inc/example.h:25:#define 	GETCHAR()	printf("press any key to continue....\n"),getchar();
+./epoc32/include/libc/stdio_r.h:54:IMPORT_C int	_iprintf_r	(struct _reent *, const char *, ...);
+./epoc32/include/libc/stdio_r.h:58:IMPORT_C int	_printf_r	(struct _reent *, const char *, ...);
+./epoc32/include/libc/stdio_r.h:62:IMPORT_C int	_sprintf_r	(struct _reent *, char *, const char *, ...);
+./epoc32/include/libc/stdio_r.h:67:IMPORT_C int	_vfprintf_r	(struct _reent *, FILE *, const char *, __e32_va_list);
+./epoc32/include/libc/stdio.h:67:#define	__SSTR	0x0200		/* this is an sprintf/snprintf string */
+./epoc32/include/libc/stdio.h:145:IMPORT_C int	fprintf		(FILE *, const char *, ...);
+./epoc32/include/libc/stdio.h:147:IMPORT_C int	printf		(const char *, ...);
+./epoc32/include/libc/stdio.h:150:IMPORT_C int	vfprintf	(FILE *, const char *, __e32_va_list);
+./epoc32/include/libc/stdio.h:151:IMPORT_C int	vprintf		(const char *, __e32_va_list);
+./epoc32/include/libc/stdio.h:152:IMPORT_C int	vsprintf	(char *, const char *, __e32_va_list);
+./epoc32/include/libc/stdio.h:178:IMPORT_C int	sprintf		(char *, const char *, ...);
+./epoc32/include/ezlib.h:739://ZEXTERN int ZEXPORTVA   gzprintf OF((gzFile file, const char *format, ...));
+./epoc32/include/ezlib.h:742:   control of the format string, as in fprintf. gzprintf returns the number of
+./epoc32/include/liblogger.h:266: * Remark : Similar to printf except the first additional parameter for message type.
+./epoc32/include/stdapis/err.h:57:void	err(int, const char *, ...) __dead2 __printf0like(2, 3);
+./epoc32/include/stdapis/err.h:60:void	verr(int, const char *, va_list) __dead2 __printf0like(2, 0);
+./epoc32/include/stdapis/err.h:61:void	errc(int, int, const char *, ...) __dead2 __printf0like(3, 4);
+./epoc32/include/stdapis/err.h:63:	    __printf0like(3, 0);
+./epoc32/include/stdapis/err.h:64:void	errx(int, const char *, ...) __dead2 __printf0like(2, 3);
+./epoc32/include/stdapis/err.h:65:void	verrx(int, const char *, va_list) __dead2 __printf0like(2, 0);
+./epoc32/include/stdapis/err.h:68:void	warn(const char *, ...) __printf0like(1, 2);
+
+
+
+
+
+cscope -R #in symbian SDK
+
+
+/**
+System wide error code -14 : a requested resource is already in exclusive use.
+
+A system wide error code indicates an error in the environment, or in
+user input from which a program may recover.
+*/
+const TInt KErrInUse=(-14);
+
+
+================================================================================
+error -46 (permission denied reading gsm cellid/... info)
+compile-time set needed?
+at cert sign time set?
+or install-time on phone? 
+OR need to call API to request permission from app?
+
+gsmcellmonitor.cpp
+
+void CGsmCellMonitor::RunL()
+	{
+	LOG3("CGsmCellMonitor::RunL - status: %d, mode: %d, oldCell: %d",iStatus.Int(),iState,iPreviousCell.iCellId);
+	if(iStatus==KErrNone)
+
+0x2e; 00:03,38.019 CGsmCellMonitor::RunL - status: 0, mode: 1, oldCell: 0
+0x2e; 00:03,38.019 CGsmCellMonitor::RunL M0
+0x2e; 00:03,38.019 CGsmCellMonitor::RunL RunL: ConnectOrWait
+0x2e; 00:03,38.019 CGsmCellMonitor::RunL PLATFORM_V3
+0x2e; 00:03,38.019 CGsmCellMonitor::RunL PLATFORM_V3 CTelephony::NewL
+0x2e; 00:03,38.019 CGsmCellMonitor::RunL PLATFORM_V3 iTelephony->GetCurrentNetworkInfo
+0x2e; 00:03,38.019 CGsmCellMonitor::RunL MY
+0x2e; 00:03,38.019 CGsmCellMonitor::RunL Mz
+0x2e; 00:03,38.019 CGsmCellMonitor::RunL - status: -46, mode: 0, oldCell: 0
+0x2e; 00:03,38.019 CGsmCellMonitor::RunL Mz
+
+0 e32err.h 24 const TInt KErrNone=0;
+1 epoc.h   33 const int KErrNone=0;
+
+
+================================================================================
+
+/**
+System wide error code -46 : an operation cannot be performed due to
+a potential security violation.
+
+A system wide error code indicates an error in the environment, or in
+user input from which a program may recover.
+*/
+const TInt KErrPermissionDenied=(-46);
+
+
+~/src/mobile/whereami_trunk/group/s60_v3/whereami.mmp
+
+
+#if !defined(MARM) || (defined(GCCE) && defined(MARM))
+#ifdef GPS_LBS
+CAPABILITY LocalServices Location NetworkServices ReadDeviceData UserEnvironment
+#else
+CAPABILITY LocalServices NetworkServices UserEnvironment
+#endif
+#endif
+
+###########  AAAAAAAAAAAAAAAAAAAAAAAAAND needed to clean build
+not exactly clean build, modify mmp file and makediles/reg files/? not updated?
+but not sure  how to do that
+jamesc@jamesc-laptop:~/src/mobile/whereami_trunk$ find /home/jamesc/symbian-sdks/  -newer group/s60_v3/whereami.mmp  
+mv /home/jamesc/symbian-sdks/s60_3_fp2_v11/epoc32/build/home/jamesc/src/mobile/whereami_trunk /home/jamesc/symbian-sdks/s60_3_fp2_v11/epoc32/build/home/jamesc/src/mobile/whereami_trunk_cb
+# vbuild again, makesis
+### Yeah now on install it says in caps list "Access Positioning Data" 
+but :( now Unable to execute file for security reasons
+
+http://www.forum.nokia.com/Technology_Topics/Device_Platforms/S60/Platform_Security/Capability_Descriptions.xhtml
+
+
+You Are Here: Home > Technology Topics > Device Platforms > S60 > Platform Security > Capability Descriptions
+Capability Descriptions
+Register Today
+
+Register with Forum Nokia now and you'll enjoy the full benefits of the Forum Nokia membership.
+Register Login
+Featured Content
+
+Forum Nokia Podcasts
+Just announced
+
+Ovi Store
+
+Ovi for Developers
+
+Open Screen Project Fund
+Community Highlights
+
+Innovation Series Videos highlighting Forum Nokia developers
+Wiki article of the week
+
+Designing appealing mobile web pages
+Champion of the month
+
+Felipe Andrade
+Read more about Felipe on the Champions website.
+
+
+Forum Nokia Events
+
+Nokia World 09
+September 02, 2009
+Stuttgart, Germany
+
+Adobe MAX 2009
+October 04, 2009
+Los Angeles
+
+International CTIA WIRELESS I.T. & Entertainment 2009
+October 06, 2009
+San Diego, California
+
+Smartphone Show 2009
+October 27, 2009
+London
+
+View all
+Popular Tags
+
+Carbide design Go-to-Market maemo N97 Python runtime S60 WRT
+
+View All Tags
+Basic capabilities
+
+LocalServices
+Grants access to sending or receiving information through USB, IR, and point-to-point Bluetooth profiles. These services do not usually incur a cost for the mobile device user.
+
+ReadUserData
+Grants read access to confidential user data. System servers and application engines are free to grant this restriction level to their data.
+
+WriteUserData
+Grants write access to confidential user data. System servers and application engines are free to grant this restriction level to their data.
+
+NetworkServices
+Grants access to remote services (such as dialing a number or sending a text message), which might incur a cost for the mobile device user.
+
+UserEnvironment
+Grants access to recording the user’s voice and using the camera.
+Extended capabilities
+
+Location
+Grants access to data about the location of the device.
+
+SwEvent
+Grants the right to simulate key presses and pen input and to capture such events from any program. When the application has user input focus, the application does not need SwEvent to dispatch key or pen events.
+
+ProtServ
+Grants the right to a server to register with a protected name. Protected names start with an “!” (exclamation point). The kernel prevents servers without the ProtServ capability from using such a name, therefore preventing protected servers from being impersonated.
+
+TrustedUI
+Grants the right to create a trusted UI session, and, therefore, to display dialogs in a secure UI environment.
+
+Trusted UI dialogs are rare. They must be used only when confidentiality and security are critical; for example, for password dialogs. Normal access to the user interface and screen does not require this capability.
+
+PowerMgmt
+Grants the right to kill any process in the system, to power-off unused peripherals, and to cause the mobile phone to switch its machine state (go into stand-by, to wake up, or to power down completely).
+
+SurroundingsDD
+Grants access to logical device drivers that provide input information about the surroundings of the device.
+
+ReadDeviceData
+Grants read access to sensitive system data (confidential network operator, mobile device manufacturer, and device settings).
+
+WriteDeviceData
+Grants write access to sensitive system data (settings that control the behavior of the device).
+Accessible via Certified Signed
+
+CommDD
+Grants access to communication device drivers.
+
+DiskAdmin
+Grants the right to disk administration functions that affect more than one file or directory (or overall file-system integrity and behavior, etc.), such as formatting a drive.
+
+MultimediaDD
+Controls access to all multimedia device drivers (sound, camera, etc.).
+
+NetworkControl
+Grants the right to modify or access network protocol controls.
+Manufacturer-approved capabilities
+
+AllFiles
+Grants visibility to all files in the system and extra write access to files under /private.
+For more information, see File locations in the Symbian OS Library.
+
+DRM (digital rights management)
+Grants access to alter DRM-protected content. Playback of such content does not require the DRM capability.
+
+TCB
+Grants access to the /sys and /resource directories in the device.
+For more information, see File locations in the Symbian OS Library. 
+
+
+
+
+
+
+
+
+
+
+
+jamesc@jamesc-laptop:~/src/mobile/whereami_trunk$ find /home/jamesc/symbian-sdks/  -newer group/s60_v3/whereami.mmp  
+/home/jamesc/symbian-sdks/s60_3_fp2_v11/epoc32/data/z/resource/apps/whereami.mif
+/home/jamesc/symbian-sdks/s60_3_fp2_v11/epoc32/data/z/resource/apps/whereami_e0008869.mif
+/home/jamesc/symbian-sdks/s60_3_fp2_v11/epoc32/include
+/home/jamesc/symbian-sdks/s60_3_fp2_v11/epoc32/include/whereami.mbg
+/home/jamesc/symbian-sdks/s60_3_fp2_v11/epoc32/build/home/jamesc/src/mobile/whereami_trunk/group/s60_v3/gccetest.make
+/home/jamesc/symbian-sdks/s60_3_fp2_v11/epoc32/build/home/jamesc/src/mobile/whereami_trunk/group/s60_v3/edgtest.make
+.
+.
+.
+
+
+jamesc@jamesc-laptop:~/src/mobile/whereami_trunk$ ls -al /home/jamesc/symbian-sdks/s60_3_fp2_v11/epoc32/build/home/jamesc/src/mobile/whereami_trunk/group/s60_v3
+total 256
+drwxr-xr-x 5 jamesc jamesc  4096 2009-07-14 03:00 .
+drwxr-xr-x 3 jamesc jamesc  4096 2009-07-14 02:26 ..
+-rw-r--r-- 1 jamesc jamesc 26795 2009-07-18 22:10 cw_ide.make
+-rw-r--r-- 1 jamesc jamesc  1408 2009-07-18 22:10 cw_idetest.make
+-rw-r--r-- 1 jamesc jamesc 26430 2009-07-18 22:10 edg.make
+-rw-r--r-- 1 jamesc jamesc  2244 2009-07-18 22:10 edgtest.make
+-rw-r--r-- 1 jamesc jamesc   108 2009-07-18 22:10 export.make
+-rw-r--r-- 1 jamesc jamesc   108 2009-07-18 22:10 exporttest.make
+-rw-r--r-- 1 jamesc jamesc 26752 2009-07-18 22:10 gcce.make
+-rw-r--r-- 1 jamesc jamesc  2392 2009-07-18 22:10 gccetest.make
+-rw-r--r-- 1 jamesc jamesc 26852 2009-07-18 22:10 gccxml.make
+-rw-r--r-- 1 jamesc jamesc  2261 2009-07-18 22:10 gccxmltest.make
+drwxr-xr-x 3 jamesc jamesc  4096 2009-07-14 03:00 lzmaobfrec
+-rw-r--r-- 1 jamesc jamesc  1109 2009-07-18 22:10 platform.pm
+-rw-r--r-- 1 jamesc jamesc 26290 2009-07-18 22:10 vs2003.make
+-rw-r--r-- 1 jamesc jamesc  1408 2009-07-18 22:10 vs2003test.make
+-rw-r--r-- 1 jamesc jamesc 26263 2009-07-18 22:10 vs6.make
+-rw-r--r-- 1 jamesc jamesc  1408 2009-07-18 22:10 vs6test.make
+drwxr-xr-x 3 jamesc jamesc  4096 2009-07-14 03:00 whereami
+drwxr-xr-x 3 jamesc jamesc  4096 2009-07-14 03:00 whereami_e0008869
+-rw-r--r-- 1 jamesc jamesc 26652 2009-07-18 22:10 winscw.make
+-rw-r--r-- 1 jamesc jamesc  1695 2009-07-18 22:10 winscwtest.make
+
+mv /home/jamesc/symbian-sdks/s60_3_fp2_v11/epoc32/build/home/jamesc/src/mobile/whereami_trunk /home/jamesc/symbian-sdks/s60_3_fp2_v11/epoc32/build/home/jamesc/src/mobile/whereami_trunk_cb
+
+
+
+================================================================================
+== Menu ==
+
+=== Connect ===
+To connect to GPS.
+Once GPS is connected WhereAmI will start tracking location and start recording a gpx trail.
+
+=== Ignore GSM Cells/Monitor GSM Cells ===
+Available on self signed application (requires Location capability) with GSM Cell collection enabled.
+
+=== Location Menu ===
+* Annotate...
+* Destination...
+* Current...
+* Set Alarm Near Destination...
+* Start GPX trail/Stop GPX trail -> to start or stop recording your track
+
+=== Map Tab ===
+Mouse button switches between map scroll/pan and zoom in/out mode.
+Joystick up/down/left/right scroll/pan or zoom map.
+
+=== Map (Map Tab Menu) ===
+* Track Location  -> to set your location in the middle of map
+* Cycle Mode
+* Pedestrian Mode
+* Car Mode
+* Water Mode
+* Horse Mode
+* Zoom In
+* Zoom Out
+
+=== Download (Map Tab Menu) ===
+* Update map for current...
+* Missing map for current...
+* Full map for current view..
+* Postcode list (FTPC)
+
+=== Display (Map Tab Menu) ===
+* Preferred language...
+* Hide map (OSM)
+* Hide annotations
+* Show post code (FTPC)
+* Show map download data...
+* Show/Hide GSM cells
+
+=== Annotate Tab ===
+Up/Down switches between Text/Numbered/Audio/Photo annotation
+Mouse button makes Annotation
+Use Options (Named Tab) -> Named -> Edit Named... to edit properties of Annotation
+
+=== Named Tab ===
+Up/Down to scroll list of Annotations.
+Mouse click to jump to map displaying Annotation location.
+
+=== Named (Named Tab Menu) ===
+* Find...
+* Edit Named...
+* Show on map
+* Set as destination
+* Set as current
+* Upload
+* Download
+* Save Named To File...
+
+=== Type (Named Tab Menu) ===
+* Annotation - ?All(Private,Blog,Map Corre,Postcode)
+* Osm - Places,Streets,Poi 
+* Postcode 
+* GSM CellIds
+
+=== About ===
+
+=== Close ===
+
+
+
+
+
+================================================================================
+26/8/2009  where is the code that saves locations to .gpx? 
+A: end of whereamidoc.cpp
+  modify that to include cell info
+DONE
+code that saves cell info to db?
+A: whereamidoc.cpp seems to be the whole database, it is a C struct database?
+  saving cell info and  updating done in a few places.
+code that saves locations to db?
+A: you mean "named" locations, end of whereamidoc.cpp
+how select from db?
+  can we manipulate whereami.db on host?
+A: Mmmmh.
+
+is it a symbian-api db thing? or what?
+google for perl/other tool to manipulate it?
+A: I think it might be a C database. Not sure how select ... are implemented.
+
+
+AAA: no, it's Not a c struct database, TDbQuery not defined in whereami
+whereamidoc.h does #include <d32dbms.h>
+
+		TBuf<KMaxSqlQueryLength> queryBuf;
+		queryBuf.Format(aQuery,aId);
+		User::LeaveIfError(aNamedView.Prepare(aDatabase,TDbQuery(queryBuf,EDbCompareNormal)));
+		User::LeaveIfError(aNamedView.EvaluateAll());
+		aNamedView.FirstL();
+		return (aNamedView.AtRow());
+
+success.
+<wpt latmin='53.253476' lonmin='-6.212770' latmax='53.256222' lonmax='-6.207277'><cell mcc=272 mnc=1 lac=14 cellid=15017><ele>0</ele><ptmin lat='53.247983' lon='-6.229249'><ptmax lat='53.264464' lon='-6.190797'>
+<wpt latmin='53.253476' lonmin='-6.218263' latmax='53.256222' lonmax='-6.212770'><cell mcc=272 mnc=1 lac=14 cellid=15868><ele>0</ele><ptmin lat='53.245237' lon='-6.240235'><ptmax lat='53.267210' lon='-6.190797'>
+<wpt latmin='53.256223' lonmin='-6.234742' latmax='53.258969' lonmax='-6.229249'><cell mcc=272 mnc=1 lac=14 cellid=36559><ele>0</ele><ptmin lat='53.242490' lon='-6.256715'><ptmax lat='53.272703' lon='-6.207277'>
+<wpt latmin='53.253476' lonmin='-6.229249' latmax='53.256222' lonmax='-6.223756'><cell mcc=272 mnc=1 lac=14 cellid=37148><ele>0</ele><ptmin lat='53.245237' lon='-6.245729'><ptmax lat='53.267210' lon='-6.207277'>
+<wpt latmin='53.258969' lonmin='-6.201784' latmax='53.261715' lonmax='-6.196291'><cell mcc=272 mnc=1 lac=14 cellid=37293><ele>0</ele><ptmin lat='53.258969' lon='-6.201784'><ptmax lat='53.261715' lon='-6.196291'>
+
+
+whereamidoc.cpp is the db interface?
+_LIT(KDataWhereAmIOldDb,"whereami\\whereami.db");
+_LIT(KDataWhereAmIDb,"whereami\\whereami2.db");
+_LIT(KDataWhereAmIRecoverMeDb,"recoverme.db"); //concatonated to KDataWhereAmIDb after removal of extention
+_LIT(KNamedAllSql,"select id,lat,lon,name,note,date,alt,remoteid,modified,synced,type,tileid from named");
+_LIT(KGsmCellAllSql,"select id,tileid,tidmin,tidmax,mcc,mnc,lac,cellid,hash,update from gsmcell");
+_LIT(KNamedByIdSql,"select id,lat,lon,name,note,date,alt,remoteid,modified,synced,type,tileid from named where id=%u");
+_LIT(KPostcodeByPostcodeSql,"select id,tileid,lat,lon,pc from postcode where pc=");
+_LIT(KNamedByRemoteIdSql,"select id,lat,lon,name,note,date,alt,remoteid,modified,synced,type,tileid from named where remoteid=%u");
+
+
+in whereamidoc.h:
+_LIT(KGsmCellTileSql,"select id,tileid,tidmin,tidmax,mcc,mnc,lac,cellid,hash,update from gsmcell where tileid=%u");
+_LIT(KGsmCellSql,"select id,tileid,tidmin,tidmax,mcc,mnc,lac,cellid,hash,update from gsmcell where hash=%u and mcc=%d and mnc=%d and lac=%d and cellid=%d");
+_LIT(KGsmCellByIdSql,"select id,tileid,tidmin,tidmax,mcc,mnc,lac,cellid,hash,update from gsmcell where id=%u");
+
+_LIT(KNamedSortedByNameSql,"select id,lat,lon,name,note,date,alt,remoteid,modified,synced,type,tileid from named order by name");
+_LIT(KNamedSortedByDateSql,"select id,lat,lon,name,note,date,alt,remoteid,modified,synced,type,tileid from named order by date");
+
+//table names
+_LIT(KNamedTable,"named");
+_LIT(KPostcodeTable,"postcode");
+_LIT(KGsmCellTable,"gsmcell");
+_LIT(KRouteNodeTable,"routenode");
+
+
+
+LOC=~/src/mobile/whereami_trunk/{inc,src}/*.[ch]*
+grep KNamed $LOC
+grep KGsmCell $LOC
+
+grep KNamed ~/src/mobile/whereami_trunk/{inc,src}/*.[ch]*
+grep KGsmCell ~/src/mobile/whereami_trunk/{inc,src}/*.[ch]*
+
+
+jamesc@jamesc-laptop:~/src/mobile/whereami_trunk$ egrep "KNamed(All|Sorted|By)" {inc,src}/*.[ch]*
+inc/whereamidoc.h:_LIT(KNamedSortedByNameSql,"select id,lat,lon,name,note,date,alt,remoteid,modified,synced,type,tileid from named order by name");
+inc/whereamidoc.h:_LIT(KNamedSortedByDateSql,"select id,lat,lon,name,note,date,alt,remoteid,modified,synced,type,tileid from named order by date");
+src/whereamicontroller.cpp:				query.Append(KNamedSortedByNameSql);
+src/whereamicontroller.cpp:				query.Append(KNamedSortedByDateSql);
+src/whereamidoc.cpp:_LIT(KNamedAllSql,"select id,lat,lon,name,note,date,alt,remoteid,modified,synced,type,tileid from named");
+src/whereamidoc.cpp:_LIT(KNamedByIdSql,"select id,lat,lon,name,note,date,alt,remoteid,modified,synced,type,tileid from named where id=%u");
+src/whereamidoc.cpp:_LIT(KNamedByRemoteIdSql,"select id,lat,lon,name,note,date,alt,remoteid,modified,synced,type,tileid from named where remoteid=%u");
+src/whereamidoc.cpp:	if (CheckForNamedInDbL(aDatabase, namedIdView, KNamedByIdSql, aNamedPosition.iId))
+src/whereamidoc.cpp:		if (CheckForNamedInDbL(aDatabase, namedRemoteIdView, KNamedByRemoteIdSql, aNamedPosition.iRemoteId))
+src/whereamidoc.cpp:	query.Format(KNamedByIdSql,aId);
+src/whereamidoc.cpp:	User::LeaveIfError(view.Prepare(iDatabase,TDbQuery(KNamedAllSql,EDbCompareNormal)));
+src/whereamidoc.cpp:	User::LeaveIfError(view.Prepare(iDatabase,TDbQuery(KNamedAllSql,EDbCompareNormal)));
+
+src/whereamidoc.cpp:	queryBuf.Format(KGsmCellSql,aGsmCell.iHash,aGsmCell.iMCC,aGsmCell.iMNC,aGsmCell.iLAC,aGsmCell.iCellId);
+src/whereamidoc.cpp:	queryBuf.Format(KGsmCellByIdSql,aGsmCell.iId);
+src/whereamidoc.cpp:		gsmCellTable.Open(aDatabase,KGsmCellTable);
+src/whereamidoc.cpp:	query.Format(KGsmCellByIdSql,aId);
+src/whereamidoc.cpp:		User::LeaveIfError(gsmCellView.Prepare(iDatabase,TDbQuery(KGsmCellAllSql,EDbCompareNormal)));
+src/whereamimodel.cpp:const TInt KGsmCellMaxLength=200;
+src/whereamimodel.cpp:	TBuf<KGsmCellMaxLength> cellInfo;
+
+
+jamesc@jamesc-laptop:~/src/mobile/whereami_trunk$ egrep GetNamedLocation {inc,src}/*.[ch]*
+inc/gpsstore.h:		RPointerArray<CGpsNamedPosition>& GetNamedLocationArray();
+inc/gpsstore.h:		RPointerArray<CGpsNamedPosition>& GetNamedLocationDateSortedArray();
+src/gpsstore.cpp:RPointerArray<CGpsNamedPosition>& CGpsStore::GetNamedLocationArray()
+src/gpsstore.cpp:RPointerArray<CGpsNamedPosition>& CGpsStore::GetNamedLocationDateSortedArray()
+src/whereamicontroller.cpp:	iNamedArray=&iGpsStore.GetNamedLocationArray();
+src/whereamimodel.cpp:				namedPosArray=&iGpsStore->GetNamedLocationArray();
+src/whereamimodel.cpp:				namedPosArray=&iGpsStore->GetNamedLocationDateSortedArray();
+src/whereamiview.cpp:		RPointerArray<CGpsNamedPosition>& namedPosArray=iStore->GetNamedLocationArray();
+
+
+jamesc@jamesc-laptop:~/src/mobile/whereami_trunk$ egrep SaveNamedFile {inc,src}/*.[ch]*
+src/whereamiappui.cpp:_LIT(KLitSaveNamedFileName,"wami-annotations-%02d.gpx");
+src/whereamiappui.cpp:				fileName.AppendFormat(KLitSaveNamedFileName,index);
+
+
+
+		case EMenuFileSaveNamed:
+			{
+			TFileName fileName;
+			TBool success;
+#ifdef PLATFORM_S80
+			fileName.Copy(KDefaultDocumentPath);
+			success = CCknNewFileDialog::RunDlgLD(fileName); //next parameter is an optional title for dialog
+#else
+			TInt index=0;
+			do
+				{
+				index++;
+				WhereAmIUtils::GetPreferedPath(((CWhereAmIDocument*)Document())->GetApplication(), fileName);
+				fileName.AppendFormat(KLitSaveNamedFileName,index);
+				}
+			while (BaflUtils::FileExists(iEikonEnv->FsSession(),fileName));
+			success = ETrue;
+#endif
+			if (success)
+				{
+				((CWhereAmIDocument*)Document())->SaveNamedToFileL(fileName);
+				fileName.Insert(0,_L("Saved: "));
+				WhereAmIUtils::WarnUserL(fileName);
+				}
+			else
+				{
+				WhereAmIUtils::WarnUserL(_L("Saving Annotations Failed"));
+				}
+			}
+			break;
+
+
+jamesc@jamesc-laptop:~/src/mobile/whereami_trunk$ egrep SaveNamedToFile {inc,src}/*.[ch]*
+inc/whereamidoc.h:		void SaveNamedToFileL(const TDesC& aDes);
+src/whereamiappui.cpp:				((CWhereAmIDocument*)Document())->SaveNamedToFileL(fileName);
+src/whereamidoc.cpp:void CWhereAmIDocument::SaveNamedToFileL(const TDesC& aDes)
+src/whereamidoc.cpp:	LOG("CWhereAmIDocument::SaveNamedToFileL");
+
+
+
+================================================================================
+
+
+  <node id='38953344' timestamp='2007-09-02T23:20:27Z' user='robfitz' visible='true' version='1' lat='53.2696374' lon='-6.2116657'>
+    <tag k='created_by' v='JOSM' />
+  </node>
+
+  <way id='5409397' timestamp='2007-09-08T12:45:53Z' user='mackerski' visible='true' version='1'>
+    <nd ref='38953357' />
+    <nd ref='38953636' />
+    <nd ref='38953344' />
+    <nd ref='38953352' />
+    <nd ref='38953638' />
+    <nd ref='38953364' />
+    <nd ref='38953357' />
+    <tag k='created_by' v='JOSM' />
+    <tag k='junction' v='roundabout' />
+    <tag k='highway' v='tertiary' />
+    <tag k='oneway' v='yes' />
+  </way>
+
+
+
+  <relation id='57845' timestamp='2009-05-02T16:54:45Z' user='mackerski' visible='true' version='99'>
+    <member type='way' ref='2701568' role='' />
+    <member type='way' ref='2793175' role='' />
+    <member type='way' ref='3424080' role='' />
+  .
+.
+.
+  .
+    <member type='way' ref='33411032' role='' />
+    <member type='way' ref='33922733' role='' />
+    <member type='way' ref='23007371' role='' />
+    <tag k='ref' v='E 01' />
+    <tag k='route' v='road' />
+    <tag k='url_ref' v='http://www.unece.org/trans/conventn/ECE-TRANS-SC1-384e.pdf' />
+    <tag k='type' v='route' />
+    <tag k='int_ref' v='E 01' />
+    <tag k='network' v='e-road' />
+  </relation>
