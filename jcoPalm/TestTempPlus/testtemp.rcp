@@ -1,0 +1,32 @@
+#include "testtempRsc.h"
+
+FORM MainForm 1 1 158 158 NOFRAME MENUID menuMainForm
+BEGIN
+    TITLE "Test Template"
+END
+
+MENU menuMainForm
+BEGIN
+	PULLDOWN "Foo"
+	BEGIN
+		MENUITEM "Bar" itemBar "B"
+	END
+	PULLDOWN "Info"
+	BEGIN
+		MENUITEM "Help... " itemOptHelp "?"
+		MENUITEM "About... " itemOptAbout
+	END
+END
+
+
+APPLICATIONICONNAME 1000 "TestTemp"
+ICON "testtemp.pbm"
+
+ALERT alertInfo INFORMATION
+BEGIN
+	TITLE "Info"
+	MESSAGE "^1^2^3"
+	BUTTONS "Ok"
+END
+
+VERSION 1 "0.0.1"

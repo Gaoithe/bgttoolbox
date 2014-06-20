@@ -1,0 +1,8 @@
+make dure dos2unix pbm files
+gimp will load auto (as PNM P4 (but won't save?)
+save as PNM P5 (raw)
+
+load PNM in xv, set image size (if it has changed)
+save as PBM/PGM/PPM(raw), colours b/w dithered
+select normal size box
+
