@@ -1,0 +1,128 @@
+#!/bin/sh
+#
+PATH=/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin:.
+DESC="Berkeley Open Infrastructure for Network Computing client"
+NAME=boinc
+USERID=jamesc
+STARTBOINC=true
+PIDFILE=/var/run/$NAME.pid
+#DAEMON=/usr/bin/boinc 
+#DIR=/var/lib/boinc
+DIR=/home/jamesc/install-boinc/BOINC
+DAEMON=$DIR/boinc 
+ARGS="-dir $DIR -redirectio"
+NICE=+18
+
+# some day
+#. /lib/lsb/init-functions
+. /etc/rc.status
+#       Startproc - Start processes identified by path name
+#       Start_daemon - Start processes identified by path name
+#  startproc  [-f]  [-L]  [[-n  ]+/-<prio>] [-s] [-t sec] [-u user] [-g group] [-v] [-e] [-l log_file |-q|-d] [-p
+#       pid_file] [-c root] /path/to/executable [arguments for executable]
+#	startproc -u svn -g svn -e $SVNSERVE_BIN $SVNSERVE_OPTIONS
+#	rc_status -v
+#	killproc -TERM $SVNSERVE_BIN
+
+
+
+
+# Reads config file (to override defaults above)
+[ -r /etc/default/boinc ] && . /etc/default/boinc
+
+#cd $DIR
+#test -x $DAEMON || exit 0
+
+set -e
+
+prep_start() {
+   if [ "$STARTBOINC" != "true" ] && [ "$STARTBOINC" != "YES" ]; then
+      echo "STARTBOINC is set to false in /etc/default/boinc"
+      echo "$DAEMON not starting"
+      exit 0
+   fi
+   
+   if [ ! -d $DIR ]
+   then
+      mkdir $DIR
+      chown $USERID $DIR
+   fi
+
+   # we need permission to write to the pid file
+   touch $PIDFILE
+   chown $USERID $PIDFILE
+}
+
+start() {
+   #start-stop-daemon --start --quiet --user $USERID --pidfile /var/run/boinc.pid --exec $DAEMON -- $ARGS &
+   ####start-stop-daemon --start --quiet --user $USERID --pidfile /var/run/boinc.pid --exec "cd $DIR;nice -n $NICE $DAEMON" -- $ARGS
+
+   #boinc -show_projects -dir $DIR -update_prefs http://setiathome.berkeley.edu
+
+   startproc -n $NICE -u $USERID -g family -e $DAEMON $ARGS
+   rc_status -v
+}
+
+stop() {
+   #start-stop-daemon --stop --pidfile /var/run/boinc.pid
+   #rm /var/run/boinc.pid
+   killproc -TERM $DAEMON
+   rc_status -v
+}
+
+case "$1" in
+
+  start)
+       prep_start
+       echo -n "Starting $DESC: $NAME"
+       start
+       echo "."
+       ;;
+
+  stop)
+       echo -n "Stopping $DESC: $NAME"
+       stop
+       echo "."
+       ;;
+
+  restart|force-reload)
+       echo -n "Restarting $DESC: $NAME"
+       stop
+       sleep 1
+       start
+       echo "."
+       ;;
+
+  status)
+      echo -n "Checking for service boinc "
+      checkproc $DAEMON
+      rc_status -v
+      $DAEMON -version
+      ;;
+    
+  update)
+      echo -n "Running boinc -update "
+       stop
+       sleep 1
+       UPARGS="$ARGS -show_projects -update_prefs http://setiathome.berkeley.edu"
+       prep_start
+       startproc -n $NICE -u $USERID -g family -e $DAEMON $ARGS
+       start
+       ;;
+    
+  mgr)
+      echo -n "Run boinc manager/gui "
+      boincmgr
+      ;;
+    
+  *)
+       N=/etc/init.d/$NAME
+       echo "Usage: $N {start|stop|status|restart|force-reload|update}" >&2
+       exit 1
+       ;;
+
+esac
+
+exit 0
+
+

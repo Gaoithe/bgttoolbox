@@ -1,0 +1,79 @@
+# .bashrc
+
+# User specific aliases and functions
+
+set bell-style none
+# Source global definitions
+if [ -f /etc/bashrc ]; then
+	. /etc/bashrc
+fi
+
+export CVSROOT=":pserver:me@seekretserver:/path/to/cvsroot"
+export CVS_RSH=ssh
+
+# prompt setup
+#       \u          expands to $USERNAME
+#       \h          expands to hostname up to first '.'
+#       \w          expands to directory, replacing $HOME with '~'
+#       \$          expands to '$' for normal users, '#' for root
+#       \[...\]     embeds a sequence of non-printing characters
+
+
+case $TERM in
+
+    xterm*)
+        #set xterm title e.g. "jamesc@betty:~/src"
+	PS1="\[\033]0;\u@\h: \w\007\] bash\\$ "
+        # \033(A uk national charset (to protect from charset changes)
+	PS1="\033(A\033[1m\u@\h: \w\007\] bash\\$ \033[0m"
+
+	# above messes up line wrapping ?
+	PS1="\[\u@\h: \w\]\\$ "
+	# so does that :-7, 
+        # the []s are funny \[ or \\[ or => no [ 
+        # \\\[ => \[ and line wrap is messed up when they are there. 
+	PS1="\u@\h: \w$ "
+        PS1="[\u@\h] \w/$ "
+
+# doesn't work with real ESC in PS1               PS1="(A[1m\u@\h: \w\007\]bash\\$ [0m"
+# PS1 = opposite behaviour to echo  \033 is evaluated as ESC when use PS1
+
+#echo "\033(B Set to US ASCII character set"
+#echo "(B Set to US ASCII character set"
+#PS1="\033(A UK National"
+#PS1="\033(0 Graphic"
+
+        #PS1="[]0;\u@\h: \w\]bash\\$ "
+        #PS1="\[]0;\u@\h: \w\]bash\\$ "
+	;;
+
+    *)
+        #set prompt e.g. "[jamesc@betty: ~/src]$"
+	PS1="\[\u@\h: \w\]\\$ "
+	PS1="bash\\$ "
+	;;
+
+esac
+
+#set bell-style none
+xset b off
+
+alias changes="cvs -nq up -d"
+
+#for wget and maybe cpan
+export proxy=proxy:8080
+# for yum
+export http_proxy=http://proxy:8080/
+#? wget --proxy=on http://swish-e.org/Download/swish-e-2.4.0.tar.gz 
+#in /etc/wgetrc> 
+#> http_proxy = http://proxy.hostname.com:80/
+#> ftp_proxy = http://proxy.hostname.com:80/
+#> use_proxy = on
+
+foo=`ssh-add -l`
+if [ "$foo" ]; then
+    ssh-add
+fi
+
+
+export PATH=$PATH:/home/jamesc/tools-test/j2sdk1.4.2_04/bin

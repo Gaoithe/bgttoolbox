@@ -1,0 +1,56 @@
+#!/bin/bash
+
+mkdir /tmp/wotd
+cd /tmp/wotd
+
+#wget -r -l1 -p --convert-links http://www.oed.com/cgi/display/wotd
+wget  -E -H -k -K -p --convert-links http://www.oed.com/cgi/display/wotd
+#if wotd.html exists already wget does mv wotd wotd.html
+# but if I clean up need to mv self
+mv www.oed.com/cgi/display/wotd  www.oed.com/cgi/display/wotd.html
+#gets wotd, inside frames of wotd are wotd?bleh but already thinks it has it.
+
+
+#grep "SRC=" /tmp/wotd/www.oed.com/cgi/display/wotd.html  |sed s/.*SRC=/SRC=/
+grep "SRC=" www.oed.com/cgi/display/wotd.html  |sed s/.*SRC=/SRC=/ |cut -d \" -f 2 |grep http |sed "s/http/wget  -E -H -k -K -p --convert-links http/" >getrest
+chmod 755 getrest
+./getrest
+
+cd www.oed.com/cgi/display/
+mv wotd.html wotd
+sed "s/SRC=\"http:\/\/www.oed.com\//SRC=\"..\/..\//" wotd >wotd.html
+
+ls -al /tmp/wotd/www.oed.com/cgi/*/
+
+
+#TODO check success and that entry_main exists and changes have not been made
+
+# mail what is in here
+cd /tmp/wotd/www.oed.com/cgi
+wotdhfile=`ls display_header/wotd*.html`
+wotdefile=`ls entry_main/wotd*.html`
+mv $wotdhfile wotdhfile.html
+mv $wotdefile wotdefile.html
+
+#mail -s "www.oed.com wotd" me@mookie.com
+echo "http://www.oed.com/cgi/display/wotd">content.txt
+echo ".">>content.txt
+
+#TODO -F option to get mail send without dspsrv
+touch blankmuttrc
+echo "set hostname=\"foo.com\"" > blankmuttrc
+echo "my_hdr From: me@foo.com (Far Bur Gred Beef)" >> blankmuttrc
+echo "set envelope_from=yes" >> blankmuttrc
+
+#mutt -nx -s "www.oed.com wotd" -a $wotdfile -i content.txt me@mookie.com <content.txt
+#mutt -nx -F blankmuttrc -s "www.oed.com wotd" -a $wotdhfile -a $wotdefile me@mookie.com <content.txt
+#mutt -nx -F blankmuttrc -s "www.oed.com wotd" -a display_header/wotd*.html -a entry_main/wotd*.html me@mookie.com <content.txt
+mutt -nx -F blankmuttrc -s "www.oed.com wotd" -a wotdhfile.html -a wotdefile.html me@mookie.com <content.txt
+
+
+mkdir oldfiles
+#mv $wotdhfile $wotdefile oldfiles/
+#mv display_header/wotd*.html entry_main/wotd*.html oldfiles/
+mv woth*.html oldfiles/
+
+#mv to backup

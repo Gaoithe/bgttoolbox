@@ -1,0 +1,9 @@
+<form name="General">
+   <formItem type="string"  id="0" name="Test root path"                    value="C:/Tcl/scripts" readOnly="false" />
+   <formItem type="integer" id="1" name="Asynchronous timeout (in seconds)" value="600"                  readOnly="false" />
+</form>
+
+<form name="Tcl">
+   <formItem type="string" id="0" name="Tcl install path" value="C:/Tcl/bin" readOnly="false" />
+</form>
+

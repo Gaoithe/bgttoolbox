@@ -1,0 +1,136 @@
+#!/usr/bin/perl -w
+
+my $name = "Waider's XChat hacks";
+my $version = "0.1";
+
+# TBD: replace match on jamesc with 
+#      username get from IRC::?
+
+# fvwm/noseguy/gnome text   or just on background
+# /usr/X11R6/lib/xscreensaver/xjack
+# rt 
+
+# Register only if we're not already registered. Durr. Can't do that, can we?
+IRC::register( $name, $version, "", "" ); # name, version, shutdown routine, unused
+IRC::print "chathack: Loading $name $version\n";
+IRC::print "chathack: Registering handlers...";
+IRC::add_message_handler( "PRIVMSG", "privmsg_handler" );
+# IRC::add_command_handler( "cmd", "handler" ) cmd is a /cmd
+IRC::add_message_handler( "msg", "privmsg_handler" ); # msg is IRC message/numeric code
+# IRC::add_print_handler( "msg", "handler" ) msg is XChat message
+IRC::add_command_handler("fest", "fest_cmd_handle");
+IRC::print "chathack: Registering handlers...done.\n";
+
+$fest_cmd = "festival --tts";
+$fest_file = "/tmp/xchatFestivalLine.txt";
+
+
+# Docs:
+# http://www.irchelp.org/irchelp/rfc1459.html
+# http://www.irchelp.org/irchelp/ircd/numerics.html
+# http://www.irchelp.org/irchelp/ircd/hybrid6.html
+my $msgcounter = 0;
+my $sound_on = 1;
+
+# actually handler for every message
+# send it to noseguy
+# send it to gnome panel/fvwm panel box
+# send it to festival
+sub privmsg_handler {
+  my ( $sender, $type, $channel, $message ) = split( ' ', $_[0], 4 );
+  my $random;
+
+  # e.g. $line
+  # :jamesc!~jamesc@betty.dev.ie.alphyra.com privmsg jamesc :test
+
+  #nick_privmsg_handler(@_);
+
+  #IRC::print "chathack: xchat-hacks debug\n";
+
+  # Now clean things up
+  $message =~ s/^://;
+  ( $sender, undef ) = parse_sender( $sender );
+
+  #IRC::print "chathack: xchat-hacks debug $sender m $message\n";
+
+  # Ignore "foo is back" messages.
+  return if $message =~ /^.ACTION/;
+
+  # check focus
+# what who how huh? 
+# me wondering where the hell that .focus file came from
+# I thought it must be fvwm at first ....
+# missed it then at last found it:
+#*FvwmEvent: focus_change "Current Exec perl -l -e 'print join( chr(0), @ARGV )' $n $c $w > $HOME/.focus"
+
+  if ( open( FILE, "<$ENV{'HOME'}/.focus" )) {
+        my $focus = <FILE>;
+        close( FILE );
+        my ( $title, $class, $id ) = split( chr(0), $focus );
+        if ( $title =~ /$channel/ ) {
+	  #IRC::print "chathack: xchat-hacks no need\n";
+          return; # no need, I'm already paying attention
+        } else {
+          $random = "$title not $channel";
+        }
+  }
+
+  my $rtmsgfile = "$ENV{'HOME'}/.rtmessages";
+  if ( -e $rtmsgfile ) {
+      if ( open( RTFILE, ">>$rtmsgfile" )) {
+	  #my $stort = "xchat<" . sprintf("%8s",$sender) . ">|";
+	  my $stort = "$channel<" . sprintf("%8s",$sender) . ">|";
+	  print RTFILE "$stort $message\n";
+	  close RTFILE;
+      } else {
+	  IRC::print "chathack: hey! can\'t open $rtmsgfile ?\n";
+      }
+  }
+
+  # special notifications for a privmsg or for "jamesc" or "coffee"
+  if ( $type =~ /privmsg/ || $message =~ /^jamesc/i || $message =~ /coffee/ ) {
+      
+      my $coffee = "";
+      if ($message =~ /coffee/) { 
+	  $coffee = "COFFEE! COFFEE! COFFEE! COFFEE! COFFEE!"; 
+      }
+      #IRC::print "chathack: $random\n" if $random;
+      #IRC::print "chathack: Hitting xsplash\n";
+      my $xspfont = "-adobe-new*school*-bold-r-normal--34*";
+      system( "sh -c \"xsplash -timeout 5 -text '$coffee $sender/$channel/$message' -font \"$xspfont\" &\"" );
+      IRC::print "chathack: $coffee $sender $channel $message\n";
+
+      if ($sound_on) {
+	  #$_ = $message;
+	  #$msg = s/.*msg //;
+	  system "echo \"$coffee $message\">$fest_file"; 		
+	  system("$fest_cmd $fest_file");
+      }
+  }
+
+  return;
+}
+
+# split sender into nick / user@host
+sub parse_sender {
+  my $sender = shift;
+  $sender =~ m/^:(.*?)!(.*)$/;
+}
+
+sub fest_cmd_handle
+{
+    my $state = shift;
+    if (uc $state eq 'ON' ) {
+        $sound_on = 1;
+    } else {
+	if (uc $state eq 'OFF') {
+	    $sound_on = 0;
+	} else {
+	    IRC::print "chathack: USAGE: FEST [ON/OFF]\n";
+	}
+    }
+    IRC::print "chathack: Fest sound $sound_on\n";
+    return 1;
+}
+
+IRC::print("chathack: Loaded xchat-hacks $name $version\n");

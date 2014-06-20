@@ -1,0 +1,20 @@
+It was trivial to modify the XQual XStudio launcher for perl to work for tcl (ActiveTcl).
+It is working for very simple  tcl scripts with ActiveTcl 8.5 (and with modification with 8.4).
+
+Change the perl CLauncherImpl.java thusly:
+  s/perl/tcl/gi; s/\.pl/\.tcl/g;
+Tcl interpreter: C:/Tcl/bin/tclsh85.exe
+
+It implements the same test interface as XStudio perl (and other):
+ * Test generates log.txt with lines including [Success] or [Failure] or [Log]. 
+ * Test is deemed complete when a file test_completed.txt is created.
+
+Note for XQual XStudio:
+ * source code for test launchers is provided in XAgent and XStudio dir trees. 
+ * there doesn't seem to be a Developers Guide though it is referred to  (there are javadocs)
+ * a launcher has 4 files (e.g. for tcl) tcl.jar and tcl.xml in launchers/, tcl/CLauncherImpl.java and buildTclLauncher.bat in src/*/ and build/
+
+I've been evaluating using XQual XStudio as a test invoking tool. As opposed to Salome_tmf.
+ http://www.xqual.com/
+ http://xqual.freeforums.org/evaluating-test-tools-xqual-xstudio-salome-tmf-t349.html
+

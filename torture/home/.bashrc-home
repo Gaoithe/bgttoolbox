@@ -1,0 +1,81 @@
+#test -f /etc/profile.dos && . /etc/profile.dos
+
+##################################################
+## cvs
+
+export EDITOR=/usr/bin/vim
+export CVSROOT=/opt/cvsroot
+unset CSH_RSH
+export CVS_RSH
+
+#export CVS_RSH=ssh
+#export CVSROOT=owsla.ie.suberic.net:/u1/cvsroot
+#export CVSROOT=www.doolin.com:/var/cvsroot
+
+#export CVS_RSH=ssh
+#export CVSROOT=jcoleman@slaine.ie.commprove.com:/store/development/cvsroot
+
+#export CVSROOT=/usr/local/cvsroot
+#unset CSH_RSH
+#export CVS_RSH
+
+alias changes='cvs -nq up -d -P 2>/dev/null|grep "^[^?] "'
+alias diff-changes='cvs diff -u -r HEAD 2>/dev/null'
+alias status='cvs status 2>/dev/null |grep "Status:" |grep -v "Up-to-date"'
+alias update='cvs up -d -P 2>/dev/null|grep "^[^?] "'
+
+
+##################################################
+## 
+
+export PILOTPORT=/dev/pilot
+export PILOTRATE=115200
+
+
+test -s ~/.alias && . ~/.alias
+
+# User specific aliases and functions
+set bell-style none
+umask 0002
+
+# Source global definitions
+if [ -f /etc/bashrc ]; then
+    . /etc/bashrc
+fi
+
+# for suse
+if [ -f /etc/bash.bashrc ]; then
+    . /etc/bash.bashrc
+fi
+# for suse
+if [ -f /etc/bash.bashrc.local ]; then
+    . /etc/bash.bashrc.local
+fi
+
+
+set bell-style none
+foo=`ssh-add -l`
+if [[ "$foo" == "The agent has no identities." ]]; then
+    ssh-add
+fi
+ssh-add -l
+
+# startkde doesn't like? easytimer
+
+export LD_LIBRARY_PATH=/usr/local/lib
+
+#boincstat=`ps -ef |grep "boinc$"|grep -v grep`
+#if [[ "$boincstat" == "" ]]; then
+#    cd "/home/jamesc/install-boinc/BOINC" && nice -n 19 ./boinc &
+#    echo boinc boinc
+#fi
+
+cd
+
+#alias slaine='ssh jcoleman@62.231.48.117'
+alias slaine='ssh jcoleman@slaine.ie.commprove.com'
+
+export FG_ROOT=/usr/local/share/FlightGear/data
+
+alias xt1='xterm -bg seagreen -fg yellow -geometry 100x60+130+160 -sb -sl 1000 -j -ls &'
+alias xt2='xterm -bg darkgreen -fg orange -geometry 100x60+260+40 -sb -sl 1000 -j -ls &'
