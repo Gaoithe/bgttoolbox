@@ -32,6 +32,8 @@ git pull https://gaoithe@github.com/Gaoithe/bgttoolbox
 ls 
 git status # shows Your branch is ahead of 'origin/master' by 32 commits.
 git push
+git push  --set-upstream https://gaoithe@github.com/Gaoithe/bgttoolbox master
+
 ### what was local in bgt1 is now in repo proper. 
 
 Test:
