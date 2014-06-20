@@ -27,7 +27,7 @@ git push --mirror https://gaoithe@github.com/Gaoithe/bgttoolbox
 
 ### NOW, how to import a repo to another:
 cd bgt2
-# pull last changes to local
+# pull all from destination repo into local
 git pull https://gaoithe@github.com/Gaoithe/bgttoolbox
 ls 
 git status # shows Your branch is ahead of 'origin/master' by 32 commits.
@@ -47,6 +47,10 @@ git init
 1092  2014-06-20 10:16:40 git status
 1093  2014-06-20 10:16:43 vi README_import_git_repo_to_another 
 1094  2014-06-20 10:18:38 history |tail -20
+git pull https://gaoithe@github.com/Gaoithe/bgttoolbox
+ls 
+git status # shows Your branch is ahead of 'origin/master' by 32 commits.
+git push
 
 
 1004  2014-06-20 09:39:36 cd ..
