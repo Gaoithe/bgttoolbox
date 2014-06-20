@@ -1,0 +1,4 @@
+#export CVSROOT=/usr/local/cvsroot
+export CVSROOT=/opt/cvsroot
+unset CSH_RSH
+export CVS_RSH

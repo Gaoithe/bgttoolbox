@@ -1,0 +1,156 @@
+#!/bin/sh
+#
+# gateway         This shell script takes care of starting and stopping
+#                 the Kannel SMS gateway (bearer/smsbox) 
+#		  originally by Fabrice Gatille <fgatille@ivision.fr>
+#                 modified by Doolin Technologies
+# chkconfig: 2345 97 03
+# description:  Start and stop the Kannel SMS gateway
+# probe: true
+# processname: kannel
+# config: /etc/smskannel.conf
+# pidfile: /var/run/kannel/kannel.pid
+
+# start-stop-daemon not used
+#START="/usr/local/sbin/start-stop-daemon -S --quiet -b -c web:web -x "
+CONF=/etc/smskannel.conf
+
+LOCKFILE=/var/lock/subsys/kannelsmsgateway
+PIDFILE=/var/run/kannel/kannel.pid
+#LOGFILE=/dev/null
+LOGFILE=/var/log/kannelbbox.log
+
+SMSLOCKFILE=/var/lock/subsys/kannelsms
+SMSPIDFILE=/var/run/kannel/kannelsms.pid
+#SMSLOGFILE=/dev/null
+SMSLOGFILE=/var/log/kannelsmsbox.log
+
+WAPLOCKFILE=/var/lock/subsys/kannelwap
+WAPPIDFILE=/var/run/kannel/kannelwap.pid
+#WAPLOGFILE=/dev/null
+WAPLOGFILE=/var/log/kannelwapbox.log
+
+BBOX=/usr/local/sbin/bearerbox
+WAPBOX=/usr/local/sbin/wapbox
+SMSBOX=/usr/local/sbin/smsbox
+
+prog=bearerbox
+smsprog=smsbox
+wapprog=wapbox
+
+# Source function library.
+. /etc/rc.d/init.d/functions
+
+# Source networking configuration.
+. /etc/sysconfig/network
+
+# Check that networking is up.
+[ ${NETWORKING} = "no" ] && exit 0
+
+[ -x $BBOX ] || exit 0
+[ -x $SMSBOX ] || exit 0
+
+[ -f $CONF ] || exit 0
+
+ret=0
+
+checkandtellaction(){
+        laction=$1
+        lcheck=$2
+        lprog=$3
+        llock=$4
+        llogfile=$5
+
+	if [ $lcheck -eq 0 ]; then
+	    action $"$laction $lprog: " /bin/true
+	else
+    	    action $"$laction $lprog: " /bin/false
+    	    echo "   see $llogfile"
+	fi
+
+	return $lcheck
+}
+
+
+startcheckandlock(){
+        lcheck=$1
+        llock=$3
+        checkandtellaction "Starting" $1 $2 $3 $4
+	[ $lcheck -eq 0 ] && touch $llock
+	return $lcheck
+}
+
+stopcheckandunlock(){
+        lcheck=$1
+        llock=$3
+        checkandtellaction "Stopping" $1 $2 $3 $4
+	[ $lcheck -eq 0 ] && rm -f $llock
+        return $lcheck
+}
+
+start(){
+
+	$BBOX $CONF >$LOGFILE 2>&1 &
+        startcheckandlock $? $prog $LOCKFILE $LOGFILE
+
+	ret=$?
+        if [ $ret -eq 0 ]; then
+
+            #wait until bbox listening
+            netstat=""
+            while  [[ ! $netstat ]]; do 
+                echo "not yet";
+                sleep 1
+                netstat=`sudo netstat -anp |grep bearerbox`;
+            done
+
+	    $SMSBOX $CONF >$SMSLOGFILE 2>&1 &
+            startcheckandlock $? $smsprog $SMSLOCKFILE $SMSLOGFILE
+        fi
+
+	return $?
+}
+
+stop(){
+        #`wget --http-user=tester --http-passwd=bar http://localhost:13000/`
+
+        killproc $SMSBOX
+        #/bin/kill `cat $SMSPIDFILE  2> /dev/null ` > /dev/null 2>&1
+        stopcheckandunlock $? $smsprog $SMSLOCKFILE $SMSLOGFILE
+	# carry on with stop regardless anyway [ $? -ne 0 ] && return $?
+
+        killproc $BBOX
+        #/bin/kill `cat $PIDFILE  2> /dev/null ` > /dev/null 2>&1
+        stopcheckandunlock $? $prog $LOCKFILE $LOGFILE
+	return $?
+}
+
+# See how we were called.
+case "$1" in
+  start)
+	start
+	;;
+
+  stop)
+        stop
+        ;;
+
+  status)
+	status bearerbox
+	status smsbox
+	exit $?
+	;;
+
+  restart)
+	$0 stop
+	sleep 1
+	$0 start
+	;;  
+
+  *)
+        echo "Usage: kannel {start|stop|status|restart}"
+        exit 1
+esac
+
+exit $ret
+

@@ -1,0 +1,477 @@
+export PATH=${HOME}/bin:/usr/local/bin:${PATH}
+export PATH=$PATH:${HOME}/local/DTT/Bin/
+export PATH=$PATH:${HOME}/install/SUNWspro/bin
+
+UNAME_I=`uname -i`
+if [[ $UNAME_I == "SUNW,Sun-Fire-T200" ]]; then
+    #export PATH=/store/development/users/jcoleman/localt2000/bin:$PATH
+    alias gdb64=/store/development/users/jcoleman/localt2000/bin/gdb
+    # ddd64 seg faults for me :(
+    alias ddd64='LD_LIBRARY_PATH=/db/rpsdir/rpsuser/rpslibs/64bit:$LD_LIBRARY_PATH /store/development/users/jcoleman/localt2000/bin/ddd'
+fi
+
+export PATH=$PATH:/opt/onbld/bin
+export FASTFS=/opt/onbld/bin/`uname -p`/fastfs
+export BFULD=/opt/onbld/bin/`uname -p`/bfuld
+export GZIPBIN=/usr/bin/gzip
+
+GATE=solarisON; export GATE
+GATEPATH=/store/development/users/jcoleman/build/solarisON; export GATEPATH
+ARCHIVEPATH=/store/development/users/jcoleman/build/solarisON; export ARCHIVEPATH
+export ONBLD_TOOLS=/opt/onbld 
+
+export SPRO_ROOT=/store/development/users/jcoleman/install/SUNWspro
+export SPRO_VROOT=/store/development/users/jcoleman/install/SUNWspro
+
+export MANPATH=/usr/man:$MANPATH:${HOME}/install/SUNWspro/man
+
+alias xemacs="/usr/bin/xemacs -geometry 100x63+520+10 -fg yellow -bg seagreen &"
+alias runemacs="emacs -geometry 100x63+520+10 -fg yellow -bg seagreen &"
+alias rpsiups="./rps -p -c -l /store/recordings/IuPS/iups_lac_file.txt /store/recordings/IuPS/IU_PS_K15_0_with_correct_timestamps.acs7 "
+alias rpsiups2="./rps -p -c -l /store/recordings/IuPS/iub_lac_file.txt /store/recordings/IuPS/Iups_060202_bis.nlr "
+alias rpsiups3="./rps -p -c -l /store/recordings/IuPS/iub_lac_file.txt /store/recordings/IuPS/Iups_060202_ter.nlr "
+alias rpsiupsold="./rps -l /tmp/lac_file.txt  /store/recordings/IuPS/Iu_ps_inv.acs7 "
+alias rpsiupsshort="./rps -l /tmp/lac_file.txt  /store/recordings/IuPS/Iu_ps_short.acs7 "
+alias rpsshort="./rps -l /tmp/lac_file.txt /store/recordings/Gb/reallyshort0408.nlr"
+alias rpsdbiups="./rps -c -l /tmp/lac_file.txt  /store/recordings/IuPS/Iu_ps_short.acs7 "
+alias rpsdbshort="./rps -c -l /tmp/lac_file.txt /store/recordings/Gb/reallyshort0408.nlr"
+
+alias rpsiupsuser12="./rps -c -l /store/recordings/IuPS/iups_lac_file.txt /store/recordings/sandbox/iups_rome_0607061233.nlr"
+alias rpsiupsuser13="./rps -c -l /store/recordings/IuPS/iups_lac_file.txt /store/recordings/sandbox/iups_rome_0607061331.nlr"
+alias rpsiupsuser50="./rps -c -l /store/recordings/IuPS/iups_lac_file.txt /store/recordings/sandbox/iups_recording_240406_50Meg.nlr"
+alias rpsiupsuser500="./rps -c -l /store/recordings/IuPS/iups_lac_file.txt /store/recordings/sandbox/iups_recording_240406_500Meg.nlr"
+ 
+
+# affects man, perldoc, ... 
+export PAGER=less
+
+
+alias processes="lsof"
+alias files="fuser"
+# ls order by time:
+alias lstime="gls -ltc"
+alias lssize="gls -lS"
+alias dusize="gdu -h --max-depth=2 |gsed -e \"s/\.[0-9][0-9]*\([kGM]\)/\1/; s/k\W/000 /; s/M\W/000000 /; s/G\W/000000000 /; \" |sort -n"
+
+## gls -R -oS | sed "s/  */ /g" | cut -d" " -f4- | tee ~/tmp/minervadbSize.ls 
+## sort -n ~/tmp/minervadbSize.ls 
+## sort -n ~/tmp/minervadbSize.ls  |tail -100
+
+#[jcoleman@slaine] ~/$ lsof -i ":8081"
+#COMMAND   PID     USER   FD   TYPE        DEVICE SIZE/OFF NODE NAME
+#cvstrac 29812 jcoleman    3u  IPv4 0x3000377b6d0      0t0  TCP *:8081 (LISTEN)
+
+
+
+alias vtn='echo "X[mX(BX)0OX[?5lX7X[rX8" | tr "XO" "\033\017"'
+alias reset='echo "X[mX(BX)0OX[?5lX7X[rX8" | tr "XO" "\033\017"'
+
+alias findnonsticky="find -name Entries -exec grep -Hniv \/\/T {} \; |grep -v D\/ |grep -v \/\-kb\/T |grep -v D$"
+alias findsticky="find -name Entries -exec grep -Hni \/[-]*[k]*[b]*\/T {} \;"
+
+export PATH=${PATH}:${HOME}/checkedout/netledge/rps/test/bin
+export PATH=${PATH}:${HOME}/checkedout/netledge_test/tools/bin
+source ${HOME}/checkedout/netledge/rps/test/bin/rps-mysql-util.sh
+#mysql -h ares.ie.commprove.internal -u gprs_user -pgprs_user gprs -e "select count(*),imsi,imei from proc_gmmsm group by imsi;"
+export MYSQL_NAME=james_gprs
+#export MYSQL_NAME=gprs
+export MYSQL_USER=gprs_user
+export MYSQL_PASS=gprs_user
+
+export STATSDIR=/store/development/users/jcoleman/tmp/uno/james_gprs_stats
+export NLDATAPATH=/store/development/users/jcoleman/tmp/uno/james_gprs
+
+#export MYSQL_HOST=ares.ie.commprove.internal
+#export MYSQL_HOST=apollo.ie.commprove.internal
+#export MYSQL_HOST=localhost
+export MYSQL_HOST=uno.ie.commprove.internal
+
+
+#alias findch="find -name '*.[ch]*' -exec grep -Hni $1 {} \;"
+#alias findch="find -name '*.[ch]*' -exec grep -Hni \!* {} \;"
+findch () { find -name '*.[ch]*' -exec grep -Hn $1 {} \;; }
+ff () { find . -name ${1} -print ; }
+zfw () { fgrep -i "$*" /usr/share/dict/web2 | less ; }
+cdd () { cd ${1} ; echo $PWD ; lc -FC ; }
+
+# linux machines doen't like ll func def (conflict with alias?) and check doesn't help
+#LLCHECK=`alias |grep "alias ll="`
+#if [[ $LLCHECK == "" ]]; then
+   #ll () { ls -FlAh --color "$@" | less ; }
+   #ll () { ls -FlAh --color "$@" | more ; }
+#fi
+
+SSH_AGENT_PID=`ps |grep "ssh-agent" |sed "s/  */ /g;s/^ //;"  |cut -d" " -f 1`
+killem () { 
+    find -name '*.[ch]*' -exec grep -Hn $1 {} \;; 
+}
+
+alias make-log="make 2>&1 | tee MakeLog.out"
+# just do make >gloop
+# to just see stderr
+make-gloop () { 
+    make >gloop 2>error_gloop &
+    tail -f error_gloop
+    # want make, seperate xterm shows progress (gloop)
+    # other xterm shows errors
+    # progress goes away when make finishes
+    # errors stay if not empty
+}
+
+# sar or strace can\'t run - permissions/  iostat/vmstat   /proc  ... 
+# http://billharlan.com/pub/papers/Debugging_GnuLinux.html
+
+# iago is 10.1.40.102
+
+case $TERM in
+
+    xterm*)
+
+     #set xterm title e.g. "jamesc@betty:~/src"    
+     #http://www.faqs.org/docs/Linux-mini/Xterm-Title.html#ss4.3
+     PROMPT_COMMAND='echo -ne "\033]0;${USER}@${HOSTNAME}: ${PWD}\007"'
+     # \033(A uk national charset (to protect from charset changes)
+     PS1="\033(A\033[1m\u@\h: \w\007\] \\$ \033[0m"
+     PS1="[\u@\h] \w/$ "
+
+     ;;
+
+    *)
+        #set prompt e.g. "[jamesc@betty: ~/src]$"
+     PS1="\[\u@\h: \w\]\\$ "
+     PS1="bash\\$ "
+     ;;
+
+esac
+
+#set bell-style none
+set bell-style none
+#xset b off
+
+alias xt1="xterm -bg seagreen -fg yellow -geometry 100x60+130+160 -sb -sl 1000 -j -ls &"
+alias xt2="xterm -bg darkgreen -fg orange -geometry 100x60+260+40 -sb -sl 1000 -j -ls &"
+
+case $HOSTNAME in
+
+    minerva*)
+    export PATH=$PATH:/usr/sfw/bin:/opt/sfw/bin
+    export PATH=$PATH:/usr/perl5/bin/
+
+    export MANPATH=/usr/sfw/man:/opt/sfw/man:$MANPATH
+    export INFOPATH=/usr/sfw/info:/opt/sfw/info:$INFOPATH
+
+    if [[ $BASH_MIN_ONLY_ONCE == "" ]]; then
+        export BASH_MIN_ONLY_ONCE=1
+
+        if [[ $TERM == "xterm" ]]; then
+            echo "Hmmm. xterm. minerva."
+
+            #start_auto_tasks.sh all status
+            start_auto_tasks.sh rps_blddefault start &
+            #PIDS=`prstat -n 500 0 1 |grep jcole |grep run_auto |sed "s/  */ /g"|cut -d" " -f 2`
+
+            start_auto_tasks.sh all status
+
+            XDPYDIM=`xdpyinfo |grep "^ *dimensions:"`
+            #GEOM1=100x63+520+10
+            GEOM1=100x60+520+10
+            GEOM2=100x60+260+40
+            GEOM3=100x60+130+160
+
+            if [[ ! ${XDPYDIM//* 1024x*/} ]] ; then 
+                #echo 1024x something display 
+                GEOM2=94x47+-10--2
+                GEOM3=107x49+177-11
+                GEOM1=85x54--5--8
+            fi
+            
+            #foo=`ps -ef |grep jcoleman |grep emacs |grep -v grep`
+            foo=`prstat -n 500 0 1 |grep jcoleman |grep emacs |grep -v grep`
+            if [[ $foo == "" ]]; then
+            #runemacs
+                nohup emacs -geometry $GEOM1 -fg yellow -bg seagreen &
+            fi
+
+            #foo=`ps -ef |grep jcoleman |grep xterm |grep -v grep`
+            foo=`prstat -n 500 0 1 |grep jcoleman |grep xterm |grep -v grep`
+            if [[ $foo == "" ]]; then
+                nohup xterm -bg slategray -fg yellow -geometry $GEOM3 -sb -sl 1000 -j -ls &
+                #nohup xterm -bg slategray -fg orange -geometry 100x60+260+40 -sb -sl 1000 -j -ls &
+            #xt1
+            #xt2
+        fi
+    fi
+
+    fi
+
+
+     ;;
+
+    slaine*)
+    export LD_LIBRARY_PATH=${HOME}/local/lib:$LD_LIBRARY_PATH
+    export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/local/mysql/lib/
+    export LD_LIBRARY_PATH=$HOME/local/mysql/lib/mysql:$LD_LIBRARY_PATH
+    export PATH=${HOME}/local/bin:$PATH
+    export INCLUDE_PATH=$INCLUDE_PATH:${HOME}/local/include
+    export MANPATH=$MANPATH:${HOME}/local/man
+
+
+    # causes problems for scp so protect, also for svn+ssh method, ... more
+    if [[ $TERM == "xterm" ]]; then
+
+        if [[ $SSH_AUTH_SOCK == "" || $SSH_AGENT_PID == "" ]]; then
+            echo no ssh-agent? ... actually there could be lots
+            # they don't show up with ps -ef (daemonized)
+            #killagents=`ps -ef |grep ssh-agent |sed s/jcoleman/kill/ |sed "s/  *1  *0.*$//"`
+            killagents=`ps -ealf |grep "jcoleman.*ssh-agent" |sed "s/^.*jcoleman \([^ ]*\) .*/kill \1/"`
+            # I think this works:
+            SSH_AGENT_PID=`ps -elf |grep "ssh-agent" |sed "s/  */ /g;s/^ //;"  |cut -d" " -f 4`
+            #SSH_AGENT_PS=`ps |grep "ssh-agent"`
+            kill $SSH_AGENT_PID
+            echo for the moment ... I don\'t ssh from slaine much so don\'t start ssh agent
+            echo eval `ssh-agent`
+        fi
+
+        foo=`ssh-add -l`
+        if [[ "$foo" == "The agent has no identities." ]]; then
+            echo for the moment ... I don\'t ssh from slaine much
+            echo so typing is passphrase for key is just annoying
+            echo so we turn it off
+            echo ssh-add
+        fi
+
+        #[jcoleman@slaine] ~/checkedout/netledge/$  who -m
+        #jcoleman   pts/9        Aug  4 11:47    (iel02.ie.commprove.internal)
+        #export DISPLAY=`who -m | fgrep \( | cut -d\( -f 2 | cut -d\) -f 1 | cut -f 1 -d\.`:0.0 
+        # I use ssh port forwarding which sets display (e.g. to slaine:10.0)
+
+
+# TO add cvstrac for new cvs modules ....
+#1. run init ~/public_html/cgi-bin/cvstrac init ~/local/cvstracdb COMMForTH
+#2. login as setup http://slaine:8081/COMMForTH/
+#3. config repository /store/development/cvsroot/ and module COMMForTH
+#4. add anonymous account
+#5. rm /store/development/cvsroot/CVSROOT/writers /store/development/cvsroot/CVSROOT/readers
+
+         #tail /etc/inetd.conf 
+         #cvspserver      stream  tcp     nowait  root    /usr/local/bin/cvs      cvs     --allow-root=/store/development/cvsroot pserver
+
+
+
+        # service: all cvstrac svnserve rps_doxy rps_testmon rps_autobuild action: start stop status
+        start_auto_tasks.sh all status
+
+        # cvstrac enabled, user: swuser
+        # DONE: removed anonymous cvstrac access
+        start_auto_tasks.sh cvstrac start
+
+        #start_auto_tasks.sh svnserve start
+        start_auto_tasks.sh all status
+
+#        #CVSTRAC_AGENT_PID=`ps |grep "cvstrac" |sed "s/  */ /g;s/^ //;"  |cut -d" " -f 1`
+#        #CVSTRAC_AGENT_PS=`ps |grep "cvstrac"`
+#         CVSTRACPS=`ps -el |grep cvstrac`
+#         if [[ $CVSTRACPS == "" ]]; then
+#            echo Starting cvstrac server
+#            touch ~/local/log/start-cvstrac
+#            nohup ~/public_html/cgi-bin/cvstrac server 8081 ~/local/cvstracdb/ &
+#         fi
+# 
+#        SVNPS=`ps -ef |grep svnserve|grep -v grep`
+#        if [[ $SVNPS == "" ]]; then
+#           echo Starting svnserve
+#           touch ~/local/log/start-svnserve
+#           svnserve -d -r $HOME/local/svn-foobar
+#        fi
+
+        PROXYPS=`ps -ef |grep tinyprox |grep -v grep`
+        if [[ $PROXYPS == "" ]]; then
+           echo Starting proxy
+           # e.g. use ssh to port forward proxy when woking remotely
+           # putty can do port forwarding
+           # http://www.google.ie/search?q=putty+port+forward
+
+# TODO work remote info on:
+#  1 email, 
+#  2 ssh in and linux/cygwin X server (-Y X11 forwarding)
+#  3 proxy
+#http://tldp.org/HOWTO/Bash-Prog-Intro-HOWTO.html
+#http://tldp.org/LDP/abs/html/
+#http://www.gnu.org/software/bash/manual/bashref.html
+#http://www.hypexr.org/bash_tutorial.php
+
+           # ssh -L 8000:localhost:8000 jcoleman@slaine.ie.commprove.com
+           # proxy will be http://localhost:8000/
+           touch ~/local/log/start-proxy
+           nohup $HOME/bin/tinyproxy.py > $HOME/local/log/tinyproxy.log 2>&1 
+        fi
+
+        #foo=`ps -ef |grep jcoleman`
+        #echo $foo |grep xemacs
+        #echo $foo |grep xterm
+        # note: the grep for jcoleman first means that the grep 
+        # itself won't be matchd with the emacs grep, hence no grep -v grep
+
+        XDPYDIM=`xdpyinfo |grep "^ *dimensions:"`
+        # from home: dimensions: 1024x768 pixels (382x300 millimeters)
+        GEOM1=100x63+520+10
+        GEOM2=100x60+260+40
+        GEOM3=100x60+130+160
+
+        if [[ ! ${XDPYDIM//* 1024x*/} ]] ; then 
+            #echo 1024x something display 
+            #GEOM2=94x47+-10--2
+            #GEOM3=107x49+177-11
+            #GEOM1=85x54--5--8
+            GEOM3=100x45+9-16
+            GEOM2=100x51+259-1
+            GEOM1=88x54--2+1
+        fi
+
+        foo=`ps -ef |grep jcoleman |grep emacs`
+        if [[ $foo == "" ]]; then
+            #runemacs
+            nohup emacs -geometry $GEOM1 -fg yellow -bg seagreen &
+        fi
+
+        foo=`ps -ef |grep jcoleman |grep xterm`
+        if [[ $foo == "" ]]; then
+            #nohup xterm -bg seagreen -fg yellow -geometry $GEOM3 -sb -sl 1000 -j -ls &
+            nohup xterm -bg darkgreen -fg orange -geometry $GEOM2 -sb -sl 1000 -j -ls &
+            #xterm -fg orange -bg black -T "disk usage" -e  "du --max-depth=3 ~/ |sort -n |tail -50 | less" &
+            xterm -fg orange -bg black -T "disk usage" -e bash -c showhomedu.sh &
+            #xt1
+            #xt2
+        fi
+
+        foo=`ps -ef |grep jcoleman |grep "webserve"`
+        if [[ $foo == "" ]]; then
+            nohup perl webserver2.pl 
+        fi
+
+
+    fi
+
+
+     ;;
+
+    tux*)
+        if [[ $TERM == "xterm" ]]; then
+            start_auto_tasks.sh rps_doxy start &
+        fi
+    ;;
+
+    uno*)
+
+    export LD_LIBRARY_PATH=${HOME}/local/lib:$LD_LIBRARY_PATH
+    export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/local/mysql/lib/
+    export LD_LIBRARY_PATH=$HOME/local/mysql/lib/mysql:$LD_LIBRARY_PATH
+    export PATH=${HOME}/local/bin:$PATH
+    export PATH=$PATH:/usr/ccs/bin
+    export INCLUDE_PATH=$INCLUDE_PATH:${HOME}/local/include
+    export MANPATH=$MANPATH:${HOME}/local/man
+
+    # causes problems for scp so protect, also for svn+ssh method, ... more
+    if [[ $TERM == "xterm" ]]; then
+
+        # service: all cvstrac svnserve rps_doxy rps_testmon rps_autobuild action: start stop status
+        start_auto_tasks.sh all status
+        start_auto_tasks.sh rps_autobuild start &
+
+        # I think I tried to run slaine's doxygen on uno and lib incompatibilities were nasty
+        # and getting doxygens dependancies working on uno is hard nightmarish work
+        #   (that I revel in but much too time consuming) - run it on tux for *expletive/deity* sake
+        #start_auto_tasks.sh rps_doxy start &
+
+
+        start_auto_tasks.sh rps_testmon start &
+        start_auto_tasks.sh all status
+
+    fi
+
+    ;;
+
+#        PLOTPS=`ps -el |grep runGener`
+#        if [[ $PLOTPS == "" ]]; then
+#           echo Starting Test Monitor plot generator
+#           touch ~/local/log/start-testmonpg
+#           nohup runGeneratePlots.sh &
+#           #prstat -n 200 0 1 |grep runGeneratePlot
+#        fi
+#
+#        AUTOBUILDPS=`ps -el |egrep "run_auto|auto_bui"`
+#        #AUTOBUILDPS=`ps -el |grep run_auto`
+#        if [[ $AUTOBUILDPS == "" ]]; then
+#           echo StartingAutomated builds
+#           touch ~/local/log/start-auto_build_rps
+#           nohup run_auto_build_rps.sh &
+#           #prstat -n 200 0 1 |grep run_auto_build_rps.sh
+#        fi
+#
+#        AUTODOXYGENPS=`ps -el |egrep "run_doxy|auto_dox"`
+#        if [[ $AUTODOXYGENPS == "" ]]; then
+#           echo Starting Automated doxygen doc generation
+#           touch ~/local/log/start-auto_doxygen_rps
+#           nohup run_doxygen_rps.sh &
+#        fi
+
+
+
+    *)
+     ;;
+
+esac
+
+
+
+# james is weird so he got and built ~jcoleman/install/fileutils-4.1/ and installed it
+# in ~jcoleman/local SO that bin path should be in your path if you want colorized ls
+alias ls='$HOME/local/bin/ls --color=tty'
+
+#export CVSROOT=:ssh:jcoleman@slaine:/store/development/cvsroot
+export CVSROOT=/store/development/cvsroot
+# svn co https://rinnal.ie.commprove.test/repository/legacy/slaine_cvs/trunk/netledge svn_netledge
+#export SVNROOT=https://rinnal.ie.commprove.test/repository/legacy/slaine_cvs
+export SVNRINNIAL=https://rinnal.ie.commprove.test/repository/legacy/slaine_cvs
+export SVNROOT=https://source.commprove.internal/repository/legacy/slaine_cvs
+#svn co $SVNROOT/trunk/netledge svn_netledge
+export SVN_EDITOR=vi
+
+export PERLLIB=$HOME/local/lib/perl5/site_perl/5.8.5/sun4-solaris:/usr/local/lib/perl5/5.8.5/:$PERLLIB
+export PERLLIB=$HOME/local/lib/perl:$PERLLIB
+
+#export PERLLIB=${HOME}/local/lib/perl:$PERLLIB
+# :( och bah
+#export PERLLIB=${HOME}/local/lib/perl/usr/local/lib:$PERLLIB
+#export PERL5LIB=${HOME}/local/lib/perl/usr/local/lib:$PERL5LIB
+#export PERLLIB=${HOME}/local/lib/perl/usr/local/lib/perl5/site_perl/5.8.5/sun4-solaris/:$PERLLIB
+
+export OSSINFO=$HOME/install/oss.com/
+export OSSASN1DIR=${HOME}/install/oss.com/asn1cpp/solaris-2.4-forte-6.trial/3.1
+
+# need to do this? cygwin xterm on slaine (solaris) getting confused? not aure why - was okay originally
+#stty rows 60 columns 100 
+
+# solve the following error by finding the correct 64bit c++ libs
+# ld.so.1: ./rps: fatal: /usr/local/lib/libstdc++.so.6: wrong ELF class: ELFCLASS64
+#export LD_LIBRARY_PATH=/usr/local/lib/sparcv9/:$LD_LIBRARY_PATH
+
+hex () { 
+    echo "16 o $1 p" |dc
+}
+dec () { 
+    UP=`echo $1 |sed "y/abcdef/ABCDEF/"`
+    echo "16 i $UP p" |dc
+}
+
+
+
+QTDIR=/usr/local/qt
+PATH=$QTDIR/bin:$PATH
+MANPATH=$QTDIR/doc/man:$MANPATH
+LD_LIBRARY_PATH=$QTDIR/lib:$LD_LIBRARY_PATH
+
+export QTDIR PATH MANPATH LD_LIBRARY_PATH
+
+export PATH=/usr/local/teTeX/bin/sparc-sun-solaris2.9/:$PATH
+

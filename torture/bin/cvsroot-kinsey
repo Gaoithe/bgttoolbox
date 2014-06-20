@@ -1,0 +1,4 @@
+export CVS_RSH=ssh
+#export CVSROOT=owsla.ie.suberic.net:/u1/cvsroot
+export CVSROOT=www.doolin.com:/var/cvsroot
+echo CVSROOT $CVSROOT

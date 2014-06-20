@@ -1,0 +1,59 @@
+#Any lines commented out with a # at the begining will be ignored.
+
+
+#Here are some things you can set for your quiz
+title=Mike's First Quiz
+logo=
+background=#FFFFFF
+tablecolor=#E0D5E5
+darkrowcolor=#A967E2
+#there are two choices for this percent and points.  This just specifies
+#how the script desides which of the outcomes to print out from the 
+#results section of this file.  If you choose percent, please
+#put the ranges like 0-20%=Print this if score falls in this range
+#If you choose points, put the ranges like this
+#0-20=Print this if the total score adds up between 0 and 20 points
+#If you dont understand what I am trying to say, look at the
+#results section and just try some stuff till it acts like you think 
+#it should.
+gradeby=percent
+
+#questions and answers
+#here is where you specify the questions and answers.  The format
+#should be self explanatory.  Q=question? for the question and
+#A=Answer=number of points that answer is worth.
+#If you fill it up with 5 points for each correct answer and 0 points
+#for all incorrecet answers, it woudl work just like a school test.
+#If you have different values for each answer, it would work just
+#like those quizes in Cozmo and other magazines.
+
+Q=A question would go here right?
+A=Yes=5
+A=No=0
+
+Q=Is this the way to make a qeustion with many different values?
+A=Highly Agree=5
+A=Agree=4
+A=No Opinion=3
+A=Disagree=2
+A=Highly Disagree=1
+
+q=Isn't this a dumb one?
+A=Yes=5
+A=No=0
+
+
+#results section
+#Here you give the user a description of their personality type or how they 
+#performed on the test based on the percentage of points that they earned 
+#toward the total.  This is like the section in Cozmo magazine where it tells
+#you how the results of their silly quizs will effect the rest of your life :)
+
+0-20%= You are a TOTAL dumbass.  You freak.
+21-50%= You are almost smart, but not quite..keep trying
+oh and here is a second line for you.(Remember this can be a really
+long description of the persons character and stuff)
+51-80%=Almost smart pall, need to get smarter! (Remember this can be a really
+long description of the persons character and stuff)
+81-100%=Wow! you are billiant, way to go man! (Remember this can be a really
+long description of the persons character and stuff)

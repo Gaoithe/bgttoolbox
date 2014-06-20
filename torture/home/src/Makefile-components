@@ -1,0 +1,638 @@
+##################################################
+# I am calling stacks and observers (and other possible things that
+# are optional in the build) components. (can anyone think of a better name?) 
+# Component "types" implemnted are STACKS and OBSERVERS
+# Build type is not a component it causes different build behaviour.
+
+# When adding a new stack, observer or other component
+#
+# Note that example stacks/observer components are in this makefile
+# they are marked with TODO and should be removed once we have real components 
+#
+# 1. Add it into defaults if desired
+#    If adding a new "type" of component then this component must be 
+#     1.1 added on command line (update usage comment and info), 
+#     1.2 give it a default, 
+#     1.3 parse of command line (DEP_<component_type> calculation) must be added for it
+#     1.4 (see 4.1) template call added for it.
+#
+# 2. Add new source files to variables.
+#    We purposely explicitly list all source files. (as opposed to using wildcards)
+#    2.1 Add new common files to CPP_SRCS variable (if needed).
+#    2.2 If other source files use the components (they check #ifdef <new_component> etc.)
+#        then add them to the CPP_SRCS_USING_COMPONENTS list
+#    2.3 Add variable with list of source files for stack or observer (or other component).
+#    2.4 If there are source files in common to components then define them
+#        in a variable and use that variable multiple times to make this clear.
+#        This can also be done if there is a sensible partition of source files in a component.
+#
+# 3. The all target (must be first target in Makefile) must be dependant
+#    on the components (e.g. $(DEP_STACKS) $(DEP_OBSERVERS) variables used)
+#    Add/update the all dependancies if needed (if new component "type"
+#
+# 4. A macro ST_template is used to do all common component tasks
+#    so we don't have to copy and edit chunks of code for every component.
+# 4.1 If new component type is also being added then a template call is added for it.
+#
+# 5. COMPONENTS_DETAIL_FILE := $(PROG)_components.build info file
+# If selected components/build type change certain source files need 
+# to be rebuilt. e.g. files that have code checked with #ifdef ST_gb 
+# 5.1 Make a file that knows about selected components/build type.
+#     If file exists already it is not touched unless selected components/build type have changed.
+# 5.2 (see 2.2) Source files listed in CPP_SRCS_USING_COMPONENTS are made dependant on this file.
+#    could auto-genetate this list egrep -Hi "#ifdef\w+XX_$(XXX)" $(SOURCE_FILES)
+# 5.3 using CFLAGS catches too much
+#    e.g. -DST_gb change is change to CFLAGS would triggers full rebuild of all files
+#    really want to control by make clean when needed 
+#    e.g. when doing release would do that anyway
+#
+# 6. PROG and libs targets for intermediate and final link
+#    object files used, not intermediate static libraries  
+#    (libs there as we could use them)
+#
+# 7. libs and external libs
+#
+# 8. make depend
+#
+# 9. cleaning 
+#
+
+##################################################
+# 1. stack, observer or other component definitions
+
+# define all possible components for usage and error checking
+ALL_STACKS := gb iups
+ALL_OBSERVERS := report_stats_observer report_debug_observer stats gb_user_context storage gb_pdp_context iups_user_context
+# 
+
+# 1.1 build plug-in component usage:
+# make STACKS="gb abis a" OBSERVERS="smanager stats userid" BUILD=dryrun BLD_dryrun
+# make STACKS=gb,abis,a OBSERVERS=smanager,stats,userid,etc BUILD=release
+USAGE := "\nusage: \n\
+       make STACKS=\"$(ALL_STACKS)\" OBSERVERS=\"$(ALL_OBSERVERS)\" BUILD=debug|release|...\n\
+       make clean\n\
+       make realclean\n\
+       make libs\n\
+       make external_libs\n"
+# BUILD=release or debug or test or dryrun
+# make STACKS=gb,abis,a OBSERVERS=smanager,stats,userid,etc BUILD=release
+
+# 1.2 define defaults if they are not passed in on cmd line
+BUILD ?= debug
+STACKS ?= gb iups
+#OBSERVERS ?= gb_user_context report_stats_observer stats
+OBSERVERS ?= report_stats_observer gb_user_context storage gb_pdp_context stats iups_user_context
+
+
+# 1.3 parse of command line (DEP_<component_type> calculation) must be added for it
+# we allow seperation by commas on cmd line 
+# this is good for sanity and our fingers
+# note use of override so that we can modify the variables if passed in from cmd line
+# note make built in substitutes can't be used as they naturally split onwhitespace and apply pattern once (hence the shell echo | sed call)
+override STACKS := $(shell echo $(STACKS)|sed "s/,/ /g")
+override OBSERVERS := $(shell echo $(OBSERVERS)|sed "s/,/ /g")
+
+# we store ST/OB with a ST_/OB_ prefix (visually clearer) 
+# DEP stands for Dependancy
+DEP_STACKS := $(STACKS:%=ST_%)
+DEP_OBSERVERS := $(OBSERVERS:%=OB_%)
+.PHONY: $(DEP_STACKS) $(DEP_OBSERVERS) 
+
+##################################################
+# 2. Add new source files to variables.
+
+MAIN_ROOT := ../common
+COMMON_ROOT := ../../common/source
+NETLEDGE_COMMON_BUILD := ../../../common/build/solaris
+export NETLEDGE_FLAGS_FILE := $(shell pwd)/$(NETLEDGE_COMMON_BUILD)/FLAGS.build
+
+TARGET:= .
+
+OBJS = $(CPP_SRCS:$(ROOT)/../common/%.cpp=$(TARGET)/../common/%.o)
+COMMON_OBJS = $(COMMON_SRCS:$(COMMON_ROOT)/%.cpp=$(TARGET)/%.o)
+ 
+# 2.1 common source files and always linked source files
+CPP_SRCS := \
+${addprefix $(MAIN_ROOT)/,\
+main.cpp \
+cmd.cpp \
+MemoryTrace.cpp \
+}
+
+COMMON_SRCS := \
+${addprefix $(COMMON_ROOT)/,\
+rps_config.cpp \
+rps_status.cpp \
+rps_system_time.cpp \
+rps_shutdown.cpp \
+}
+
+OBJS = $(CPP_SRCS:$(MAIN_ROOT)/%.cpp=%.o)
+COMMON_OBJS = $(COMMON_SRCS:$(COMMON_ROOT)/%.cpp=%.o)
+
+# 2.2 source files that use the components (they check #ifdef <component> ...)
+#     We could grep code for each component defin and build this dependancy
+#     list in that way ... but, Hmmmm.
+CPP_SRCS_USING_COMPONENTS := ${addprefix $(MAIN_ROOT)/, main.cpp }
+
+OBJS_USING_COMPONENTS := $(CPP_SRCS_USING_COMPONENTS:%.cpp=%.o)
+
+
+# Components without source or libs
+# We have dummy stack/observer component source files when the components 
+# are not completely componentized 
+ST_gb_NO_SRCS := 1
+ST_iups_NO_SRCS := 1
+
+
+# 2.3 variables with list of source files for stack or observer (or other component)
+#ST_gb_CPP_SRCS := ${addprefix $(STACK_ROOT)/,gb.cpp com_st.cpp} $(PU_1_CPP_SRCS)
+#OB_smanager_CPP_SRCS := ${addprefix $(OBSERVER_ROOT)/,smanager.cpp}
+
+# 2.4 variables with list of source files used in multiple components
+#PU_1_CPP_SRCS := ${addprefix $(PU_ROOT)/,pu_1.cpp}
+
+#2.5 if we have a LIB ver instead of SRCS var then the optional component
+# is built by going to the build dir of the component and executing make
+OB_report_stats_observer_LIB := rps/report_info/report_stats_observer/build/solaris/libreport_stats_observer.a
+OB_report_debug_observer_LIB := rps/report_info/report_debug_observer/build/solaris/libreport_debug_observer.a
+OB_gb_user_context_LIB := rps/user_context/gb_user_context/build/solaris/libgb_user_context.a rps/user_context/state_machines/build/solaris/libstate_machines.a
+OB_iups_user_context_LIB := rps/user_context/iups_user_context/build/solaris/libiups_user_context.a rps/user_context/state_machines/build/solaris/libstate_machines.a
+OB_stats_LIB := rps/stats/build/solaris/libstats.a
+OB_storage_LIB := rps/storage/build/solaris/libstorage.a
+OB_gb_pdp_context_LIB := rps/pdp_context/gb_pdp_context/build/solaris/libgb_pdp_context.a
+
+PROG := rps
+
+##################################################
+# 3. all is the default target, must be first target in Makefile
+#    MUST be after 
+#    must be before other targets (e.g. BLD_ targets)
+.PHONY: all pre_build_check
+
+all: deps libs pre_build_check $(DEP_STACKS) $(DEP_OBSERVERS) $(COMPONENT_LIBS) $(COMPONENT_OBJS) $(PROG)
+	@echo; echo $(COMBOX)$(COMBOX); echo \# post build check
+	@echo PWD: $(PWD) NETLEDGE_DIR: $(NETLEDGE_DIR)
+	@echo Stacks: $(DEP_STACKS)
+	@echo Observers: $(DEP_OBSERVERS)
+	@echo Build: $(BUILD)
+	@echo CFLAGS: $(CFLAGS)
+	@echo COMPONENTS: $(COMPONENTS)
+	@echo "  srcs: $(COMPONENT_SRCS)"
+	@echo "  objs: $(COMPONENT_OBJS)"
+	@echo "  libs: $(COMPONENT_LIBS)"
+	@echo "  lib_flags: $(COMPONENT_LIB_FLAGS)"
+	@echo libs: $(SUBSYS_DIRS)
+	@echo External libs: $(EXTERNAL_LIBS)
+	@#echo External libs files: $(EXTERNAL_LIBS_FILES)
+	@#echo External libs inc: $(EXTERNAL_LIBS_INC)
+	@#echo External libs flags: $(EXTERNAL_LIBS_FLAGS)
+	@#echo External libs paths: $(EXTERNAL_LIBS_PATHS)
+	@echo
+
+export PRES_ACCESS = 0
+ifeq ($(PRES_ACCESS), 1)
+	DEFS := -DPRES_ACCESS
+endif
+
+# profiling
+ifeq ($(PROFILE), 1)
+ BUILD := profile
+endif
+
+BLD_release BLD_debug BLD_test:
+
+# Check build type and set up macros
+# Build type is in $(BUILD)
+ifeq ($(RELEASE), 1)
+ BUILD := release
+endif
+
+#THREADFLAGS=-threads -D_REENTRANT
+
+ifeq ($(RECURSIVE_FILE_PLAYER), 1)
+ CFLAGS += -O3 -Wall -Wcast-align -m64 -DBLD_$(BUILD) $(THREADFLAGS) -DRECURSIVE_FILE_PLAYER
+ CFLAGS += -DNL_DBG_ASSERT
+ REBUILD_CFLAGS := $(CFLAGS)
+ LDFLAGS += -g
+endif
+
+ifeq ($(BUILD),release)
+ CFLAGS += -O3 -Wall -Wcast-align -m64 -DBLD_$(BUILD) $(THREADFLAGS)
+ REBUILD_CFLAGS := $(CFLAGS)
+ RELEASE := 1
+ STRIP_PROG := strip
+endif
+ifeq ($(BUILD),debug)
+ CFLAGS += -g3 -O2 -Wall -Wcast-align -m64 -DBLD_$(BUILD) $(THREADFLAGS)
+ CFLAGS += -DNL_DBG_ASSERT
+ REBUILD_CFLAGS := $(CFLAGS)
+ LDFLAGS += -g
+ # -DST_iups_DEBUG turns IUPS_DBG_PRINTF on and off
+ CFLAGS += -DST_iups_DEBUG
+endif
+ifeq ($(BUILD),profile)
+ CFLAGS += -g3 -O2 -pg -Wall -Wcast-align -m64 -DBLD_$(BUILD) $(THREADFLAGS)
+ REBUILD_CFLAGS := $(CFLAGS)
+ LDFLAGS += -g
+endif
+ifeq ($(BUILD),debug32)
+ CFLAGS += -g3 -O2 -Wall -Wcast-align -m32 -DBLD_$(BUILD) $(THREADFLAGS)
+ CFLAGS += -DNL_DBG_ASSERT
+ REBUILD_CFLAGS := $(CFLAGS)
+ LDFLAGS += -g
+endif
+ifeq ($(BUILD),"test")
+ $(shell echo "not done yet")
+ $(shell echo "no cflags set => elf32 build")
+endif
+
+# Defines for all components (useful for usage, versioning/debug)
+CFLAGS += -DSTACKS="\"$(STACKS)\"" -DOBSERVERS="\"$(OBSERVERS)\""
+
+# TODO pass in cmd line args passed to all targets e.g. RELEASE=1; BUILD=debug; ..
+# applies to libs, external_libs, all
+# set a var to pass and don't have to have the ifeq
+# TODO would not the RELEASE var be passed in anyway by doing the set -e ... test this
+ifeq ($(RELEASE),1)
+ RELEASE_FLAGS := RELEASE=1
+else 
+ RELEASE_FLAGS := RELEASE=0
+endif
+
+export DEFS
+export CFLAGS
+export BUILD
+export STACKS
+export OBSERVERS
+export COMPONENTS_DETAIL_FILE
+
+##################################################
+# 4. ST_template
+# each component is processed by this template
+# for each component we:
+#   check if we know about this component and report usage error if not
+#   We know about it if <name>_CPP_SRCS or <name>_LIB is defined
+#   if <name>_LIB
+#      append define to CFLAGS list
+#      append lib to COMPONENT_LIBS (list of component libs to build)
+#      set CFLAGS -I <incpath> -L <libpath> -l<libname>
+#   if <name>_SRCS
+#      append -D<name> define to CFLAGS list
+#      append src/objs/libs to lists of all src/objs/libs, 
+#      sets lib dependancies for the component
+#   can do anything else here needed for components
+define ST_template
+ $(1): $$($(1)_OBJS) $$($(1)_LIBS:%=lib%.a)
+ COMPONENTS += $(1)
+ ifndef $(1)_CPP_SRCS
+   ifndef $(1)_LIB
+     ifndef $(1)_NO_SRCS
+        UNKNOWN_COMPONENT_TEXT += "ERROR: Unknown COMPONENT: $(1)."
+        UNKNOWN_COMPONENT_TEXT += " Neither var $(1)_CPP_SRCS nor $(1)_LIB are defined."
+     else
+        CFLAGS += -D$(1)
+     endif
+   else 
+     CFLAGS += -D$(1)
+     # Component defined with dir + libfilename in $(1)_LIB
+     # e.g. $(1)_LIB is <libdir>/lib<libname>.a <lib2dir>/lib<lib2name>.a ...
+     COMPONENT_LIBS += $$($(1)_LIB)
+     COMPONENT_LIB_DIRS += $$(dir $$($(1)_LIB))
+     COMPONENT_LIB_FILE_$(1) := $$(notdir $$($(1)_LIB))
+     COMPONENT_LIB_NAME_$(1) := $$(COMPONENT_LIB_FILE_$(1):lib%.a=%)
+     # add path of library to library path -L<libdir>
+     COMPONENT_LIB_FLAGS += $$(foreach ff,$$($(1)_LIB),-L$$(NETLEDGE_DIR)/$$(dir $$(ff)))
+     # add lib name -l<libname>
+     COMPONENT_LIB_FNAMES_$(1) := $$(foreach ff,$$($(1)_LIB),$$(notdir $$(ff)))
+     COMPONENT_LIB_FLAGS += $$(foreach ff,$$(COMPONENT_LIB_FNAMES_$(1)),-l$$(ff:lib%.a=%))
+     # add include paths
+     COMPONENT_LIB_FLAGS += $$(foreach ff,$$($(1)_LIB),-I$$(NETLEDGE_DIR)/$$(dir $$(ff))/../../include)
+     COMPONENT_LIB_FLAGS += $$(foreach ff,$$($(1)_LIB),-I$$(NETLEDGE_DIR)/$$(dir $$(ff))/../../source)
+
+   endif
+ else
+   # Component defined with list of src files in $(1)_CPP_SRCS
+   # we make a define that may be used in code to check if we have a build with stack
+   CFLAGS += -D$(1)
+   COMPONENT_SRCS += $($(1)_CPP_SRCS)
+   # list of object files for stack
+   $(1)_OBJS = $($(1)_CPP_SRCS:.cpp=.o)
+   # add object files for this stack to list of all component object files
+   COMPONENT_OBJS += $$($(1)_OBJS)
+   lib$(1).a: $$($(1)_OBJS)
+	$$(AR) -r $$@ $$^ $$(LDLIBS)
+ endif
+endef
+
+# 4.1 (and 1.4) If new component type is also being added then a template call is added for it.
+# the ST_template must be called after it is defined
+$(foreach stack,$(STACKS),$(eval $(call ST_template,ST_$(stack))))
+$(foreach ob,$(OBSERVERS),$(eval $(call ST_template,OB_$(ob))))
+
+# make COMPONENT_LIBS unique to remove lib given more than once warning
+COMPONENT_LIBS := $(sort $(COMPONENT_LIBS))
+
+
+##################################################
+# 5. COMPONENTS_DETAIL_FILE info file
+# knows about selected components/build type
+COMPONENTS_DETAIL_FILE := $(PROG)_components.build
+# if CFLAGS change (not lists of components in/out but the cflags affecting 
+# linker output, e.g. elf64/32, optimisation, ...) then all object files 
+# and static lib files need to be rebuilt
+
+# 5.1 listed files dependant on components 
+$(OBJS_USING_COMPONENTS): $(COMPONENTS_DETAIL_FILE) $(COMPONENT_SRCS) 
+$(COMPONENT_OBJS): $(NETLEDGE_FLAGS_FILE)
+$(OBJS): $(NETLEDGE_FLAGS_FILE)
+$(COMMON_OBJS): $(NETLEDGE_FLAGS_FILE)
+
+# Store build type and components (this used as dependancy and triggers rebuild of
+# files which are dependant on the components)
+$(shell echo "\#STACKS=\"$(STACKS)\" OBSERVERS=\"$(OBSERVERS)\" BUILD=\"$(BUILD)\"" >$(COMPONENTS_DETAIL_FILE).new)
+
+# We include these files to trigger Make to pick their changes up immediately
+# This trick is used often with dependancy files
+include $(COMPONENTS_DETAIL_FILE).new
+
+%.build: %.build.new
+	@# if file exists already, check is new one different and update file if so
+	@# update triggers rebuild of files dependant on CFLAHS (all obj files)
+	@if test -f $@ ; then \
+		PROG_FILE_UPDATE=`diff $^ $@`; \
+		if test "$$PROG_FILE_UPDATE" != "" ; then \
+		 mv $^ $@; \
+		fi \
+	else mv $^ $@; fi
+
+
+##################################################
+COMBOX = \\\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#
+pre_build_check BLD_dryrun:
+	@echo; echo $(COMBOX)$(COMBOX); echo \# pre build check
+	@#export
+	@#echo '$(.VARIABLES)'
+	@#bash -c "echo \"'$' $$$$ ! $$! 0 $$0 - $$- w \w $w \W w s \s l \l\""
+	@echo PWD: $(PWD) NETLEDGE_DIR: $(NETLEDGE_DIR)
+	@echo Stacks: $(DEP_STACKS)
+	@echo Observers: $(DEP_OBSERVERS)
+	@echo Build: $(BUILD)
+	@echo CFLAGS: $(CFLAGS)
+	@echo Components:
+	@echo "  srcs: $(COMPONENT_SRCS)"
+	@echo "  objs: $(COMPONENT_OBJS)"
+	@echo "  libs: $(COMPONENT_LIBS)"
+	@echo "  lib_flags: $(COMPONENT_LIB_FLAGS)"
+	@echo External libs: $(EXTERNAL_LIBS)
+	@echo External libs files: $(EXTERNAL_LIBS_FILES)
+	@echo External libs inc: $(EXTERNAL_LIBS_INC)
+	@echo External libs flags: $(EXTERNAL_LIBS_FLAGS)
+	@echo External libs paths: $(EXTERNAL_LIBS_PATHS)
+	@echo Subsys:
+	@echo "  inc: $(SUBSYS_INC)"
+	@echo "  libs: $(SUBSYS_LIBS)"
+	@echo "  flags: $(SUBSYS_LIBS_FLAGS)"
+	@echo INCLUDE: $(INCLUDE)
+	@echo LIB_PATHS: $(LIBS_PATHS)
+	@echo LIBS: $(LIBS)
+	@# check did we fail because of unknown component
+	@if [ '$(UNKNOWN_COMPONENT_TEXT)' != "" ]; then \
+		echo "\n$(UNKNOWN_COMPONENT_TEXT)"; echo $(USAGE); exit 1; \
+	fi
+	@echo
+
+
+##################################################
+# Some macros/vars and implicit rules before the PROG (rps) rule
+CC := $(PURIFY) g++
+MAKE := make
+
+INCLUDE:=  -I. -I../../include -I../../../common/include -I../../../common/proto_encap/include -I../../../common/osal/include -I../../../common/containers/include -I../../../common/osal/include -I../../../common/nl_tcp/include -I../../mc_receive/source -I../../proto_analyser/source -I../../common/include -I../../storage/include -I../../stats/include -I../../stats/source -I ../../user_identity/source -I ../../user_identity/include -I ../../../common/INL/include -I ../../../inl_daemon/source -I../../../common/config/include -I../../../common/patterns/include
+
+MAKEDEPEND := gcc $(INCLUDE) -M $(CFLAGS) -o $*.d $<
+
+LIBS := -lthread -lsocket -lnsl -lrt -lmc_receive -linl -luser_identity -lproto_analyser -lstorage -lstats -lproto_encap -lcontainers -lnltcp -lz -lmysqlclient -lpcap -lconfig -lmt
+
+TARGET:= .
+
+%.o: $(MAIN_ROOT)/%.cpp
+	$(CC) $(CFLAGS) $(DEFS) $(INCLUDE) -c -o $@ $<
+
+%.o: $(COMMON_ROOT)/%.cpp
+	$(CC) $(CFLAGS) $(DEFS) $(INCLUDE) -c -o $@ $<
+
+# We strip properly for a RELEASE build, we set default strip to do nothing
+STRIP_PROG ?= @objdump -a
+
+RM := rm -rf
+
+ifeq ($(BUILD),debug32)
+
+libstdc++.a:
+	-unlink libstdc++.a
+	ln -s /usr/local/lib/libstdc++.a
+
+libpcap.a:
+	-unlink libpcap.a
+	ln -s /usr/local/lib/sparcv7/libpcap.a
+
+libmysqlclient.a:
+	-unlink libmysqlclient.a
+	ln -s /usr/local/mysql-max-4.1.14-sun-solaris2.9-sparc/lib/libmysqlclient.a
+
+else
+
+libstdc++.a:
+	-unlink libstdc++.a
+	ln -s /usr/local/lib/sparcv9/libstdc++.a
+
+libpcap.a:
+	-unlink libpcap.a
+	ln -s /usr/local/lib/sparcv9/libpcap.a
+
+libmysqlclient.a:
+	-unlink libmysqlclient.a
+	ln -s /usr/local/mysql-standard-4.1.7-sun-solaris2.9-sparc-64bit/lib/libmysqlclient.a
+
+endif
+
+liblink: libstdc++.a libpcap.a libmysqlclient.a
+
+
+##################################################
+# 6. PROG (rps) dependancies, libs and final link  
+# note that $^ is already uniquified (gnu make manual) 
+# $+ is all non-uniq prerequisites
+
+# libs are dependant on components chosen? might or might not be
+#external_libs libs $(COMPONENT_LIBS): $(COMPONENTS_DETAIL_FILE)
+$(COMPONENT_LIBS): $(COMPONENTS_DETAIL_FILE)
+
+# libs are dependant on build type, cflags, etc
+external_libs libs $(COMPONENT_LIBS): $(NETLEDGE_FLAGS_FILE)
+# but setting them here not quite enough if the makefile in there won't rebuild 
+# the target rule lib<whatever>.a should be made dependant on the flags/components detail files
+# a make realclean is usually done if e.g. doing a release build
+
+# all object files are dependant on flags ... 
+$(OBJS) $(COMPONENT_OBJS) $(COMPONENT_LIBS): $(NETLEDGE_FLAGS_FILE)
+
+#$(PROG): $(DEP_STACKS) $(DEP_OBSERVERS) $(OBJS)
+$(PROG): liblink $(OBJS) $(COMMON_OBJS) $(COMPONENT_OBJS) $(COMPONENT_LIBS) external_libs libs $(COMPONENTS_DETAIL_FILE)
+	$(CC) $(CFLAGS) -Wl,-m $(DEFS) -L. -o $(TARGET)/$@ $(COMPONENT_OBJS) $(OBJS) $(COMMON_OBJS) -static-libgcc $(LIBS_PATHS) $(COMPONENT_LIB_FLAGS) $(LIBS) >$(PROG).map 2>&1;
+	$(STRIP_PROG) $@
+
+$(PROG)_libs: $(COMPONENT_LIBS) $(OBJS)
+	$(CC) $(CFLAGS) $^ -o $@
+
+
+##################################################
+# 7. libs and external libs
+# 
+PWD := $(shell pwd)
+NETLEDGE_DIR := $(PWD)/../../..
+NETLEDGE_RPS_DIR := $(PWD)/../..
+BUILD_SOLARIS := build/solaris/
+
+# SUBSYS_DIRS for libs relative to NETLEDGE_DIR/rps
+# If adding a SUBSYS also add entry to INCLUDE, LIBS_PATHS and LIBS (for now)
+SUBSYS_DIRS := mc_receive proto_analyser storage stats
+
+# external lib dirs relative to NETLEDGE_DIR
+EXTERNAL_LIBS := common/proto_encap/libproto_encap.a common/containers/libcontainers.a common/INL/libinl.a rps/user_identity/libuser_identity.a common/nl_tcp/libnl_tcp.a common/config/libconfig.a common/patterns/libpatterns.a common/osal/libosal.a
+
+# It is almost easier to add entry for INCLUDE, LIBS_PATHS and LIBS manually
+# This (and see below) is how to automagically calc include and lib paths
+# but it seems messy
+SUBSYS_INC := $(foreach ff,$(SYBSYS_DIRS),-I$(NETLEDGE_RPS_DIR)/$(ff)/include)
+SUBSYS_INC += $(foreach ff,$(SYBSYS_DIRS),-I$(NETLEDGE_RPS_DIR)/$(ff)/source)
+SUBSYS_PATHS := $(foreach ff,$(SYBSYS_DIRS),-L$(NETLEDGE_RPS_DIR)/$(ff)/$(BUILD_SOLARIS))
+SUBSYS_FLAGS := $(foreach ff,$(SYBSYS_DIRS),-l$(ff))
+
+EXTERNAL_LIBS_DIRS := $(dir $(EXTERNAL_LIBS))
+EXTERNAL_LIBS_FILES := $(notdir $(EXTERNAL_LIBS))
+EXTERNAL_LIBS_LIST := $(EXTERNAL_LIBS_FILES:lib%.a=%)
+
+EXTERNAL_LIBS_INC := $(foreach ff,$(EXTERNAL_LIBS),-I$(NETLEDGE_DIR)/$(dir $(ff))/include)
+EXTERNAL_LIBS_INC += $(foreach ff,$(EXTERNAL_LIBS),-I$(NETLEDGE_DIR)/$(dir $(ff))/source)
+EXTERNAL_LIBS_PATHS := $(foreach ff,$(EXTERNAL_LIBS),-L$(NETLEDGE_DIR)/$(dir $(ff))/$(BUILD_SOLARIS))
+EXTERNAL_LIBS_FNAMES := $(foreach ff,$(EXTERNAL_LIBS),$(notdir $(ff)))
+EXTERNAL_LIBS_FLAGS += $(foreach ff,$(EXTERNAL_LIBS_FNAMES),-l$(ff:lib%.a=%))
+
+
+INCLUDE :=  -I../../include -I../../../common/include -I../../common/include -I ../../report_info/include  -I ../../../inl_daemon/source -I../../../common/config/include
+
+# components
+INCLUDE += -I ../../report_info/report_stats_observer/include -I ../../report_info/report_debug_observer/include -I../../stats/include -I../../stats/source -I../../user_context/include -I../../user_context/gb_user_context/include -I../../user_context/iups_user_context/include -I../../pdp_context/include -I../../pdp_context/gb_pdp_context/include
+
+# subsys
+#INCLUDE += $(SUBSYS_INC)
+INCLUDE += -I../../mc_receive/source -I../../proto_analyser/source -I../../storage/include -I../../user_context/state_machines/include -I../../user_context/state_machines/gmm_state_machine/include -I../../user_context/state_machines/sm_state_machine/include  
+
+# external libs
+#INCLUDE += $(EXTERNAL_LIBS_INC)
+INCLUDE += -I../../../common/proto_encap/include -I../../../common/containers/include -I../../../common/nl_tcp/include -I../../../common/osal/include -I ../../user_identity/source -I ../../user_identity/include -I ../../../common/INL/include -I ../../../common/patterns/include -I ../../../common/config/include -I../../../common/osal/include
+
+LIBS_PATHS := -L../../build/solaris -L../../proto_analyser/build/solaris/ -L../../mc_receive/build/solaris -L../../storage/build/solaris -L../../stats/build/solaris -L/usr/local/mysql/lib -L ../../../common/config/build/solaris
+
+#LIBS_PATHS += $(EXTERNAL_LIBS_PATHS)
+LIBS_PATHS += -L../../../common/proto_encap/build/solaris -L../../../common/containers/build/solaris -L../../../common/nl_tcp/build/solaris -L../../user_identity/build/solaris -L../../../common/INL/build/solaris -L../../../common/patterns/build/solaris -L../../../common/osal/build/solaris
+
+LIBS := -lthread -lsocket -lnsl -lrt -linl -luser_identity -lproto_encap -lcontainers -lz -lpcap -lmysqlclient -lkstat -lconfig
+
+# subsys
+#LIBS += $(SUBSYS_FLAGS)
+LIBS += -lmc_receive -lproto_analyser 
+
+# external libs
+#LIBS += $(EXTERNAL_LIBS_FLAGS)
+LIBS += -lproto_encap -lcontainers -linl -luser_identity -lnltcp -lpatterns -losal
+
+# We wish to add libs here that cause dependancy-order problems at link time
+LIBS += -lkstat -lpatterns -lmysqlclient -lpcap
+
+# relate the libs to their dirs using the LIB_<libname>_DIR variable
+# always try make all libs (external_libs phony target)
+external_libs: pre_build_check
+	@# vars passed in with export and $(RELEASE_GLAGS)
+	@echo EXTERNAL_LIBS_FILES $(EXTERNAL_LIBS_FILES)
+	+set -e ; \
+	list='$(EXTERNAL_LIBS_DIRS)'; \
+	for extlibdir in $$list; do \
+		echo make external_lib $$extlibdir; \
+		cd $(NETLEDGE_DIR)/$$extlibdir/$(BUILD_SOLARIS) ;  \
+		$(MAKE) -f Makefile $(RELEASE_FLAGS);  \
+	done ;
+
+#external_libs and libs targets
+# (in this file libcontainers.a, libinl.a, etc ... )
+# will always be called as it will never exist in the current dir
+# this is good since it forces a make (which will check dependencies etc)
+
+libs:
+	+set -e ; \
+	list='$(SUBSYS_DIRS)'; \
+	for subdir in $$list; do \
+		cd $(NETLEDGE_RPS_DIR)/$$subdir/$(BUILD_SOLARIS) ;  \
+		$(MAKE) -f Makefile $(RELEASE_FLAGS);  \
+	done ;
+
+
+$(COMPONENT_LIBS):
+	+set -e ; \
+	cd $(NETLEDGE_DIR)/$(dir $@)/ ;  \
+	$(MAKE) -f Makefile $(RELEASE_FLAGS);
+
+
+##################################################
+# 8. make depend
+# TODO makedepend - at the moment one .depend file for all => any .h file change 
+# everything is rebuilt. Painful?
+# individual depend files more efficient, less painful, as good as current method
+# http://make.paulandlesley.org/autodep.html#gcc
+
+
+
+clean:
+	-$(RM) $(OBJS) $(COMMON_OBJS) $(COMPONENT_OBJS) $(TARGET)/$(PROG) $(COMPONENT_LIBS) 
+	-$(RM) $(TARGET)/.depends
+	-$(RM) $(COMPONENTS_DETAIL_FILE) $(NETLEDGE_FLAGS_FILE)
+
+realclean: clean component_clean
+	-$(RM) $(OBJS) $(COMMON_OBJS) $(TARGET)/rps $(TARGET)/.depends  \
+	+set -e ; \
+	list='$(SUBSYS_DIRS)'; \
+	for subdir in $$list; do \
+		cd $(NETLEDGE_RPS_DIR)/$$subdir/$(BUILD_SOLARIS) ;  \
+		$(MAKE) -f Makefile clean;  \
+	done ; \
+	list='$(EXTERNAL_LIBS_DIRS)'; \
+	for extlibdir in $$list; do \
+		cd $(NETLEDGE_DIR)/$$extlibdir/$(BUILD_SOLARIS) ;  \
+		$(MAKE) -f Makefile clean;  \
+	done ; \
+
+component_clean:
+	list='$(COMPONENT_LIB_DIRS)'; \
+	for compdir in $$list; do \
+		cd $(NETLEDGE_DIR)/$$compdir ;  \
+		$(MAKE) -f Makefile clean; \
+	done ;
+
+# individual depends files
+#-include $(CPP_SRCS:.c=.P)
+#-include $(COMMON_SRCS:.c=.P)
+#-include $(COMPONENT_SRCS:.c=.P)
+
+.PHONY: all clean realclean
+.PHONY: all pre_build_check
+
+.PHONY: deps
+
+deps:
+	cd $(NETLEDGE_COMMON_BUILD); \
+	$(MAKE) -f Makefile.netledge;
+	gcc $(INCLUDE) -MM $(CPP_SRCS) $(COMMON_SRCS) > $(TARGET)/.depends
+
+-include $(TARGET)/.depends

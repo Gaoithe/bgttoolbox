@@ -1,0 +1,208 @@
+#!/bin/bash
+
+if [[ "$1" == "" ]] ; then
+  echo "usage: xt <servername>"
+  exit
+fi
+
+
+
+#GEOM1=100x63+520+10
+GEOM0=100x60+0+0
+GEOM1=100x60+520+10
+GEOM2=100x60+260+40
+GEOM3=100x60+130+160
+
+XDPYDIM=`xdpyinfo |grep "^ *dimensions:"`
+if [[ ! ${XDPYDIM//* 1024x*/} ]] ; then 
+    echo 1024x something display 
+    #GEOM2=94x47+-10--2
+    #GEOM3=107x49+177-11
+    #GEOM1=85x54--5--8
+
+    #GEOM0=100x46+0+0
+    GEOM3=100x45+9-16
+    GEOM2=100x51+259-1
+    GEOM1=88x54--2+1
+    GEOM0=$GEOM3
+
+fi
+
+echo GEOM0 is $GEOM0 XDPYDIM is $XDPYDIM
+
+DEFGEO=" -geometry $GEOM0 "
+DEFSBSL=" -sb -sl 5000 "
+
+#xterm $DEFSBSL -j -ls -fn 7x14 -name "Local Shell"
+#xterm $DEFGEO -name "dspsrv Mail Betty" -e mutt
+#xterm $DEFGEO -name "doolin Mail Doolin.com" -e ssh doolin.com
+#xterm $DEFGEO -name "Kinsey" -e ssh kinsey
+#xterm $DEFGEO -name "Owsla" -e ssh owsla.ie.suberic.net
+#xterm $DEFGEO -name "dspsrv Mail Betty" -e mutt
+#xterm $DEFGEO -name "doolin Mail Doolin.com" -e ssh doolin.com
+
+#xterm -bg green -fg yellow -e ssh bakunin &
+
+#gtk-demo
+# select colour selector
+#1A1A61
+
+# leitrim 
+
+# kor daire barney.dev.ie.alphyra.com
+#--> daveb (~daveb@ingatestone.ucd.ie) has joined #admin
+#--> kathryn (~kathryn@dunno.dev.ie.alphyra.com) has joined #admin
+#--> kathryn (~kathryn@dialup84-176.utvinternet.net) has joined #dev
+#--> waider (~waider@itg-gw.cr008.cwt.esat.net) has joined #admin
+#--> markus (~markus@markus-dub-1.vpn.alphyra.com) has joined #admin
+#--> stella (~stella@renegade.dev.ie.alphyra.com) has joined #admin
+#--> kev (~kevin@roo.dev.ie.alphyra.com) has joined #admin
+#--> stel (^Astarmain@tchpc.tcd.ie) has joined #admin
+#--> mbroad (~mbroaders@vikings.admin.ie.alphyra.com)
+#--> aimee (~aimee@itg-gw.cr008.cwt.esat.net) has joined #doolin
+#--> jim (~jphelan@itg-gw.cr008.cwt.esat.net) has joined #doolin
+#--> shobha (^#doolin,#@host217-44-236-160.range217-44.btcentralplus.com) has joined #doolin
+#--> kor (~kor@itg-gw.cr008.cwt.esat.net) has joined #doolin
+# jphelan stef
+
+
+while [[ "$1" != "" ]] ; do
+  server=$1
+  bg=black
+  fg=yellow
+  command=""
+
+  if [[ $1 == "dspsrv" ]] ; then
+    server=www.dspsrv.com
+    bg=seagreen
+    fg=yellow
+  elif [[ $1 == owsla ]] ; then
+    #server=owsla.ie.suberic.net
+    server=owsla.g.dev.ie.alphyra.com
+    bg=#1A1A61
+    #bg=blue
+    fg=yellow
+  elif [[ $1 == lotus ]] ; then
+    server=lotus
+    bg=#1A901a
+    fg=yellow
+  elif [[ $1 == jamesh ]] ; then
+    echo "/usr/sbin/sshd -d -d must be running on jamesh first"
+    server=JamesH@yogi
+    #server=JamesH@192.168.3.161
+    bg=#1A901a
+    fg=yellow
+  elif [[ $1 == vnc ]] ; then
+    #vncviewer 192.168.1.135 -display :0 &
+    echo "hint: JamesH"
+    #command="vncviewer host161.sfrd.ie.alphyra.com"
+    command="vncviewer yogi"
+  elif [[ $1 == kinsey ]] ; then
+    bg=#1A1A61
+    #bg=blue
+    fg=yellow
+  elif [[ $1 == doolin ]] ; then
+    server=www.doolin.com
+    bg=#1A1A61
+    fg=yellow
+  elif [[ $1 == stef ]] ; then
+    server=stef
+    bg=#1A1A61
+    fg=yellow
+  elif [[ $1 == bakunin ]] ; then
+    bg=#400090
+    fg=white
+  elif [[ $1 == mops-test ]] ; then
+    #mops-test.dub.ie.alphyra.com (192.168.10.205)
+    server=mops-test.dub.ie.alphyra.com
+    bg=slategrey
+    fg=yellow
+  elif [[ $1 == mops || $1 == berkman ]] ; then
+    #mops.dub.ie.alphyra.com (192.168.11.100)
+    #xt kathryn@mops.dub.ie.alphyra.com &
+    server=kathryn@mops.dub.ie.alphyra.com
+    bg=slategrey
+    fg=yellow
+  elif [[ $1 == florence ]] ; then
+    server=florence.dub.ie.alphyra.com
+    bg=slategrey
+    fg=yellow
+
+  elif [[ $1 == topup ]] ; then
+   server=topupclub@82.195.134.46
+    bg=slategrey
+    fg=yellow
+
+  elif [[ $1 == topupclub || $1 == tuc ]] ; then
+    server=topupclub@193.111.82.167
+    bg=slategrey
+    fg=white
+  elif [[ $1 == topupclub-test || $1 == tuc-test ]] ; then
+    server=topupclub@192.168.10.211
+    bg=slategrey
+    fg=yellow
+  elif [[ $1 == rrb ]] ; then
+    server=$1
+    bg=slategrey
+    fg=yellow
+  elif [[ $1 == qa || $1 == doolinqa ]] ; then
+    server=doolinqa
+    bg=slategrey
+    fg=yellow
+
+  elif [[ $1 == adpfs-lab || $1 == adpfs ]] ; then
+    server=adpfs@adpfs-lab.rrb.ie.alphyra.com
+    bg=sienna4
+    fg=yellow
+  elif [[ $1 == auis-lab || $1 == auis ]] ; then
+    server=adpfs@auis-lab.rrb.ie.alphyra.com
+    bg=sienna4
+    fg=yellow
+
+  elif [[ $1 == slaine ]] ; then
+    server=jcoleman@slaine.ie.commprove.com
+    #62.231.48.117.
+    bg=sienna4
+    fg=yellow
+# 8081 proxy for cvstrac only
+# 8000 tinyproxy.py for all that slaine can see
+##jamesc@dhcppc0:~> ssh -L 8081:localhost:8081 jcoleman@slaine.ie.commprove.com
+#*FvwmButtons(Title CommProve, Icon xterm.xpm,\
+# Action `Exec xt slaine &`)
+
+  elif [[ $1 == slaineproxy ]] ; then
+    server=jcoleman@slaine.ie.commprove.com
+    #62.231.48.117.
+    bg=sienna4
+    fg=yellow
+    title=$server
+    #command="xterm -title $title $DEFGEO -fg $fg -bg $bg $DEFSBSL -e ssh -L 8081:localhost:8081 -X $server"
+    command="xterm -title $title $DEFGEO -fg $fg -bg $bg $DEFSBSL -e ssh -L 8000:localhost:8000 -X $server"
+
+  elif [[ $1 == minerva ]] ; then
+    server=jcoleman@minerva.ie.commprove.com
+    #62.231.48.117.  10.1.2.10
+    bg=slategrey
+    fg=yellow
+
+  else
+    server=$1
+    bg=seagreen
+    fg=yellow    
+  fi
+
+  if [[ $title == "" ]] ; then
+      title=$server
+  fi
+
+  if [[ $command == "" ]] ; then
+    #command="xterm -title $title $DEFGEO -fg $fg -bg $bg $DEFSBSL -e ssh $server"
+    # ssh -X for port/X display forward
+    command="xterm -title $title $DEFGEO -fg $fg -bg $bg $DEFSBSL -e ssh -X $server"
+  fi
+
+  echo $command
+  $command
+
+  shift
+done
