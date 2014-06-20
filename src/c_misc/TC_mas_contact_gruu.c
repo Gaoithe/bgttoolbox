@@ -154,18 +154,18 @@ void do_contact_test_untidyworking(char *contact_from_invite, char *expected)
         }
 }
 
-// tidy up
-void do_contact_test(char *contact_from_invite, char *expected)
+
+
+void do_contact_test_duhrr(char *contact_from_invite, char *expected)
 {
 // void mcs_ac_set_contact_uri_fn(struct mcs_state_machine_instance *mcs_smi)   from mas/ims/chat_session_actions.c
 
     const char *tmpPtr = NULL;
     static char *tokBuf = NULL;
-    static char *conBuf = NULL;
     char *tokStr = NULL;
     char *contact = NULL;
-    char *contactb4semi = NULL;
-    char *seminext = NULL;
+    char *gtpos = NULL;
+    char *semipos = NULL;
 
     tmpPtr = contact_from_invite; //imf_hdr_get(mcs_smi->oa_invite_imf, corrib_sip_ihd_contact_num, 0);
         if (strlen(tmpPtr) > 0) {
@@ -174,33 +174,88 @@ void do_contact_test(char *contact_from_invite, char *expected)
 	    // 1. find sip: (may or may not be within <>s) 
             if ((tokStr = strstr(tokBuf, "sip:")) != NULL) {
 
-		// 2. start after sip:, take contact from string up to next > or end (strtok tokenised sets > char to nul)
-                contact = strtok(tokStr+4, ">");
+		printf("DEBUG tokStr:%s\n", tokStr);
+		// 2. start after sip:, find next > (or ; if no >)
+                contact = tokStr+4;
                 SBUG_SOME("1st token [%s]", contact);
-		// 3. now take that contact and check are there parameters (find semi-colon)
-		seminext = strchr(contact, ';');
-		// check was there a semi-colon, split string and prepare seminext pointer to be added back if so
-                // set semicolon to end-of-string and INCREMENT ptr to just after semicolon
-		if (seminext != NULL) { *seminext=0; seminext++; }  
-		// 4. tokenize contact on colon (if present), this removes :<port> part
-		contactb4semi = strtok(contact, ":");
-		SBUG_SOME("b4 semi [%s], seminext [%s]", contactb4semi, seminext==NULL?"NULL":seminext);
-		
-		// 5. put contact back together without the port, if there was one (or more) ; that bit needs to be added back
-		if (seminext != NULL) {
-		    char *newcontact = NULL;
-		    newcontact = RESTRDUP(newcontact,contactb4semi);
-                    //newcontact = tbx_strcat_multi(newcontact, contact, ";", seminext);
-		    //tbx_strcatf_2(newcontact,"%s;%s",contactb4semi,seminext);		    
-		    tbx_strcatf(newcontact,";%s",seminext);		    
-		    SBUG_SOME("STRCAT newcontact [%s] = contact [%s] + ';' + seminext [%s]", newcontact, contactb4semi, seminext);
+		// 3. next get string up to semi-colon (or end)
+		// test is there actually a ';' first
+		gtpos = strchr(contact, '>');   // strchr returns NULL if char not found
+		if (gtpos != NULL) { 
+		    gtpos[0] = 0;
+		    // end the string at >.
+		} else {
+		    // no >
+		    semipos = strchr(contact, ';');   // strchr returns NULL if char not found
+		    if (semipos != NULL) {
+			semipos[0] = 0;
+		    }
+		}
 
-		    // do we need to free the contact? what happened up there with 2 RESTRDUPs
-		    // contact = RESTRDUP(contact, newcontact); // ? doesn't work :-7
-		    contact = newcontact;
-		    // careful now, the contact and seminext strings are pointers into tokBuf area
-		    // should free contact now it is not used . . . the last RESTRDUP from newcontact to contact takes care of that
-		    //tbx_free(contact); doesn't work :-P
+                {
+                    SBUG_SOME("Contact [%s]", contact);
+                    printf("Result:\nContact: <sip:%s>", contact);
+
+		    if (expected[0] != 0) { // no test result if blank compare
+			if (strcmp(expected,contact) == 0) {
+			    printf("Test Result: PASS\n\n");
+			} else {
+			    printf("Test Result: FAIL\n");
+			    printf("Expected Contact: <sip:%s>\n\n",expected);
+			}
+		    }
+
+                    //mcs_smi->contact_uri = STRDUP(contact);
+                }
+
+            }
+            else {
+                // Is this default correct ?
+                //mcs_smi->contact_uri = STRDUP(mcs_smi->app_server->as_uri);
+                SBUG_SOME("No sip: in contact, using as_uri");
+            }
+        }
+}
+
+
+
+// tidy up
+void do_contact_test(char *contact_from_invite, char *expected)
+{
+// void mcs_ac_set_contact_uri_fn(struct mcs_state_machine_instance *mcs_smi)   from mas/ims/chat_session_actions.c
+
+    const char *tmpPtr = NULL;
+    static char *tokBuf = NULL;
+    char *tokStr = NULL;
+    char *contact = NULL;
+    char *gtpos = NULL;
+    char *semipos = NULL;
+
+    tmpPtr = contact_from_invite; //imf_hdr_get(mcs_smi->oa_invite_imf, corrib_sip_ihd_contact_num, 0);
+        if (strlen(tmpPtr) > 0) {
+	    SBUG_SOME("contact from invite [%s]", tmpPtr);
+            tokBuf = RESTRDUP(tokBuf, tmpPtr);
+
+
+	    // 1. find sip: (may or may not be within <>s) 
+            if ((tokStr = strstr(tokBuf, "sip:")) != NULL) {
+
+		printf("DEBUG tokStr:%s\n", tokStr);
+		// 2. start after sip:, find next > (or ; if no >)
+                contact = tokStr+4;
+                SBUG_SOME("1st token [%s]", contact);
+		// 3. next get string up to semi-colon (or end)
+		// test is there actually a ';' first
+		gtpos = strchr(contact, '>');   // strchr returns NULL if char not found
+		if (gtpos != NULL) { 
+		    gtpos[0] = 0;
+		    // end the string at >.
+		} else {
+		    // no >
+		    semipos = strchr(contact, ';');   // strchr returns NULL if char not found
+		    if (semipos != NULL) {
+			semipos[0] = 0;
+		    }
 		}
 
                 {
