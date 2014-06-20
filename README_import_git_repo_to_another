@@ -20,5 +20,101 @@ Doesn't work, loses all repo changes (MWAH!):
 
 http://stackoverflow.com/questions/1683531/how-to-import-existing-git-repository-into-another
 
+clone repo after mirroring overwrites
+cd bgt1
+git push --mirror https://gaoithe@github.com/Gaoithe/bgttoolbox
+### have restored it but removed last mirror add now
+
+### NOW, how to import a repo to another:
+cd bgt2
+# pull last changes to local
+git pull https://gaoithe@github.com/Gaoithe/bgttoolbox
+ls 
+git status # shows Your branch is ahead of 'origin/master' by 32 commits.
+git push
+### what was local in bgt1 is now in repo proper. 
+
+Test:
+[james@nebraska bgt_test1]$ history |tail -20
+mkdir bgt_test1
+cd bgt_test1
+git init
+1075  2014-06-20 10:12:38 vi README 
+1076  2014-06-20 10:14:00 git add README
+1077  2014-06-20 10:14:28 git commit -m"add README with git push --mirror problem info" README
+1089  2014-06-20 10:16:16 git mv README{,_import_git_repo_to_another} 
+1091  2014-06-20 10:16:31 git commit -m"rename git import README" 
+1092  2014-06-20 10:16:40 git status
+1093  2014-06-20 10:16:43 vi README_import_git_repo_to_another 
+1094  2014-06-20 10:18:38 history |tail -20
+
+
+1004  2014-06-20 09:39:36 cd ..
+1005  2014-06-20 09:39:45 cat bgttoolbox/.git/coinf
+1006  2014-06-20 09:39:47 cat bgttoolbox/.git/conf
+1007  2014-06-20 09:39:50 cat bgttoolbox/.git/config
+1008  2014-06-20 09:40:01 git clone https://gaoithe@github.com/Gaoithe/bgttoolbox
+1009  2014-06-20 09:40:08 git clone https://gaoithe@github.com/Gaoithe/bgttoolbox bgttoolbox_LATER
+1010  2014-06-20 09:40:17 ls bgttoolbox_LATER/
+1011  2014-06-20 09:40:27 cd bgttoolbox_LATER/
+1012  2014-06-20 09:40:33 git log
+1013  2014-06-20 09:41:00 cd ../bgttoolbox
+1014  2014-06-20 09:41:01 ls
+1015  2014-06-20 09:41:09 bit status
+1016  2014-06-20 09:41:12 git status
+1017  2014-06-20 09:41:41 git push --mirror https://gaoithe@github.com/Gaoithe/bgttoolbox bgttoolbox_LATER
+1018  2014-06-20 09:41:50 git push --mirror https://gaoithe@github.com/Gaoithe/bgttoolbox
+1019  2014-06-20 09:42:17 ls
+1020  2014-06-20 09:42:24 git log
+1021  2014-06-20 09:44:20 git branch -a
+1022  2014-06-20 09:46:05 git for-each-ref refs/remotes/origin | while read sha type name; do git branch "rescue_$(basename "$name")" "$sha"; done
+1023  2014-06-20 09:46:08 git status
+1024  2014-06-20 09:46:29 git branch -a
+1025  2014-06-20 09:46:42 git checkout rescue_HEAD
+1026  2014-06-20 09:46:53 git diff
+1027  2014-06-20 09:47:06 git status
+1028  2014-06-20 09:47:30 git commit -m"gruu test and notes update" src/c_misc/TC_mas_contact_gruu.c src/c_misc/TC_mas_contact_gruu.log
+1029  2014-06-20 09:47:42 git checkout rescue_HEAD
+1030  2014-06-20 09:47:44 ls
+1031  2014-06-20 09:47:49 ls bin
+1032  2014-06-20 09:48:00 ls src
+1033  2014-06-20 09:48:03 git branch
+1034  2014-06-20 09:48:12 git checkout rescue_master
+1035  2014-06-20 09:48:15 ls
+1036  2014-06-20 09:48:27 git checkout master
+1037  2014-06-20 09:48:31 git status
+1038  2014-06-20 09:48:35 ls 
+1039  2014-06-20 09:48:36 ls -al
+1040  2014-06-20 09:48:51 git pull
+1041  2014-06-20 09:48:54 ls
+1042  2014-06-20 09:48:59 git branch -a
+1043  2014-06-20 09:49:10 git checkout remotes/origin/master
+1044  2014-06-20 09:49:23 ls
+1045  2014-06-20 09:49:31 git checkout remotes/origin/HEAD
+1046  2014-06-20 09:49:34 ls
+1047  2014-06-20 09:49:40 git checkout master
+1048  2014-06-20 09:49:42 ls
+1049  2014-06-20 09:50:01 git push --help
+1050  2014-06-20 09:53:10 cd ../bgttoolbox_LATER/
+1051  2014-06-20 09:53:11 ls
+1052  2014-06-20 09:53:37 git push https://gaoithe@github.com/Gaoithe/bgttoolbox
+1053  2014-06-20 09:54:03 git push --help
+1054  2014-06-20 09:54:17 git push --all https://gaoithe@github.com/Gaoithe/bgttoolbox
+1055  2014-06-20 09:55:06 git push --help
+1056  2014-06-20 09:57:29 git push --all https://gaoithe@github.com/Gaoithe/bgttoolbox master
+1057  2014-06-20 09:57:38 git push https://gaoithe@github.com/Gaoithe/bgttoolbox master
+1058  2014-06-20 09:58:08 git pull https://gaoithe@github.com/Gaoithe/bgttoolbox 
+1059  2014-06-20 09:58:17 ls
+1060  2014-06-20 09:58:21 git status
+1061  2014-06-20 09:59:09 git push
+1062  2014-06-20 09:59:23 git ull
+1063  2014-06-20 09:59:27 git pull
+1064  2014-06-20 09:59:29 ls
+1065  2014-06-20 09:59:31 git status
+1066  2014-06-20 09:59:38 cd ../bgttoolbox
+1067  2014-06-20 09:59:41 git pull
+1068  2014-06-20 09:59:48 ls -al
+1069  2014-06-20 09:59:53 history
+[james@nebraska bgttoolbox]$ 
 
 
