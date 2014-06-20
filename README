@@ -1,0 +1,24 @@
+Git import test.
+
+Doesn't work, loses all repo changes (MWAH!):
+    The method described here seems quite simple and has worked for me:https://help.github.com/articles/importing-an-external-git-repository
+
+    You can import directly from a local clone.
+
+    cd ~/src/clone_of_repo_to_import
+    git push --mirror https://github.com/username/repo_to_import_into
+    Enter authentication details if needed. That's all. Now clone or pull into clone of repo_to_import_into and each directory is there..
+
+    If you want all imported into a single top directory then move them into desired position in original repo before you do the import. e.g.
+
+    cd ~/src/clone_of_repo_to_import
+    mkdir topDir
+    git add topDir
+    git mv this that and the other topDir/
+    git commit -m"move things into topDir in preparation for exporting into new repo"
+    git push --mirror https://github.com/username/repo_to_import_into
+
+http://stackoverflow.com/questions/1683531/how-to-import-existing-git-repository-into-another
+
+
+
