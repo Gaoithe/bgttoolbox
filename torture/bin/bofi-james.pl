@@ -6,10 +6,10 @@ use Finance::Bank::IE::BankOfIreland;
 
 # fill out as appropriate
 my %config = (
-              "user" => "632379",
-              "pin" => "815700",
-              "contact" => "7267",
-              "dob" => "23/06/1973",
+              "user" => "######",
+              "pin" => "######",
+              "contact" => "####",
+              "dob" => "##########",
               "croak" => 1
              );
 
