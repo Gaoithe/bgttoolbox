@@ -295,17 +295,40 @@ Window::Window()
         connect(rotationAngleSpinBox, SIGNAL(valueChanged(int)), *it, SLOT(setRotationAngle(int)));
     }
 
-    QGridLayout *topLayout = new QGridLayout;
+    /*
+     *   0  1  2  3  4  5  6  7  8  9
+     * 0 x  x  x     Calendar Calendar
+     * 0 x  x  x     Calendar Calendar
+     * 0 x  x  x     Calendar Calendar
+     * 0 x  x  x     Calendar Calendar
+     * 0 x  x  x     Calendar Calendar
+     * 0 x  x  x     Calendar Calendar
+     * 1 f  fffffff
+     * 2 g  c  t c
+     * 3 p  pwsbpws
+     * 4 pc pccbpcc
+     * 5 r  rasbras
+     * 6
+     * 7
+     * 8
+     * 9
+     *
+     * */
 
+    /* in 3 columns add all the funny shapes in one layout*/
+    QGridLayout *topLayout = new QGridLayout;
     int i=0;
     for(QList<RenderArea*>::iterator it = renderAreas.begin(); it != renderAreas.end(); it++, i++)
         topLayout->addWidget(*it, i / 3, i % 3);
 
     QGridLayout *mainLayout = new QGridLayout;
-    mainLayout->addLayout(calLayout, 0, 0, 1, 1);
+
+    //if add calLayout and topLayout to mainLayout same row,col 0,0 they overlap
+    //mainLayout->addLayout(calLayout, 0, 0, 1/*rowspan*/, 1/*colspan*/ /*alignment=0*/);
+
     mainLayout->addLayout(topLayout, 0, 0, 1, 4);
     mainLayout->addWidget(fillRuleLabel, 1, 0);
-    mainLayout->addWidget(fillRuleComboBox, 1, 1, 1, 3);
+    mainLayout->addWidget(fillRuleComboBox, 1/*fromrow*/, 1/*fromcol*/, 1/*rowspan*/, 3/*colspan*/);
     mainLayout->addWidget(fillGradientLabel, 2, 0);
     mainLayout->addWidget(fillColor1ComboBox, 2, 1);
     mainLayout->addWidget(fillToLabel, 2, 2);
@@ -317,8 +340,17 @@ Window::Window()
     mainLayout->addWidget(rotationAngleLabel, 5, 0);
     mainLayout->addWidget(rotationAngleSpinBox, 5, 1, 1, 3);
 
+    QGridLayout *calLayout = makeCalendarStuff();
+    mainLayout->addLayout(calLayout, 0, 4, 1/*rowspan*/, 5/*colspan*/ /*alignment=0*/);
+
+    int debug = 0;
+    if (debug == 1) {
+        QPushButton *mPB = new QPushButton(tr("0014"));
+        mainLayout->addWidget(mPB, 0, 0, 1, 4);
+    }
+
     QPushButton *mPushButton1;
-    mPushButton1 = new QPushButton(tr("SuDoKu"));
+    mPushButton1 = new QPushButton(tr("SuDoKu iKKu 1"));
     //mPushButton = new QPushButton(textPath);
     QPixmap pixmap(100,100);
     pixmap.fill(QColor("transparent"));

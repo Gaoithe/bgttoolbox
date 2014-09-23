@@ -102,7 +102,7 @@ void setFocusxy() {
 #include "SudokuSolve.h"
 #include "SudokuLoad.h"
 
-int main(int argc, char *argv[]) {
+int sudokumain(int argc, char *argv[]) {
    int e;   char c;
    init(); initgrps(); 
    helpstatus=0; font=0;
