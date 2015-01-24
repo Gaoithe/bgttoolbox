@@ -19,3 +19,7 @@ unix:!mac:!vxworks:!integrity:LIBS += -lm
 # install
 target.path = sudokuikku
 INSTALLS += target
+
+NOT_USED = \
+    spreadsheet.h \
+    spreadsheet.cpp \
