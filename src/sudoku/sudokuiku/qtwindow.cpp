@@ -5,6 +5,13 @@
 
 #include <math.h>
 
+char *itoa(int i)
+{
+    static char s[200];
+    sprintf(s,"%d",i);
+    return s;
+}
+
 class QPushButtonPaint:QPushButton
 {
 public:
@@ -20,7 +27,7 @@ void QPushButtonPaint::paintEvent(QPaintEvent* Paint)
 
 const float Pi = 3.14159f;
 
-Window::Window()
+QPainterPath qpp_rectPath()
 {
     QPainterPath rectPath;
     rectPath.moveTo(20.0, 30.0);
@@ -28,7 +35,11 @@ Window::Window()
     rectPath.lineTo(80.0, 70.0);
     rectPath.lineTo(20.0, 70.0);
     rectPath.closeSubpath();
+    return rectPath;
+}
 
+QPainterPath qpp_roundRectPath()
+{
     QPainterPath roundRectPath;
     roundRectPath.moveTo(80.0, 35.0);
     roundRectPath.arcTo(70.0, 30.0, 10.0, 10.0, 0.0, 90.0);
@@ -39,23 +50,39 @@ Window::Window()
     roundRectPath.lineTo(75.0, 70.0);
     roundRectPath.arcTo(70.0, 60.0, 10.0, 10.0, 270.0, 90.0);
     roundRectPath.closeSubpath();
+    return roundRectPath;
+}
 
+QPainterPath qpp_ellipsePath()
+{
     QPainterPath ellipsePath;
     ellipsePath.moveTo(80.0, 50.0);
     ellipsePath.arcTo(20.0, 30.0, 60.0, 40.0, 0.0, 360.0);
+    return ellipsePath;
+}
 
+QPainterPath qpp_piePath()
+{
     QPainterPath piePath;
     piePath.moveTo(50.0, 50.0);
     piePath.arcTo(20.0, 30.0, 60.0, 40.0, 60.0, 240.0);
     piePath.closeSubpath();
+    return piePath;
+}
 
+QPainterPath qpp_polygonPath()
+{
     QPainterPath polygonPath;
     polygonPath.moveTo(10.0, 80.0);
     polygonPath.lineTo(20.0, 10.0);
     polygonPath.lineTo(80.0, 30.0);
     polygonPath.lineTo(90.0, 70.0);
     polygonPath.closeSubpath();
+    return polygonPath;
+}
 
+QPainterPath qpp_groupPath()
+{
     QPainterPath groupPath;
     groupPath.moveTo(60.0, 40.0);
     groupPath.arcTo(20.0, 20.0, 40.0, 40.0, 0.0, 360.0);
@@ -64,77 +91,11 @@ Window::Window()
     groupPath.lineTo(80.0, 80.0);
     groupPath.lineTo(80.0, 40.0);
     groupPath.closeSubpath();
+    return groupPath;
+}
 
-    QPainterPath textPath;
-    QFont timesFont("Times", 50);
-    timesFont.setStyleStrategy(QFont::ForceOutline);
-    textPath.addText(10, 70, timesFont, tr("Qt"));
-
-    QPainterPath textPath1;
-    textPath1.addText(10, 70, timesFont, tr("1"));
-
-    QPainterPath textPath2;
-    textPath2.addText(10, 70, timesFont, tr("2"));
-
-    QPainterPath textPath3;
-    textPath3.addText(10, 70, timesFont, tr("s u d o k u"));
-
-    QPainterPath bezierPath;
-    bezierPath.moveTo(20, 30);
-    bezierPath.cubicTo(80, 0, 50, 50, 80, 80);
-
-    QPainterPath starPath;
-    starPath.moveTo(90, 50);
-    for (int i = 1; i < 5; ++i) {
-        starPath.lineTo(50 + 40 * cos(0.8 * i * Pi),
-                        50 + 40 * sin(0.8 * i * Pi));
-    }
-    starPath.closeSubpath();
-
-    int jNCount = 0;
-
-    QPainterPath starsPath[20];
-        int j=0;
-
-        // pentagon 108 (= 54 + 54) + 72 degrees, 36 + 36 + 36 + 36 + 36 = 180 degrees pentagram
-        // what is 0.8 * Pi ?? 4 5ths of Pi. ??
-        // Pi * 1 radian = 180 degrees
-
-        /*
-         * 0.8 * Pi = 144 degrees (= 36 * 4)
-         *
-        i=0 ang=0                     x=90       ,y=50
-        i=1 ang=144.000000=144.000000 x=17.639368,y=73.511476
-        i=2 ang=288.000000=288.000000 x=62.360525,y=11.957689
-        i=3 ang=432.000000=72.000000 x=62.360911,y=88.042185
-        i=4 ang=576.000000=216.000000 x=17.639129,y=26.488852
-
-        i to 5 and 0.8 pi   4 5ths
-        i to 7 and ?        6 7ths?
-          */
-        // 5 is pretty, 7 is pretty, 9 is wonky? what is the sequence?
-        int points = 5;
-
-        for (j=5;j<20;j++) {
-
-            float angle = (float(points - 1)/float(points)) * Pi;
-            //i = 0;
-            starsPath[j].moveTo(90, 50);
-            for (int i = 1; i < points; ++i) {
-                qreal xb,yb;
-                starsPath[j].lineTo(xb = 50 + 40 * cos(i * angle),
-                                yb = 50 + 40 * sin(i * angle));
-                printf("j=%d i=%d ang=%f=%f x=%f,y=%f \n",j,i,0.8*i*180,fmod(0.8*i*180,360),xb,yb);
-            }
-            starsPath[j].closeSubpath();
-            renderAreas.push_back(new RenderArea(starsPath[j]));
-            jNCount++;
-
-            points ++;
-        }
-
-    // TODO: draw a cog object to act as settings button
-    // TODO: maybe better using arcs simpler, . . .
+QPainterPath qpp_cogPath()
+{
     QPainterPath cogPath;
     cogPath.moveTo(90, 50);
     qreal xo = 90;
@@ -231,6 +192,115 @@ Window::Window()
         xo = x; yo = y;
     }
     cogPath.closeSubpath();
+    return cogPath;
+}
+
+QPainterPath qpp_starPath()
+{
+    QPainterPath starPath;
+    starPath.moveTo(90, 50);
+    for (int i = 1; i < 5; ++i) {
+        starPath.lineTo(50 + 40 * cos(0.8 * i * Pi),
+                        50 + 40 * sin(0.8 * i * Pi));
+    }
+    starPath.closeSubpath();
+    return starPath;
+}
+
+QPainterPath qpp_starsPath(int j)
+{
+    QPainterPath starsPath;
+
+        // pentagon 108 (= 54 + 54) + 72 degrees, 36 + 36 + 36 + 36 + 36 = 180 degrees pentagram
+        // what is 0.8 * Pi ?? 4 5ths of Pi. ??
+        // Pi * 1 radian = 180 degrees
+
+        /*
+         * 0.8 * Pi = 144 degrees (= 36 * 4)
+         *
+        i=0 ang=0                     x=90       ,y=50
+        i=1 ang=144.000000=144.000000 x=17.639368,y=73.511476
+        i=2 ang=288.000000=288.000000 x=62.360525,y=11.957689
+        i=3 ang=432.000000=72.000000 x=62.360911,y=88.042185
+        i=4 ang=576.000000=216.000000 x=17.639129,y=26.488852
+
+        i to 5 and 0.8 pi   4 5ths
+        i to 7 and ?        6 7ths?
+          */
+        // 5 is pretty, 7 is pretty, 9 is wonky? what is the sequence?
+        int points = 5 + j;
+
+            float angle = (float(points - 1)/float(points)) * Pi;
+            //i = 0;
+            starsPath.moveTo(90, 50);
+            for (int i = 1; i < points; ++i) {
+                qreal xb,yb;
+                starsPath.lineTo(xb = 50 + 40 * cos(i * angle),
+                                yb = 50 + 40 * sin(i * angle));
+                printf("j=%d i=%d ang=%f=%f x=%f,y=%f \n",j,i,0.8*i*180,fmod(0.8*i*180,360),xb,yb);
+            }
+            starsPath.closeSubpath();
+
+    return starsPath;
+}
+
+Window::Window()
+{
+    QPainterPath rectPath = qpp_rectPath();
+
+    QPainterPath roundRectPath = qpp_roundRectPath();
+
+    QPainterPath ellipsePath = qpp_ellipsePath();
+
+    QPainterPath piePath = qpp_piePath();
+
+    QPainterPath polygonPath = qpp_polygonPath();
+
+    QPainterPath groupPath = qpp_groupPath();
+
+    QPainterPath textPath[9*9];
+    QFont timesFont("Times", 50);
+    timesFont.setStyleStrategy(QFont::ForceOutline);
+    textPath[0].addText(10, 70, timesFont, tr("Qt"));
+
+    //QPainterPath textPath1;
+    textPath[1].addText(10, 70, timesFont, tr("1"));
+
+    //QPainterPath textPath2;
+    textPath[2].addText(10, 70, timesFont, tr("2"));
+
+    //QPainterPath textPath3;
+    textPath[3].addText(10, 70, timesFont, tr("s u d o k u"));
+
+    for (int it=4;it<14;it++) {
+       textPath[it].addText(10, 70, timesFont, tr(itoa(it)));
+    }
+
+    QPainterPath bezierPath;
+    bezierPath.moveTo(20, 30);
+    bezierPath.cubicTo(80, 0, 50, 50, 80, 80);
+
+    QPainterPath starPath = qpp_starPath();
+
+    /*************************************************/
+    /* start count of widgets
+     *
+     *
+     * */
+    int jNCount = 0;
+
+    QPainterPath starsPath[20];
+    for (int j=5;j<20;j++) {
+        starsPath[j] = qpp_starsPath(j);
+        renderAreas.push_back(new RenderArea(starsPath[j]));
+        jNCount++;
+    }
+
+    // TODO: draw a cog object to act as settings button
+    // TODO: maybe better using arcs simpler, . . .
+    QPainterPath cogPath[2];
+    cogPath[0] = qpp_cogPath();
+    cogPath[1] = qpp_cogPath();
 
     renderAreas.push_back(new RenderArea(rectPath));
     jNCount++;
@@ -244,19 +314,17 @@ Window::Window()
     jNCount++;
     renderAreas.push_back(new RenderArea(groupPath));
     jNCount++;
-    renderAreas.push_back(new RenderArea(textPath));
-    jNCount++;
-    renderAreas.push_back(new RenderArea(textPath1));
-    jNCount++;
-    renderAreas.push_back(new RenderArea(textPath2));
-    jNCount++;
-    renderAreas.push_back(new RenderArea(textPath3));
-    jNCount++;
+    for (int it=0;it<14;it++) {
+       renderAreas.push_back(new RenderArea(textPath[it]));
+       jNCount++;
+    }
     renderAreas.push_back(new RenderArea(bezierPath));
     jNCount++;
     renderAreas.push_back(new RenderArea(starPath));
     jNCount++;
-    renderAreas.push_back(new RenderArea(cogPath));
+    renderAreas.push_back(new RenderArea(cogPath[0]));
+    jNCount++;
+    renderAreas.push_back(new RenderArea(cogPath[1]));
     jNCount++;
 
     /*
@@ -339,11 +407,16 @@ Window::Window()
      * 8
      * 9
      *
+     * 15 starsPath
+     * rect rect ellipse circ-arc poly circ+sq
+     * Qt 1 2 s u curve star wonkystar
+     *
+     *
      * */
 
-     #include <string>
-     using namespace std;
-     //#include <string.h>
+    #include <string>
+    using namespace std;
+    //#include <string.h>
 
     /* in 3 columns add all the funny shapes in one layout*/
     QGridLayout *topLayout = new QGridLayout;
