@@ -2,7 +2,7 @@
 
 '''
 # inject to perimeta hss gateway port
-python ~/proj_facebook/sip_options.py -p 6060 -h 192.168.116.63
+python ~/bin/sip_options.py -p 6060 -h 192.168.116.63
 python sip_options.py -p 6060 -h 192.168.116.63
 
 # on perimeta
@@ -107,6 +107,23 @@ Content-Length: 0\r
 \r
 """
 
+dataOptions200ok = \
+"""SIP/2.0 200 OK
+Via: SIP/2.0/TCP 10.1.2.60:6060;received=83.71.251.187;branch=z9hG4bK+30802d8f614114b8d72a5d9450d66f241+sip+1+a64e7919
+Record-Route: <sip:83.71.251.187:6060;lr>
+Call-ID: 0gQAAC8WAAACBAAALxYAABocc+WSwN3H3ir1ObmGz4OdXKV+yTn2dx9L7yoW6PAo6pm4GQxY5q7FaE0n3x5G1A--@10.1.2.60
+From: <sip:+353861953134@openims.test>;tag=10.1.2.60+1+b5954781+a4a984b3
+To: <sip:+353894468340@openims.test;user=phone>;tag=z9hG4bK+30802d8f614114b8d72a5d9450d66f241+sip+1+a64e7919
+CSeq: 422 OPTIONS
+Allow: PRACK, INFO, INVITE, ACK, BYE, CANCEL, UPDATE, SUBSCRIBE, NOTIFY, REFER, MESSAGE, OPTIONS
+Supported: replaces, 100rel, timer, norefersub
+User-Agent: IM-client/OMA1.0 HTC/saga-2.3.5 RCSAndrd/2.5.2 COMLib/3.5.5
+Contact: <sip:+353894468340@192.168.128.211:42778;transport=TCP;ob>;+g.3gpp.iari-ref="urn%3Aurn-7%3A3gpp-application.ims.iari.joyn.intmsg,urn%3Aurn-7%3A3gpp-application.ims.iari.rcs.fthttp,urn%3Aurn-7%3A3gpp-application.ims.iari.rcse.ft,urn%3Aurn-7%3A3gpp-application.ims.iari.rcse.im,urn%3Aurn-7%3A3gpp-application.ims.iari.rcse.stickers";+g.3gpp.icsi-ref="urn%3Aurn-7%3A3gpp-service.ims.icsi.mmtel";+g.gsma.rcs.ipcall;video
+Accept: application/sdp
+Content-Length:  0
+
+"""
+
 
 class options:
     def __init__(self):
@@ -156,7 +173,8 @@ class options:
         return msg
 
     def createSIPOptions(self):
-        self.data = dataRegister1
+        #self.data = dataRegister1
+        self.data = dataOptions200ok
 
     def sendSIPOptions(self):
         if self.data == '':

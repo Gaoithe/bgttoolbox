@@ -4,7 +4,18 @@ CMD=$1
 shift
 #echo CMD=$CMD
 
-rm cerevesa.stderr
+BRANCH=$2
+shift
+
+BRANCHOPT=
+[[ "$BRANCH" != "" ]] && BRANCHOPT="-r $BRANCH" 
+#logrotate cerevesa.stdout
+#logrotate cerevesa.stderr
+
+SKIPS="TOMCAT|MOS-WEB|JBOSS|openldap-pkg"
+SKIPS="MOS-WEB|JBOSS|openldap-pkg"
+
+[[ -f cerevesa.stderr ]] && rm -rf cerevesa.stderr
 case $CMD in
  "diff")
   for i in $*; do 
@@ -16,10 +27,101 @@ case $CMD in
    cvs st $i 2>>cerevesa.stderr |grep Status: |grep -v "tatus: Up-to-date"
   done
   ;;
+ "st2"|"status2")
+  for i in $*; do 
+   cvs -nq up $BRANCHOPT -dP $i 2>>cerevesa.stderr |grep -v ^?
+  done
+  ;;
  "up"|"update")
   for i in $*; do 
-   cvs -nq up -dP $i 2>>cerevesa.stderr |grep -v ^?
+   cvs -q up $BRANCHOPT -dP $i 2>>cerevesa.stderr |grep -v ^?
   done
+  ;;
+ "comods"|"comod"|"upall"|"stall"|"stall2"|"diffall")
+
+  case $CMD in
+   "comods"|"comod"|"upall"|"stall"|"stall2"|"diffall")
+    CMD2=co
+    ;;
+   "upall")
+    CMD2=up
+    ;;
+   "stall"|"stall2"|"diffall")
+    CMD2=st
+    ;;
+   "diff"|"diffall")
+    CMD2=diff
+    ;;
+  esac;
+
+  echo "START $CMD" >> cerevesa.stderr
+  date >> cerevesa.stderr
+  # update all in mod.list
+  if [[ -e mod.list ]]; then
+      #BRUTAL but SO FAST without the sleep 1:   
+      #A BUNCH OF MODULES ARE SLOW. So you will see jerky/hanging waiting for a module sometimes.
+      # the sleep 1 in here slows it down a bit.
+
+      JOBLOWERLIMIT=10
+      JOBSLOWERLIMIT=50
+      jobs
+      JOBCOUNTB4=$(jobs |wc -l)
+      for md in $(cat mod.list |grep -Ev $SKIPS ); do 
+          jobs
+          time cvs $CMD2 $BRANCHOPT $md &
+          ##time cvs $CMD2 $md 2>>cerevesa.stderr 1>>cerevesa.stdout &
+          # wait for first job, don't allow more than 5
+          # DEV: a 'wait %1' occasionally hits a job bnot found and error 127 returned and jenkins will fail if it hits that.
+          # DEV: a plain 'wait' will slow things down (wait for all jobs to finish before carrying on to next batch) but might work
+          # DEV:   only if JOBCOUNTB4 = 0
+          [[ $(jobs |wc -l) > $JOBLOWERLIMIT ]] && {
+              jobs;
+              JOBCOUNT=$(jobs |wc -l);
+              echo "JOBCOUNT=$JOBCOUNT, wait . . . ";
+              wait; 
+              jobs;
+              JOBCOUNT=$(jobs |wc -l);
+              echo "JOBCOUNT=$JOBCOUNT after wait.";
+          }; 
+          # need this sleep so jobs list ??? makes it slow :-(
+          [[ $(jobs |wc -l) > $JOBSLOWERLIMIT ]] && sleep 1; 
+      done
+      # monitor the aftermath 
+      while [[ $(jobs |wc -l) > $JOBCOUNTB4 ]]; do
+          jobs |wc -l
+          echo JOBCOUNTB4=$JOBCOUNTB4
+          jobs |tee -a cvs_${CMD2}_the_slow_modules.log
+          ps -elf |grep cvs | tee -a cvs_${CMD2}_the_slow_modules.log
+          sleep 5;
+      done
+  else
+    echo "error: no mod.list, nothing done."
+  fi
+  echo "END comods" >> cerevesa.stderr
+
+  ;;
+ "upallB")
+  #find . -maxdepth 1 -type d |xargs 
+  for d in $(find . -maxdepth 1 -type d); do echo cvs up $BRANCHOPT $d; cvs -nq up $BRANCHOPT -d -P $d 2>>cerevesa.stderr; done |tee -a cerevesa.stdout
+  # individual updates seem to work better
+  #   cvs up $(grep -Ev "^\?|^cvs up" cerevesa.stdout |sed s/^.//)
+  ;;
+ "stallB")
+  #find . -maxdepth 1 -type d |xargs 
+  for d in $(find . -maxdepth 1 -type d); do echo cvs up $BRANCHOPT $d; cvs -nq up $BRANCHOPT -d -P $d 2>>cerevesa.stderr; done |tee -a cerevesa.stdout
+  ;;
+ "diffallB")
+  #find . -maxdepth 1 -type d |xargs 
+  rm diffall.patch
+  for d in $(find . -maxdepth 1 -type d); do 
+     echo cvs up $BRANCHOPT $d; 
+     cvs diff -u $d 2>>cerevesa.stderr |tee $d/${d}.patch; 
+     cat $d/${d}.patch >> diffall.patch; 
+  done |tee -a cerevesa.stdout
+  grep -v ^? diffall.patch |tee diffsummary.patch |grep "^Index:" |sed "s/^Index: //" |tee fileschanged.list 
+  echo see diffsummary.patch and fileschanged.list 
+  # individual updates seem to work better
+  #   cvs up $(grep -Ev "^\?|^cvs up" cerevesa.stdout |sed s/^.//)
   ;;
  *)
   cvs $CMD $*

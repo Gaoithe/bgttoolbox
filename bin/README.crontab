@@ -1,0 +1,7 @@
+[james@nebraska bin]$ crontab -l
+# 20:30 daily, perform work backup
+30        20      *        *       *      ~/bin/work_bkup.sh >/tmp/work_bkup.out 2>&1
+
+# 20:00 daily. home bkup to LAN
+00        20      *        *       *      ~/bin/home_bkup.sh >/tmp/home_bkup.out 2>&1
+

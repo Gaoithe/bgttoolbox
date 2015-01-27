@@ -1,0 +1,45 @@
+PROVISION: /apps/omn/scripts/traffic_control_provision.pl
+
+WASCAL-USER: omn omn omn
+
+ROOSTA-AS: ROUTER   localhost 10001 GT353862003000,PC1001 -m3ua -pc 1001 -rctxt 1001
+ROOSTA-AS: SWITCH   localhost 10002 GT35386*,PC1002       -m3ua -pc 1002 -rctxt 1002
+ROOSTA-AS: FRN-SMSC localhost 10003 GT35385*,PC1003       -m3ua -pc 1003 -rctxt 1003
+ROOSTA: localhost 2905 -src-route FRN-SMSC GT* ROUTER -src-route SWITCH GT* ROUTER -as ROUTER,SWITCH,FRN-SMSC -pc 9999
+ROOSTA: localhost 2905 -src-route asteroid GT* router -src-route songa GT* router -as router,asteroid,songa -pc 9999
+
+FROSTI: localhost   localhost 10001 2905 353862003000 1001 -m3ua -sg_pc 9999 -allow_looping
+FROSTI: localhost-b localhost 10002 2905 353862003001 1002 -m3ua -sg_pc 9999 -allow_looping -frosti_suffix -b
+FROSTI: localhost-c localhost 10003 2905 353852003000 1003 -m3ua -sg_pc 9999 -allow_looping -frosti_suffix -c
+FROSTI: localhost-asteroid   localhost 10002 2905 353862003001 1002 -m3ua -sg_pc 9999 -allow_looping -frosti_suffix -asteroid
+FROSTI: localhost-songa      localhost 10003 2905 353852003000 1003 -m3ua -sg_pc 9999 -allow_looping -frosti_suffix -songa
+
+PROC: hlr-O2        localhost bin/asteroid     -frosti_suffix -b
+PROC: garson-Meteor localhost bin/garson       -frosti_suffix -c -app_str Meteor
+PROC: garson-msc-O2 localhost bin/garson       -frosti_suffix -b -app_str O2 -msc
+PROC: frosti-b-1    localhost bin/frosti_tonto -frosti_suffix -b
+PROC: frosti-c-1    localhost bin/frosti_tonto -frosti_suffix -c
+PROC: frosti-asteroid        localhost bin/frosti_tonto -frosti_suffix -asteroid
+PROC: frosti-songa           localhost bin/frosti_tonto -frosti_suffix -songa
+PROC: hlr                    localhost bin/asteroid     -frosti_suffix -asteroid
+PROC: msc                    localhost bin/asteroid     -frosti_suffix -asteroid
+PROC: songa                  localhost bin/songa        -frosti_suffix -songa
+
+RMPROC: songa-1
+
+ASTEROID-HLR: hlr-O2 353862003002 27202 15 3538620031 11 0 27
+ASTEROID-HLR:  hlr  353869999002 272010 15 3538699991                  11 0 27
+ASTEROID-MSC:  msc  353869999002 35386  12 35386000301 35386 12 272010 15 0 31
+
+
+ISR-ADD-MAPPING: dummy * MSISDN IMSI-MSC-Pair "Drill GSM" 1 0 0 0
+ISR-ADD-MAPPING: dummy * MSISDN IMSI-Via-SRI  "Drill GSM" 1 0 0 0
+ISR-COMMIT-MAPPINGS: dummy
+
+UPDATE CRB-GWID: MN-GWID 353862003001 353862003002 0
+UPDATE CRB-GWID: MN-GWID-For-SRISM 353862003001 353862003002 0
+UPDATE CRB-IWID: default 353862003001 353862003002
+UPDATE CRB-IWID: MN-IWID-For-Home-Routing 353862003001 353862003002
+UPDATE CRB-IWID: MN-IWID-For-PROFILE-Forwarding 353862003001 353862003002
+UPDATE CRB-IWID: MN-IWID-For-Virtual-Terminal 353862003001 353862003002
+UPDATE CRB-SMSC-INFO: SMSC 353862003001 353862003002
