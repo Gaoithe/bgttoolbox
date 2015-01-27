@@ -284,7 +284,7 @@ Window::Window()
 
     /*************************************************/
     /* start count of widgets
-     *
+     * and start pushing them into renderArea
      *
      * */
     int jNCount = 0;
@@ -418,30 +418,82 @@ Window::Window()
     using namespace std;
     //#include <string.h>
 
-    /* in 3 columns add all the funny shapes in one layout*/
+    QFrame* hlineFrame = new QFrame();
+    hlineFrame->setFrameShape(QFrame::HLine);
+
+    /* in 3^H9 columns add all the funny shapes in one layout*/
     QGridLayout *topLayout = new QGridLayout;
     int iNCount=0;
-    for(QList<RenderArea*>::iterator it = renderAreas.begin(); it != renderAreas.end(); it++, iNCount++)
-        topLayout->addWidget(*it, iNCount / 9, iNCount % 9);
+    for(QList<RenderArea*>::iterator it = renderAreas.begin(); it != renderAreas.end(); it++, iNCount++) {
+        //topLayout->addWidget(*it, iNCount / 9, iNCount % 9);
+        // separating line
+        if(iNCount % 9 == 0) {
+            hlineFrame = new QFrame();
+            hlineFrame->setFrameShape(QFrame::HLine);
+            if ((iNCount/9)%3==0) hlineFrame->setLineWidth(3);
+            topLayout->addWidget(hlineFrame, (iNCount/9)*2, 0, 1, 10);
+        }
+        topLayout->addWidget(*it, (iNCount/9)*2 + 1, iNCount % 9);
+    }
+    hlineFrame = new QFrame();
+    hlineFrame->setFrameShape(QFrame::HLine);
+    //hlineFrame->setFrameStyle(QFrame::Box | QFrame::Plain);
+    hlineFrame->setLineWidth(3);
+    //hlineFrame->setContentsMargins(0, 0, 2, 2);
+    topLayout->addWidget(hlineFrame, (iNCount/9)*2+2, 0, 1, 10);
+
+    // add vertical seperators
+    for(int jColCount=0;jColCount<=9;jColCount++) {
+        QFrame* vlineFrame = new QFrame();
+        vlineFrame->setFrameShape(QFrame::VLine);
+        if (jColCount%3==0) vlineFrame->setLineWidth(3);
+        topLayout->addWidget(vlineFrame, 0, jColCount, (iNCount/9)*2+3, 1);
+    }
+
 
     QGridLayout *mainLayout = new QGridLayout;
 
-    mainLayout->addLayout(topLayout, 0, 0, 1, 4);
+    int imainrow = 0;
+    mainLayout->addLayout(topLayout, imainrow++, 0, 1, 4);
 
     //mainLayout->addWidget(*table, 0, 0, 1, 4);
 
-    mainLayout->addWidget(fillRuleLabel, 1, 0);
-    mainLayout->addWidget(fillRuleComboBox, 1/*fromrow*/, 1/*fromcol*/, 1/*rowspan*/, 3/*colspan*/);
-    mainLayout->addWidget(fillGradientLabel, 2, 0);
-    mainLayout->addWidget(fillColor1ComboBox, 2, 1);
-    mainLayout->addWidget(fillToLabel, 2, 2);
-    mainLayout->addWidget(fillColor2ComboBox, 2, 3);
-    mainLayout->addWidget(penWidthLabel, 3, 0);
-    mainLayout->addWidget(penWidthSpinBox, 3, 1, 1, 3);
-    mainLayout->addWidget(penColorLabel, 4, 0);
-    mainLayout->addWidget(penColorComboBox, 4, 1, 1, 3);
-    mainLayout->addWidget(rotationAngleLabel, 5, 0);
-    mainLayout->addWidget(rotationAngleSpinBox, 5, 1, 1, 3);
+    mainLayout->addWidget(fillRuleLabel, imainrow, 0);
+    mainLayout->addWidget(fillRuleComboBox, imainrow++/*fromrow*/, 1/*fromcol*/, 1/*rowspan*/, 3/*colspan*/);
+
+    // test: separating line
+    hlineFrame = new QFrame();
+    hlineFrame->setFrameShape(QFrame::HLine);
+    mainLayout->addWidget(hlineFrame, imainrow++, 0, 1, 4);
+
+    mainLayout->addWidget(fillGradientLabel, imainrow, 0);
+    mainLayout->addWidget(fillColor1ComboBox, imainrow, 1);
+    mainLayout->addWidget(fillToLabel, imainrow, 2);
+    mainLayout->addWidget(fillColor2ComboBox, imainrow++, 3);
+
+    // test: separating line
+    hlineFrame = new QFrame();
+    hlineFrame->setFrameShape(QFrame::HLine);
+    mainLayout->addWidget(hlineFrame, imainrow++, 0, 1, 4);
+
+    mainLayout->addWidget(penWidthLabel, imainrow, 0);
+    mainLayout->addWidget(penWidthSpinBox, imainrow++, 1, 1, 3);
+
+    // test: separating line
+    hlineFrame = new QFrame();
+    hlineFrame->setFrameShape(QFrame::HLine);
+    mainLayout->addWidget(hlineFrame, imainrow++, 0, 1, 4);
+
+    mainLayout->addWidget(penColorLabel, imainrow, 0);
+    mainLayout->addWidget(penColorComboBox, imainrow++, 1, 1, 3);
+
+    // test: separating line
+    hlineFrame = new QFrame();
+    hlineFrame->setFrameShape(QFrame::HLine);
+    mainLayout->addWidget(hlineFrame, imainrow++, 0, 1, 4);
+
+    mainLayout->addWidget(rotationAngleLabel, imainrow, 0);
+    mainLayout->addWidget(rotationAngleSpinBox, imainrow++, 1, 1, 3);
 
     int debug = 0;
     if (debug == 1) {

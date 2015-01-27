@@ -1,5 +1,11 @@
 // Sudoku
 // for PalmIII & PocketC - James.
+
+#include <string>
+using namespace string;
+
+#include "pocketc.h"
+
 #include "atoi.h"
 int x,y,i,j,idx,v; //used so often, not static
 int oldi,oldj; //static
