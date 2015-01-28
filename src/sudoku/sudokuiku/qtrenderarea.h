@@ -26,8 +26,6 @@ public slots:
 protected:
     void paintEvent(QPaintEvent *event);
 
-
-
 private:
     QPainterPath path;
     QColor fillColor1;

@@ -5,6 +5,13 @@
 
 #include <math.h>
 
+char *itoa(int i)
+{
+    static char s[200];
+    sprintf(s,"%d",i);
+    return s;
+}
+
 class QPushButtonPaint:QPushButton
 {
 public:
@@ -20,7 +27,7 @@ void QPushButtonPaint::paintEvent(QPaintEvent* Paint)
 
 const float Pi = 3.14159f;
 
-Window::Window()
+QPainterPath qpp_rectPath()
 {
     QPainterPath rectPath;
     rectPath.moveTo(20.0, 30.0);
@@ -28,7 +35,11 @@ Window::Window()
     rectPath.lineTo(80.0, 70.0);
     rectPath.lineTo(20.0, 70.0);
     rectPath.closeSubpath();
+    return rectPath;
+}
 
+QPainterPath qpp_roundRectPath()
+{
     QPainterPath roundRectPath;
     roundRectPath.moveTo(80.0, 35.0);
     roundRectPath.arcTo(70.0, 30.0, 10.0, 10.0, 0.0, 90.0);
@@ -39,23 +50,39 @@ Window::Window()
     roundRectPath.lineTo(75.0, 70.0);
     roundRectPath.arcTo(70.0, 60.0, 10.0, 10.0, 270.0, 90.0);
     roundRectPath.closeSubpath();
+    return roundRectPath;
+}
 
+QPainterPath qpp_ellipsePath()
+{
     QPainterPath ellipsePath;
     ellipsePath.moveTo(80.0, 50.0);
     ellipsePath.arcTo(20.0, 30.0, 60.0, 40.0, 0.0, 360.0);
+    return ellipsePath;
+}
 
+QPainterPath qpp_piePath()
+{
     QPainterPath piePath;
     piePath.moveTo(50.0, 50.0);
     piePath.arcTo(20.0, 30.0, 60.0, 40.0, 60.0, 240.0);
     piePath.closeSubpath();
+    return piePath;
+}
 
+QPainterPath qpp_polygonPath()
+{
     QPainterPath polygonPath;
     polygonPath.moveTo(10.0, 80.0);
     polygonPath.lineTo(20.0, 10.0);
     polygonPath.lineTo(80.0, 30.0);
     polygonPath.lineTo(90.0, 70.0);
     polygonPath.closeSubpath();
+    return polygonPath;
+}
 
+QPainterPath qpp_groupPath()
+{
     QPainterPath groupPath;
     groupPath.moveTo(60.0, 40.0);
     groupPath.arcTo(20.0, 20.0, 40.0, 40.0, 0.0, 360.0);
@@ -64,74 +91,11 @@ Window::Window()
     groupPath.lineTo(80.0, 80.0);
     groupPath.lineTo(80.0, 40.0);
     groupPath.closeSubpath();
+    return groupPath;
+}
 
-    QPainterPath textPath;
-    QFont timesFont("Times", 50);
-    timesFont.setStyleStrategy(QFont::ForceOutline);
-    textPath.addText(10, 70, timesFont, tr("Qt"));
-
-    QPainterPath textPath1;
-    textPath1.addText(10, 70, timesFont, tr("1"));
-
-    QPainterPath textPath2;
-    textPath2.addText(10, 70, timesFont, tr("2"));
-
-    QPainterPath textPath3;
-    textPath3.addText(10, 70, timesFont, tr("s u d o k u"));
-
-    QPainterPath bezierPath;
-    bezierPath.moveTo(20, 30);
-    bezierPath.cubicTo(80, 0, 50, 50, 80, 80);
-
-    QPainterPath starPath;
-    starPath.moveTo(90, 50);
-    for (int i = 1; i < 5; ++i) {
-        starPath.lineTo(50 + 40 * cos(0.8 * i * Pi),
-                        50 + 40 * sin(0.8 * i * Pi));
-    }
-    starPath.closeSubpath();
-
-    QPainterPath starsPath[20];
-        int j=0;
-
-        // pentagon 108 (= 54 + 54) + 72 degrees, 36 + 36 + 36 + 36 + 36 = 180 degrees pentagram
-        // what is 0.8 * Pi ?? 4 5ths of Pi. ??
-        // Pi * 1 radian = 180 degrees
-
-        /*
-         * 0.8 * Pi = 144 degrees (= 36 * 4)
-         *
-        i=0 ang=0                     x=90       ,y=50
-        i=1 ang=144.000000=144.000000 x=17.639368,y=73.511476
-        i=2 ang=288.000000=288.000000 x=62.360525,y=11.957689
-        i=3 ang=432.000000=72.000000 x=62.360911,y=88.042185
-        i=4 ang=576.000000=216.000000 x=17.639129,y=26.488852
-
-        i to 5 and 0.8 pi   4 5ths
-        i to 7 and ?        6 7ths?
-          */
-        // 5 is pretty, 7 is pretty, 9 is wonky? what is the sequence?
-        int points = 5;
-
-        for (j=5;j<20;j++) {
-
-            float angle = (float(points - 1)/float(points)) * Pi;
-            //i = 0;
-            starsPath[j].moveTo(90, 50);
-            for (int i = 1; i < points; ++i) {
-                qreal xb,yb;
-                starsPath[j].lineTo(xb = 50 + 40 * cos(i * angle),
-                                yb = 50 + 40 * sin(i * angle));
-                printf("j=%d i=%d ang=%f=%f x=%f,y=%f \n",j,i,0.8*i*180,fmod(0.8*i*180,360),xb,yb);
-            }
-            starsPath[j].closeSubpath();
-            renderAreas.push_back(new RenderArea(starsPath[j]));
-
-            points ++;
-        }
-
-    // TODO: draw a cog object to act as settings button
-    // TODO: maybe better using arcs simpler, . . .
+QPainterPath qpp_cogPath()
+{
     QPainterPath cogPath;
     cogPath.moveTo(90, 50);
     qreal xo = 90;
@@ -228,20 +192,150 @@ Window::Window()
         xo = x; yo = y;
     }
     cogPath.closeSubpath();
+    return cogPath;
+}
+
+QPainterPath qpp_starPath()
+{
+    QPainterPath starPath;
+    starPath.moveTo(90, 50);
+    for (int i = 1; i < 5; ++i) {
+        starPath.lineTo(50 + 40 * cos(0.8 * i * Pi),
+                        50 + 40 * sin(0.8 * i * Pi));
+    }
+    starPath.closeSubpath();
+    return starPath;
+}
+
+QPainterPath qpp_starsPath(int j)
+{
+    QPainterPath starsPath;
+
+        // pentagon 108 (= 54 + 54) + 72 degrees, 36 + 36 + 36 + 36 + 36 = 180 degrees pentagram
+        // what is 0.8 * Pi ?? 4 5ths of Pi. ??
+        // Pi * 1 radian = 180 degrees
+
+        /*
+         * 0.8 * Pi = 144 degrees (= 36 * 4)
+         *
+        i=0 ang=0                     x=90       ,y=50
+        i=1 ang=144.000000=144.000000 x=17.639368,y=73.511476
+        i=2 ang=288.000000=288.000000 x=62.360525,y=11.957689
+        i=3 ang=432.000000=72.000000 x=62.360911,y=88.042185
+        i=4 ang=576.000000=216.000000 x=17.639129,y=26.488852
+
+        i to 5 and 0.8 pi   4 5ths
+        i to 7 and ?        6 7ths?
+          */
+        // 5 is pretty, 7 is pretty, 9 is wonky? what is the sequence?
+        int points = 5 + j;
+
+            float angle = (float(points - 1)/float(points)) * Pi;
+            //i = 0;
+            starsPath.moveTo(90, 50);
+            for (int i = 1; i < points; ++i) {
+                qreal xb,yb;
+                starsPath.lineTo(xb = 50 + 40 * cos(i * angle),
+                                yb = 50 + 40 * sin(i * angle));
+                printf("j=%d i=%d ang=%f=%f x=%f,y=%f \n",j,i,0.8*i*180,fmod(0.8*i*180,360),xb,yb);
+            }
+            starsPath.closeSubpath();
+
+    return starsPath;
+}
+
+Window::Window()
+{
+    QPainterPath rectPath = qpp_rectPath();
+
+    QPainterPath roundRectPath = qpp_roundRectPath();
+
+    QPainterPath ellipsePath = qpp_ellipsePath();
+
+    QPainterPath piePath = qpp_piePath();
+
+    QPainterPath polygonPath = qpp_polygonPath();
+
+    QPainterPath groupPath = qpp_groupPath();
+
+    QPainterPath textPath[9*9];
+    QFont timesFont("Times", 50);
+    timesFont.setStyleStrategy(QFont::ForceOutline);
+    textPath[0].addText(10, 70, timesFont, tr("Qt"));
+
+    //QPainterPath textPath1;
+    textPath[1].addText(10, 70, timesFont, tr("1"));
+
+    //QPainterPath textPath2;
+    textPath[2].addText(10, 70, timesFont, tr("2"));
+
+    //QPainterPath textPath3;
+    textPath[3].addText(10, 70, timesFont, tr("s u d o k u"));
+
+    for (int it=4;it<14;it++) {
+       textPath[it].addText(10, 70, timesFont, tr(itoa(it)));
+    }
+
+    QPainterPath bezierPath;
+    bezierPath.moveTo(20, 30);
+    bezierPath.cubicTo(80, 0, 50, 50, 80, 80);
+
+    QPainterPath starPath = qpp_starPath();
+
+    /*************************************************/
+    /* start count of widgets
+     * and start pushing them into renderArea
+     *
+     * */
+    int jNCount = 0;
+
+    QPainterPath starsPath[20];
+    for (int j=5;j<20;j++) {
+        starsPath[j] = qpp_starsPath(j);
+        renderAreas.push_back(new RenderArea(starsPath[j]));
+        jNCount++;
+    }
+
+    // TODO: draw a cog object to act as settings button
+    // TODO: maybe better using arcs simpler, . . .
+    QPainterPath cogPath[2];
+    cogPath[0] = qpp_cogPath();
+    cogPath[1] = qpp_cogPath();
 
     renderAreas.push_back(new RenderArea(rectPath));
+    jNCount++;
     renderAreas.push_back(new RenderArea(roundRectPath));
+    jNCount++;
     renderAreas.push_back(new RenderArea(ellipsePath));
+    jNCount++;
     renderAreas.push_back(new RenderArea(piePath));
+    jNCount++;
     renderAreas.push_back(new RenderArea(polygonPath));
+    jNCount++;
     renderAreas.push_back(new RenderArea(groupPath));
-    renderAreas.push_back(new RenderArea(textPath));
-    renderAreas.push_back(new RenderArea(textPath1));
-    renderAreas.push_back(new RenderArea(textPath2));
-    renderAreas.push_back(new RenderArea(textPath3));
+    jNCount++;
+    for (int it=0;it<14;it++) {
+       renderAreas.push_back(new RenderArea(textPath[it]));
+       jNCount++;
+    }
     renderAreas.push_back(new RenderArea(bezierPath));
+    jNCount++;
     renderAreas.push_back(new RenderArea(starPath));
-    renderAreas.push_back(new RenderArea(cogPath));
+    jNCount++;
+    renderAreas.push_back(new RenderArea(cogPath[0]));
+    jNCount++;
+    renderAreas.push_back(new RenderArea(cogPath[1]));
+    jNCount++;
+
+    /*
+    int jj;
+    QPainterPath textPathNums[9*9];
+    for (jj=jNCount;jj<9*9;jj++) {
+        char s[20];
+        sprintf(s,"%d",jj%9);
+        textPathNums[jj].addText(10, 70, timesFont, tr(s));
+        renderAreas.push_back(new RenderArea(textPathNums[jj]));
+    }*/
 
     fillRuleComboBox = new QComboBox;
     fillRuleComboBox->addItem(tr("Odd Even"), Qt::OddEvenFill);
@@ -313,35 +407,93 @@ Window::Window()
      * 8
      * 9
      *
+     * 15 starsPath
+     * rect rect ellipse circ-arc poly circ+sq
+     * Qt 1 2 s u curve star wonkystar
+     *
+     *
      * */
 
-    /* in 3 columns add all the funny shapes in one layout*/
+    #include <string>
+    using namespace std;
+    //#include <string.h>
+
+    QFrame* hlineFrame = new QFrame();
+    hlineFrame->setFrameShape(QFrame::HLine);
+
+    /* in 3^H9 columns add all the funny shapes in one layout*/
     QGridLayout *topLayout = new QGridLayout;
-    int i=0;
-    for(QList<RenderArea*>::iterator it = renderAreas.begin(); it != renderAreas.end(); it++, i++)
-        topLayout->addWidget(*it, i / 3, i % 3);
+    int iNCount=0;
+    for(QList<RenderArea*>::iterator it = renderAreas.begin(); it != renderAreas.end(); it++, iNCount++) {
+        //topLayout->addWidget(*it, iNCount / 9, iNCount % 9);
+        // separating line
+        if(iNCount % 9 == 0) {
+            hlineFrame = new QFrame();
+            hlineFrame->setFrameShape(QFrame::HLine);
+            if ((iNCount/9)%3==0) hlineFrame->setLineWidth(3);
+            topLayout->addWidget(hlineFrame, (iNCount/9)*2, 0, 1, 10);
+        }
+        topLayout->addWidget(*it, (iNCount/9)*2 + 1, iNCount % 9);
+    }
+    hlineFrame = new QFrame();
+    hlineFrame->setFrameShape(QFrame::HLine);
+    //hlineFrame->setFrameStyle(QFrame::Box | QFrame::Plain);
+    hlineFrame->setLineWidth(3);
+    //hlineFrame->setContentsMargins(0, 0, 2, 2);
+    topLayout->addWidget(hlineFrame, (iNCount/9)*2+2, 0, 1, 10);
+
+    // add vertical seperators
+    for(int jColCount=0;jColCount<=9;jColCount++) {
+        QFrame* vlineFrame = new QFrame();
+        vlineFrame->setFrameShape(QFrame::VLine);
+        if (jColCount%3==0) vlineFrame->setLineWidth(3);
+        topLayout->addWidget(vlineFrame, 0, jColCount, (iNCount/9)*2+3, 1);
+    }
+
 
     QGridLayout *mainLayout = new QGridLayout;
 
-    //if add calLayout and topLayout to mainLayout same row,col 0,0 they overlap
-    //mainLayout->addLayout(calLayout, 0, 0, 1/*rowspan*/, 1/*colspan*/ /*alignment=0*/);
+    int imainrow = 0;
+    mainLayout->addLayout(topLayout, imainrow++, 0, 1, 4);
 
-    mainLayout->addLayout(topLayout, 0, 0, 1, 4);
-    mainLayout->addWidget(fillRuleLabel, 1, 0);
-    mainLayout->addWidget(fillRuleComboBox, 1/*fromrow*/, 1/*fromcol*/, 1/*rowspan*/, 3/*colspan*/);
-    mainLayout->addWidget(fillGradientLabel, 2, 0);
-    mainLayout->addWidget(fillColor1ComboBox, 2, 1);
-    mainLayout->addWidget(fillToLabel, 2, 2);
-    mainLayout->addWidget(fillColor2ComboBox, 2, 3);
-    mainLayout->addWidget(penWidthLabel, 3, 0);
-    mainLayout->addWidget(penWidthSpinBox, 3, 1, 1, 3);
-    mainLayout->addWidget(penColorLabel, 4, 0);
-    mainLayout->addWidget(penColorComboBox, 4, 1, 1, 3);
-    mainLayout->addWidget(rotationAngleLabel, 5, 0);
-    mainLayout->addWidget(rotationAngleSpinBox, 5, 1, 1, 3);
+    //mainLayout->addWidget(*table, 0, 0, 1, 4);
 
-    QGridLayout *calLayout = makeCalendarStuff();
-    mainLayout->addLayout(calLayout, 0, 4, 1/*rowspan*/, 5/*colspan*/ /*alignment=0*/);
+    mainLayout->addWidget(fillRuleLabel, imainrow, 0);
+    mainLayout->addWidget(fillRuleComboBox, imainrow++/*fromrow*/, 1/*fromcol*/, 1/*rowspan*/, 3/*colspan*/);
+
+    // test: separating line
+    hlineFrame = new QFrame();
+    hlineFrame->setFrameShape(QFrame::HLine);
+    mainLayout->addWidget(hlineFrame, imainrow++, 0, 1, 4);
+
+    mainLayout->addWidget(fillGradientLabel, imainrow, 0);
+    mainLayout->addWidget(fillColor1ComboBox, imainrow, 1);
+    mainLayout->addWidget(fillToLabel, imainrow, 2);
+    mainLayout->addWidget(fillColor2ComboBox, imainrow++, 3);
+
+    // test: separating line
+    hlineFrame = new QFrame();
+    hlineFrame->setFrameShape(QFrame::HLine);
+    mainLayout->addWidget(hlineFrame, imainrow++, 0, 1, 4);
+
+    mainLayout->addWidget(penWidthLabel, imainrow, 0);
+    mainLayout->addWidget(penWidthSpinBox, imainrow++, 1, 1, 3);
+
+    // test: separating line
+    hlineFrame = new QFrame();
+    hlineFrame->setFrameShape(QFrame::HLine);
+    mainLayout->addWidget(hlineFrame, imainrow++, 0, 1, 4);
+
+    mainLayout->addWidget(penColorLabel, imainrow, 0);
+    mainLayout->addWidget(penColorComboBox, imainrow++, 1, 1, 3);
+
+    // test: separating line
+    hlineFrame = new QFrame();
+    hlineFrame->setFrameShape(QFrame::HLine);
+    mainLayout->addWidget(hlineFrame, imainrow++, 0, 1, 4);
+
+    mainLayout->addWidget(rotationAngleLabel, imainrow, 0);
+    mainLayout->addWidget(rotationAngleSpinBox, imainrow++, 1, 1, 3);
 
     int debug = 0;
     if (debug == 1) {
@@ -357,7 +509,7 @@ Window::Window()
     QPainter painter(&pixmap);
     painter.setBrush(QBrush(Qt::black));
     painter.drawRect(10, 10, 100, 100);
-    connect(mPushButton1, SIGNAL(activated(int)), this, SLOT(pushButton1()));
+    connect(mPushButton1, SIGNAL(clicked()), this, SLOT(pushButton1()));
 
     /*
     QPushButtonPaint *mPushButton2;
@@ -433,457 +585,5 @@ QVariant Window::currentItemData(QComboBox *comboBox)
 void Window::pushButton1()
 {
     sudokumain(1,NULL);
-}
-
-
-
-
-
-
-/* calendar stuff *
- *
- *
- *
- *
- *
- *
- *
- * */
-
-
-void Window::localeChanged(int index)
-{
-    const QLocale newLocale(localeCombo->itemData(index).toLocale());
-    calendar->setLocale(newLocale);
-    int newLocaleFirstDayIndex = firstDayCombo->findData(newLocale.firstDayOfWeek());
-    firstDayCombo->setCurrentIndex(newLocaleFirstDayIndex);
-}
-
-
-void Window::firstDayChanged(int index)
-{
-    calendar->setFirstDayOfWeek(Qt::DayOfWeek(
-                                firstDayCombo->itemData(index).toInt()));
-}
-
-
-void Window::selectionModeChanged(int index)
-{
-    calendar->setSelectionMode(QCalendarWidget::SelectionMode(
-                               selectionModeCombo->itemData(index).toInt()));
-}
-
-void Window::horizontalHeaderChanged(int index)
-{
-    calendar->setHorizontalHeaderFormat(QCalendarWidget::HorizontalHeaderFormat(
-        horizontalHeaderCombo->itemData(index).toInt()));
-}
-
-void Window::verticalHeaderChanged(int index)
-{
-    calendar->setVerticalHeaderFormat(QCalendarWidget::VerticalHeaderFormat(
-        verticalHeaderCombo->itemData(index).toInt()));
-}
-
-
-void Window::selectedDateChanged()
-{
-    currentDateEdit->setDate(calendar->selectedDate());
-}
-
-
-
-void Window::minimumDateChanged(const QDate &date)
-{
-    calendar->setMinimumDate(date);
-    maximumDateEdit->setDate(calendar->maximumDate());
-}
-
-
-
-void Window::maximumDateChanged(const QDate &date)
-{
-    calendar->setMaximumDate(date);
-    minimumDateEdit->setDate(calendar->minimumDate());
-}
-
-
-
-void Window::weekdayFormatChanged()
-{
-    QTextCharFormat format;
-
-    format.setForeground(qvariant_cast<QColor>(
-        weekdayColorCombo->itemData(weekdayColorCombo->currentIndex())));
-    calendar->setWeekdayTextFormat(Qt::Monday, format);
-    calendar->setWeekdayTextFormat(Qt::Tuesday, format);
-    calendar->setWeekdayTextFormat(Qt::Wednesday, format);
-    calendar->setWeekdayTextFormat(Qt::Thursday, format);
-    calendar->setWeekdayTextFormat(Qt::Friday, format);
-}
-
-
-
-void Window::weekendFormatChanged()
-{
-    QTextCharFormat format;
-
-    format.setForeground(qvariant_cast<QColor>(
-        weekendColorCombo->itemData(weekendColorCombo->currentIndex())));
-    calendar->setWeekdayTextFormat(Qt::Saturday, format);
-    calendar->setWeekdayTextFormat(Qt::Sunday, format);
-}
-
-
-
-void Window::reformatHeaders()
-{
-    QString text = headerTextFormatCombo->currentText();
-    QTextCharFormat format;
-
-    if (text == tr("Bold")) {
-        format.setFontWeight(QFont::Bold);
-    } else if (text == tr("Italic")) {
-        format.setFontItalic(true);
-    } else if (text == tr("Green")) {
-        format.setForeground(Qt::green);
-    }
-    calendar->setHeaderTextFormat(format);
-}
-
-
-
-void Window::reformatCalendarPage()
-{
-    QTextCharFormat mayFirstFormat;
-    const QDate mayFirst(calendar->yearShown(), 5, 1);
-
-    QTextCharFormat firstFridayFormat;
-    QDate firstFriday(calendar->yearShown(), calendar->monthShown(), 1);
-    while (firstFriday.dayOfWeek() != Qt::Friday)
-        firstFriday = firstFriday.addDays(1);
-
-    if (firstFridayCheckBox->isChecked()) {
-        firstFridayFormat.setForeground(Qt::blue);
-    } else { // Revert to regular colour for this day of the week.
-        Qt::DayOfWeek dayOfWeek(static_cast<Qt::DayOfWeek>(firstFriday.dayOfWeek()));
-        firstFridayFormat.setForeground(calendar->weekdayTextFormat(dayOfWeek).foreground());
-    }
-
-    calendar->setDateTextFormat(firstFriday, firstFridayFormat);
-
-    // When it is checked, "May First in Red" always takes precedence over "First Friday in Blue".
-    if (mayFirstCheckBox->isChecked()) {
-        mayFirstFormat.setForeground(Qt::red);
-    } else if (!firstFridayCheckBox->isChecked() || firstFriday != mayFirst) {
-        // We can now be certain we won't be resetting "May First in Red" when we restore
-        // may 1st's regular colour for this day of the week.
-        Qt::DayOfWeek dayOfWeek(static_cast<Qt::DayOfWeek>(mayFirst.dayOfWeek()));
-        calendar->setDateTextFormat(mayFirst, calendar->weekdayTextFormat(dayOfWeek));
-    }
-
-    calendar->setDateTextFormat(mayFirst, mayFirstFormat);
-}
-
-
-
-void Window::createPreviewGroupBox()
-{
-    previewGroupBox = new QGroupBox(tr("Preview"));
-
-    calendar = new QCalendarWidget;
-    calendar->setMinimumDate(QDate(1900, 1, 1));
-    calendar->setMaximumDate(QDate(3000, 1, 1));
-    calendar->setGridVisible(true);
-
-    connect(calendar, SIGNAL(currentPageChanged(int,int)),
-            this, SLOT(reformatCalendarPage()));
-
-    previewLayout = new QGridLayout;
-    previewLayout->addWidget(calendar, 0, 0, Qt::AlignCenter);
-    previewGroupBox->setLayout(previewLayout);
-}
-
-
-
-void Window::createGeneralOptionsGroupBox()
-{
-    generalOptionsGroupBox = new QGroupBox(tr("General Options"));
-
-    localeCombo = new QComboBox;
-    int curLocaleIndex = -1;
-    int index = 0;
-    for (int _lang = QLocale::C; _lang <= QLocale::LastLanguage; ++_lang) {
-        QLocale::Language lang = static_cast<QLocale::Language>(_lang);
-        QList<QLocale::Country> countries = QLocale::countriesForLanguage(lang);
-        for (int i = 0; i < countries.count(); ++i) {
-            QLocale::Country country = countries.at(i);
-            QString label = QLocale::languageToString(lang);
-            label += QLatin1Char('/');
-            label += QLocale::countryToString(country);
-            QLocale locale(lang, country);
-            if (this->locale().language() == lang && this->locale().country() == country)
-                curLocaleIndex = index;
-            localeCombo->addItem(label, locale);
-            ++index;
-        }
-    }
-    if (curLocaleIndex != -1)
-        localeCombo->setCurrentIndex(curLocaleIndex);
-    localeLabel = new QLabel(tr("&Locale"));
-    localeLabel->setBuddy(localeCombo);
-
-    firstDayCombo = new QComboBox;
-    firstDayCombo->addItem(tr("Sunday"), Qt::Sunday);
-    firstDayCombo->addItem(tr("Monday"), Qt::Monday);
-    firstDayCombo->addItem(tr("Tuesday"), Qt::Tuesday);
-    firstDayCombo->addItem(tr("Wednesday"), Qt::Wednesday);
-    firstDayCombo->addItem(tr("Thursday"), Qt::Thursday);
-    firstDayCombo->addItem(tr("Friday"), Qt::Friday);
-    firstDayCombo->addItem(tr("Saturday"), Qt::Saturday);
-
-    firstDayLabel = new QLabel(tr("Wee&k starts on:"));
-    firstDayLabel->setBuddy(firstDayCombo);
-
-
-    selectionModeCombo = new QComboBox;
-    selectionModeCombo->addItem(tr("Single selection"),
-                                QCalendarWidget::SingleSelection);
-    selectionModeCombo->addItem(tr("None"), QCalendarWidget::NoSelection);
-
-    selectionModeLabel = new QLabel(tr("&Selection mode:"));
-    selectionModeLabel->setBuddy(selectionModeCombo);
-
-    gridCheckBox = new QCheckBox(tr("&Grid"));
-    gridCheckBox->setChecked(calendar->isGridVisible());
-
-    navigationCheckBox = new QCheckBox(tr("&Navigation bar"));
-    navigationCheckBox->setChecked(true);
-
-    horizontalHeaderCombo = new QComboBox;
-    horizontalHeaderCombo->addItem(tr("Single letter day names"),
-                                   QCalendarWidget::SingleLetterDayNames);
-    horizontalHeaderCombo->addItem(tr("Short day names"),
-                                   QCalendarWidget::ShortDayNames);
-    horizontalHeaderCombo->addItem(tr("None"),
-                                   QCalendarWidget::NoHorizontalHeader);
-    horizontalHeaderCombo->setCurrentIndex(1);
-
-    horizontalHeaderLabel = new QLabel(tr("&Horizontal header:"));
-    horizontalHeaderLabel->setBuddy(horizontalHeaderCombo);
-
-    verticalHeaderCombo = new QComboBox;
-    verticalHeaderCombo->addItem(tr("ISO week numbers"),
-                                 QCalendarWidget::ISOWeekNumbers);
-    verticalHeaderCombo->addItem(tr("None"), QCalendarWidget::NoVerticalHeader);
-
-    verticalHeaderLabel = new QLabel(tr("&Vertical header:"));
-    verticalHeaderLabel->setBuddy(verticalHeaderCombo);
-
-
-    connect(localeCombo, SIGNAL(currentIndexChanged(int)),
-            this, SLOT(localeChanged(int)));
-    connect(firstDayCombo, SIGNAL(currentIndexChanged(int)),
-            this, SLOT(firstDayChanged(int)));
-    connect(selectionModeCombo, SIGNAL(currentIndexChanged(int)),
-            this, SLOT(selectionModeChanged(int)));
-    connect(gridCheckBox, SIGNAL(toggled(bool)),
-            calendar, SLOT(setGridVisible(bool)));
-    connect(navigationCheckBox, SIGNAL(toggled(bool)),
-            calendar, SLOT(setNavigationBarVisible(bool)));
-    connect(horizontalHeaderCombo, SIGNAL(currentIndexChanged(int)),
-            this, SLOT(horizontalHeaderChanged(int)));
-    connect(verticalHeaderCombo, SIGNAL(currentIndexChanged(int)),
-            this, SLOT(verticalHeaderChanged(int)));
-
-
-    QHBoxLayout *checkBoxLayout = new QHBoxLayout;
-    checkBoxLayout->addWidget(gridCheckBox);
-    checkBoxLayout->addStretch();
-    checkBoxLayout->addWidget(navigationCheckBox);
-
-    QGridLayout *outerLayout = new QGridLayout;
-    outerLayout->addWidget(localeLabel, 0, 0);
-    outerLayout->addWidget(localeCombo, 0, 1);
-    outerLayout->addWidget(firstDayLabel, 1, 0);
-    outerLayout->addWidget(firstDayCombo, 1, 1);
-    outerLayout->addWidget(selectionModeLabel, 2, 0);
-    outerLayout->addWidget(selectionModeCombo, 2, 1);
-    outerLayout->addLayout(checkBoxLayout, 3, 0, 1, 2);
-    outerLayout->addWidget(horizontalHeaderLabel, 4, 0);
-    outerLayout->addWidget(horizontalHeaderCombo, 4, 1);
-    outerLayout->addWidget(verticalHeaderLabel, 5, 0);
-    outerLayout->addWidget(verticalHeaderCombo, 5, 1);
-    generalOptionsGroupBox->setLayout(outerLayout);
-
-
-    firstDayChanged(firstDayCombo->currentIndex());
-    selectionModeChanged(selectionModeCombo->currentIndex());
-    horizontalHeaderChanged(horizontalHeaderCombo->currentIndex());
-    verticalHeaderChanged(verticalHeaderCombo->currentIndex());
-}
-
-
-
-void Window::createDatesGroupBox()
-{
-    datesGroupBox = new QGroupBox(tr("Dates"));
-
-    minimumDateEdit = new QDateEdit;
-    minimumDateEdit->setDisplayFormat("MMM d yyyy");
-    minimumDateEdit->setDateRange(calendar->minimumDate(),
-                                  calendar->maximumDate());
-    minimumDateEdit->setDate(calendar->minimumDate());
-
-    minimumDateLabel = new QLabel(tr("&Minimum Date:"));
-    minimumDateLabel->setBuddy(minimumDateEdit);
-
-    currentDateEdit = new QDateEdit;
-    currentDateEdit->setDisplayFormat("MMM d yyyy");
-    currentDateEdit->setDate(calendar->selectedDate());
-    currentDateEdit->setDateRange(calendar->minimumDate(),
-                                  calendar->maximumDate());
-
-    currentDateLabel = new QLabel(tr("&Current Date:"));
-    currentDateLabel->setBuddy(currentDateEdit);
-
-    maximumDateEdit = new QDateEdit;
-    maximumDateEdit->setDisplayFormat("MMM d yyyy");
-    maximumDateEdit->setDateRange(calendar->minimumDate(),
-                                  calendar->maximumDate());
-    maximumDateEdit->setDate(calendar->maximumDate());
-
-    maximumDateLabel = new QLabel(tr("Ma&ximum Date:"));
-    maximumDateLabel->setBuddy(maximumDateEdit);
-
-
-    connect(currentDateEdit, SIGNAL(dateChanged(QDate)),
-            calendar, SLOT(setSelectedDate(QDate)));
-    connect(calendar, SIGNAL(selectionChanged()),
-            this, SLOT(selectedDateChanged()));
-    connect(minimumDateEdit, SIGNAL(dateChanged(QDate)),
-            this, SLOT(minimumDateChanged(QDate)));
-    connect(maximumDateEdit, SIGNAL(dateChanged(QDate)),
-            this, SLOT(maximumDateChanged(QDate)));
-
-
-    QGridLayout *dateBoxLayout = new QGridLayout;
-    dateBoxLayout->addWidget(currentDateLabel, 1, 0);
-    dateBoxLayout->addWidget(currentDateEdit, 1, 1);
-    dateBoxLayout->addWidget(minimumDateLabel, 0, 0);
-    dateBoxLayout->addWidget(minimumDateEdit, 0, 1);
-    dateBoxLayout->addWidget(maximumDateLabel, 2, 0);
-    dateBoxLayout->addWidget(maximumDateEdit, 2, 1);
-    dateBoxLayout->setRowStretch(3, 1);
-
-    datesGroupBox->setLayout(dateBoxLayout);
-
-}
-
-
-
-void Window::createTextFormatsGroupBox()
-{
-    textFormatsGroupBox = new QGroupBox(tr("Text Formats"));
-
-    weekdayColorCombo = createColorComboBox();
-    weekdayColorCombo->setCurrentIndex(
-            weekdayColorCombo->findText(tr("Black")));
-
-    weekdayColorLabel = new QLabel(tr("&Weekday color:"));
-    weekdayColorLabel->setBuddy(weekdayColorCombo);
-
-    weekendColorCombo = createColorComboBox();
-    weekendColorCombo->setCurrentIndex(
-            weekendColorCombo->findText(tr("Red")));
-
-    weekendColorLabel = new QLabel(tr("Week&end color:"));
-    weekendColorLabel->setBuddy(weekendColorCombo);
-
-
-    headerTextFormatCombo = new QComboBox;
-    headerTextFormatCombo->addItem(tr("Bold"));
-    headerTextFormatCombo->addItem(tr("Italic"));
-    headerTextFormatCombo->addItem(tr("Plain"));
-
-    headerTextFormatLabel = new QLabel(tr("&Header text:"));
-    headerTextFormatLabel->setBuddy(headerTextFormatCombo);
-
-    firstFridayCheckBox = new QCheckBox(tr("&First Friday in blue"));
-
-    mayFirstCheckBox = new QCheckBox(tr("May &1 in red"));
-
-
-    connect(weekdayColorCombo, SIGNAL(currentIndexChanged(int)),
-            this, SLOT(weekdayFormatChanged()));
-    connect(weekdayColorCombo, SIGNAL(currentIndexChanged(int)),
-            this, SLOT(reformatCalendarPage()));
-    connect(weekendColorCombo, SIGNAL(currentIndexChanged(int)),
-            this, SLOT(weekendFormatChanged()));
-    connect(weekendColorCombo, SIGNAL(currentIndexChanged(int)),
-            this, SLOT(reformatCalendarPage()));
-    connect(headerTextFormatCombo, SIGNAL(currentIndexChanged(QString)),
-            this, SLOT(reformatHeaders()));
-    connect(firstFridayCheckBox, SIGNAL(toggled(bool)),
-            this, SLOT(reformatCalendarPage()));
-    connect(mayFirstCheckBox, SIGNAL(toggled(bool)),
-            this, SLOT(reformatCalendarPage()));
-
-
-    QHBoxLayout *checkBoxLayout = new QHBoxLayout;
-    checkBoxLayout->addWidget(firstFridayCheckBox);
-    checkBoxLayout->addStretch();
-    checkBoxLayout->addWidget(mayFirstCheckBox);
-
-    QGridLayout *outerLayout = new QGridLayout;
-    outerLayout->addWidget(weekdayColorLabel, 0, 0);
-    outerLayout->addWidget(weekdayColorCombo, 0, 1);
-    outerLayout->addWidget(weekendColorLabel, 1, 0);
-    outerLayout->addWidget(weekendColorCombo, 1, 1);
-    outerLayout->addWidget(headerTextFormatLabel, 2, 0);
-    outerLayout->addWidget(headerTextFormatCombo, 2, 1);
-    outerLayout->addLayout(checkBoxLayout, 3, 0, 1, 2);
-    textFormatsGroupBox->setLayout(outerLayout);
-
-    weekdayFormatChanged();
-    weekendFormatChanged();
-
-    reformatHeaders();
-    reformatCalendarPage();
-}
-
-
-
-QComboBox *Window::createColorComboBox()
-{
-    QComboBox *comboBox = new QComboBox;
-    comboBox->addItem(tr("Red"), QColor(Qt::red));
-    comboBox->addItem(tr("Blue"), QColor(Qt::blue));
-    comboBox->addItem(tr("Black"), QColor(Qt::black));
-    comboBox->addItem(tr("Magenta"), QColor(Qt::magenta));
-    return comboBox;
-}
-
-
-QGridLayout *Window::makeCalendarStuff()
-{
-        createPreviewGroupBox();
-        createGeneralOptionsGroupBox();
-        createDatesGroupBox();
-        createTextFormatsGroupBox();
-
-        QGridLayout *layout = new QGridLayout;
-        layout->addWidget(previewGroupBox, 0, 0);
-        layout->addWidget(generalOptionsGroupBox, 0, 1);
-        layout->addWidget(datesGroupBox, 1, 0);
-        layout->addWidget(textFormatsGroupBox, 1, 1);
-        layout->setSizeConstraint(QLayout::SetFixedSize);
-        //setLayout(layout);
-
-        previewLayout->setRowMinimumHeight(0, calendar->sizeHint().height());
-        previewLayout->setColumnMinimumWidth(0, calendar->sizeHint().width());
-
-        setWindowTitle(tr("Calendar Widget"));
-        return layout;
 }
 
