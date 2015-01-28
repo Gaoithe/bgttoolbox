@@ -146,7 +146,7 @@ for h in $HOSTS; do
     if [[ -z "$match" ]] ; then 
         ssh $h tar -jcvf monmemu.tbz monmemu/
     else 
-        ssh $h 'DFILES=$(ls monmemu/ |grep -E "' "$match" '"|sed s#^#monmemu/#); tar -jcvf monmemu.tbz monmemu/{last,start,mem}.log $DFILES;'
+        ssh $h 'DFILES=$(ls monmemu/ |grep -E "'"$match"'"|sed s#^#monmemu/#); tar -jcvf monmemu.tbz monmemu/{last,start,mem}.log $DFILES;'
     fi
     scp ${h}:monmemu.tbz ./
     tar -jxvf monmemu.tbz
