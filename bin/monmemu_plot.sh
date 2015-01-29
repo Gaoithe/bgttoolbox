@@ -35,13 +35,25 @@ while [[ ! -z "$1" ]]; do
             exit -1
         fi
 	;;
-    *)
-        echo "error: unexpected argumenmt: $1"
-        echo "usage: $0 [<cmd>] [-match <e-regexp>] [-host <user@host>] [-host <user@host>] . . . "
-        echo "       cmd := start|stop|status|run"
-        echo "e.g.: $0 -match \"cobwebs|cstat|cconf\" -host omn@vb-28 -host omn@vb-48"
-        echo "e.g.: $0 -match \"cobwebs|cstat|cconf\" -host omn@vb-48"
+    help|*)
+        cat <<EOF 
+error: unexpected argument: $1
+usage: $0 [<cmd>] [-match <e-regexp>] [-host <user@host>] [-host <user@host>] . . . 
+       cmd := start|stop|status|run|help
 
+e.g.: 
+   monmemu_plot.sh -match \"cobwebs|cstat|cconf\" -host omn@vb-28 -host omn@vb-48
+
+e.g. retrieve and plot ALL processes being watched:
+   # tar up of logfiles can cause delay, also can be too many items on plot  
+   monmemu_plot.sh 
+
+e.g. CHECK STATUS or STOP/START monmemu script remotely:
+   monmemu_plot.sh status -host omn@vb-28  -host omn@vb-48
+   monmemu_plot.sh stop -host omn@vb-28 -host omn@vb-48
+   monmemu_plot.sh start -host omn@vb-28 -host omn@vb-48
+
+EOF
         exit -1
 	;;
    esac;
