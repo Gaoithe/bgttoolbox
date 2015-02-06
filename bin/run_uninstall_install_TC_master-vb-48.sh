@@ -17,6 +17,8 @@ scp ~/bin/run_rejoin_TC.sh omn@${HOST}:scripts/
 #ssh vroot@vb-28 /apps/omn/scripts/run_uninstall_TC.sh |tee -a TC_uninstall.log; 
 ssh vroot@${HOST} /apps/omn/scripts/run_uninstall_TC.sh |tee -a TC_uninstall.log; 
 
+monmemu_plot.sh stop -host omn@${HOST}
+
 # TODO, how to run these in parallel ?
 #ssh vroot@vb-28 /apps/omn/scripts/run_install_TC.sh |tee -a TC_install.log; 
 ssh vroot@${HOST} /apps/omn/scripts/run_install_TC.sh |tee -a TC_install.log; 

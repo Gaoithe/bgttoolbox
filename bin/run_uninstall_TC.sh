@@ -27,7 +27,7 @@ false && mv cconf-dir cconf-dir_${DTS}
 false && mv bin bin_${DTS}
 
 rm -rf cassandra cconf-dir certs clog-dir core-dumps dfl-dir etc java snmp tomcat webserver
-[[ -e monmemu ]] && rm -rf monmemu.older && mv monmemu{,.older}
+[[ -e monmemu ]] && rm -rf monmemu.older && mv monmemu{,.older} && mkdir monmemu
 
 mkdir dfl-dir
 touch dfl-dir/.ACTIVE

@@ -18,6 +18,8 @@ scp ~/bin/run_provision_TC.sh omn@${HOST}:scripts/
 ssh vroot@${HOST} /apps/omn/scripts/run_uninstall_TC.sh |tee -a TC_uninstall.log; 
 #ssh vroot@vb-48 /apps/omn/scripts/run_uninstall_TC.sh |tee -a TC_uninstall.log; 
 
+monmemu_plot.sh stop -host omn@${HOST}
+
 # TODO, how to run these in parallel ?
 ssh vroot@${HOST} /apps/omn/scripts/run_install_TC.sh |tee -a TC_install.log; 
 #ssh vroot@vb-48 /apps/omn/scripts/run_install_TC.sh |tee -a TC_install.log; 
