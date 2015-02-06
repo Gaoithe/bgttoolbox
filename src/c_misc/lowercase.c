@@ -10,7 +10,7 @@ char *lowercase(char *s)
     while(*p) {
         //printf("*p=%c\n",*p);
         if (*p >= 'A' && *p <= 'Z') {
-            *p += 'A' - 'a';
+            *p += 'a' - 'A';
         }
         p++;
     }
