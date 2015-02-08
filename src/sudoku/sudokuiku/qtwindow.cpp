@@ -426,13 +426,14 @@ Window::Window()
     int iNCount=0;
     for(QList<RenderArea*>::iterator it = renderAreas.begin(); it != renderAreas.end(); it++, iNCount++) {
         //topLayout->addWidget(*it, iNCount / 9, iNCount % 9);
-        // separating line
+        // add separating line
         if(iNCount % 9 == 0) {
             hlineFrame = new QFrame();
             hlineFrame->setFrameShape(QFrame::HLine);
             if ((iNCount/9)%3==0) hlineFrame->setLineWidth(3);
             topLayout->addWidget(hlineFrame, (iNCount/9)*2, 0, 1, 10);
         }
+        // add widget
         topLayout->addWidget(*it, (iNCount/9)*2 + 1, iNCount % 9);
     }
     hlineFrame = new QFrame();
@@ -528,11 +529,21 @@ Window::Window()
     sudokuPath.addText(10, 70, timesFont2, tr("SuDoKu"));
 */
 
+    QPushButton *mPushButton3;
+    mPushButton3 = new QPushButton(tr("Clear"));
+    connect(mPushButton3, SIGNAL(clicked()), this, SLOT(clearBox()));
+
+    QPushButton *mPushButton4;
+    mPushButton4 = new QPushButton(tr("Fill"));
+    connect(mPushButton4, SIGNAL(clicked()), this, SLOT(fillBox()));
+
     mPushButton1->setDefault(true);
     mPushButton1->setCheckable(true);
     mPushButton1->setChecked(true);
     mainLayout->addWidget(mPushButton1);
     //mainLayout->addWidget(mPushButton2);
+    mainLayout->addWidget(mPushButton3);
+    mainLayout->addWidget(mPushButton4);
 
     setLayout(mainLayout);
 
@@ -587,3 +598,28 @@ void Window::pushButton1()
     sudokumain(1,NULL);
 }
 
+void Window::clearBox()
+{
+
+    for(QList<RenderArea*>::iterator it = renderAreas.begin(); it != renderAreas.end(); it++) {
+        // remove from renderAreas and delete
+        delete *it;
+    }
+    renderAreas.clear();
+
+}
+
+void Window::fillBox()
+{
+    QPainterPath rectPath = qpp_rectPath();
+    renderAreas.push_back(new RenderArea(rectPath));
+
+    // TODO: keep layouts as class vars.
+    // manipulate them
+
+    //for(QList<RenderArea*>::iterator it = renderAreas.begin(); it != renderAreas.end(); it++) {
+    //    connect(penWidthSpinBox, SIGNAL(valueChanged(int)), *it, SLOT(setPenWidth(int)));
+    //    connect(rotationAngleSpinBox, SIGNAL(valueChanged(int)), *it, SLOT(setRotationAngle(int)));
+    //}
+
+}

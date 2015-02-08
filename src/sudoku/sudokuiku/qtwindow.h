@@ -62,6 +62,8 @@ private slots:
     void fillGradientChanged();
     void penColorChanged();
     void pushButton1();
+    void clearBox();
+    void fillBox();
 
 private:
     void populateWithColors(QComboBox *comboBox);
