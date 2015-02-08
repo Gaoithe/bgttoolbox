@@ -5,6 +5,9 @@
  -w --window
  -r --repeat
  -d --delay (TODO: doesn't take a number yet)
+ -f --fullscreen
+ -n --name # sort files by name, not by datetime
+ -s --nosort # no sorting
 
 python script quick and simplish photo slideshow of directories
 """
@@ -76,6 +79,7 @@ import glib
 slide_time = 3
 fullscreen = False
 repeat = False
+g_sort = "byDatetime"
 lastpainted = -1
 
 def is_image(filename):
@@ -307,7 +311,28 @@ class DemoGtk:
         #print "Images:", self.files
         print "TOTAL: %d images."% len(self.files)
         # sort in order of date of file
-        self.files.sort(key=lambda s: os.path.getmtime(s))
+        if g_sort:
+            if g_sort == "byDatetime":
+                print "Sort by date/time:", g_sort
+                self.files.sort(key=lambda s: os.stat(s).st_mtime)
+                #self.files.sort(key=lambda s: os.path.getmtime(s))
+                #self.files.sort(key=lambda s: os.path.getctime(s))
+            else:
+                print "Sort by name/number:", g_sort
+                def getint(name):
+                    basename = name.partition('.')
+                    alpha, num = basename.split('_')
+                    return int(num)
+                #self.files.sort(key=getint)
+                self.files.sort(key=lambda s: s)
+            # no else needed?? default is sorted by name as they're read in. ehrrr. nope.
+        else:
+            print "No sort:", g_sort
+
+        # debug test list sorted?
+        for i in range(0, len(self.files)):
+            print "sortfile:", self.files[i]
+        
 
     def display(self):
         """ Sent a request to change picture if it is possible """
@@ -351,13 +376,13 @@ import getopt
 def process_args():
     # parse command line options
     try:
-        opts, args = getopt.getopt(sys.argv[1:], "hwrdf", ["help","window","repeat","delay"] )
+        opts, args = getopt.getopt(sys.argv[1:], "hwrdfns", ["help","window","repeat","delay","fullscreen","name","nosort","no"] )
     except getopt.error, msg:
         print msg
         print "for help use --help"
         sys.exit(2)
     # process options
-    #global fullscreen
+    global fullscreen,repeat,slide_time,g_sort
     for o, a in opts:
         if o in ("-h", "--help"):
             print __doc__
@@ -370,6 +395,12 @@ def process_args():
             repeat = True
         if o in ("-d", "--delay"):
             slide_time = 3
+        if o in ("-n", "--name"):
+            g_sort = "byName"
+            print "Sort by name:", g_sort            
+        if o in ("-s", "--nosort"):
+            g_sort = None
+            print "Sort by none:", g_sort            
     # e.g. process arguments
     #for arg in args:
     #    process(arg) # process() is defined elsewhere
