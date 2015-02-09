@@ -62,10 +62,27 @@ TODO: track time it takes to build list of images, time to display images/dirs, 
 TODO: HOW TO control: right or left mouse click -> menu For/Back 1, jump 10, next dir, next ...
 TODO: turn mouse arrow into mostly transparent thing
 TODO: exclude __private, __thumb, hidden dirs.
-TODO: forward/back scrool list of photos, m of n photo est time,   *mark photo (fir attention, rotating, hiding, ...) 
+TODO(INPROG 9/2/2015): forward/back scroll list of photos, m of n photo est time,   *mark photo (for attention, rotating, hiding, ...) 
 TODO: time/play bar like video
 
 cd /mnt/GreenSpaceMultimedia/FamilyPhotos/AllPictures/
+
+8/2/2015
+before cub scouts. sort by date/time was not showing by date time
+because . . . some dirs had files date/times messed up. 
+better to sort by filename in those cases (added -n --name option)
+Default: sort by create date/time.
+Another Option: -s --nosort  (sorted by the way python reads in files - disk order).
+
+9/2/2015 (also see TODOs 23/10/2012)
+STARTED: add some key/mouse control
+DONE: key QUIT
+DONEish: key PAUSE/UNPAUSE   (should quit immediately)
+DONEish: key NEXT/PREV          (should display immediately)
+TODO: key PAUSE/UNPAUSE  cute fade in & out paws animation
+TODO: key HELP
+TODO: key INFO (info on picture set (pic number i of n, eta T:S min/sec) and info on current image (name, dir, resolution, . . .))
+TODO: mousemove/key cute fade in menu hint
 
 '''
 
@@ -81,6 +98,7 @@ fullscreen = False
 repeat = False
 g_sort = "byDatetime"
 lastpainted = -1
+g_pause = False
 
 def is_image(filename):
     """ File is image if it has a common suffix and it is a regular file """
@@ -251,6 +269,48 @@ class ResizableImage(gtk.DrawingArea):
     def invalidate(self):
         self.queue_draw()
 
+def handle_input(widget, event):
+     print "Handle user input. Event number:%d" % event.type
+     x,y,state = 0, 0, ""
+     if event.type == gtk.gdk.KEY_PRESS:
+         keyname = gtk.gdk.keyval_name(event.keyval)
+         print "Key %s (%d) was pressed" % (keyname, event.keyval)
+         if event.keyval == 27 or keyname == 'q' or keyname == 'Q':
+             print "exit because of ESC or 'q' key"
+             sys.exit(0)
+         elif event.keyval == 32:
+             # TODO: toggle pause
+             global g_pause
+             g_pause = not g_pause
+
+         elif keyname == 'n' or keyname == 'N':
+             # NEXT image
+             self.index += 1
+             if self.index >= len(self.files):
+                 if repeat:
+                     print "wrap"
+                     self.index = 0
+                 else:
+                     # end of show
+                     sys.exit(0)
+             self.display()
+
+         elif keyname == 'p' or keyname == 'P':
+             # PREV image
+             self.index -= 1
+             if self.index < 0:
+                 self.index = 0
+         self.display()
+
+     elif event.type == gtk.gdk.BUTTON_PRESS or event.is_hint:
+         x, y, state = event.window.get_pointer()
+     else:
+         x = event.x
+         y = event.y
+         state = event.state
+     print "event x,y state:%d,%d %s" % (x,y,state)
+     #http://www.pygtk.org/pygtktutorial/sec-eventhandling.html
+
 class DemoGtk:
 
     SECONDS_BETWEEN_PICTURES = slide_time
@@ -261,6 +321,16 @@ class DemoGtk:
         self.window = gtk.Window()
         self.window.connect('destroy', gtk.main_quit)
         self.window.set_title('Slideshow')
+
+        self.window.add_events(gtk.gdk.KEY_PRESS_MASK |
+              gtk.gdk.POINTER_MOTION_MASK |
+              gtk.gdk.BUTTON_PRESS_MASK | 
+              gtk.gdk.SCROLL_MASK)
+
+        #self.window.connect("motion-notify-event", handle_input)
+        self.window.connect("key-press-event", handle_input)
+        self.window.connect("button-press-event", handle_input)
+        #self.window.connect("scroll-event", handle_input)
 
         self.image = ResizableImage( True, True, gtk.gdk.INTERP_BILINEAR)
         self.image.show()
@@ -358,14 +428,16 @@ class DemoGtk:
             print "much SADness, we should wait some more", self.index
             print "much SADness, we should wait some more", self.files[self.index]
 
-        self.index += 1
-        if self.index >= len(self.files):
-            if repeat:
-                print "wrap"
-                self.index = 0
-            else:
-                # end of show
-                sys.exit(0)
+        global g_pause
+        if not g_pause:
+            self.index += 1
+            if self.index >= len(self.files):
+                if repeat:
+                    print "wrap"
+                    self.index = 0
+                else:
+                    # end of show
+                    sys.exit(0)
 
         return self.display()
 
