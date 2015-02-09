@@ -277,6 +277,7 @@ import zipfile
 class DemoGtk:
 
     SECONDS_BETWEEN_PICTURES = g_slide_time
+    old_slide_time = g_slide_time
     FULLSCREEN = g_fullscreen
     WALK_INSTEAD_LISTDIR = True
 
@@ -411,7 +412,17 @@ class DemoGtk:
                     # end of show
                     sys.exit(0)
 
-        return self.display()
+        rv = self.display()
+
+        if self.old_slide_time != self.SECONDS_BETWEEN_PICTURES:
+            # change time and register new time
+            glib.timeout_add_seconds(self.SECONDS_BETWEEN_PICTURES, self.on_tick)
+            self.old_slide_time = self.SECONDS_BETWEEN_PICTURES
+            rv = False
+
+        # returning false destroys the old timer
+        return rv
+
 
     def handle_input(self, widget, event):
         print "Handle user input. Event number:%d" % event.type
@@ -448,13 +459,13 @@ class DemoGtk:
                     self.index = 0
                 self.display()
 
-            elif keyname == "plus":
+            elif keyname == "minus":
                 self.SECONDS_BETWEEN_PICTURES+=1
                 if self.SECONDS_BETWEEN_PICTURES>360:
                     self.SECONDS_BETWEEN_PICTURES=360
                 print "SLOWER! %d" % (self.SECONDS_BETWEEN_PICTURES)
 
-            elif keyname == "minus":
+            elif keyname == "plus":
                 self.SECONDS_BETWEEN_PICTURES-=1
                 if self.SECONDS_BETWEEN_PICTURES<0:
                     self.SECONDS_BETWEEN_PICTURES=0
