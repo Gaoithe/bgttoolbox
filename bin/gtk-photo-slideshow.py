@@ -79,6 +79,7 @@ STARTED: add some key/mouse control
 DONE: key QUIT
 DONEish: key PAUSE/UNPAUSE   (should quit immediately)
 DONEish: key NEXT/PREV          (should display immediately)
+TODO: faster/slower
 TODO: key PAUSE/UNPAUSE  cute fade in & out paws animation
 TODO: key HELP
 TODO: key INFO (info on picture set (pic number i of n, eta T:S min/sec) and info on current image (name, dir, resolution, . . .))
@@ -93,11 +94,11 @@ pygtk.require('2.0')
 import gtk
 import glib
 
-slide_time = 3
-fullscreen = False
-repeat = False
+g_slide_time = 3
+g_fullscreen = False
+g_repeat = False
 g_sort = "byDatetime"
-lastpainted = -1
+g_lastpainted = -1
 g_pause = False
 
 def is_image(filename):
@@ -263,58 +264,20 @@ class ResizableImage(gtk.DrawingArea):
 
     def set_from_file(self, filename):
         self.set_from_pixbuf(gtk.gdk.pixbuf_new_from_file(filename))
-        global lastpainted
-        lastpainted = filename
+        global g_lastpainted
+        g_lastpainted = filename
 
     def invalidate(self):
         self.queue_draw()
 
-def handle_input(widget, event):
-     print "Handle user input. Event number:%d" % event.type
-     x,y,state = 0, 0, ""
-     if event.type == gtk.gdk.KEY_PRESS:
-         keyname = gtk.gdk.keyval_name(event.keyval)
-         print "Key %s (%d) was pressed" % (keyname, event.keyval)
-         if event.keyval == 27 or keyname == 'q' or keyname == 'Q':
-             print "exit because of ESC or 'q' key"
-             sys.exit(0)
-         elif event.keyval == 32:
-             # TODO: toggle pause
-             global g_pause
-             g_pause = not g_pause
 
-         elif keyname == 'n' or keyname == 'N':
-             # NEXT image
-             self.index += 1
-             if self.index >= len(self.files):
-                 if repeat:
-                     print "wrap"
-                     self.index = 0
-                 else:
-                     # end of show
-                     sys.exit(0)
-             self.display()
 
-         elif keyname == 'p' or keyname == 'P':
-             # PREV image
-             self.index -= 1
-             if self.index < 0:
-                 self.index = 0
-         self.display()
-
-     elif event.type == gtk.gdk.BUTTON_PRESS or event.is_hint:
-         x, y, state = event.window.get_pointer()
-     else:
-         x = event.x
-         y = event.y
-         state = event.state
-     print "event x,y state:%d,%d %s" % (x,y,state)
-     #http://www.pygtk.org/pygtktutorial/sec-eventhandling.html
+import zipfile
 
 class DemoGtk:
 
-    SECONDS_BETWEEN_PICTURES = slide_time
-    FULLSCREEN = fullscreen
+    SECONDS_BETWEEN_PICTURES = g_slide_time
+    FULLSCREEN = g_fullscreen
     WALK_INSTEAD_LISTDIR = True
 
     def __init__(self,args):
@@ -327,10 +290,10 @@ class DemoGtk:
               gtk.gdk.BUTTON_PRESS_MASK | 
               gtk.gdk.SCROLL_MASK)
 
-        #self.window.connect("motion-notify-event", handle_input)
-        self.window.connect("key-press-event", handle_input)
-        self.window.connect("button-press-event", handle_input)
-        #self.window.connect("scroll-event", handle_input)
+        #self.window.connect("motion-notify-event", self.handle_input)
+        self.window.connect("key-press-event", self.handle_input)
+        self.window.connect("button-press-event", self.handle_input)
+        #self.window.connect("scroll-event", self.handle_input)
 
         self.image = ResizableImage( True, True, gtk.gdk.INTERP_BILINEAR)
         self.image.show()
@@ -362,21 +325,30 @@ class DemoGtk:
         for arg in args:
           print "arg:", arg
           if self.WALK_INSTEAD_LISTDIR:    
+            #print "WALK"
             for directory, sub_directories, files in os.walk(arg):
-                print "dir:", directory
+                print "dir:%s sub:%s files:%s", (directory, sub_directories, files)
                 for filename in files:
                     #print "allfile:", filename
                     filepath = os.path.join(directory, filename)
                     if is_image(filepath):
                         self.files.append(filepath)
                         print "dirFile:", filename
+                    elif zipfile.is_zipfile(filepath):
+                        print 'TODO: handle zip files. %20s  %s' % (filepath, zipfile.is_zipfile(filepath))
                 print "%d images."% len(self.files)
+            if zipfile.is_zipfile(arg):
+                print 'TODO: handle zip files. %20s' % (arg)
           else:
+            print "LIST"
             for filename in os.listdir(arg):
+                print "allfile:", filename
                 if is_image(filename):
                     self.files.append(filename)
                     print "File:", filename
                     #print "Images:", self.files
+                elif zipfile.is_zipfile(filename):
+                    print 'TODO: handle zip files. %20s  %s' % (filename, zipfile.is_zipfile(filename))
 
         #print "Images:", self.files
         print "TOTAL: %d images."% len(self.files)
@@ -421,10 +393,10 @@ class DemoGtk:
         If this picture is last, go to the first one. """
 
         # TODO: check did we manage to show the last image?
-        if lastpainted == self.files[self.index]:
+        if g_lastpainted == self.files[self.index]:
             print "happiness"
         else:
-            print "much SADness, we should wait some more", lastpainted
+            print "much SADness, we should wait some more", g_lastpainted
             print "much SADness, we should wait some more", self.index
             print "much SADness, we should wait some more", self.files[self.index]
 
@@ -432,7 +404,7 @@ class DemoGtk:
         if not g_pause:
             self.index += 1
             if self.index >= len(self.files):
-                if repeat:
+                if g_repeat:
                     print "wrap"
                     self.index = 0
                 else:
@@ -440,6 +412,62 @@ class DemoGtk:
                     sys.exit(0)
 
         return self.display()
+
+    def handle_input(self, widget, event):
+        print "Handle user input. Event number:%d" % event.type
+        # http://www.pygtk.org/pygtktutorial/sec-eventhandling.html
+        x,y,state = 0, 0, ""
+        if event.type == gtk.gdk.KEY_PRESS:
+            keyname = gtk.gdk.keyval_name(event.keyval)
+            print "Key %s (%d) was pressed" % (keyname, event.keyval)
+            if event.keyval == 27 or keyname == 'q' or keyname == 'Q'or keyname == 'Escape':
+                print "exit because of ESC or 'q' key"
+                sys.exit(0)
+
+            elif event.keyval == 32:
+                # TODO: toggle pause
+                global g_pause
+                g_pause = not g_pause
+
+            elif keyname == 'n' or keyname == 'N':
+                # NEXT image
+                self.index += 1
+                if self.index >= len(self.files):
+                    if g_repeat:
+                        print "wrap"
+                        self.index = 0
+                    else:
+                        # end of show
+                        sys.exit(0)
+                self.display()
+
+            elif keyname == 'p' or keyname == 'P':
+                # PREV image
+                self.index -= 1
+                if self.index < 0:
+                    self.index = 0
+                self.display()
+
+            elif keyname == "plus":
+                self.SECONDS_BETWEEN_PICTURES+=1
+                if self.SECONDS_BETWEEN_PICTURES>360:
+                    self.SECONDS_BETWEEN_PICTURES=360
+                print "SLOWER! %d" % (self.SECONDS_BETWEEN_PICTURES)
+
+            elif keyname == "minus":
+                self.SECONDS_BETWEEN_PICTURES-=1
+                if self.SECONDS_BETWEEN_PICTURES<0:
+                    self.SECONDS_BETWEEN_PICTURES=0
+                print "FASTER! %d" % (self.SECONDS_BETWEEN_PICTURES)
+
+        elif event.type == gtk.gdk.BUTTON_PRESS or event.is_hint:
+            x, y, state = event.window.get_pointer()
+
+        else:
+            x = event.x
+            y = event.y
+            state = event.state
+            print "event x,y state:%d,%d %s" % (x,y,state)
 
 
 import sys
@@ -454,19 +482,19 @@ def process_args():
         print "for help use --help"
         sys.exit(2)
     # process options
-    global fullscreen,repeat,slide_time,g_sort
+    global g_fullscreen,g_repeat,g_slide_time,g_sort
     for o, a in opts:
         if o in ("-h", "--help"):
             print __doc__
             sys.exit(0)
         if o in ("-w", "--window"):
-            fullscreen = False
+            g_fullscreen = False
         if o in ("-f", "--fullscreen"):
-            fullscreen = True
+            g_fullscreen = True
         if o in ("-r", "--repeat"):
-            repeat = True
+            g_repeat = True
         if o in ("-d", "--delay"):
-            slide_time = 3
+            g_slide_time = 3
         if o in ("-n", "--name"):
             g_sort = "byName"
             print "Sort by name:", g_sort            
