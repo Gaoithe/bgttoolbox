@@ -12,7 +12,8 @@
 python script quick and simplish photo slideshow of directories
 """
 
-# Taken and customed from Jack Valmadre's Blog:
+"""
+# originally originally . . . Taken and customed from Jack Valmadre's Blog:
 # http://jackvalmadre.wordpress.com/2008/09/21/resizable-image-control/
 # 
 # Put together and created the time switching by Izidor Matusov <izidor.matusov@gmail.com>
@@ -55,7 +56,8 @@ python script quick and simplish photo slideshow of directories
 # TODO: disable  screensaver
 # TODO: profile prog in fullscreen and windowed mode, is there a slowdown? where is it?
 # TODO: loading file list, show loading info and start showing images earlier
-'''
+
+###############################################
 23/10/2012
 ODO: configurable debug and logging messages 
 TODO: track time it takes to build list of images, time to display images/dirs, use for profiling and debug info
@@ -67,6 +69,7 @@ TODO: time/play bar like video
 
 cd /mnt/GreenSpaceMultimedia/FamilyPhotos/AllPictures/
 
+###############################################
 8/2/2015
 before cub scouts. sort by date/time was not showing by date time
 because . . . some dirs had files date/times messed up. 
@@ -74,18 +77,19 @@ better to sort by filename in those cases (added -n --name option)
 Default: sort by create date/time.
 Another Option: -s --nosort  (sorted by the way python reads in files - disk order).
 
+###############################################
 9/2/2015 (also see TODOs 23/10/2012)
 STARTED: add some key/mouse control
 DONE: key QUIT
 DONEish: key PAUSE/UNPAUSE   (should quit immediately)
 DONEish: key NEXT/PREV          (should display immediately)
 TODO: faster/slower
-TODO: key PAUSE/UNPAUSE  cute fade in & out paws animation
-TODO: key HELP
+TODO: key PAUSE/UNPAUSE  cute fade in & out paws animation  -  like snake - paws footprints walking around screen - old ones fading out 
+TODO: key HELP/MENU - text key/control menu on screen
 TODO: key INFO (info on picture set (pic number i of n, eta T:S min/sec) and info on current image (name, dir, resolution, . . .))
 TODO: mousemove/key cute fade in menu hint
 
-'''
+"""
 
 import os
 
@@ -100,6 +104,19 @@ g_repeat = False
 g_sort = "byDatetime"
 g_lastpainted = -1
 g_pause = False
+g_help = False
+g_info = False
+
+g_help_text = '''======= key/mouse control =======
+q/Q/Esc . . . . . . . . . QUIT
+<space> . . . . . . . . . PAUSE/UNPAUSE
+n/N or p/P  . . . . . . . NEXT or PREVIOUS
++/- . . . . . . . . . . . FASTer/SLOWer
+i/I . . . . . . . . . . . TODO: INFO - show info on image - show progress
+m/M h/H . . . . . . . . . TODO: MENU / HELP - quick keypress/control help
+* . . . . . . . . . . . . TODO: MARK image
+======= key/mouse control =======
+''' 
 
 def is_image(filename):
     """ File is image if it has a common suffix and it is a regular file """
@@ -383,10 +400,27 @@ class DemoGtk:
             self.image.set_from_file(self.files[self.index])
             print "display index", self.index
             print "display true", self.files[self.index]
+
+            ## show menu/help and/or info text
+            ## tooltip is a bit clunky and ugly but quick qand easy TODO: make beautiful, draw onto image.
+            text = ""
+            global g_help, g_help_text
+            if g_help:
+                text = g_help_text
+            if g_info:
+                text += self.get_info_text()
+            if g_help or g_info:
+                self.window.set_tooltip_text(text)
+
             return True
         else:
             print "display false"
             return False
+
+    def get_info_text(self):
+        """ Return info on current image and on list of files progress """
+        text = "image %3d of %5d filename:%s" % (self.index, len(self.files), self.files[self.index])
+        return text
 
     def on_tick(self):
         """ Skip to another picture.
@@ -431,8 +465,10 @@ class DemoGtk:
         if event.type == gtk.gdk.KEY_PRESS:
             keyname = gtk.gdk.keyval_name(event.keyval)
             print "Key %s (%d) was pressed" % (keyname, event.keyval)
-            if event.keyval == 27 or keyname == 'q' or keyname == 'Q'or keyname == 'Escape':
-                print "exit because of ESC or 'q' key"
+
+            if ( event.keyval == 27 or keyname == 'q' or keyname == 'Q' or keyname == 'Escape' or
+               ( keyname == 'C' or keyname == 'c' and ( event.state == gtk.gdk.CONTROL_MASK | gtk.gdk.MOD2_MASK))):
+                print "exit because of ESC or Ctrl-c or 'q' key"
                 sys.exit(0)
 
             elif event.keyval == 32:
@@ -470,6 +506,19 @@ class DemoGtk:
                 if self.SECONDS_BETWEEN_PICTURES<0:
                     self.SECONDS_BETWEEN_PICTURES=0
                 print "FASTER! %d" % (self.SECONDS_BETWEEN_PICTURES)
+
+            elif keyname == 'i' or keyname == 'I':
+                global g_info
+                g_info = not g_info
+
+            else:
+                if ( keyname != 'h' and keyname != 'H' and 
+                     keyname != 'm' and keyname != 'M' ):
+                    print "Unknown/unhandled key press?" 
+                # TODO: print help/menu on run screen :- toggle show/hide help menu here
+                global g_help, g_help_text
+                g_help = not g_help
+                print g_help_text
 
         elif event.type == gtk.gdk.BUTTON_PRESS or event.is_hint:
             x, y, state = event.window.get_pointer()
