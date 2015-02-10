@@ -83,11 +83,12 @@ STARTED: add some key/mouse control
 DONE: key QUIT
 DONEish: key PAUSE/UNPAUSE   (should quit immediately - it does)
 DONEish: key NEXT/PREV       (should display immediately - it does)
-TODO: faster/slower
+DONE: faster/slower
 TODO: key PAUSE/UNPAUSE  cute fade in & out paws animation  -  like snake - paws footprints walking around screen - old ones fading out 
-TODO: key HELP/MENU - text key/control menu on screen
-TODO: key INFO (info on picture set (pic number i of n, eta T:S min/sec) and info on current image (name, dir, resolution, . . .))
+TODO..: key HELP/MENU - text key/control menu on screen
+TODO..: key INFO (info on picture set (pic number i of n, eta T:S min/sec) and info on current image (name, dir, resolution, . . .))
 TODO: mousemove/key cute fade in menu hint
+TODO: L - show list / - search list pageUp/pageDown jump in list N/P next/prev dir
 
 """
 
