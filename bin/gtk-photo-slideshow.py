@@ -81,8 +81,8 @@ Another Option: -s --nosort  (sorted by the way python reads in files - disk ord
 9/2/2015 (also see TODOs 23/10/2012)
 STARTED: add some key/mouse control
 DONE: key QUIT
-DONEish: key PAUSE/UNPAUSE   (should quit immediately)
-DONEish: key NEXT/PREV          (should display immediately)
+DONEish: key PAUSE/UNPAUSE   (should quit immediately - it does)
+DONEish: key NEXT/PREV       (should display immediately - it does)
 TODO: faster/slower
 TODO: key PAUSE/UNPAUSE  cute fade in & out paws animation  -  like snake - paws footprints walking around screen - old ones fading out 
 TODO: key HELP/MENU - text key/control menu on screen
@@ -106,6 +106,8 @@ g_lastpainted = -1
 g_pause = False
 g_help = False
 g_info = False
+g_info_text = False
+g_info_speed = False
 
 g_help_text = '''======= key/mouse control =======
 q/Q/Esc . . . . . . . . . QUIT
@@ -404,13 +406,21 @@ class DemoGtk:
             ## show menu/help and/or info text
             ## tooltip is a bit clunky and ugly but quick qand easy TODO: make beautiful, draw onto image.
             text = ""
-            global g_help, g_help_text
+            global g_help, g_help_text, g_info, g_info_speed, g_info_text
             if g_help:
                 text = g_help_text
             if g_info:
                 text += self.get_info_text()
-            if g_help or g_info:
+            if g_info_text:
+                text += g_info_text
+                g_info_text = False
+            if g_info_speed:
+                text += g_info_speed
+                g_info_speed = False
+            if text:
                 self.window.set_tooltip_text(text)
+            else:
+                self.window.set_tooltip_text(None)
 
             return True
         else:
@@ -475,8 +485,12 @@ class DemoGtk:
                 # TODO: toggle pause
                 global g_pause
                 g_pause = not g_pause
+                if g_pause:
+                    global g_info_text
+                    g_info_text = "\nPaused\nHit <space> to unpause.\n"
+                    print g_info_text
 
-            elif keyname == 'n' or keyname == 'N':
+            elif keyname == 'n' or keyname == 'N' or keyname == 'Right':
                 # NEXT image
                 self.index += 1
                 if self.index >= len(self.files):
@@ -486,39 +500,49 @@ class DemoGtk:
                     else:
                         # end of show
                         sys.exit(0)
+                # display immediately
                 self.display()
 
-            elif keyname == 'p' or keyname == 'P':
+            elif keyname == 'p' or keyname == 'P' or keyname == 'Left':
                 # PREV image
                 self.index -= 1
                 if self.index < 0:
                     self.index = 0
+                # display immediately
                 self.display()
 
             elif keyname == "minus":
                 self.SECONDS_BETWEEN_PICTURES+=1
                 if self.SECONDS_BETWEEN_PICTURES>360:
                     self.SECONDS_BETWEEN_PICTURES=360
-                print "SLOWER! %d" % (self.SECONDS_BETWEEN_PICTURES)
+                global g_info_speed
+                g_info_speed = "\nSLOWER! %d\n" % (self.SECONDS_BETWEEN_PICTURES)
+                print g_info_speed
 
             elif keyname == "plus":
                 self.SECONDS_BETWEEN_PICTURES-=1
                 if self.SECONDS_BETWEEN_PICTURES<0:
                     self.SECONDS_BETWEEN_PICTURES=0
-                print "FASTER! %d" % (self.SECONDS_BETWEEN_PICTURES)
+                global g_info_speed
+                g_info_speed = "\nFASTER! %d\n" % (self.SECONDS_BETWEEN_PICTURES)
+                print g_info_speed
 
             elif keyname == 'i' or keyname == 'I':
                 global g_info
                 g_info = not g_info
 
-            else:
-                if ( keyname != 'h' and keyname != 'H' and 
-                     keyname != 'm' and keyname != 'M' ):
-                    print "Unknown/unhandled key press?" 
+            elif ( keyname == 'h' or keyname == 'H' or
+                   keyname == 'm' or keyname == 'M' ):
                 # TODO: print help/menu on run screen :- toggle show/hide help menu here
                 global g_help, g_help_text
                 g_help = not g_help
                 print g_help_text
+
+            else:
+                global g_info_text
+                g_info_text = "\nUnknown/unhandled key press.\nTry 'h' for help.\nkey:%s val:%d\n" % (keyname, event.keyval)
+                print g_info_text
+                g_info_text = False
 
         elif event.type == gtk.gdk.BUTTON_PRESS or event.is_hint:
             x, y, state = event.window.get_pointer()
