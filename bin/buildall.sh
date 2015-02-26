@@ -6,6 +6,7 @@ usage(){
 MODLIST="mod.list"
 OVERRIDES=""
 QALL=0
+ERROR=0
 
 # problematic -z9 argument to cvs for james@nebraska -> ssh james@iowa cvsroot
 MZ9=-z9
@@ -264,6 +265,8 @@ case "$1" in
 	;;
 esac;
 
+rm -f buildall.error
+
 case "$1" in 
     status|update|status1|status2|status3)
         [[ -e cvs.${1} ]] && mv cvs.${1} cvs.${1}.older
@@ -395,10 +398,15 @@ for d in $MODS; do
 	    ;;
     esac;
     if [ $? -ne 0 ];  then
-	echo "###############################################################"
-	echo "        Bailed while performing $1 in $d"
-	echo "###############################################################"
-	exit -1
+	echo "###############################################################" |tee -a buildall.error
+	echo "        Error/Bailed while performing $1 in $d"|tee -a buildall.error
+	echo "###############################################################"|tee -a buildall.error
+	if [ "$1" != "update" ] ; then
+            exit -1
+        else
+	    grep -v '^?' $TF1 |tee -a buildall.error
+            ERROR=1
+        fi
     fi
 
     v=`wc -l $TF | awk '{print $1}'`
@@ -433,6 +441,13 @@ if [ "$1" = "digraph" ]; then
     echo "}"
 fi
 
+if [ -e buildall.error ] ; then
+    cat buildall.error
+fi
+
+if [ $ERROR -eq 1 ] ; then
+    exit -1
+fi
 
 exit 0
 
