@@ -215,6 +215,7 @@ mkdir $gConfigDir || print(STDERR "ERROR: failed to mkdir $gConfigDir");
 
 our $gDefaultProfileset = "$gConfigDir/DEFAULT_PROFILES";
 our $gProfileset = $gDefaultProfileset;
+our $gSaveProfileset;
 our $gUserProfileset;
 our $gLoadedprofileset;
 our $verbose;
@@ -275,6 +276,7 @@ sub topmenu {
         { text => 'Select Media',
           code => sub { $$select_media_menu->print(); }},
         { text => 'CONTINUE: Run Transcoding and Generate Fingerprints',
+          key  => 'c',
           code => sub {return "EXIT";},
           enablecode => sub {return ready_for_transcoding();}},
         );
@@ -308,7 +310,9 @@ sub profilesetfilesmenu {
     }
     push(@profileset_files_choices,      
          { text => 'back to Topmenu',
-           code => sub {return "EXITMENUONELEVEL";}},);
+           key  => 'b',
+           code => sub {return "EXITMENUONELEVEL";}},
+        );
     
     my $profileset_files_menu = Menu->new(
         title   => "Select a profile-set file.
@@ -345,7 +349,7 @@ sub profilesshortlistmenu {
         $p =~ s/\r|\n//g;
 
         my $mark="";
-        $mark = "   *SELECTED*" if (grep(/$p/,@{$profileset::profileset{'profiles_list'}}));
+        $mark = " *SELECT*" if (grep(/$p/,@{$profileset::profileset{'profiles_list'}}));
 
         push(@choices, {
             text => "$p".$mark, 
@@ -360,6 +364,7 @@ sub profilesshortlistmenu {
     }
     push(@choices,            
          { text => 'Exit sub-menu',
+           key  => 'b',
            code => sub {return "EXITMENUONELEVEL";}},
         );
     
@@ -368,7 +373,7 @@ sub profilesshortlistmenu {
         choices => \@choices,
         noexit  => 1,
         noreturn=> 1,
-        marksel => "   *MARKED*",
+        marksel => " *MARKED*",
         );
 
     $menu->print();
@@ -391,13 +396,15 @@ sub profiles_shortlist_topmenu {
     }
     push(@profiles_shortlist_choices,            
          { text => 'back to Topmenu',
-           code => sub {return "EXITMENUONELEVEL";}},);
+           key  => 'b',
+           code => sub {return "EXITMENUONELEVEL";}},
+        );
 
     my $profiles_shortlist_topmenu = Menu->new(
         title   => 'Profiles Shortlist',
         choices => \@profiles_shortlist_choices,
         noexit  => 1,
-        marksel => "   *MARKED*",
+        marksel => " *MARKED*",
         );
 
     return $profiles_shortlist_topmenu;
@@ -409,10 +416,29 @@ sub profiles_shortlist_topmenu {
 #########################################################################
 #e.g. ProfileMapping Key="HTC_Desire_HD/1.0" ProfileName="message/VAN_HTC Desire HD.xml" KeyGroupName="User-Agent"/>
 #grep -E "(HTC Dream|HTC Desire|Nokia 3200|Nokia 8800)" /opt/spotxde/share/profilesMO/Mapping/STI_VAN_STI_System_Mappings.xml
+#grep ProfileMapping /opt/spotxde/share/profilesMO/Mapping/STI_VAN_STI_System_Mappings.xml
+#[omn@valhalla-1 ~]$ grep ProfileMapping /opt/spotxde/share/profilesMO/Mapping/STI_VAN_STI_System_Mappings.xml |sed 's/.*ProfileName="//;s/" .*//;s/VAN_//;s/.xml//' |sort |uniq -ci |wc -l
+#grep ProfileMapping /opt/spotxde/share/profilesMO/Mapping/STI_VAN_STI_System_Mappings.xml |sed 's/.*ProfileName="//;s/" .*//;s/VAN_//;s/.xml//' |awk '{print $1}' |sort |uniq -ci 
+#3770 devices, 144 manufacturers
+#profiles_path=/opt/spotxde/share/profilesMO; 
+#ssh -oBatchMode=yes omn@valhalla-1 "grep ProfileMapping $profiles_path/Mapping/STI_VAN_STI_System_Mappings.xml |sed 's/.*ProfileName=\"//;s/\" .*//;s/VAN_//;s/.xml//' |awk '{print \$1}' |sort |uniq -ci"
 sub searchdefinitionsmenu {
     my $dirpath = shift;
-    my @profiles = `$sshcmd "grep -E '(HTC Dream|HTC Desire|Nokia 3200|Nokia 8800)' $profiles_path/Mapping/STI_VAN_STI_System_Mappings.xml"`;
-    #my @profiles = `$sshcmd ls $profiles_path/Definition/$dir/ |grep -vE "(First|Last) Fall-back" |sed "s/VAN_//;s/ .*//" |sort |uniq|column`;
+    my $manufacturer = shift;
+    my @profiles;
+    if (defined($manufacturer) && $manufacturer eq "ALL") {
+        #@profiles = `$sshcmd "grep '<ProfileMapping ' $profiles_path/Mapping/STI_VAN_STI_System_Mappings.xml"`
+        @profiles = `$sshcmd "grep '<ProfileMapping ' $profiles_path/Mapping/STI_VAN_STI_System_Mappings.xml" |sed 's/.*ProfileName=\"//;s/\" .*//;s/VAN_//;s/.xml//'`
+    } elsif (defined($manufacturer) && $manufacturer eq "COMMON") {
+        @profiles = `$sshcmd "grep -E '(HTC Dream|HTC Desire|Nokia 3200|Nokia 8800)' $profiles_path/Mapping/STI_VAN_STI_System_Mappings.xml"`;
+        #my @profiles = `$sshcmd ls $profiles_path/Definition/$dir/ |grep -vE "(First|Last) Fall-back" |sed "s/VAN_//;s/ .*//" |sort |uniq|column`;
+    } elsif (defined($manufacturer)) {
+        my ($count,$m) = ($manufacturer =~ m/\s*(\d+)\s*(\w+)\s*/);
+        @profiles = `$sshcmd "grep -E '$m' $profiles_path/Mapping/STI_VAN_STI_System_Mappings.xml"`;
+    } else {
+        #@profiles = `$sshcmd "grep '<ProfileMapping ' $profiles_path/Mapping/STI_VAN_STI_System_Mappings.xml |sed 's/.*ProfileName=\"//;s/\" .*//;s/VAN_//;s/.xml//' |awk '{print \$1}' |sort |uniq -ci"`;
+        @profiles = `$sshcmd "grep '<ProfileMapping ' $profiles_path/Mapping/STI_VAN_STI_System_Mappings.xml" |sed 's/.*ProfileName=\"//;s/\" .*//;s/VAN_//;s/.xml//;s#message/##' |awk '{print \$1}' |sort |uniq -ci`
+    }
 
     my @choices;
     foreach my $p (@profiles) {
@@ -420,22 +446,37 @@ sub searchdefinitionsmenu {
         $p =~ s/.*ProfileName=//;
         $p =~ s/"//;
         $p =~ s/".*//;
-        push(@choices, {
-            text => "$p", 
-            code => sub { print "SELECT:$p"; add_profile_to_list "$p"; }
-             });
+
+        if (!defined($manufacturer)) {
+            push(@choices, {
+                text => "$p",
+                code => sub { print "SELECT:$p\n"; searchdefinitionsmenu($dirpath,$p); }
+                 });
+        } else {
+            my $mark="";
+            $mark = " *SELECT*" if (grep(/$p/,@{$profileset::profileset{'profiles_list'}}));
+            my $t = $p;
+            # make big menus smaller by reducing size of common menu text (remove redundant message/VAN_......xml)
+            $t =~ s/message\/VAN_//;
+            $t =~ s/.xml//;
+            push(@choices, {
+                text => "$t".$mark, 
+                code => sub { print "SELECT:$p\n"; add_profile_to_list "$p"; }
+                 });
+        }
     }
     push(@choices,            
          { text => 'Exit sub-menu',
+           key  => 'b',
            code => sub {return "EXITMENUONELEVEL";}},
         );
     
     my $menu = Menu->new(
-        title   => 'Search Definitions $dirpath',
+        title   => "Search Definitions $dirpath",
         choices => \@choices,
         noexit  => 1,
         noreturn=> 1,
-        marksel => "   *MARKED*",
+        marksel => " *MARKED*",
         );
 
     $menu->print();
@@ -447,7 +488,15 @@ sub searchdefinitionsmenu {
 sub selectmediamenu {
     my $cmd = shift;
 
-    my @files = `ls *.jpg`;
+    # find . -maxdepth 1 -type f -readable -iname "*.*"
+    my $reMediaFileExtensions = "(jpg|jpeg|png|gif|bmp|tif|tiff|" . 
+        "wav|ogg|mp3|m4a|m4b|m4p|aiff|wma|aac|au|amr|mov|caf|flac|mid|".
+        "avi|mp4|mpg|mpeg|wmv|vob|asf|m4v|3gpp)";
+
+    #$cmd = "ls *.jpg";
+    $cmd = "find . -maxdepth 1 -type f -readable |grep -iE \"\.$reMediaFileExtensions\"\$";
+    
+    my @files = `$cmd`;
 
     my @choices;
     foreach my $f (@files) {
@@ -461,15 +510,14 @@ sub selectmediamenu {
     }
     push(@choices,            
          { text => 'Exit sub-menu',
+           key  => 'b',
            code => sub {return "EXITMENUONELEVEL";}},
         );
     
     my $menu = Menu->new(
-        title   => 'Select Media File $dir',
+        title   => "Select Media File $cmd",
         choices => \@choices,
-        noexit  => 1,
-        noreturn=> 1,
-        marksel => "   *MARKED*",
+        marksel => " *MARKED*",
         );
 
     #$menu->print();
@@ -484,6 +532,20 @@ sub selectmediamenu {
 #########################################################################
 
 package Menu;
+
+sub wait_for_any_key {
+    #use Term::ReadKey;
+    #ReadMode('cbreak');
+    #my $key = ReadKey(0);
+    #ReadMode('normal');
+
+    #system "stty cbreak </dev/tty >/dev/tty 2>&1";
+    system "stty", '-icanon', 'eol', "\001";
+    my $key = getc(STDIN);
+    #system "stty -cbreak </dev/tty >/dev/tty 2>&1";
+    system 'stty', 'icanon', 'eol', '^@'; # ASCII NUL
+    return $key;
+}
 
 # Menu constructor
 sub new {
@@ -500,6 +562,13 @@ sub new {
     my $dir         = $args{dir} if $args{dir};
     my $allowed     = $args{allowed} if $args{allowed};
 
+    my @sttyl = qx(stty -a|grep rows);
+    my ($rows, $cols) = ($sttyl[0] =~ m/rows\s*(\d+);\s*columns\s*(\d+);/);
+    print "DEBUG: screen size is rows:$rows x cols:$cols\n" if ($verbose);
+
+    my $cols_keepfree = 10;
+    $cols -= $cols_keepfree;
+
     # Bless the menu object
     my $self = bless {
         title   => $title,
@@ -510,6 +579,8 @@ sub new {
         marksel => $marksel,
         dir     => $dir,
         allowed => $allowed,
+        rows    => $rows,
+        cols    => $cols,
     }, $class;
 
     return $self;
@@ -526,6 +597,22 @@ sub print {
     my $noexit  =   $self->{noexit};
     my $noreturn=   $self->{noreturn};
     my $marksel =   $self->{marksel};
+    
+    my $menu_cols = 1;
+    my $menu_col_width = 0;
+    my $rows_for_menu_head_and_foot = 4;
+
+    if (scalar @choices > ($self->{rows} - $rows_for_menu_head_and_foot)) {
+        print "DEBUG: too many choices so . . . \n" if ($verbose);
+        my $maxmenutext = 0;
+        for my $choice(@choices) {
+            my $l = length($choice->{text});
+            $maxmenutext = $l if ($maxmenutext<$l);
+        }
+        $menu_cols = $self->{cols} / ($maxmenutext + 10);
+        print "DEBUG: menu cols:$menu_cols\n" if ($verbose);
+        $menu_col_width = $self->{cols}/$menu_cols;
+    }
 
     # Print menu
     for (;;) {
@@ -539,11 +626,39 @@ sub print {
         print "========================================\n";
 
         # Print menu options
+        my $menuline = "";
+        my $linecounter = 0;
         my $counter = 0;
         for my $choice(@choices) {
-            if (!defined $choice->{enablecode} || $choice->{enablecode}()) {
-                printf "%2d. %s\n", ++$counter, $choice->{text};
+            
+            #$choice->{text}.=" *SELECT*" if (grep $choice->{text} @{$profileset::profileset{'profiles_list'}});
+
+            if (!defined($choice->{enablecode}) || $choice->{enablecode}()) {
+                if (defined($choice->{key})) {
+                    $menuline .= sprintf "%2s. %-${menu_col_width}s", $choice->{key}, $choice->{text};
+                } else {
+                    $menuline .= sprintf "%2d. %-${menu_col_width}s", ++$counter, $choice->{text};
+                }
             }
+
+            if ($counter % $menu_cols == 0) {
+                $linecounter++;
+                # save un-necessary line-wrapping for big menus by removing whitespace at EOL
+                $menuline =~ s/\s*$//;
+                printf "$menuline\n";
+                $menuline = "";
+
+                if (($linecounter + $rows_for_menu_head_and_foot) % $self->{rows} == 0) {
+                    # Woah. Too much stuff in menu for one page. > prompt !! PAGE !! MORE !! LESS !!
+                    printf "--More--";
+                    wait_for_any_key();
+                    printf "\r";
+                    
+                }
+
+            }
+
+
         }
         printf "%2d. %s\n", '0', 'Exit' unless $noexit;
         main::show_selected_profiles("Selected ");
@@ -587,8 +702,30 @@ sub print {
                     print $result;
                 }
             } else {
-                print "Invalid input.\n\n";
-                sleep 3;
+
+                # Also look for a match of the menu item string. (cut & paste common for media and profiles and files
+                my $matched=0;
+                for my $choice(@choices) {
+                    if ($input eq $choice->{text} || 
+                        (defined($choice->{key}) && $input eq $choice->{key})
+                        ) {
+                        $matched=1;
+
+                        print "DEBUG: selected $choice->{text}\n";
+                        my $result = $choice->{code}->();
+                        print "DEBUG: result=$result\n";
+                        return $result if ("$result" eq "EXIT");
+                        return $result."ONELEVEL" if ("$result" eq "EXITMENUONELEVEL" and !$self->{topmenu});
+                        return $result if (!$self->{noreturn} or ("$result" eq "EXITMENU" and !$self->{topmenu}));
+                        $choice->{text} .= $marksel if ($marksel); 
+                        
+                    }
+                }
+
+                if (!$matched) {
+                    print "Invalid input.\n\n";
+                    sleep 2;
+                }
             }
         }
     }
@@ -688,26 +825,37 @@ EOF
 # write to specified profile-set name OR date/timestamp file
 #########################################################################
 sub saveProfilesetFile {
-    our ($gLoadedprofileset, $gSaveprofileset, $gProfileset, $gConfigDir);
+    our ($gLoadedprofileset, $gSaveProfileset, $gProfileset, $gConfigDir);
     # Write a date-timestamp profile-set if profiles selected by user interaction or on command-line
-    if (!$gLoadedprofileset && !$gSaveprofileset && $gProfileset &&
+    if (!$gLoadedprofileset && !$gSaveProfileset && $gProfileset &&
         scalar @{$profileset::profileset{'profiles_list'}} != 0) {
-        #$gSaveprofileset = strftime("%F %T", localtime);
-        $gSaveprofileset = strftime("%Y%m%d_%H%M", localtime);
+        #$gSaveProfileset = strftime("%F %T", localtime);
+        $gSaveProfileset = strftime("%Y%m%d_%H%M", localtime);
+    }
+
+    if (scalar @{$profileset::profileset{'profiles_list'}} <= 0) {
+        print(STDERR "No PROFILESET. No profiles selected.\n");
+    }
+
+    if (!$gSaveProfileset) {
+        print(STDERR "No PROFILESET save file name set?\n");
     }
     
     # write profile-set requested on command-line OR profiles selected by user interaction or on command-line
-    if ($gSaveprofileset) {
-        my $err = saveProfileset("$gConfigDir/$gSaveprofileset");
+    if ($gSaveProfileset) {
+        my $err = saveProfileset("$gConfigDir/$gSaveProfileset");
         if ($err) {
-            print(STDERR "Problem saving PROFILESET:'$gConfigDir/$gSaveprofileset'.\n");
+            print(STDERR "Problem saving PROFILESET:'$gConfigDir/$gSaveProfileset'.\n");
             #print(STDERR "$err\n");
             print(STDERR "\n");
-            `ls $gConfigDir/$gSaveprofileset`;
+            `ls $gConfigDir/$gSaveProfileset`;
             return $err;
         }
-    } 
-    return "SAVED_PROFILESET"
+        return "SAVED_PROFILESET"
+    } else {
+        print(STDOUT "INFO: No PROFILESET file saved.\n");
+        return "DID_NOT_SAVE_PROFILESET"
+    }
 }
 
 #########################################################################
@@ -791,7 +939,13 @@ sub add_media_item {
 
 sub add_profile_to_list {
     my $p = shift;
-    push (@{$profileset::profileset{'profiles_list'}}, "$p");
+    # don't add duplicate items
+    if (!grep(/$p/,@{$profileset::profileset{'profiles_list'}})) {
+        push (@{$profileset::profileset{'profiles_list'}}, "$p");
+    } else {
+        print(STDERR "WARNING: $p is already in list\n");
+        sleep 2;
+    }
 }
 
 sub list_profile_sets {
@@ -809,7 +963,16 @@ sub show_selected_profiles {
     my $msg = shift;
     printf "%s%d profiles: ", $msg, scalar @{$profileset::profileset{'profiles_list'}};
     foreach my $profile (@{$profileset::profileset{'profiles_list'}}) {
-        print "'$profile' ";
+        # cut down screen space used
+        my $pprofile = $profile;
+        $pprofile =~ s/message\//m\//;
+        $pprofile =~ s/image\//i\//;
+        $pprofile =~ s/audio\//a\//;
+        $pprofile =~ s/text\//t\//;
+        $pprofile =~ s/video\//v\//;
+        $pprofile =~ s/VAN_//;
+        $pprofile =~ s/.xml//;
+        print "'$pprofile' ";
     }
     print "\n";
     return 0;
@@ -850,7 +1013,7 @@ my $rc = GetOptions(
     q(verbose|v+)       => \$verbose,
     q(donothing|n+)     => \$donothing,
     q(profileset|ps:s)  => \$gUserProfileset,
-    q(saveprofileset|ss:s)  => \my $gSaveprofileset,
+    q(saveprofileset|ss:s)  => \$gSaveProfileset,
     q(listprofileset|lps:s) => \&list_profile_sets,
     q(server|s:s)       => \$profileset::profileset{'server'},
     q(profile|p:s)      => \&add_profile_to_list,
@@ -905,10 +1068,12 @@ if (-e $gProfileset) {
 }
 
 #########################################################################
-# Prompt user to select profile-set (and query profiles on server)
+# Prompt user to select profile-set (and query profiles on server) and media
 #########################################################################
-if (scalar @{$profileset::profileset{'profiles_list'}} == 0) {
-    print(STDERR "At least one profile should be specified.\n");
+if (scalar @{$profileset::profileset{'profiles_list'}} == 0 ||
+    !$gMEDIA_ITEM || ! -e $gMEDIA_ITEM
+    ) {
+    print(STDERR "At least one profile and media item should be specified.\n");
 
     if (!$profileset::profileset{'server'}) {
         print(STDOUT "Check cconf for transcoding server.\n");
@@ -964,9 +1129,8 @@ if (scalar @{$profileset::profileset{'profiles_list'}} == 0) {
 }
 
 
-
 #########################################################################
-# Save profile-set
+# Save profile-set (IF needed)
 #########################################################################
 
 saveProfilesetFile();
@@ -1160,14 +1324,17 @@ if ($verbose) {
         print "EDIT file $cobwebs_cconf_file and run following command to load manually:\n";
         print "cci create $cobwebs_cconf_path $cobwebs_cconf_file\n";
     } else {
+        print "INFO: cci create result=$result\n" if ($result);
         print "INFO: SUCCESSFUL creation of $cobwebs_cconf_path\n";
-        print "INFO: cci create result=$result\n";
         # if success tidy up tmp file
         #unlink $cobwebs_cconf_file or warn "Could not remove temporary file:$cobwebs_cconf_file error:$!";
     }
 }
 
 # Quick check alarms/state of cobwebs and mist_sti
+printf "--More--";
+Menu::wait_for_any_key();
+
 print(STDOUT "\n\nCheck message fingerprinting/transcoding status . . . \n");
 print(STDOUT "'failed to add fingerprint' is expected in case of duplicate transcoded media.\n");
 print(STDOUT `bci -listals  |grep -E "cobwebs|mist|libtrc"`);
