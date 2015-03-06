@@ -15,6 +15,11 @@ Message/Media content is transcoded using each profile.
 MD5 fingerprint for each profile is calculated and loaded into Message Fingerprinting
 Profile-sets are saved in a config file for re-use.
 
+Note that fingerprint.pl script uses OMN Traffic-Control mist_sti.
+Messaging > MMS > Transcoding > STI Server : XML Message is used for the SOAP request.
+The contentType in that xml affects how the transcoding server will do transcoding.
+To achieve a specific behaviour the xml can be changed e.g. change contentType from message/rfc822 to image/jpeg.
+
 Uses libtrc/trc_cli to initialise transcoding interface. 
 User selects set of User-Agent/Device/Media profiles.
  select profiles on server OR can specify a profileset file.
@@ -61,33 +66,33 @@ MD5 fingerprints are calculated and loaded into cobwebs/message fingerprinting c
 
 =head2 More examples . . . 
 
-e.g. fingerprint.pl -profile "image/VAN_JPEG Quality  75   15kB.xml" -profile "message/VAN_HTC Desire.xml" test.jpg
+Examples are in code blocks (start with whitespace) as we need to preserve whitespace in vantrix profile names.
+
+   e.g. fingerprint.pl -profile "image/VAN_JPEG Quality  75   15kB.xml" -profile "message/VAN_HTC Desire.xml" test.jpg
 
 Select profiles on command-line.
 Run transcoding on test.jpg using each profile.
 Write fingerprint to cobwebs cconf.
 
-e.g. fingerprint.pl -saveprofileset COMMON_PROFILES
+   e.g. fingerprint.pl -saveprofileset COMMON_PROFILES
 
 Prompt user to select profiles.
 Write selected profile-set to a specific file called "COMMON_PROFILES"
 
-e.g. fingerprint.pl -listprofileset
+   e.g. fingerprint.pl -listprofileset
 
 List profile-set files in ~/.fingerprinting/ directory.
 
-e.g. fingerprint.pl -profileset COMMON_PROFILES test.jpg
+   e.g. fingerprint.pl -profileset COMMON_PROFILES test.jpg
 
 Load profiles (and other settings from ~/.fingerprinting/COMMON_PROFILES file.
 Run transcoding on test.jpg using each profile.
 Write fingerprint to cobwebs cconf.
 
-e.g. fingerprint.pl -profileset COMMON_PROFILES -selector IS-MSG test.jpg -selector_expr '!{FROM-STORAGE} && {IS-MSG}'
+   e.g. fingerprint.pl -profileset COMMON_PROFILES -selector IS-MSG test.jpg -selector_expr '!{FROM-STORAGE} && {IS-MSG}'
 
 Load profiles, run transcoding as previous example.
 Specify a selector name and expression to use in the fingerprints.
-
-e.g. //!not working yet!// fingerprint.pl -profile "message/.*Nokia.*6500.*" test.jpg
 
 =head1 DESIGN/IMPLEMENTATION
 
@@ -95,102 +100,110 @@ Input: MMS or other message content (image/audio/video/text/other)
 Input: Read transcoding server settings (from .fingerprinting or command-line)
 Input: Read set(list) of profiles (from .fingerprinting or command-line or prompt user for input)
 
-#
-# 0. read settings from .fingerprinting or command-line
-#    no default settings => prompt user
-# 1. Look in cconf-dir/mist_sti-08/sti_profiles-12/* for server hostname
-# 2. ssh to server, grep config and list profiles, 
-#    Show menus to allow user to select set of profiles.
-#    Save selected profiles in config file for re-use.
-# 3. Do transcoding on media file - send transcoding request using cli.
-#    MD5 is calculated and shown.
-# 4. fingerprint+MD5 content item loaded into cobwebs/message fingerprinting
-#
-##[omn@vb-48] cat cconf-dir/mist_sti-08/sti_profiles-12/default-07 
-#name: "default"
-#enabled: 0
-#host: "valhalla-1"
-#port: 8700
-#url: "/GAHOMASTI.xml"
-#open_tout: 600
-#rsp_tout: 600
-#max_conn: 0
-#reuse_conn: 1
-#log_errors: 0
-#log_http: 0
-#xml_template: . . . .  <contentType>message/rfc822</contentType>
-#
-# Where are the profiles kept?
-# On vantrix server, search profiles dirs and search mappings in Mapping/STI_VAN_STI_System_Mappings.xml.
-#
-# MENU: seach profiles, grep and sed to cut down list of profiles
-#ls /opt/spotxde/share/profilesMO/Definition/message/ |grep -vE "(First|Last) Fall-back" |column 
-#ls /opt/spotxde/share/profilesMO/Definition/message/ |grep -vE "(First|Last) Fall-back" |sed "s/VAN_//;s/ .*//" |sort |uniq |column
-# ls /opt/spotxde/share/profilesMO/Definition/{image,audio,video,message,text}/ |grep -vE "(First|Last) Fall-back" |sed "s/VAN_//;s/ .*//" |sort |uniq |column
-#my @profiles_short_all = `$sshcmd ls $profiles_path/Definition/{image,audio,video,message,text}/ |grep -vE "(First|Last) Fall-back" |sed "s/VAN_//;s/ .*//" |sort |uniq |column`;
-#my @profiles_short_image = `$sshcmd ls $profiles_path/Definition/image/ |grep -vE "(First|Last) Fall-back" |sed "s/VAN_//;s/ .*//" |sort |uniq |column`;
-#
-# MENU: Device/User-Agent to profile mapping config for vantrix
-#       search for ProfileName matching devices
-# e.g. ProfileMapping Key="HTC_Desire_HD/1.0" ProfileName="message/VAN_HTC Desire HD.xml" KeyGroupName="User-Agent"/>
-#grep -E "(HTC Dream|HTC Desire|Nokia 3200|Nokia 8800)" /opt/spotxde/share/profilesMO/Mapping/STI_VAN_STI_System_Mappings.xml    
-#my $output = `$sshcmd ls $profiles_path/Definition/message`;
-#print(STDOUT "$output\n");
+ 0. read settings from .fingerprinting or command-line
+    no default settings => prompt user
+ 1. Look in cconf-dir/mist_sti-08/sti_profiles-12/* for server hostname
+ 2. ssh to server, grep config and list profiles, 
+    Show menus to allow user to select set of profiles.
+    Save selected profiles in config file for re-use.
+ 3. Do transcoding on media file - send transcoding request using cli.
+    MD5 is calculated and shown.
+ 4. fingerprint+MD5 content item loaded into cobwebs/message fingerprinting
 
-# To do transcoding:
-#e.g. call to mist_sti trc client cli
-#message=OMN_Goals; bin/trc_cln_stub_MOD2 -mode 3 -i ${message}.image -profile "image/VAN_JPEG Quality  75   15kB.xml" -msisdn 353861111111  -o ${message}_PRO15k_MON_mo.trc
+   #[omn@vb-48] cat cconf-dir/mist_sti-08/sti_profiles-12/default-07 
+   name: "default"
+   enabled: 0
+   host: "valhalla-1"
+   port: 8700
+   url: "/GAHOMASTI.xml"
+   open_tout: 600
+   rsp_tout: 600
+   max_conn: 0
+   reuse_conn: 1
+   log_errors: 0
+   log_http: 0
+   xml_template: . . . .  <contentType>message/rfc822</contentType>
+   
+Where are the profiles kept?
+On vantrix server, search profiles dirs and search mappings in Mapping/STI_VAN_STI_System_Mappings.xml.
+   
+MENU: seach profiles, grep and sed to cut down list of profiles
+
+   ls /opt/spotxde/share/profilesMO/Definition/message/ |grep -vE "(First|Last) Fall-back" |column 
+   ls /opt/spotxde/share/profilesMO/Definition/message/ |grep -vE "(First|Last) Fall-back" |sed "s/VAN_//;s/ .*//" |sort |uniq |column
+   ls /opt/spotxde/share/profilesMO/Definition/{image,audio,video,message,text}/ |grep -vE "(First|Last) Fall-back" |sed "s/VAN_//;s/ .*//" |sort |uniq |column
+   my @profiles_short_all = `$sshcmd ls $profiles_path/Definition/{image,audio,video,message,text}/ |grep -vE "(First|Last) Fall-back" |sed "s/VAN_//;s/ .*//" |sort |uniq |column`;
+   my @profiles_short_image = `$sshcmd ls $profiles_path/Definition/image/ |grep -vE "(First|Last) Fall-back" |sed "s/VAN_//;s/ .*//" |sort |uniq |column`;
+   
+MENU: Device/User-Agent to profile mapping config for vantrix
+      search for ProfileName matching devices
+   e.g. ProfileMapping Key="HTC_Desire_HD/1.0" ProfileName="message/VAN_HTC Desire HD.xml" KeyGroupName="User-Agent"/>
+   grep -E "(HTC Dream|HTC Desire|Nokia 3200|Nokia 8800)" /opt/spotxde/share/profilesMO/Mapping/STI_VAN_STI_System_Mappings.xml    
+   my $output = `$sshcmd ls $profiles_path/Definition/message`;
+   print(STDOUT "$output\n");
+
+To do transcoding: e.g. call to mist_sti trc client cli
+   message=OMN_Goals; bin/trc_cln_stub_MOD2 -mode 3 -i ${message}.image -profile "image/VAN_JPEG Quality  75   15kB.xml" -msisdn 353861111111  -o ${message}_PRO15k_MON_mo.trc
+
+Note that transcoding server will attempt to string match profile names.
+e.g. foo/Kyocera M9300 will get mapped to message/VAN_Kyocera M9300.xml
+YMMV with different names mapping.
+
+   [omn@vb-48] /apps/omn/bin/trc_cli -mode 3 -i ./Solarmap.png -profile "foo/Kyocera M9300" -msisdn 353861111111 -o gloop.trc
+   MD5:6b26fc8dc79c0b576ab77b96a3ae2556
+   OK, 323246 bytes stored in gloop.trc.
+
+Log from transcoding server:
+
+   2015-03-04 13:45:43,940, [140272672085760], DEBUG, Trying to find WAP profile mapping for "foo/Kyocera M9300"
+   2015-03-04 13:45:43,940, [140272672085760], DEBUG, No mapping found for "foo/Kyocera M9300"
+   2015-03-04 13:45:43,940, [140272672085760], DEBUG, Trying to find user-agent mapping for "foo/Kyocera M9300"
+   2015-03-04 13:45:43,940, [140272672085760], DEBUG, Found substring match of 5 characters with mapping "M9300"
+   2015-03-04 13:45:43,942, [140272672085760], DEBUG, Mapping "foo/Kyocera M9300" using profile mapping: M9300 => message/VAN_Kyocera M9300.xml
 
 =head1 TEST and more details on USAGE
 
 FBIN=/scratch/james/bin
 FBIN=~/scripts
 
-# 1.
-# Save profile-set specified on command-line 
-# 1.1 leave out -ss and is saved to datetimestamp file)
-# 1.2 leave out media file and prompted to specify media file
-./scripts/fingerprint.pl -profile "message/.*Nokia.*6500.*" -profile "image/VAN_JPEG Quality  75   15kB.xml" -profile "message/VAN_HTC Desire.xml" ~/OMN_Goals_HTCDesire_TUE.trc -ss and3profiles_x
-ls ~/.fingerprinting
-cat ~/.fingerprinting/and3profiles_x
+ 1. Save profile-set specified on command-line 
+ 1.1 leave out -ss and is saved to datetimestamp file)
+ 1.2 leave out media file and prompted to specify media file
 
-# 2.
-# run without args => reads server from cconf, shows profile selecting menus
-[omn@vb-48] ./scripts/fingerprint.pl 
-At least one profile should be specified.
-Check cconf for transcoding server.
-Try omn@valhalla-1
-server:omn@valhalla-1
-DEBUG: sshcmd=ssh -oBatchMode=yes omn@valhalla-1
-DEBUG: grep:van.trx.profiles.local.path = /opt/spotxde/share/profilesMO
+   ./scripts/fingerprint.pl -profile "message/.*Nokia.*6500.*" -profile "image/VAN_JPEG Quality  75   15kB.xml" -profile "message/VAN_HTC Desire.xml" ~/OMN_Goals_HTCDesire_TUE.trc -ss and3profiles_x
+   ls ~/.fingerprinting
+   cat ~/.fingerprinting/and3profiles_x
 
-profiles_path=/opt/spotxde/share/profilesMO
-audio
- image
- message
- text
- video
+ 2. run without args => reads server from cconf, shows profile selecting menus
+ 2.1 run with -v => verbose/debbug messages added
+ 2.2 run with -h => help/perlpod printed and exit
 
-========================================
-    /opt/spotxde/share/profilesMO/Definition
-========================================
- 1. List profile-set files
- 2. Select profiles
- 3. Search Device Mapping to profiles (enter: /<searchstring>)
- 4. Clear profile selection
- 5. Save a profile-set file
- 6. Select Media
- 7. CONTINUE: Run Transcoding and Generate Fingerprints
-Selected 0 profiles: 
-No media is specified.
+   [omn@vb-48] ./scripts/fingerprint.pl
+   At least one profile should be specified.
+   Check cconf for transcoding server.
+   Try omn@valhalla-1
+   server:omn@valhalla-1
+   ========================================
+       /opt/spotxde/share/profilesMO/Definition
+   ========================================
+    1. List profile-set files
+    2. Select profiles
+    3. Search Device Mapping to profiles (enter: /<searchstring>)
+    4. Clear profile selection
+    5. Save a profile-set file
+    6. Select Media
+    7. CONTINUE: Run Transcoding and Generate Fingerprints
+   
+   Selected 0 profiles: 
+   No media is specified.
+   
+   ?: 
 
-?: 
+ 3. run with specified profileset file and media item
 
-# 3. run with specified profileset file and media item
-
-# 4. specify selector
-# 4.1 specify selector and selector expression
-e.g. fingerprint.pl -profileset COMMON_PROFILES -selector IS-FPT-MSG -selector_expr "\!{FROM-STORAGE} && {IS-MSG}"  test.jpg
+ 4. specify selector
+ 4.1 specify selector and selector expression
+ e.g. fingerprint.pl -profileset COMMON_PROFILES -selector IS-FPT-MSG -selector_expr "\!{FROM-STORAGE} && {IS-MSG}"  test.jpg
 
 =cut
 
@@ -316,12 +329,12 @@ sub profilesetfilesmenu {
     
     my $profileset_files_menu = Menu->new(
         title   => "Select a profile-set file.
-    COMMANDS: cat <f> || grep <something> <f> || mv <f1> <f2> || vi <f> || <select number>
+    COMMANDS: cat <f> || grep <something> <f> || mv <f1> <f2> || vi <f> || wc || ls -al || <select number>
     use -profileset <file> on command-line to select a profileset
     $gConfigDir",
         choices => \@profileset_files_choices,
         dir => $gConfigDir,
-        allowed => "cat|grep|mv|vi|rm",
+        allowed => "cat|grep|mv|vi|rm|wc|ls",
         noreturn  => 1,
         marksel   => "   *",
         );
@@ -357,7 +370,7 @@ sub profilesshortlistmenu {
             mark => $mark, 
             code => sub { print "SELECT:$p\n"; 
                           if ($sel) { 
-                              add_profile_to_list "$dir/$p"; 
+                              add_profile_to_list("","$dir/$p"); 
                           } else {
                               profilesshortlistmenu("$profiles_path/Definition",$dir,"ls $profiles_path/Definition/$dir/ |grep '$p'|sort |uniq",1);
                           } 
@@ -387,7 +400,7 @@ sub profiles_shortlist_topmenu {
 
     # MENU: look in profile Definition dir
     my @dirs_definition = `$sshcmd ls $profiles_path/Definition`;
-    print(STDOUT "@dirs_definition\n");
+    print(STDOUT "@dirs_definition\n") if ($verbose);
 
     foreach my $dir (@dirs_definition) {
         $dir =~ s/\r|\n//g;
@@ -468,7 +481,7 @@ sub searchdefinitionsmenu {
             push(@choices, {
                 text => $t,
                 #text => $t.$mark,
-                code => sub { print "SELECT:$p\n"; add_profile_to_list "$p"; },
+                code => sub { print "SELECT:$p\n"; add_profile_to_list("","$p"); },
                 mark => $mark,
                  });
         }
@@ -556,6 +569,33 @@ sub wait_for_any_key {
     return $key;
 }
 
+# The dont_wait_for funcs don't work. :-P
+use IO::Select;
+my $sStdinSel = IO::Select->new();
+$sStdinSel->add(\*STDIN);
+
+# dont_wait_for_keys: use this to clear waiting input (if there is input)
+sub dont_wait_for_key {
+    my $key = "";
+    #system "stty", '-icanon', 'eol', "\001";
+    if ($sStdinSel->can_read(0.01)) {
+        $key = getc(STDIN);
+    }
+    #system 'stty', 'icanon', 'eol', '^@'; # ASCII NUL
+    return $key;
+}
+
+# dont_wait_for_keys: use this to clear waiting input (if there is input)
+sub dont_wait_for_keys {
+    my $keys = "";
+    #system "stty", '-icanon', 'eol', "\001";
+    while ($sStdinSel->can_read(0.01)) {
+        $keys .= getc(STDIN);
+    }
+    #system 'stty', 'icanon', 'eol', '^@'; # ASCII NUL
+    return $keys;
+}
+
 # Menu constructor
 sub new {
 
@@ -607,6 +647,8 @@ sub print {
     my $noreturn=   $self->{noreturn};
     my $marksel =   $self->{marksel};
     
+    my $any_keys = "";
+
     my $menu_cols = 1;
     my $menu_col_width = $self->{cols} - 20;
     $menu_col_width = 0 if ($menu_col_width<0);
@@ -673,13 +715,20 @@ sub print {
                 if (($linecounter + $rows_for_menu_head_and_foot) % $self->{rows} == 0) {
                     # Woah. Too much stuff in menu for one page. > prompt !! PAGE !! MORE !! LESS !!
                     printf "--More--";
-                    wait_for_any_key();
+                    $any_keys .= wait_for_any_key();
                     printf "\r";
                     
                 }
 
             }
 
+            if ($any_keys =~ m/[1-9a-zA-Z]/) {
+                # get more keys if user typed something . . . doesn't work.
+                #$any_keys .= dont_wait_for_keys(); 
+                last;
+            } else {
+                $any_keys = "";
+            }
 
         }
         printf "%2d. %s\n", '0', 'Exit' unless $noexit;
@@ -688,18 +737,23 @@ sub print {
 
         #printf "Selected %d profiles.\n", scalar @{$profileset::profileset{'profiles_list'}};
 
-        print "\n?: ";
+        # We make users life easier in big menus.
+        # Use $any_keys (user starts typing in big menu => we jump to end/input) 
+        my $input = $any_keys; 
+        print "\n?: $any_keys";
+        $any_keys = "";
 
         # Get user input
-        chomp (my $input = <STDIN>);
+        $input .= <STDIN>;
+        chomp ($input);
 
         print "\n";
 
         # Process input
         if ($input =~ m/^\d+$/ && $input >= 1 && $input <= $counter) {
-            print "DEBUG: selected $choices[$input - 1]{text}\n";
+            print "DEBUG: selected $choices[$input - 1]{text}\n" if ($verbose);
             my $result = $choices[$input - 1]{code}->();
-            print "DEBUG: result=$result\n";
+            print "DEBUG: result=$result\n" if ($verbose);
             return $result if ("$result" eq "EXIT");
             return $result."ONELEVEL" if ("$result" eq "EXITMENUONELEVEL" and !$self->{topmenu});
             return $result if (!$self->{noreturn} or ("$result" eq "EXITMENU" and !$self->{topmenu}));
@@ -711,9 +765,9 @@ sub print {
             return "BACK";
         } else {
 
-            #print "DEBUG: dir:$self->{dir}\n";
-            #print "DEBUG: allowed:$self->{allowed}\n";
-            print "DEBUG: input:$input\n";
+            #print "DEBUG: dir:$self->{dir}\n" if ($verbose);
+            #print "DEBUG: allowed:$self->{allowed}\n" if ($verbose);
+            print "DEBUG: input:$input\n" if ($verbose);
 
             if ($self->{allowed} && $input =~ $self->{allowed}) {
                 if ($input =~ m/vi /) {
@@ -729,13 +783,14 @@ sub print {
                 my $matched=0;
                 for my $choice(@choices) {
                     if ($input eq $choice->{text} || 
-                        (defined($choice->{key}) && $input eq $choice->{key})
+                        (defined($choice->{key}) && $input eq $choice->{key}) ||
+                        $choice->{text} =~ $input
                         ) {
                         $matched=1;
 
-                        print "DEBUG: selected $choice->{text}\n";
+                        print "DEBUG: selected $choice->{text}\n" if ($verbose);
                         my $result = $choice->{code}->();
-                        print "DEBUG: result=$result\n";
+                        print "DEBUG: result=$result\n" if ($verbose);
                         return $result if ("$result" eq "EXIT");
                         return $result."ONELEVEL" if ("$result" eq "EXITMENUONELEVEL" and !$self->{topmenu});
                         return $result if (!$self->{noreturn} or ("$result" eq "EXITMENU" and !$self->{topmenu}));
@@ -928,7 +983,7 @@ sub get_output_from_server {
         exit(1);
     }
     
-    print(STDOUT "DEBUG: grep:$output\n");
+    print(STDOUT "DEBUG: grep:$output\n") if ($verbose);
     return $output;
 }
 
@@ -960,12 +1015,14 @@ sub add_media_item {
 }
 
 sub add_profile_to_list {
+    my $arg = shift;
     my $p = shift;
     # don't add duplicate items
     if (!grep(/$p/,@{$profileset::profileset{'profiles_list'}})) {
+        print(STDOUT "DEBUG: adding profile:'$p' to list arg:'$arg'\n") if ($verbose);
         push (@{$profileset::profileset{'profiles_list'}}, "$p");
     } else {
-        print(STDERR "WARNING: $p is already in list\n");
+        print(STDERR "WARNING: profile:'$p' is already in list\n");
         sleep 2;
     }
 }
@@ -1054,6 +1111,7 @@ print "DEBUG: OPTIONS rc=$rc help=$help gProfileset=$gProfileset\n\n" if ($verbo
 if (!$rc || $help || !$gProfileset) {
     pod2usage(q(-verbose) => 2,
               q(-sections) => "NAME|SYNOPSIS|USAGE",
+              q(code) => 1,
         );
     # older Pod::Usage == 1.16 on TC so it doesn't understand sections.
     #pod2usage( { -message => $message_text ,
@@ -1115,11 +1173,11 @@ if (scalar @{$profileset::profileset{'profiles_list'}} == 0 ||
     if ($profileset::profileset{'server'}) {
         print(STDOUT "server:$profileset::profileset{'server'}\n");
         $sshcmd = "ssh -oBatchMode=yes $profileset::profileset{'server'}";
-        print(STDOUT "DEBUG: sshcmd=${sshcmd}\n");
+        print(STDOUT "DEBUG: sshcmd=${sshcmd}\n") if ($verbose);
 
         $profiles_path = get_config_from_server($sshcmd,"van.trx.profiles.local.path","/etc/opt/spotxde/trx.conf");
         $profileset::profileset{'profiles_path'} = $profiles_path;
-        print(STDOUT "profiles_path=$profiles_path\n");
+        print(STDOUT "profiles_path=$profiles_path\n") if ($verbose);
 
         #########################################################################
         # User interaction, select list of profiles using menus
@@ -1145,7 +1203,7 @@ if (scalar @{$profileset::profileset{'profiles_list'}} == 0 ||
         } until (ready_for_transcoding());
 
     } else {
-        print(STDOUT "No transcoding server known.\n");
+        print(STDOUT "WARNING: No transcoding server known.\n");
     }
     
 }
@@ -1319,7 +1377,7 @@ if ($result =~ m/cci: not found/) {
     {
         my $result = `cci cat $cobwebs_cconf_sel_path 2>&1`;
         if ($result =~ m/\n.*\n/) { $result =~ chomp($result); $result =~ s/^/\n/; $result =~ s/\n/\n    /g; }
-        print "DEBUG: SELECTOR cci cat result=$result\n";
+        print "DEBUG: SELECTOR cci cat result=$result\n" if ($verbose);
     }
 
 }
@@ -1331,7 +1389,7 @@ print "INFO: cci create $cobwebs_cconf_path $cobwebs_cconf_file\n";
 if ($verbose) {
     my $result = `cat $cobwebs_cconf_file`;
     if ($result =~ m/\n.*\n/) { $result =~ chomp($result); $result =~ s/^/\n/; $result =~ s/\n/\n    /g; }
-    print "DEBUG: cconf=$result\n";
+    print "DEBUG: cconf=$result\n" if ($verbose);
 }
 
 {
