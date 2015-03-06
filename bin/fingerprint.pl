@@ -161,6 +161,66 @@ Log from transcoding server:
    2015-03-04 13:45:43,940, [140272672085760], DEBUG, Found substring match of 5 characters with mapping "M9300"
    2015-03-04 13:45:43,942, [140272672085760], DEBUG, Mapping "foo/Kyocera M9300" using profile mapping: M9300 => message/VAN_Kyocera M9300.xml
 
+=head2 DESIGN: handle base64/mime encoding line lengths
+
+The length of line for the mime base64 encoded content affects the checksum.
+We see:
+1. length:64 used with mm1_phone tool,
+2. length:76 default of base64 command-line.
+Different mime/mms encoders will use different lengths.
+When md5sum is calculated in mms (in corrib_base/mms/storage/mms_store.c, 
+in corrib/mms/mm1/ethynyl/h2c_mm1_{retrieve,submit}.c, in mimx/sparta/{c2s,cmm4}.c and
+in xena/server/xena_{request,mm7}.c :- add trace on cba_mms_store_get_content_summary and set_cdr_fields)
+we can see in mime_info.parts_list, in a part the non_mp_data contains mime encoded 
+base64. When mm1_phone tool is used we can see that line length:64 is used with 0d0a (\n\r).
+
+So for fingerprint.pl script to match mm1_phone checksum it must: 
+1. convert to base64 using column width of 64,
+2. unix2dos,
+3. calculate md5sum on that.
+
+e.g.
+   In ch1 cobwebs debug we see cobwebs matching on this md5: 0dc354244bbffa4293f8ad2a4f89ee50.
+   That is calculated on mime_info.parts_list.000.non_mp_data which is base64 with line length of 64 and 0d0a line endings
+
+   $ base64 -w 64 treefractal_messageLG_P990.trc >treefractal_messageLG_P990.base64_64
+   $ head -n1 treefractal_messageLG_P990.base64_64
+   /9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAQCAwMDAgQDAwMEBAQEBQkGBQUFBQsI
+   $ md5sum treefractal_messageLG_P990.base64_64
+   babb762df36162c79bb9e2f334b04483  treefractal_messageLG_P990.base64_64
+
+   $ unix2dos treefractal_messageLG_P990.base64_64
+   unix2dos: converting file treefractal_messageLG_P990.base64_64 to DOS format ...
+   $ md5sum treefractal_messageLG_P990.base64_64
+   0dc354244bbffa4293f8ad2a4f89ee50  treefractal_messageLG_P990.base64_64
+
+How to handle different base64/mime column widths.
+
+SOLUTION0: (the best solution: just use the md5sum of the binary data)
+Implement md5sum_on_b64 which converts b64->binary skips \n\r and gives md5sum as if on the binary content
+Use md5sum_on_b64 in the mms code when calculating md5.
+
+SOLUTION1: Do md5sum excluding \n\r - on the base64 chars.  
+fingerprint.pl would convert binary/trc to base64 without \n\r and calc md5sum
+This is just a silly solution!
+
+SOLUTION2: DO md5sum on full base64 hex chars and \n\r. Specify column width for base64.
+Advantage: mms code doesn't need to change, matches what is implemented.
+Disadvantage: fingerprint.pl & cobwebs have to handle multiple md5 per transcodings! multiple column widths.
+Implement: allow just one md5 or a limited set of column widths (i.e. 76 and 64 which we are seeing).
+   
+http://en.wikipedia.org/wiki/Base64#MIME
+MIME does not specify a fixed length for Base64-encoded lines, but it does specify a maximum line length of 76 characters.
+
+http://en.wikipedia.org/wiki/Base64#RFC_4648
+https://www.ietf.org/rfc/rfc4648.txt
+                                               . . . MIME enforces a
+   limit on line length of base 64-encoded data to 76 characters.  MIME
+   inherits the encoding from Privacy Enhanced Mail (PEM) [3], stating
+   that it is "virtually identical"; however, PEM uses a line length of
+   64 characters.  The MIME and PEM limits are both due to limits within
+   SMTP.
+
 =head1 TEST and more details on USAGE
 
 FBIN=/scratch/james/bin
@@ -204,6 +264,11 @@ FBIN=~/scripts
  4. specify selector
  4.1 specify selector and selector expression
  e.g. fingerprint.pl -profileset COMMON_PROFILES -selector IS-FPT-MSG -selector_expr "\!{FROM-STORAGE} && {IS-MSG}"  test.jpg
+
+e.g. mm1_phone
+ 
+   [omn@vb-48] base64 -w 64 treefractal_messageHTC_Desire.trc >treefractal_messageHTC_Desire.b64w64
+   [omn@vb-48] MS=75739; MM=120; C=treefractal_messageHTC_Desire; ~/bin/mm1_phone  -smpp_host vb-48 -smpp_port 4775 -rate 10 -max_msgs $MM -msg_size $MS -oa 35386??????? -da 35386??????? -mmsc_hosts 192.168.120.28:80,1.168.120.28:81,192.168.120.28:82,192.168.120.28:83,192.168.120.28:84,192.168.120.28:85,192.168.120.28:86 -ua_prof "HTC Desire" -content_file ${C}.b64w64 -content_enc base64 -content_type "image/jpg" -content_id ${C}.jpg -log  -smpp_port 4775 -reg_delivery no
 
 =cut
 
@@ -253,6 +318,11 @@ our $donothing;
      #       'v2'   => 't2val2',
      #   }
     #},
+);
+
+%FPT::MD5 = (
+    'md5_list' => [],
+    'name_md5_hash' => {},
 );
 
 our $gMEDIA_ITEM="";
@@ -769,7 +839,27 @@ sub print {
             #print "DEBUG: allowed:$self->{allowed}\n" if ($verbose);
             print "DEBUG: input:$input\n" if ($verbose);
 
-            if ($self->{allowed} && $input =~ $self->{allowed}) {
+            # look for menu key match first OR exact menu string match
+            my $matched=0;
+            for my $choice(@choices) {
+                if ((defined($choice->{key}) && $input eq $choice->{key}) ||
+                    $input eq $choice->{text}
+                    ) {
+                    $matched=1;
+                    
+                    print "DEBUG: selected $choice->{text} by menu id or string match\n" if ($verbose);
+                    my $result = $choice->{code}->();
+                    print "DEBUG: result=$result\n" if ($verbose);
+                    return $result if ("$result" eq "EXIT");
+                    return $result."ONELEVEL" if ("$result" eq "EXITMENUONELEVEL" and !$self->{topmenu});
+                    return $result if (!$self->{noreturn} or ("$result" eq "EXITMENU" and !$self->{topmenu}));
+                    $choice->{text} .= $marksel if ($marksel); 
+                    
+                }
+            }
+
+            if (!$matched && ($self->{allowed} && $input =~ $self->{allowed})) {
+                $matched=1;
                 if ($input =~ m/vi /) {
                     my $result = system("cd $self->{dir};$input");
                     print $result;                    
@@ -777,18 +867,18 @@ sub print {
                     my $result = `cd $self->{dir};$input`;
                     print $result;
                 }
-            } else {
+            }
+            
+            if (!$matched) {
 
-                # Also look for a match of the menu item string. (cut & paste common for media and profiles and files
-                my $matched=0;
+                # Now look for a match of the menu item sub-string. 
+                # (cut & paste is very useful for selecting media and profiles and files or select all of one common type)
                 for my $choice(@choices) {
-                    if ($input eq $choice->{text} || 
-                        (defined($choice->{key}) && $input eq $choice->{key}) ||
-                        $choice->{text} =~ $input
+                    if ($choice->{text} =~ $input
                         ) {
                         $matched=1;
 
-                        print "DEBUG: selected $choice->{text}\n" if ($verbose);
+                        print "DEBUG: selected $choice->{text} BY sub-string match\n" if ($verbose);
                         my $result = $choice->{code}->();
                         print "DEBUG: result=$result\n" if ($verbose);
                         return $result if ("$result" eq "EXIT");
@@ -798,11 +888,11 @@ sub print {
                         
                     }
                 }
+            }
 
-                if (!$matched) {
-                    print "Invalid input.\n\n";
-                    sleep 2;
-                }
+            if (!$matched) {
+                print "Invalid input.\n\n";
+                sleep 2;
             }
         }
     }
@@ -1083,6 +1173,25 @@ sub ready_for_transcoding {
     }
 }
 
+# return 0 for success and -1 if duplicate found
+sub add_md5_to_list {
+    my $md5 = shift;
+    my $name = shift;
+    # don't add duplicate items
+
+    if (!grep(/$md5/,@{$FPT::MD5{'md5_list'}})) {
+        print(STDOUT "DEBUG: adding md5:'$md5' to list\n") if ($verbose);
+        push (@{$FPT::MD5{'md5_list'}}, "$md5");
+        %{$FPT::MD5{'name_md5_hash'}}->{$name} = $md5;
+        #%{$FPT::MD5{'name_md5_hash'}}->{$md5} = $name;
+        return 0;
+    } else {
+        print(STDERR "WARNING: md5:'$md5' is already in list\n");
+        return -1;
+    }
+}
+
+
 #########################################################################
 # Options processing and checking
 #########################################################################
@@ -1305,18 +1414,75 @@ foreach my $profile (@{$profileset::profileset{'profiles_list'}}) {
     my ($bytes) = ($result =~ m/.* (\d+) bytes.*/);
     my $cobwebs_content_name = "${bn}_${bp}";
 
-    ## TODO: maybe duplicate md5 detect? quite likely transcoding will give duplicates
-    ## cobwebs app will raise alarm, just one entry for md5 in cobwebs allowed (hash store key = md5)
-    ## but that is okay - keeping duplicates in fingerprint content might be easier for customer
+    ## TODO: Duplicate md5 detect.
+    ## We don't get duplicates from different transcodings (very unlikely md5 same on different data).
+    ## But we do get many duplicates because the transcodings are the same.
+    ## cobwebs app raises alarm on duplicates, just one entry for md5 in cobwebs allowed (hash store key = md5)
+    ## that is okay - keeping duplicates in fingerprint content might be easier for customer
     if ($md5) {
-        print "INFO: md5=$md5 bytes=$bytes\n";
-        printf "INFO adding content entry with md5 to cconf file.\n".
-            " index=%03d content_name=$cobwebs_content_name md5=$md5\n", 
+
+        sub add_fpt_to_cconf {
+            my $cobwebs_cconf_fh = shift;
+            my $cobwebs_cconf_index = shift;
+            my $cobwebs_content_name = shift;
+            my $md5 = shift;
+            my $bytes = shift;
+
+            ## Duplicate md5 detect. Handle them by leaving in list but by disabling them.
+            ## 1. Detect duplicate in list of md5sums calculated but this script/session
+            # 0 for success and -1 if duplicate found
+            my $dup = add_md5_to_list($md5);
+            my $enabled = 1;
+            $enabled = 0 if ($dup);
+            $cobwebs_content_name .= " DUP" if ($dup); # tag the name as a "DUP"
+            
+            ## TODO: 2. Detect duplicates already in cconf cobwebs.
+            # grep for $md5 in cconf_dir/corrib_router*/cobwebs*/*
+            # e.g. grep 6b26 cconf-dir/corrib_router*/cobwebs*/fingerprint*/*
+            my $dupstore = `grep $md5 cconf-dir/corrib_router*/cobwebs*/fingerprint*/*`;
+            $enabled = 0 if ($dupstore);
+            $cobwebs_content_name .= " DUPSTORE" if ($dupstore); # tag the name as a "DUPSTORE"
+            
+            print "INFO: md5=$md5 bytes=$bytes dup=$dup \n";
+            printf "INFO adding content entry with md5 to cconf file.\n".
+                " index=%03d content_name=$cobwebs_content_name md5=$md5\n", 
             $cobwebs_cconf_index;
-        printf $cobwebs_cconf_fh "contents.%03d.enabled: 1\n", $cobwebs_cconf_index;
-        printf $cobwebs_cconf_fh "contents.%03d.content_name: \"$cobwebs_content_name\"\n", $cobwebs_cconf_index;
-        printf $cobwebs_cconf_fh "contents.%03d.md5: \"$md5\"\n", $cobwebs_cconf_index;
-        $cobwebs_cconf_index++;
+            printf $cobwebs_cconf_fh "contents.%03d.enabled: %d\n", $cobwebs_cconf_index, $enabled;
+            printf $cobwebs_cconf_fh "contents.%03d.content_name: \"$cobwebs_content_name\"\n", $cobwebs_cconf_index;
+            printf $cobwebs_cconf_fh "contents.%03d.md5: \"$md5\"\n", $cobwebs_cconf_index;
+        }
+
+        add_fpt_to_cconf($cobwebs_cconf_fh, $cobwebs_cconf_index++, $cobwebs_content_name, $md5, $bytes);
+
+        ## The length of line for the mime base64 encoded content affects the checksum.
+        ## We see: 1. length:64 used with mm1_phone tool,
+        ## 2. length:76 default of base64 command-line.
+        ## Different mime/mms encoders will use different lengths.
+        ## So for fingerprint.pl script to match THIS mm1_phone checksum it must: 
+        ## 1. convert to base64 using column width of 64,
+        ## 2. unix2dos,
+        ## 3. calculate md5sum on that.
+
+        ## $ base64 -w 64 treefractal_messageLG_P990.trc >treefractal_messageLG_P990.base64_64
+        ## $ unix2dos treefractal_messageLG_P990.base64_64
+        ## unix2dos: converting file treefractal_messageLG_P990.base64_64 to DOS format ...
+        ## $ md5sum treefractal_messageLG_P990.base64_64
+        ## 0dc354244bbffa4293f8ad2a4f89ee50  treefractal_messageLG_P990.base64_64
+
+        #my $result = `base64 -w 76 ${bn}_${bp}.trc >${bn}_${bp}.base64_76`;
+        my $result1 = `base64 -w 64 ${bn}_${bp}.trc >${bn}_${bp}.base64_64`;
+        print "DEBUG: base64 -w 64 <RESULT>$result1</RESULT>" if ($verbose);
+        my $result2 = `unix2dos ${bn}_${bp}.base64_64`;
+        print "DEBUG: base64 -w 64 <RESULT>$result2</RESULT>" if ($verbose);
+        my $result3 = `md5sum ${bn}_${bp}.base64_64`;
+        print "DEBUG: base64 -w 64 <RESULT>$result3</RESULT>" if ($verbose);
+
+        my ($md5,$md5sum_rest) = ($result3 =~ m/^([0-9A-Fa-f]+)\s+(.*)$/);
+        if ($md5) {
+            my $cobwebs_content_name_b64w64DOS = "${bn}_${bp} b64w64DOS";
+            add_fpt_to_cconf($cobwebs_cconf_fh, $cobwebs_cconf_index++, $cobwebs_content_name_b64w64DOS, $md5, $md5sum_rest);
+        }
+
     } else {
         print "ERROR: Didn't get expected md5 value from transcoding.\n";
         if ($result =~ m/\n.*\n/) { $result =~ chomp($result); $result =~ s/^/\n/; $result =~ s/\n/\n    /g; }

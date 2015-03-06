@@ -1,5 +1,8 @@
 #include <stdio.h>
 
+// NEXT time remember this:
+// https://docs.python.org/2/library/binascii.html
+
 int main(int argc, char **argv)
 {
     if (argc<1) {
