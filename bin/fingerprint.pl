@@ -352,8 +352,10 @@ sub profilesshortlistmenu {
         $mark = " *SELECT*" if (grep(/$p/,@{$profileset::profileset{'profiles_list'}}));
 
         push(@choices, {
-            text => "$p".$mark, 
-            code => sub { print "SELECT:$p"; 
+            text => $p,
+            #text => $p.$mark, 
+            mark => $mark, 
+            code => sub { print "SELECT:$p\n"; 
                           if ($sel) { 
                               add_profile_to_list "$dir/$p"; 
                           } else {
@@ -431,13 +433,17 @@ sub searchdefinitionsmenu {
         @profiles = `$sshcmd "grep '<ProfileMapping ' $profiles_path/Mapping/STI_VAN_STI_System_Mappings.xml" |sed 's/.*ProfileName=\"//;s/\" .*//;s/VAN_//;s/.xml//'`
     } elsif (defined($manufacturer) && $manufacturer eq "COMMON") {
         @profiles = `$sshcmd "grep -E '(HTC Dream|HTC Desire|Nokia 3200|Nokia 8800)' $profiles_path/Mapping/STI_VAN_STI_System_Mappings.xml"`;
-        #my @profiles = `$sshcmd ls $profiles_path/Definition/$dir/ |grep -vE "(First|Last) Fall-back" |sed "s/VAN_//;s/ .*//" |sort |uniq|column`;
+        #my @profiles = `$sshcmd ls $profiles_path/Definition/$dir/ |grep -vE "(First|Last) Fall-back" |sed "s/VAN_//;s/ .*//" |sort -d |uniq|column`;
     } elsif (defined($manufacturer)) {
         my ($count,$m) = ($manufacturer =~ m/\s*(\d+)\s*(\w+)\s*/);
-        @profiles = `$sshcmd "grep -E '$m' $profiles_path/Mapping/STI_VAN_STI_System_Mappings.xml"`;
+        # sort/uniq too early here
+        # sort -d is dictionary sort
+        #@profiles = `$sshcmd "grep -Ei '$m' $profiles_path/Mapping/STI_VAN_STI_System_Mappings.xml"`;
+        @profiles = `$sshcmd "grep -Ei '$m' $profiles_path/Mapping/STI_VAN_STI_System_Mappings.xml" |sed 's/.*ProfileName=\"//;s/\" .*//;' |sort -d |uniq`;
+        #@profiles = `$sshcmd "grep -Ei '$m' $profiles_path/Mapping/STI_VAN_STI_System_Mappings.xml |sed 's/.*ProfileName=\"//' |sort -d"`;
     } else {
         #@profiles = `$sshcmd "grep '<ProfileMapping ' $profiles_path/Mapping/STI_VAN_STI_System_Mappings.xml |sed 's/.*ProfileName=\"//;s/\" .*//;s/VAN_//;s/.xml//' |awk '{print \$1}' |sort |uniq -ci"`;
-        @profiles = `$sshcmd "grep '<ProfileMapping ' $profiles_path/Mapping/STI_VAN_STI_System_Mappings.xml" |sed 's/.*ProfileName=\"//;s/\" .*//;s/VAN_//;s/.xml//;s#message/##' |awk '{print \$1}' |sort |uniq -ci`
+        @profiles = `$sshcmd "grep '<ProfileMapping ' $profiles_path/Mapping/STI_VAN_STI_System_Mappings.xml" |sed 's/.*ProfileName=\"//;s/\" .*//;s/VAN_//;s/.xml//;s#message/##' |awk '{print \$1}' |sort -d |uniq -ci`
     }
 
     my @choices;
@@ -460,11 +466,14 @@ sub searchdefinitionsmenu {
             $t =~ s/message\/VAN_//;
             $t =~ s/.xml//;
             push(@choices, {
-                text => "$t".$mark, 
-                code => sub { print "SELECT:$p\n"; add_profile_to_list "$p"; }
+                text => $t,
+                #text => $t.$mark,
+                code => sub { print "SELECT:$p\n"; add_profile_to_list "$p"; },
+                mark => $mark,
                  });
         }
     }
+
     push(@choices,            
          { text => 'Exit sub-menu',
            key  => 'b',
@@ -494,7 +503,7 @@ sub selectmediamenu {
         "avi|mp4|mpg|mpeg|wmv|vob|asf|m4v|3gpp)";
 
     #$cmd = "ls *.jpg";
-    $cmd = "find . -maxdepth 1 -type f -readable |grep -iE \"\.$reMediaFileExtensions\"\$";
+    $cmd = "find . /tmp -maxdepth 1 -type f -readable |grep -iE \"\.$reMediaFileExtensions\"\$";
     
     my @files = `$cmd`;
 
@@ -503,7 +512,7 @@ sub selectmediamenu {
         $f =~ s/\r|\n//g;
         push(@choices, {
             text => "$f", 
-            code => sub { print "SELECT:$f"; 
+            code => sub { print "SELECT:$f\n"; 
                           our $gMEDIA_ITEM;
                           $gMEDIA_ITEM = $f;
             }});
@@ -599,7 +608,8 @@ sub print {
     my $marksel =   $self->{marksel};
     
     my $menu_cols = 1;
-    my $menu_col_width = 0;
+    my $menu_col_width = $self->{cols} - 20;
+    $menu_col_width = 0 if ($menu_col_width<0);
     my $rows_for_menu_head_and_foot = 4;
 
     if (scalar @choices > ($self->{rows} - $rows_for_menu_head_and_foot)) {
@@ -634,10 +644,22 @@ sub print {
             #$choice->{text}.=" *SELECT*" if (grep $choice->{text} @{$profileset::profileset{'profiles_list'}});
 
             if (!defined($choice->{enablecode}) || $choice->{enablecode}()) {
+                my $text = $choice->{text};
+                if (defined($choice->{mark}) && $choice->{mark}) {
+                    my $tw = length($text);
+                    my $sparew = $menu_col_width - $tw;
+                    if ($sparew - length($choice->{mark}) > 3) {
+                        # too far
+                        my $mwtab = (($tw+3)/3)*3;
+                        $text = sprintf "%-${mwtab}s%s", $text, $choice->{mark};
+                    } else {
+                        $text = sprintf "%s%${sparew}s", $text, $choice->{mark}; #select mark too far to right
+                    }
+                }
                 if (defined($choice->{key})) {
-                    $menuline .= sprintf "%2s. %-${menu_col_width}s", $choice->{key}, $choice->{text};
+                    $menuline .= sprintf "%2s. %-${menu_col_width}s", $choice->{key}, $text;
                 } else {
-                    $menuline .= sprintf "%2d. %-${menu_col_width}s", ++$counter, $choice->{text};
+                    $menuline .= sprintf "%2d. %-${menu_col_width}s", ++$counter, $text;
                 }
             }
 
