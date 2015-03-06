@@ -26,6 +26,7 @@ FILES=$(cat deploylist2.txt)
 rm -f deploylist2_local.txt
 for f in $FILES; do echo $(basename $f >>deploylist2_local.txt); done
 scp deploylist2_local.txt /scratch/james/RPMS/$RPMNDIR/
+scp deploylist2_local.txt /scratch/james/RPMS/$RPMNDIR/deploylist_local.txt
 scp deploylist2.txt /scratch/james/RPMS/$RPMNDIR/
 }
 

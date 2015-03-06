@@ -11,8 +11,8 @@ cd /scratch/james/RPMS/rpms_cobwebs/
 # e.g. rpm -qlp OMN-CORRIB-ROUTER-vx.xx.xx-1.FC9.i686.rpm  |grep cobweb
 #grep -i corrib.router deploylist_local.txt
 
-#/slingshot/MOS-base/LATEST/scripts/rpmturbo.sh deploylist_local.txt
-/slingshot/MOS-base/LATEST/scripts/rpmturbo.sh deploylist_SLINGSHOT.txt
+/slingshot/MOS-base/LATEST/scripts/rpmturbo.sh deploylist_local.txt
+#/slingshot/MOS-base/LATEST/scripts/rpmturbo.sh deploylist_SLINGSHOT.txt
 
 # as omn user:
 # take backup of clean cconf dir
@@ -28,9 +28,16 @@ grep CAS_JMX_PORT ~/.bash_profile
 HOST=$(cat /VHOST)
 echo SAMSON_HOST=$HOST > /apps/omn/etc/samson.hostname
 
+
 #[root@vb-28]# ulimit -c unlimited; 
 cat /apps/omn/etc/samson.hostname
 cd /apps/omn
+
+mkdir -p oldlog
+DTS=$(date +%Y%m%d_%H%M); 
+mv samson.stderr oldlog/samson.stderr_${DTS} 
+mv samson.stdout oldlog/samson.stdout_${DTS} 
+
 nohup ./scripts/samson.sh  &
 
 

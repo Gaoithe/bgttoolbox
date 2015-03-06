@@ -12,10 +12,10 @@ su - omn -c "sci -list; sci -stop; sleep 30; sci -check; sci -quit"
 #sudo -c stop samson
 
 DTS=$(date +%Y%m%d_%H%M); 
-
 cd /apps/omn
+mkdir -p oldlog
 #optionally BACKUP cconf-dir
-true && su - omn -c "tar -jcvf cconf-dir_${DTS}.tbz cconf-dir"
+true && su - omn -c "tar -jcvf oldlog/cconf-dir_${DTS}.tbz cconf-dir"
 
 # as root
 echo "UN-INSTALLING OMN rpms"
@@ -23,8 +23,8 @@ rpm -e `rpm -qg OMN`
 
 #as omn user, optionally backup and clear out stuff
 su - omn -c "
-false && mv cconf-dir cconf-dir_${DTS}
-false && mv bin bin_${DTS}
+false && mv cconf-dir oldlog/cconf-dir_${DTS}
+false && mv bin oldlog/bin_${DTS}
 
 rm -rf cassandra cconf-dir certs clog-dir core-dumps dfl-dir etc java snmp tomcat webserver
 [[ -e monmemu ]] && rm -rf monmemu.older && mv monmemu{,.older} && mkdir monmemu
