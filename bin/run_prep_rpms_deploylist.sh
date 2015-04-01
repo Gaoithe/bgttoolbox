@@ -8,27 +8,36 @@ TCBASE=.
 TCBASE=~/work/TCHOD3
 TCBASE=/home/james/work/TCHOD3
 
-RPMNDIR=rpms_HOD_Nov21
-RPMNDIR=rpms_cobwebs
+if [[ -z $RPMNDIR ]] ; then
+    RPMNDIR=rpms_HOD_Nov21
+    RPMNDIR=rpms_care
+    RPMNDIR=rpms_cobwebs
+    [[ "$1" != "" ]] && RPMNDIR=$1
+fi
+
 mkdir -p /scratch/james/RPMS/$RPMNDIR
 
 cd $TCBASE
 
-false && {
-#perl $TCBASE/MOS-base/scripts/deploylist.pl -fc9 $TCBASE/deployments/OMN-Traffic-Control >deploylist.txt
-#FILES=$(cat deploylist.txt)
-perl $TCBASE/MOS-base/scripts/deploylist.pl -fc9 $TCBASE/deployments/OMN-Traffic-Control >deploylist2.txt
-diff -u deploylist{,2}.txt
-FILES=$(cat deploylist2.txt)
+if [[ ! -e deploylist2.txt ]]; then
+    #perl $TCBASE/MOS-base/scripts/deploylist.pl -fc9 $TCBASE/deployments/OMN-Traffic-Control >deploylist.txt
+    #FILES=$(cat deploylist.txt)
+    perl $TCBASE/MOS-base/scripts/deploylist.pl -fc9 $TCBASE/deployments/OMN-Traffic-Control >deploylist2.txt
+    #miaow
+    ls /slingshot/TOMCAT/v*/*/*/RPMS/OMN-TOMCAT-v1.02.43-1.FC9.i386.rpm >>deploylist2.txt
+    diff -u deploylist{,2}.txt
+    FILES=$(cat deploylist2.txt)
+fi
 
-#rm deploylist_local.txt
-#for f in $FILES; do echo $(basename $f >>deploylist_local.txt); done
-rm -f deploylist2_local.txt
-for f in $FILES; do echo $(basename $f >>deploylist2_local.txt); done
-scp deploylist2_local.txt /scratch/james/RPMS/$RPMNDIR/
-scp deploylist2_local.txt /scratch/james/RPMS/$RPMNDIR/deploylist_local.txt
-scp deploylist2.txt /scratch/james/RPMS/$RPMNDIR/
-}
+if [[ ! -e /scratch/james/RPMS/$RPMNDIR/deploylist_local.txt ]]; then
+    #rm deploylist_local.txt
+    #for f in $FILES; do echo $(basename $f >>deploylist_local.txt); done
+    rm -f deploylist2_local.txt
+    for f in $FILES; do echo $(basename $f >>deploylist2_local.txt); done
+    scp deploylist2_local.txt /scratch/james/RPMS/$RPMNDIR/
+    scp deploylist2_local.txt /scratch/james/RPMS/$RPMNDIR/deploylist_local.txt
+    scp deploylist2.txt /scratch/james/RPMS/$RPMNDIR/
+fi
 
 FILES=$(cat deploylist2.txt)
 
@@ -47,7 +56,7 @@ for f in $FILES; do rsync -avz $f /scratch/james/RPMS/$RPMNDIR/; done
 
 
 false && {
-FILES="$FILES /slingshot/TOMCAT/v1/02/38/RPMS/OMN-TOMCAT-v1.02.38-1.FC9.i386.rpm"
+FILES="$FILES /slingshot/TOMCAT/v1/02/38/RPMS/OMN-TOMCAT-v1.02.38-1.FC9.i386.rpm /slingshot/TOMCAT/v*/*/*/RPMS/OMN-TOMCAT-v1.02.43-1.FC9.i386.rpm"
 for f in $FILES; do bn=$(basename $f); scf=/scratch/james/RPMS/$RPMNDIR/$bn; ls -alstr $f $scf; diff -u $f $scf; done
 }
 

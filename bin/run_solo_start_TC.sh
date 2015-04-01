@@ -4,6 +4,7 @@
 
 # as omn user:   START hygiene processes  solo_start on first node and rejoin on others
 ## USER needs to answer "Y" on solo_start
+touch dfl-dir/.ACTIVE
 sci -solo_start
 # or rm -rf cconf-dir.old dfl-dir.old; sci -rejoin
 
@@ -12,13 +13,17 @@ sci -solo_start
 # after/during sci -start:
 #grep CAS_JMX_PORT /root/.bash_profile
 MY_JMX_PORT=$(grep CAS_JMX_PORT /root/.bash_profile |sed s/.*=//)
-CASENVFILE=cassandra/dsc-cassandra-1.2.10/conf/cassandra-env.sh
-#grep JMX_PORT $CASENVFILE
-CA_JMX_PORT=$(grep JMX_PORT= $CASENVFILE |sed 's/.*=//;s/"//g')
-[[ "$MY_JMX_PORT" != "$CA_JMX_PORT" ]] && perl -pi -e s/$CA_JMX_PORT/$MY_JMX_PORT/ $CASENVFILE
-grep JMX_PORT $CASENVFILE
-CA_JMX_PORT=$(grep JMX_PORT= $CASENVFILE |sed 's/.*=//;s/"//g')
-[[ "$MY_JMX_PORT" != "$CA_JMX_PORT" ]] && echo "MAUGH frurggggh ERROR: cassandra port WRONG in $CASENVFILE file, it is $CA_JMX_PORT, it should be $MY_JMX_PORT"
+if [[ -z $MY_JMX_PORT ]]; then
+ echo "ERROR: cannot do: grep CAS_JMX_PORT /root/.bash_profile"
+else
+  CASENVFILE=cassandra/dsc-cassandra-1.2.10/conf/cassandra-env.sh
+  #grep JMX_PORT $CASENVFILE
+  CA_JMX_PORT=$(grep JMX_PORT= $CASENVFILE |sed 's/.*=//;s/"//g')
+  [[ "$MY_JMX_PORT" != "$CA_JMX_PORT" ]] && perl -pi -e s/$CA_JMX_PORT/$MY_JMX_PORT/ $CASENVFILE
+  grep JMX_PORT $CASENVFILE
+  CA_JMX_PORT=$(grep JMX_PORT= $CASENVFILE |sed 's/.*=//;s/"//g')
+  [[ "$MY_JMX_PORT" != "$CA_JMX_PORT" ]] && echo "MAUGH frurggggh ERROR: cassandra port WRONG in $CASENVFILE file, it is $CA_JMX_PORT, it should be $MY_JMX_PORT"
+fi
 
 tail samson.stderr
 #tail -f samson.stdout

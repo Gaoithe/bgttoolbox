@@ -3,6 +3,9 @@
 HOST=$1
 [[ "$HOST" == "" ]] && HOST=vb-48
 
+ROOTUSER=vroot
+[[ "${HOST:0:2}" != "vb" ]] && ROOTUSER=root
+
 ## SETUP .ssh keys as vroot and omn user on each vbox and place in your authorized keys 
 #[omn@vb-28] ssh-keygen -t rsa
 #[omn@vb-28] cat ~/.ssh/id_rsa.pub     # place this pub key into ~james/.ssh/authorized_keys

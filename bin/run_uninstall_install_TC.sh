@@ -41,7 +41,14 @@ ls
 
 # as root user, install rpms
 #cd rpms_james
-cd /scratch/james/RPMS/rpms_cobwebs/
+
+if [[ -z $RPMNDIR ]] ; then
+    RPMNDIR=rpms_care
+    RPMNDIR=rpms_cobwebs
+    [[ "$1" != "" ]] && RPMNDIR=$1
+fi
+
+cd /scratch/james/RPMS/$RPMNDIR/
 #/slingshot/MOS-base/LATEST/scripts/rpmturbo.sh deploylist2_local.txt
 grep TOMCAT deploylist_local.txt
 # cobwebs is in corrib_router rpm
