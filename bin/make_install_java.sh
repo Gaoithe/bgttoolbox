@@ -9,6 +9,7 @@ fi
 CJARFILES=$(ls dst/*.jar); 
 if [[ ! -z "$CJARFILES" ]] ; then 
     echo install client $CJARFILES to $USERHOST:tomcat/webapps/Wing/WEB-INF/lib/; 
+    ssh $USERHOST "chmod 777 tomcat/webapps/Wing/WEB-INF/lib/*.jar"
     scp $CJARFILES $USERHOST:tomcat/webapps/Wing/WEB-INF/lib/
 fi
 
