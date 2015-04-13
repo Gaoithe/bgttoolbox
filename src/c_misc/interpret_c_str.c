@@ -35,13 +35,20 @@ The use of other backslash escapes is not defined by the C standard, although co
 
 /*
 
+  int CTOHEX(char c, int vi);
+  int CTOOCT(char c);
+  char *interpret_c_str(char *s, int *rv);
+
+  NOTE: tbx_next_word does the string interpretation for tbx.
+  it operates on tbx_string.
+
    // INTERPRET c-style escaped string
    // convert the c escape char '\' followed by valid escape sequence to a char
    // interpreted: \\ \" \' \n \r \b \t \f \a \v \? %% \ooo \hxx
    //  \\ \" \' => \ " ' backslash double-quote single-quote(tick)
-   //  \r\n => \x0a\x013 carriage-return line-feed 
-   //  \b\t\f\a\v => \x08\x0?\x??\x??\x?? backspace tab form-feed bell vertical-tab
-   //  \? => ? question-mark (but you can just use '?'
+   //  \r\n => \x0d\x0a carriage-return line-feed 
+   //  \b\t\f\a\v => \x08\x09\x0c\x07\x0b backspace tab form-feed bell vertical-tab
+   //  \? => ? question-mark (but you can just use '?')
    //  \ooo where o is [0-7] char with octal value ooo e.g. \042 = \x22 = \"
    //   exactly 3 octal chars must follow a slash IF octal is used
    //  \xhh where h is [0-9a-fA-F] char with hex value of h or hh e.g. \x00 = null char
@@ -105,7 +112,7 @@ char *interpret_c_str(char *s, int *rv)
       // copy next char back
       *p2++ = *s++;
     } else {
-      // skip slash
+      // skip slash and interpret following char or chars
       s++;
       switch(*s) {
       case '\\':
@@ -142,21 +149,24 @@ char *interpret_c_str(char *s, int *rv)
 	*p2++ = '?';
 	break;
       case 'x':
-	// read hex digits and convert
-	// max of 2 digits allowed
+        // read hex digits and convert, max of 2 digits allowed
+        // skip over 'x'
 	s++; 
 	v = 0;
+        // char 1
         v1=CTOHEX(*s++,0);
         if (v1==-1) { *rv=-1; break; }
         v*=16;
         v+=v1;
+        // char 2 (optional)
         v1=CTOHEX(*s,1);
         if (v1==-1) { 
-            // not a hex char, single digit
+            // not a hex char, single digit, that's okay
+            // set end pointer back
+            s--;
         } else {
             v*=16;
             v+=v1;
-            s++;
         }
 	/*vi=0;
 	while ((v1=CTOHEX(*s++,vi)) > 0) {
@@ -166,7 +176,6 @@ char *interpret_c_str(char *s, int *rv)
             vi++;
 	}
 	s--;*/
-	s--;
 	*p2++ = v;
         printf ("DEBUG HEX:%x\n",v);
 	break;
@@ -182,12 +191,13 @@ char *interpret_c_str(char *s, int *rv)
 	// max of 3 digits allowed
 	v=v1=CTOOCT(*s++);
 	v*=8;
+        // char 2
 	v+=v1=CTOOCT(*s);
         if (v1==-1) { *rv=-1; break; } else { s++; }
 	v*=8;
+        // char 3
 	v+=v1=CTOOCT(*s);
-        if (v1==-1) { *rv=-1; break; } else { s++; }
-	s--;
+        if (v1==-1) { *rv=-1; break; }
 	*p2++ = v;
         printf ("DEBUG OCT:%x\n",v);
 	break;
@@ -210,15 +220,26 @@ char *interpret_c_str(char *s, int *rv)
   return p1;
 }
 
+void print_error_interpret_c_str(char *s, int pos)
+{
+    printf("errstr: \"%s\"\n",s);
+    printf("error:   %*s there @ char pos:%d char:'%c' 0x%02x\n",pos,"^",pos,s[pos],s[pos]);
+}
+
 int main(int argv, char **argc) 
 {
-  char *s[11][3] = {
+  char *s[12][3] = {
       { "\\\"", "\"", "", },
       { "abcd efgh", "abcd efgh", "",},
       { "abcd efgh\\r\\n", "abcd efgh\r\n", "",},
       { "slash \\\\ dquote \\\" squote \\\' CRLF \\r\\n", "slash \\ dquote \" squote \' CRLF \r\n", "",},
       { "BS \\b TAB \\t FF \\f BELL \\a VTAB \\v Q? \\? HEXQuote \\x22 OCTQuote \\042", "BS \b TAB \t FF \f BELL \a VTAB \v Q? \? HEXQuote \x22 OCTQuote \042", "",},
       { "\\\\\\\"\\\'\\r\\n\\b\\t\\f\\a\\v\\?\\xa\\xab\xcd\\xefghij\\042\\111\\x22\\\\\\\"\\\'\\r\\n", "\\\"\'\r\n\b\t\f\a\v\?\xa\xab\xcd\xefghij\042\111\x22\\\"\'\r\n", "",},
+
+      // ~funny case . actually non-slashed "s in string would throw a c compile-time error, interpret_c_str allows them
+      { "escape(\"mysql test one quote here \\\" and 2 quotes at end\\\"\\\"\",\"\\\"\",\"\\\"\")", "escape(\"mysql test one quote here \" and 2 quotes at end\"\"\",\"\"\",\"\"\")", ""},
+
+      // error cases:
       { "solo slash @ end-of-string\\", "", "meh", },
       { "\\", "", "meh", },
       { "oct too short \\07", "", "meh", },
@@ -241,11 +262,11 @@ int main(int argv, char **argc)
 
   int i,rv;
  
-  for(i=0;i<6;i++) {
+  for(i=0;i<7;i++) {
     printf("%50s ### %s\n",s[i][1],s[i][0]);
   }
 
-  for(i=0;i<6;i++) {
+  for(i=0;i<7;i++) {
       char *si = interpret_c_str(s[i][0],&rv);
       if (rv!=0 && s[i][2][0] != 0) {
           printf("FAIL :-( syntax error in string\n");
@@ -271,10 +292,12 @@ int main(int argv, char **argc)
   }
 
 
-  for(i=6;i<11;i++) {
+  for(i=6;i<12;i++) {
       char *si = interpret_c_str(s[i][0],&rv);
       if (rv!=0 && s[i][1][0] != 0) {
           printf("FAIL :-( unexpected syntax error in string\n");
+      } else if (rv==0 && s[i][1][0] == 0) {
+          printf("FAIL :-( expected a syntax error in string BUT didn't get one\n");
       } else if (rv!=0) {
           printf("PASS. expected a syntax error in string\n");
       } else {
@@ -282,9 +305,10 @@ int main(int argv, char **argc)
       }
 
       if (rv!=0) {
-          printf("error @ char %d == '%c' == 0x%02x\n,",rv,s[i][0][rv],s[i][0][rv]);
-          printf("string: \"%s\"\n,",s[i][0]);
-          printf("error:   %*s there\n,",rv,"^");
+          print_error_interpret_c_str(s[i][0], rv);
+          //printf("error @ char %d == '%c' == 0x%02x\n",rv,s[i][0][rv],s[i][0][rv]);
+          //printf("string: \"%s\"\n",s[i][0]);
+          //printf("error:   %*s there\n",rv,"^");
       }
       
       printf("%5s ### %50s ### %s\n", 
