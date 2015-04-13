@@ -33,6 +33,36 @@ The use of other backslash escapes is not defined by the C standard, although co
 
 */
 
+/*
+
+   // INTERPRET c-style escaped string
+   // convert the c escape char '\' followed by valid escape sequence to a char
+   // interpreted: \\ \" \' \n \r \b \t \f \a \v \? %% \ooo \hxx
+   //  \\ \" \' => \ " ' backslash double-quote single-quote(tick)
+   //  \r\n => \x0a\x013 carriage-return line-feed 
+   //  \b\t\f\a\v => \x08\x0?\x??\x??\x?? backspace tab form-feed bell vertical-tab
+   //  \? => ? question-mark (but you can just use '?'
+   //  \ooo where o is [0-7] char with octal value ooo e.g. \042 = \x22 = \"
+   //   exactly 3 octal chars must follow a slash IF octal is used
+   //  \xhh where h is [0-9a-fA-F] char with hex value of h or hh e.g. \x00 = null char
+   //   one or two hex chars must follow a slash-x IF hex is used
+   //   gcc throws error "hex escape sequence out of range" if more than two hex chars follow a slash
+   //   to follow a hex-slash-char by a hex digit value (in gcc) seperate the strings e.g. char s[5] = "\x0a""abc";
+   // \c where c is any other char is interpreted as the char c
+   //   gcc throws warning "unknown escape sequence" and interprets it as the char c
+
+   // note % as used in printf format strings is not interpreted by this string interpreter
+
+   // usage:
+   int error;
+   char *cstr = tbx_string_interpret(charstr, &error);
+   if (error) {
+       printf("syntax error interpreting c-string, non-hex char 0x%02x '%c'\n",c,c);
+       free(cstr);
+   }
+
+*/
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -65,11 +95,12 @@ int CTOOCT(char c){
 
 char *interpret_c_str(char *s, int *rv)
 {
+    char *start = s;
   char *p1 = malloc(strlen(s)+1);
   char *p2 = p1;
   int v,v1,vi;
   *rv = 0;
-  while (*s) {
+  while (*s && *rv==0) {
     if (*s != '\\') {
       // copy next char back
       *p2++ = *s++;
@@ -172,20 +203,24 @@ char *interpret_c_str(char *s, int *rv)
       s++;
     }
   }
-  // copy terminating char
-  *p2 = *s;
+  // copy terminating char, on error s might not be pointing at end
+  //*p2 = *s;
+  if (*rv != 0) { *rv = (int)(s - start); }
+  *p2 = 0;
   return p1;
 }
 
 int main(int argv, char **argc) 
 {
-  char *s[9][3] = {
+  char *s[11][3] = {
       { "\\\"", "\"", "", },
       { "abcd efgh", "abcd efgh", "",},
       { "abcd efgh\\r\\n", "abcd efgh\r\n", "",},
       { "slash \\\\ dquote \\\" squote \\\' CRLF \\r\\n", "slash \\ dquote \" squote \' CRLF \r\n", "",},
       { "BS \\b TAB \\t FF \\f BELL \\a VTAB \\v Q? \\? HEXQuote \\x22 OCTQuote \\042", "BS \b TAB \t FF \f BELL \a VTAB \v Q? \? HEXQuote \x22 OCTQuote \042", "",},
       { "\\\\\\\"\\\'\\r\\n\\b\\t\\f\\a\\v\\?\\xa\\xab\xcd\\xefghij\\042\\111\\x22\\\\\\\"\\\'\\r\\n", "\\\"\'\r\n\b\t\f\a\v\?\xa\xab\xcd\xefghij\042\111\x22\\\"\'\r\n", "",},
+      { "solo slash @ end-of-string\\", "", "meh", },
+      { "\\", "", "meh", },
       { "oct too short \\07", "", "meh", },
       { "oct too short(chars 8,9 invalid in oct) \\089 meh", "", "meh", },
       { "hex too long \\xabc", "hex too long \xab""c", "", },   
@@ -194,6 +229,9 @@ int main(int argv, char **argc)
       // in gcc "\xab\c" gives you warning: unknown escape sequence: '\c'
       // in gcc "\xab" "c" gives you \xab followed by char c without warning or error 
   };
+
+  // test documentation
+  char sTD[5] = "\x0a""abc";
 
 /*
 /home/james/c/interpret_c_str.c:173:98: warning: hex escape sequence out of range [enabled by default]
@@ -209,7 +247,7 @@ int main(int argv, char **argc)
 
   for(i=0;i<6;i++) {
       char *si = interpret_c_str(s[i][0],&rv);
-      if (rv==-1 && s[i][2][0] != 0) {
+      if (rv!=0 && s[i][2][0] != 0) {
           printf("FAIL :-( syntax error in string\n");
       }
       
@@ -228,25 +266,34 @@ int main(int argv, char **argc)
               }
           }
       }
-      
+
+      free(si);
   }
 
 
-  for(i=6;i<9;i++) {
+  for(i=6;i<11;i++) {
       char *si = interpret_c_str(s[i][0],&rv);
-      if (rv==-1 && s[i][1][0] != 0) {
+      if (rv!=0 && s[i][1][0] != 0) {
           printf("FAIL :-( unexpected syntax error in string\n");
-      } else if (rv==-1) {
+      } else if (rv!=0) {
           printf("PASS. expected a syntax error in string\n");
       } else {
           // PASS. no error expected and no error happened.
       }
+
+      if (rv!=0) {
+          printf("error @ char %d == '%c' == 0x%02x\n,",rv,s[i][0][rv],s[i][0][rv]);
+          printf("string: \"%s\"\n,",s[i][0]);
+          printf("error:   %*s there\n,",rv,"^");
+      }
       
       printf("%5s ### %50s ### %s\n", 
-             (rv==-1 && s[i][1][0] != 0)?"FAIL":"PASS",
+             (rv!=0 && s[i][1][0] != 0)?"FAIL":"PASS",
              s[i][1],
              s[i][0]
           );      
+
+      free(si);
   }
   
 }
