@@ -33,6 +33,12 @@ mkdir dfl-dir
 touch dfl-dir/.ACTIVE
 
 rm -rf operations_cdrs pstat-dir  qsr-journal  qsr-storage
+rm -rf cstat-dir META-INF com
+rm -rf .tomcat-assure
+
+### some problem files in /tmp for machines sharing build and running a TC node
+# as builder owner i.e. james@...  OR root:
+rm -rf /tmp/pooky.cvp /tmp/.cas-batch
 
 
 ls
@@ -47,6 +53,8 @@ if [[ -z $RPMNDIR ]] ; then
     RPMNDIR=rpms_cobwebs
     [[ "$1" != "" ]] && RPMNDIR=$1
 fi
+
+#/slingshot/MOS-base/LATEST/scripts/rpmturbo.sh `/slingshot/MOS-base/LATEST/scripts/deploylist.pl -fc9 /slingshot/deployments/OMN-Traffic-Control/LATEST`
 
 cd /scratch/james/RPMS/$RPMNDIR/
 #/slingshot/MOS-base/LATEST/scripts/rpmturbo.sh deploylist2_local.txt

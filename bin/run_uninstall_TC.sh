@@ -33,5 +33,11 @@ mkdir dfl-dir
 touch dfl-dir/.ACTIVE
 
 rm -rf operations_cdrs pstat-dir  qsr-journal  qsr-storage
+rm -rf cstat-dir META-INF com
+rm -rf .tomcat-assure
+
+### some problem files in /tmp for machines sharing build and running a TC node
+# as builder owner i.e. james@...  OR root:
+rm -rf /tmp/pooky.cvp /tmp/.cas-batch
 
 ls"
