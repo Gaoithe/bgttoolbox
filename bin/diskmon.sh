@@ -3,8 +3,8 @@
 DRIVE=sda
 export TERM=xterm; eval `resize`
 echo "DATE=$(date)" |tee -a /home/james/discmon_${DRIVE}.log
-smartctl -A /dev/$DRIVE >> /home/james/discmon_${DRIVE}.log
-WARN=$(smartctl -A /dev/$DRIVE | grep FAIL)
+/sbin/smartctl -A /dev/$DRIVE >> /home/james/discmon_${DRIVE}.log
+WARN=$(/sbin/smartctl -A /dev/$DRIVE | grep FAIL)
 if [[ ! -z $WARN ]] ; then
   echo "WARNING. FAIL. $WARN"
   wall "diskmon $DRIVE WARNING. FAIL. $WARN"
