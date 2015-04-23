@@ -11,13 +11,14 @@
 
 #
 # .fvwm doesn't do png's, just xpms
-# sudo convert /usr/share/pixmaps/xchat.png /usr/share/pixmaps/xchat.xpm
+# sudo convert -scale 18x18 /usr/share/pixmaps/xchat.png /usr/share/pixmaps/xchat.xpm
 # sudo convert -scale 18x18 /usr/share/pixmaps/xchat.png /usr/share/pixmaps/xchat.xpm
 # sudo convert -scale 18x18 -colors 10 /usr/share/pixmaps/xchat.png /usr/share/pixmaps/xchat.xpm
 # sudo convert -scale 18x18 -colors 9 /usr/share/pixmaps/xchat.png /usr/share/pixmaps/xchat.xpm
 # sudo convert -scale 18x18 /usr/share/pixmaps/gnome-xterm.png /usr/share/pixmaps/gnome-xterm.xpm
 # sudo convert -scale 18x18 /usr/share/pixmaps/gnome-log.png /usr/share/pixmaps/gnome-log.xpm
 # sudo convert -scale 18x18 /usr/share/pixmaps/emacs.png /usr/share/pixmaps/emacs.xpm
+# sudo convert -scale 18x18 /usr/share/pixmaps/{gnome-emacs.png,emacs.xpm}
 # sudo convert -scale 18x18 /usr/share/pixmaps/mozilla-icon.png /usr/share/pixmaps/mozilla-icon.xpm 
 # sudo convert -scale 18x18 /usr/share/pixmaps/gnome-lockscreen.png /usr/share/pixmaps/gnome-lockscreen.xpm
 # sudo convert -scale 18x18 /usr/share/pixmaps/gimp.png /usr/share/pixmaps/gimp.xpm
@@ -161,32 +162,18 @@ Style "APM"         NoTitle,NoHandles,Sticky,WindowListSkip
 Style "IrDA"        NoTitle,NoHandles,Sticky,WindowListSkip
 Style "Sharemon"    NoTitle,NoHandles,Sticky,WindowListSkip
 
-
-#############################
-# 1 0  #      #      #      #
-#      #      #      #      #
-#############################
-# 0 1  #      #      #      #
-#      #      #      #      #
-#############################
 Style "VM"          StartsOnPage 0 0,SkipMapping
 
 # Mozilla
 Style "navigator:browser"   StartsOnPage 1 0,SkipMapping
 Style "Mozilla-bin" StartsOnPage 1 0,SkipMapping
 Style "mozilla-bin" StartsOnPage 1 0,SkipMapping
-Style "firefox" StartsOnPage 0 1,SkipMapping
-Style "firefox-bin" StartsOnPage 0 1,SkipMapping
 Style "mail:3pane"  StartsOnPage 2 0,SkipMapping
 Style "mutt"  StartsOnPage 2 0,SkipMapping
 Style "ssh"  StartsOnPage 2 0,SkipMapping
 
 # xchat
 Style "X-Chat" StartsOnPage 0 1,SkipMapping
-Style "xchat" StartsOnPage 0 1,SkipMapping
-Style "skype" StartsOnPage 0 1,SkipMapping
-Style "thunderbird" StartsOnPage 0 1,SkipMapping
-Style "thunderbird-bin" StartsOnPage 0 1,SkipMapping
 
 
 # Key bindings
@@ -222,8 +209,30 @@ Key Tab  A   M   WindowList
 Key F4  A   M   Current Close
 Key F3  A   M   Next
 
-# Alt-Space should pop the windows menu, but it doesn't...
+# Alt-Space should pop the windows menu, but it doesn't... . . . yes it does actually.
 Key Space   A   M   Current Menu WinFuncMenu
+#TODO: get working:
+Key Super_L   A   M   Current Menu Utilities
+#TODO: get Print shift-Print alt-Print working:
+#Key Print   A   S   FvwmDesktopScreenshot 5
+Key Print   A   S   Pick (CirculateHit) FvwmWindowScreenshot
+Key Print   A   N   Exec exec gnome-screenshot &
+
+#Key F1 A M Menu MenuFvwmRoot
+#Key Tab A M WindowList Root c c NoDeskSort, SelectOnRelease Meta_L
+#Key Super_L A A FvwmATerm
+#Mouse 1 R A Menu FvwmRootMenu
+#Mouse 3 R A Menu FvwmWindowOpsMenu
+#Mouse 1 1 A FvwmDeleteOrDestroy
+#Mouse 1 3 A FvwmIconifyOrShade
+#Mouse 1 5 A FvwmMaximize 100 100
+#Mouse 2 5 A FvwmMaximize 0 100
+#Mouse 3 5 A FvwmMaximize 100 0
+#Mouse 1 W M FvwmMoveOrIconify
+#Mouse 1 I A FvwmMoveOrIconify
+#Mouse 4 T A FvwmWindowShade True
+#Mouse 5 T A FvwmWindowShade False
+
 
 
 # Shift-Ctrl-Arrow switches/scrolls virtual desktop
@@ -237,12 +246,14 @@ Key Down    A   SCM Exec xmms --fwd
 Key Left    A   SCM Exec aumix -v-1
 Key Right   A   SCM Exec aumix -v+1
 
+# Ctrl-Alt L lock screen
+Key L      A   CM Exec  exec xscreensaver-command -lock &
+
 # some simple default mouse bindings:
 #   for the root window:
 Mouse 1 R       A       Menu Utilities Nop
 Mouse 2	R    	A      	Menu Window-Ops Nop
 Mouse 3	R    	A      	WindowList
-
 
 # B1: single click for menu, double for close.
 Mouse 1 1 A Menu WinFuncMenu Close
@@ -277,18 +288,15 @@ AddToFunc InitFunction    "I" Module FvwmButtons
 +                         "I" exec xscreensaver -no-splash &
 #+                         "I" exec artsd -a toss -S 4096 -F 20 &
 +                         "I" exec /usr/X11R6/bin/xsetroot -solid black
-+                         "I" exec emacs  -geometry 50x46+0+0 -name sEmascsexeseven &
++                         "I" exec emacs -name sEmascsexeseven &
 +                         "I" exec gnome-panel #>;)
 #+                         "I" exec mozilla -xrm &
-+                         "I" exec firefox -xrm &
-+                         "I" exec thunderbird &
++                         "I" exec google-chrome &
 +                         "I" exec /usr/X11R6/lib/xscreensaver/noseguy -root -program fortune
 +			  "I" exec xterm -sb -sl 1000 -j -ls -fn 7x14 -name "Local Shell"
-#+			  "I" exec xterm -geometry 100x60+0+0 -name "dspsrv Mail Betty" -e mutt
-#+			  "I" exec xterm -geometry 100x60+0+0 -name "doolin Mail Doolin.com" -e ssh doolin.com
++			  "I" exec xterm -geometry 100x60+0+0 -name "dspsrv Mail Betty" -e mutt
++			  "I" exec xterm -geometry 100x60+0+0 -name "doolin Mail Doolin.com" -e ssh doolin.com
 +			  "I" exec xchat 
-+			  "I" exec skype 
-+			  "I" exec xt slaineproxy
 #+			  "I" exec xterm -geometry 100x60+0+0 -name "Kinsey" -e ssh kinsey
 #+			  "I" exec xterm -geometry 100x60+0+0 -name "Owsla" -e ssh owsla.ie.suberic.net
 #+			  "I" exec xterm -geometry 50x10+0+0 -name "Kinsey" -e ssh kinsey xchat
@@ -306,15 +314,22 @@ AddToFunc RestartFunction "I" Module FvwmButtons
 AddToMenu Utilities	"Utilities"	Title 	
 +			"xterm"		Exec  exec xterm +sb &
 +			"emacs"		Exec  exec emacs &
-+			"mozilla"       Exec  exec mozilla &
-+                       "screensaver - lock"   Exec  exec xscreensaver-command -lock &
+#+			"mozilla"       Exec  exec mozilla &
++			"chrome"        Exec  exec google-chrome &
++                       "screensaver - lock"     Exec  exec xscreensaver-command -lock &
 +                       "xscreensaver - config"  Exec  exec xscreensaver-command -prefs &
 +			""		Nop
-+			"slaineproxy"	Exec  exec xt slaineproxy &
++                       "ScreenShot - window"    Pick (CirculateHit) FvwmWindowScreenshot
++                       "ScreenShot - desktop"   FvwmDesktopScreenshot 5
++                       "ScreenShot - gnome"     Exec exec gnome-screenshot &
++                       "XRoach - Invasion"      XRoachInvasion
++                       "XRoach - Exterminate"   XRoachExterminate
 +			""		Nop
 +			"Modules"	Popup Module-Popup
 +			""		Nop		
 +			"Exit Fvwm"	Popup Quit-Verify
+
+
 
 #these don't work? :(
 AddToMenu Module-Popup	"Modules"	Title	
@@ -375,7 +390,7 @@ AddToMenu Window-Ops	"Window Ops"	Title
 # Font
 *FvwmButtonsFont -*-*-medium-r-normal--11-*-100-100-p-*-iso8859-1
 # Geometry - really likes to pick its own size, but giving a position is OK
-#*FvwmButtonsGeometry -1-0
+*FvwmButtonsGeometry -1-0
 
 # Layout: specify rows or columns, not both
 *FvwmButtonsColumns 4
@@ -386,39 +401,33 @@ AddToMenu Window-Ops	"Window Ops"	Title
 *FvwmButtons(4x1, Container(Columns 4))
 #*FvwmButtons(Frame 1 Padding 1 1 Container(Rows 6 Columns 1 Frame 1 Padding 10 0))
 
-*FvwmButtons(Title term, Icon gnome-xterm.xpm,\
+*FvwmButtons(gTitle Xterm, Icon gnome-xterm.xpm,\
  Action `Exec xterm +sb -title "Local" &`)
 
-*FvwmButtons(Title lock, Icon status_lock.xpm,\
+*FvwmButtons(gTitle Lock, Icon status_lock.xpm,\
  Action `Exec xscreensaver-command -lock &`)
-
-*FvwmButtons(Title mail, Icon mozilla-mail-icon.gif,\
- Action `Exec thunderbird &`)
-
-*FvwmButtons(Title web, Icon mozilla-icon.gif,\
- Action `Exec firefox &`)
 
 #*FvwmButtons(Title mutt, Icon mozilla-mail-icon.gif,\
 # Action `Exec xterm -geometry 100x60+0+0 -title "mutt dspsrv" -e mutt &`)
 #+			  "I" exec xterm -geometry 100x60+0+0 -name "dspsrv Mail Betty" -e mutt
+*FvwmButtons(Title Terminal, \
+ Action `Exec gnome-terminal &`)
+
 #*FvwmButtons(Title doolin.com, Icon redhat-email.png,\
 # Action `Exec xterm -geometry 100x60+0+0 -fg yellow -bg seagreen -title "doolin" -e ssh doolin.com &`)
+*FvwmButtons(Title chrome, Icon mozilla-mail-icon.gif,\
+ Action `Exec google-chrome &`)
+
 #+			  "I" exec xterm -geometry 100x60+0+0 -name "doolin Mail Doolin.com" -e ssh doolin.com
 
-*FvwmButtons(3x1, Swallow(UseOld, NoKill) "XClock"\
+*FvwmButtons(4x1, Swallow(UseOld, NoKill) "XClock"\
  `Exec xclock -digital -strftime "%a %b %d %R" -fg yellow -bg blue`)
-
-*FvwmButtons(Title Sky, Icon skype.xpm,\
- Action `Exec skype &`)
 
 
 
 # Pager
 #*FvwmButtons(3x1 Frame 2 Swallow(UseOld) "FvwmPager" "Module FvwmPager 0 0")
-*FvwmButtons(3x4, Swallow "FvwmPager" `FvwmPager 0 0`)
-
-*FvwmButtons(Title CommProve, Icon xterm.xpm,\
- Action `Exec xt slaineproxy &`)
+*FvwmButtons(4x4, Swallow "FvwmPager" `FvwmPager 0 0`)
 
 
 *FvwmButtons(End)
@@ -468,3 +477,35 @@ Module FvwmEvent
 # bloody hell!!! I've spent 4 hrs grepping thinking this must be a standard fvwm or gnome or ? thing. - james.
 # .xchat-hacks relies on this .focus file
 # Vrrry handy.
+
+
+
+#####
+# Screenshot Functions (uses ImageMagick)
+###########
+DestroyFunc FvwmWindowScreenshot
+AddToFunc   FvwmWindowScreenshot
++ I ThisWindow (!Shaded !Iconic Iconifiable) \
+  Exec import -window $[w.id] -quality 100 -silent \
+  "$[fvwm_home]/screenshot/screenshot-`date +%F[%R]`.$[w.id].jpg"
+
+DestroyFunc FvwmDesktopScreenshot
+AddToFunc   FvwmDesktopScreenshot
++ I Exec sleep $0; import -window root -quality 100 -silent \
+  "$[fvwm_home]/screenshot/screenshot-`date +%F[%R]`.jpg"
+
+#####
+# XRoach Invasion
+###########
+DestroyFunc XRoachInvasion
+AddToFunc   XRoachInvasion
++ I Exec exec xroach -roaches 5 -rc Cyan -speed 17
++ I Exec exec xroach -roaches 3 -rc Red -speed 15
++ I Exec exec xroach -roaches 7 -rc Green -speed 10
++ I Exec exec xroach -roaches 3 -rc Blue -speed 20
++ I Exec exec xroach -roaches 1 -rc Black -speed 30
++ I Exec exec xroach -roaches 1 -rc White -speed 40
+
+DestroyFunc XRoachExterminate
+AddToFunc   XRoachExterminate
++ I Exec killall xroach
