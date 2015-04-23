@@ -1,5 +1,9 @@
 #!/bin/bash
 
+### TODO: should really use rsync to pull across mem log files.
+### DONE: log time in process files, synchronize time together when generating plots. 
+###    TODO: label log date/time of log in graph title
+
 cmd="run"
 match="."
 DEFAULT_HOSTS="omn@vb-28 omn@vb-48"
@@ -41,8 +45,9 @@ error: unexpected argument: $1
 usage: $0 [<cmd>] [-match <e-regexp>] [-host <user@host>] [-host <user@host>] . . . 
        cmd := start|stop|status|run|help
 
-e.g.: 
+e.g.: (NOTE: process names truncated to 15 chars e.g. reafer_pdu_pars and memcheck-x86-li)
    monmemu_plot.sh -match \"cobwebs|cstat|cconf\" -host omn@vb-28 -host omn@vb-48
+   monmemu_plot.sh -match "reafer_pdu_pars|valgrind|memcheck-x86-li" -host omn@vb-28 -host omn@vb-48
 
 e.g. retrieve and plot ALL processes being watched:
    # tar up of logfiles can cause delay, also can be too many items on plot  
@@ -72,8 +77,8 @@ cat >~/bin/monmemu.sh <<EOF
 #!/bin/bash
 
 function make_mem_entry {
- mem=\$1; vsz=\$2; c=\$3; pid=\$4;
- echo \"\$mem \$vsz \${c}_\${pid}\" >> mem_\${c}_\${pid}.log; 
+ mem=\$1; vsz=\$2; c=\$3; pid=\$4; ts=\$5;
+ echo "\$mem \$vsz \${c}_\${pid} \$ts" >> mem_\${c}_\${pid}.log; 
 } 
 
 mkdir -p ~/monmemu
@@ -83,9 +88,10 @@ date >>start.log
 
 while true; do
  date >>last.log
- ps -u omn -o "%mem=,vsz=,comm=,pid=" |grep -Ev \"grep|sleep|\bps\b|\bls\b\" > mem.log
- while read line; do make_mem_entry $line; done < mem.log
- sleep 10;
+ ts=\$(date +%s)
+ ps -u omn -o "%mem=,vsz=,comm=,pid=" |sed "s/$/ \$ts/" |grep -Ev "grep|sleep|\bps\b|\bls\b" > mem.log
+ while read line; do make_mem_entry \$line; done < mem.log
+ sleep 2;
 done
 
 EOF
@@ -139,6 +145,8 @@ case "$cmd" in
             else 
               echo \"status: NOT RUNNING\";
             fi
+            LASTFILE=\$(ls -tr monmemu/mem*.log |tail -1)
+            ls -alstr \$LASTFILE; tail -2 \$LASTFILE
             "
         done
         exit 0
@@ -170,6 +178,9 @@ for h in $HOSTS; do
 
 set label "$h"
 set xlabel "$h time"
+set xdata time
+set timefmt "%s"
+set format x "%H:%M"
 
 set ylabel "VSZ"
 set y2label "%MEM"
@@ -185,9 +196,40 @@ EOF
 
     function make_plot_entry { 
         mem=$1; vsz=$2; c=$3; pid=$4; 
+        echo "\"mem_${c}_${pid}.log\" using (timecolumn(4)):2 with lines axes x1y1 title \"VSZ_${c}_${pid}\", \\"; 
+        echo "\"mem_${c}_${pid}.log\" using (timecolumn(4)):1 with lines axes x1y2 title \"%MEM_${c}_${pid}\" \\"; 
+    } 
+
+    function make_plot_entry_NOTIME { 
+        mem=$1; vsz=$2; c=$3; pid=$4; 
         echo "\"mem_${c}_${pid}.log\" using 2 with lines axes x1y1 title \"VSZ_${c}_${pid}\", \\"; 
         echo "\"mem_${c}_${pid}.log\" using 1 with lines axes x1y2 title \"%MEM_${c}_${pid}\" \\"; 
     } 
+
+    # e.g. with x and y axis offsets
+    # $0 is line number
+    # plot "mem_cobwebs_6907.log" using ($0+50):($2+27) with lines axes x1y1 title "Voo", "mem_cobwebs_6907.log" using ($2-270000)  with lines axes x1y1 title "Shoe"
+
+    # add new (and old+ended) processes to list (into mem.log)
+    MEMLOGFILES=$(find . -name "mem*.log" -newer start.log)
+    # e.g. valgrind: mem_memcheck-x86-li_31719.log
+    #[james@nebraska ~]$ grep reafer  /home/james/monmemu-omn@vb-28/monmemu/mem.log
+    #0.1 268376 reafer          12704
+
+    echo "Adding new processes to list (if needed) . . . "
+    for f in $MEMLOGFILES; do
+        f1=${f#*mem_}
+        f1=${f1%.log}
+        pid=${f1##*_}
+        pname=${f1%_*}
+        #echo f=$f base=$f1 pid=$pid pname=$pname
+        THERE=$(grep "$pname.*$pid" mem.log)
+        if [[ -z $THERE ]] ; then
+            ## no entry in mem.log - so we add one
+            echo "Add entry for process name=$pname pid=$pid"
+            echo "0.0 0 $pname $pid" >> mem.log
+        fi
+    done
 
     FIRSTCOMMA=0
     while read line; do
