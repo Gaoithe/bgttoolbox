@@ -100,6 +100,8 @@ chmod 755 ~/bin/monmemu.sh
 
 fi
 
+DTS=$(date +%a%d%b_%H%M)
+GNUPLOT_FILE=monmemu_${DTS}.gnuplot
 
 case "$cmd" in 
     start)
@@ -172,9 +174,9 @@ for h in $HOSTS; do
     tar -jxvf monmemu.tbz
     cd monmemu
 
-    cat >monmemu.gnuplot <<EOF
+    cat >${GNUPLOT_FILE} <<EOF
 #set term png small size 1024,800
-#set output "mem-graph-${h}.png"
+#set output "mem-graph-${h}-${DTS}.png"
 
 set label "$h"
 set xlabel "$h time"
@@ -234,18 +236,18 @@ EOF
     FIRSTCOMMA=0
     while read line; do
         if ( echo "$line"|grep -E "$match" ) ; then 
-            [[ "$FIRSTCOMMA" != 0 ]] && echo -n ", " >>monmemu.gnuplot;
+            [[ "$FIRSTCOMMA" != 0 ]] && echo -n ", " >>${GNUPLOT_FILE};
             [[ "$FIRSTCOMMA" == 0 ]] && FIRSTCOMMA=1;
-            make_plot_entry $line >>monmemu.gnuplot; 
+            make_plot_entry $line >>${GNUPLOT_FILE}; 
         fi
     done < mem.log
-    echo "" >> monmemu.gnuplot
+    echo "" >> ${GNUPLOT_FILE}
 
-    gnuplot -e "set term png small size 1024,800; set output \"mem-graph-${h}-key.png\";" monmemu.gnuplot
-    display mem-graph-${h}-key.png &
-    gnuplot -e "set term png small size 1024,800; set output \"mem-graph-${h}-nokey.png\";set key off" monmemu.gnuplot ; 
-    display mem-graph-${h}-nokey.png &
+    gnuplot -e "set term png small size 1024,800; set output \"mem-graph-${h}-${DTS}-key.png\";" ${GNUPLOT_FILE}
+    display mem-graph-${h}-${DTS}-key.png &
+    gnuplot -e "set term png small size 1024,800; set output \"mem-graph-${h}-${DTS}-nokey.png\";set key off" ${GNUPLOT_FILE} ; 
+    display mem-graph-${h}-${DTS}-nokey.png &
     # interactive
-    gnuplot monmemu.gnuplot -e "pause 60";
+    gnuplot ${GNUPLOT_FILE} -e "pause 60";
 
 done
