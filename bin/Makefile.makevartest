@@ -1,0 +1,10 @@
+A=makevarA
+xx: 
+	export A=foo; echo $$A pid=$$$$; echo access var on same line A=$$A pid=$$$$
+	echo access shell var on next rule line doesnt work. A=$$A pid=$$$$ cos each seperate line is a different process
+	echo A=${A} makeA=$(A) DTS=$(DTS)  Add=$$(A) Asd=\$A
+	eval "echo $A"
+	echo using a make var 'TMP' can work
+	$(eval TMP := $(shell pwd))
+	echo TMP=$(TMP)
+
