@@ -8,7 +8,8 @@ cmd="run"
 match="."
 DEFAULT_HOSTS="omn@vb-28 omn@vb-48"
 HOSTS=""
-
+STARTTIME=""
+ENDTIME=""
 
 while [[ ! -z "$1" ]]; do
 
@@ -39,6 +40,26 @@ while [[ ! -z "$1" ]]; do
             exit -1
         fi
 	;;
+    -starttime)
+        shift
+        if [[ ! -z "$1" ]] ; then
+            STARTTIME="$1"
+            shift
+        else
+            echo "error: -starttime option needs a value, e.g. \"yesterday\" or \"8:40\" or \"May 2\" or \"May 2 2015 9:00\" or anything unix date -d will accept"  
+            exit -1
+        fi
+	;;
+    -endtime)
+        shift
+        if [[ ! -z "$1" ]] ; then
+            ENDTIME="$1"
+            shift
+        else
+            echo "error: -endtime option needs a value, e.g. \"yesterday\" or \"18:40\" or \"May 2\" or \"May 7 18:00\" or anything unix date -d will accept"  
+            exit -1
+        fi
+	;;
     help|*)
         cat <<EOF 
 error: unexpected argument: $1
@@ -46,8 +67,10 @@ usage: $0 [<cmd>] [-match <e-regexp>] [-host <user@host>] [-host <user@host>] . 
        cmd := start|stop|status|run|help
 
 e.g.: (NOTE: process names truncated to 15 chars e.g. reafer_pdu_pars and memcheck-x86-li)
-   monmemu_plot.sh -match \"cobwebs|cstat|cconf\" -host omn@vb-28 -host omn@vb-48
+   monmemu_plot.sh -match "cobwebs|cstat|cconf" -host omn@vb-28 -host omn@vb-48
    monmemu_plot.sh -match "reafer_pdu_pars|valgrind|memcheck-x86-li" -host omn@vb-28 -host omn@vb-48
+   monmemu_plot.sh -starttime 09:00 -match "reafer_pdu_pars|reafer" -host omn@vb-28 -host omn@vb-48
+   monmemu_plot.sh -starttime "11:00 May 7" -endtime "18:30 May 7" -match "reafer_pdu_pars|reafer" -host omn@vb-28 -host omn@vb-48
 
 e.g. retrieve and plot ALL processes being watched:
    # tar up of logfiles can cause delay, also can be too many items on plot  
@@ -174,6 +197,31 @@ for h in $HOSTS; do
     tar -jxvf monmemu.tbz
     cd monmemu
 
+    # setting time range - default from beginning of mem.log to current time
+    # gnuplot command e.g. set xrange [ "1/6/93":"1/11/93" ], where set timefmt "%d/%m/%y\t%H%M"
+    # gnuplot command e.g. set xrange [ -3000:7000 ] ?? , where set timefmt ?? 
+    if [[ $ENDTIME ]]; then 
+        ENDTIME_T="$ENDTIME"
+    else
+        ENDTIME_T="now"
+    fi
+    if [[ $STARTTIME ]]; then 
+        #STARTTIME_D=$(date -d "$STARTTIME")
+        STARTTIME_S=$(date -d "$STARTTIME" +%s)
+        STARTTIME_S_NOW=$(date -d "now" +%s)
+        SETXRANGECMD1="# if only it were so simple! set xrange [ $STARTTIME_S:$STARTTIME_S_NOW ]"
+        SETXRANGECMD2="TIMEOFFSET=1893370441"
+        SETXRANGECMD3="set xrange [(system(\"date -d '$STARTTIME' +%s\")-TIMEOFFSET):(system(\"date -d '$ENDTIME' +%s\")-TIMEOFFSET)]"
+        #SETXRANGECMD3="set xrange [(${STARTTIME_S}-TIMEOFFSET):${STARTTIME_S_NOW}-TIMEOFFSET)]"
+
+        # TIMEOFFSET=1893370441 WTF!? I hear you say. Yeah.
+        # http://stackoverflow.com/questions/9464437/gnuplot-plot-data-from-one-month-ago-to-now/30106359#30106359
+    fi
+
+    # NOTE: If starttime not set endtime is not used.
+    # NOTE: If starttime/edntime not set range used is min to max in terms of time
+    # TODO: how show / use max/min time on xrange ?
+
     cat >${GNUPLOT_FILE} <<EOF
 #set term png small size 1024,800
 #set output "mem-graph-${h}-${DTS}.png"
@@ -192,6 +240,10 @@ set y2tics nomirror in
 
 set yrange [0:*]
 set y2range [0:*]
+
+$SETXRANGECMD1
+$SETXRANGECMD2
+$SETXRANGECMD3
 
 plot \\
 EOF
