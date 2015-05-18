@@ -11,10 +11,11 @@ if [[ -z $RPMNDIR ]] ; then
     [[ "$1" != "" ]] && RPMNDIR=$1
 fi
 
-INSTALL_FROM_SLINGSHOT=true
 INSTALL_FROM_SLINGSHOT=false
-INSTALL_LATEST=false
+INSTALL_FROM_SLINGSHOT=true
+
 INSTALL_LATEST=true
+INSTALL_LATEST=false
 
 if $INSTALL_FROM_SLINGSHOT; then
 
@@ -25,7 +26,7 @@ if $INSTALL_FROM_SLINGSHOT; then
         REL=13-Q2
         REL=14-Q1
         #REL=14-Q2
-        #REL=15-Q1
+        REL=15-Q1
         PLAT=FC9
         PUB=/slingshot/PUBLISHED/OMN-Traffic-Control/$REL
         PUB_BASE=$PUB/BASE/$PLAT
@@ -52,13 +53,24 @@ if $INSTALL_FROM_SLINGSHOT; then
         #ls $PUB_BASE
         #/slingshot/MOS-base/LATEST/scripts/rpmturbo.sh -oaat $(find $PUB_BASE -name "*.rpm")
         
-        echo "####################### INSTALL/APPLY each released patch one by one ################################"
+        echo "####################### INSTALL/APPLY each released & PUBLISHED patch one by one ################################"
         ls $PUB_PAT
         /slingshot/MOS-base/LATEST/scripts/rpmturbo.sh -oaat $(find $PUB_PAT  -name "*.rpm" | sort)
         #/slingshot/MOS-base/LATEST/scripts/rpmturbo.sh -oaat `find /slingshot/PUBLISHED/OMN-Traffic-Control/q09-Q1-5/PATCHES/FC9 -name "*.rpm" | sort`
         #/slingshot/MOS-base/LATEST/scripts/rpmturbo.sh -oaat `find /slingshot/PUBLISHED/OMN-Traffic-Control/14-Q2/PATCHES/FC9  -name "*.rpm" | sort`
         #/slingshot/MOS-base/LATEST/scripts/rpmturbo.sh -oaat `find /slingshot/PUBLISHED/OMN-Traffic-Control/14-Q1/PATCHES/FC9  -name "*.rpm" | sort`
         #/slingshot/MOS-base/LATEST/scripts/rpmturbo.sh -oaat `find /slingshot/PUBLISHED/OMN-Traffic-Control/13-Q3/PATCHES/FC9  -name "*.rpm" | sort`
+
+        echo "####################### you might wish to INSTALL/APPLY locally built or UN-PUBLISHED patches ################################"
+        PAT=/slingshot/PATCHES/OMN-Traffic-Control-${REL}
+        /slingshot/MOS-base/LATEST/scripts/rpmturbo.sh -oaat $(find $PAT -name "*${PLAT}*.rpm")
+        # scp RPMS/OMN-Traffic-Control-15-Q1-pxx-1.FC9.i386.^Cm /scratch/james/RPMS/
+        # rpm -qg OMN |grep Traffic
+        # rpm -ql -p /slingshot/PATCHES/OMN-Traffic-Control-15-Q1/v1/00/01/RPMS/OMN-Traffic-Control-15-Q1-p02-11.FC9.i386.rpm
+        # [root@vb-48]# rpm -ivh /slingshot/PATCHES/OMN-Traffic-Control-15-Q1/v1/00/01/RPMS/OMN-Traffic-Control-15-Q1-p02-11.FC9.i386.rpm
+
+
+
     fi
 
 else
@@ -76,6 +88,14 @@ fi
 # as omn user:
 # take backup of clean cconf dir
 su - omn -c "tar -jcvf cconf-dir_CLEAN_001.tbz  cconf-dir"
+
+# disabble sca process - which always dumps cores
+#[root@vb-48]# ls -alstr etc/samson.d/procs.default 
+#4 -r--r--r-- 1 omn omn 3851 2015-03-30 22:38 etc/samson.d/procs.default
+#[root@vb-48]# grep sca etc/samson.d/procs.default 
+#    R      090     .         bin/sca
+chmod o+w /apps/omn/etc/samson.d/procs.default
+perl -pi -e 's/^(.*bin\/sca)/#$1/' /apps/omn/etc/samson.d/procs.default
 
 # as root user:
 echo $CAS_JMX_PORT
