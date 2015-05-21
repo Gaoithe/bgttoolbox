@@ -342,18 +342,22 @@ AddToFunc FuncFvwmMenuDirectory
 
 ########################Menus ########################################
 AddToMenu Utilities	"Utilities"	Title 	
-+			"xterm"		Exec  exec xterm +sb &
-+			"emacs"		Exec  exec emacs &
-#+			"mozilla"       Exec  exec mozilla &
-+			"chrome"        Exec  exec google-chrome &
++			"xterm"		        Exec  exec xterm +sb &
++			"emacs"		        Exec  exec emacs &
+#+			"mozilla"               Exec  exec mozilla &
++			"chrome"                Exec  exec google-chrome &
 +                       "screensaver - lock"     Exec  exec xscreensaver-command -lock &
 +                       "xscreensaver - config"  Exec  exec xscreensaver-command -prefs &
 +			""		Nop
 +                       "ScreenShot - window"    Pick (CirculateHit) FvwmWindowScreenshot
 +                       "ScreenShot - desktop"   FvwmDesktopScreenshot 5
 +                       "ScreenShot - gnome"     Exec exec gnome-screenshot &
-+                       "XRoach - Invasion"      XRoachInvasion
-+                       "XRoach - Exterminate"   XRoachExterminate
++                       "XPenguins - Invasion"   Popup XPenguinsInvasion
++                       "XPenguins - Go Away!"   Exec exec killall xpenguins
+#+                       "XRoach - Invasion"      Exec XRoachInvasion
+#+                       "XRoach - Exterminate"   Exec XRoachExterminate
++                       "XRoach - Invasion"      Popup XRoachInvasion
++                       "XRoach - Exterminate"   Exec exec killall xroach
 +			""		Nop
 +			"Nautilus File Manager" Exec  exec nautilus &
 +			"gentoo File Manager"	Exec  exec gentoo &
@@ -569,9 +573,30 @@ AddToFunc   XRoachInvasion
 + I Exec exec xroach -roaches 1 -rc Black -speed 30
 + I Exec exec xroach -roaches 1 -rc White -speed 40
 
+DestroyMenu "XRoachInvasion"
+AddToMenu "XRoachInvasion" "xRoach Invasion!" Title
++ "5 roaches, -rc Cyan -speed 17"           Exec xroach -roaches 5 -rc Cyan -speed 17
++ "3 roaches, -rc Red -speed 15"            Exec xroach -roaches 3 -rc Red -speed 15
++ "7 roaches, -rc Green -speed 10"          Exec xroach -roaches 7 -rc Green -speed 10
++ "3 roaches, -rc Blue -speed 20"           Exec xroach -roaches 3 -rc Blue -speed 20
++ "1 roaches, -rc Black -speed 30"          Exec xroach -roaches 1 -rc Black -speed 30
++ "1 roaches, -rc White -speed 40"          Exec xroach -roaches 1 -rc White -speed 40
+
 DestroyFunc XRoachExterminate
 AddToFunc   XRoachExterminate
-+ I Exec killall xroach
++ I Exec exec killall xroach
 
+DestroyMenu "XPenguinsInvasion"
+AddToMenu "XPenguinsInvasion" "xPenguins Invasion!" Title
++ "Big Penguins and Turtles" Exec xpenguins --theme "Big Penguins" --theme "Turtles"
++ "Big Penguins" Exec xpenguins --theme "Big Penguins"
++ "Default" Exec xpenguins
++ "Penguins" Exec xpenguins --theme "Penguins"
++ "Classic Penguins" Exec xpenguins --theme "Classic Penguins"
++ "Bill" Exec xpenguins --theme "Bill"
+
+DestroyFunc XPenguinsExterminate
+AddToFunc   XPenguinsExterminate
++ I Exec exec killall xpenguins
 
 
