@@ -16,7 +16,9 @@ MY_JMX_PORT=$(grep CAS_JMX_PORT /root/.bash_profile |sed s/.*=//)
 if [[ -z $MY_JMX_PORT ]]; then
  echo "ERROR: cannot do: grep CAS_JMX_PORT /root/.bash_profile"
 else
-  CASENVFILE=cassandra/dsc-cassandra-1.2.10/conf/cassandra-env.sh
+  #CASENVFILE=cassandra/dsc-cassandra-1.2.10/conf/cassandra-env.sh
+  #CASENVFILE=cassandra/dsc-cassandra-2.0.14/conf/cassandra-env.sh # april 2015 change java 1.6 -> 1.7 cassandra 1.2.10 -> 2.0.14
+  CASENVFILE=$(find cassandra -name cassandra-env.sh |tail -1)
   #grep JMX_PORT $CASENVFILE
   CA_JMX_PORT=$(grep JMX_PORT= $CASENVFILE |sed 's/.*=//;s/"//g')
   [[ "$MY_JMX_PORT" != "$CA_JMX_PORT" ]] && perl -pi -e s/$CA_JMX_PORT/$MY_JMX_PORT/ $CASENVFILE

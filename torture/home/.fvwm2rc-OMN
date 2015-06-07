@@ -81,6 +81,7 @@ AddToFunc WinResizeFunc
 + "I" Raise
 + "M" Resize
 
+###################################################
 # Window Functions Menu
 AddToMenu WinFuncMenu
 + "&Restore"  WinRestoreFunc
@@ -310,26 +311,92 @@ AddToFunc RestartFunction "I" Module FvwmButtons
 +                         "I" exec /usr/X11R6/bin/xsetroot -solid black
 #+                         "I" exec /usr/X11R6/lib/xscreensaver/noseguy -root
 
+
+
+#[james@nebraska ~]$ ls -al /usr/bin/fvwm*
+#-rwxr-xr-x  1 root root 893544 Feb 14  2013 /usr/bin/fvwm
+#lrwxrwxrwx. 1 root root      4 Dec 10  2013 /usr/bin/fvwm2 -> fvwm
+#-rwxr-xr-x. 1 root root   4612 Feb 14  2013 /usr/bin/fvwm-bug
+#-rwxr-xr-x. 1 root root   6573 Feb 14  2013 /usr/bin/fvwm-config
+#-rwxr-xr-x. 1 root root   9664 Feb 14  2013 /usr/bin/fvwm-convert-2.4
+#-rwxr-xr-x. 1 root root  14482 Feb 14  2013 /usr/bin/fvwm-convert-2.6
+#-rwxr-xr-x. 1 root root  54464 Feb 14  2013 /usr/bin/fvwm-menu-desktop
+#-rwxr-xr-x. 1 root root  23526 Feb 14  2013 /usr/bin/fvwm-menu-directory
+#-rwxr-xr-x. 1 root root  34773 Feb 14  2013 /usr/bin/fvwm-menu-headlines
+#-rwxr-xr-x. 1 root root   7796 Feb 14  2013 /usr/bin/fvwm-menu-xlock
+#-rwxr-xr-x. 1 root root  17431 Feb 14  2013 /usr/bin/fvwm-perllib
+#-rwxr-xr-x  1 root root 159604 Feb 14  2013 /usr/bin/fvwm-root
+#-rwxr-xr-x. 1 root root   4200 Feb 14  2013 /usr/bin/fvwm-xdg-menu
+#
+AddToFunc FuncFvwmMenuDirectory
++ I PipeRead "fvwm-menu-directory -d '$0'"
+#
+#AddToFunc FuncFvwmMenuDirectory
+#+ I PipeRead "fvwm-menu-directory -d '$0' -x 'Eterm -g 80x40 -e' \
+# -a -l -o 6 --exec-app --exec-title 'tcsh -l' --exec-file 'vim -R' \
+# -t 'Go to: %d' --wm-icons"
+
+# file-managers. nautilus, KDE Dolphin, ROX-Filer?, mc >;-)
+# sudo yum install pcmanfm gentoo xfe
+
+
 ########################Menus ########################################
 AddToMenu Utilities	"Utilities"	Title 	
-+			"xterm"		Exec  exec xterm +sb &
-+			"emacs"		Exec  exec emacs &
-#+			"mozilla"       Exec  exec mozilla &
-+			"chrome"        Exec  exec google-chrome &
++			"xterm"		        Exec  exec xterm +sb &
++			"emacs"		        Exec  exec emacs &
+#+			"mozilla"               Exec  exec mozilla &
++			"chrome"                Exec  exec google-chrome &
 +                       "screensaver - lock"     Exec  exec xscreensaver-command -lock &
 +                       "xscreensaver - config"  Exec  exec xscreensaver-command -prefs &
 +			""		Nop
 +                       "ScreenShot - window"    Pick (CirculateHit) FvwmWindowScreenshot
 +                       "ScreenShot - desktop"   FvwmDesktopScreenshot 5
 +                       "ScreenShot - gnome"     Exec exec gnome-screenshot &
-+                       "XRoach - Invasion"      XRoachInvasion
-+                       "XRoach - Exterminate"   XRoachExterminate
++                       "XPenguins - Invasion"   Popup XPenguinsInvasion
++                       "XPenguins - Go Away!"   Exec exec killall xpenguins
+#+                       "XRoach - Invasion"      Exec XRoachInvasion
+#+                       "XRoach - Exterminate"   Exec XRoachExterminate
++                       "XRoach - Invasion"      Popup XRoachInvasion
++                       "XRoach - Exterminate"   Exec exec killall xroach
 +			""		Nop
++			"Nautilus File Manager" Exec  exec nautilus &
++			"gentoo File Manager"	Exec  exec gentoo &
++			"pcmanfm File Manager"	Exec  exec pcmanfm &
++			"mc File Manager"	Exec  exec xterm -geometry 100x60+0+0 -title "mc" -e mc &
++                       "DESKTOP MENU"  Popup FvwmMenu
+#+                       "DESKTOP MENU"  PipeRead 'fvwm-menu-desktop'
+#+                       DynamicPopupAction PipeRead 'fvwm-menu-desktop'
+#+ "Home MenuDirectory"  Popup $[HOME]
+#+ "Downloads MenuDirectory" Popup $[HOME]/Downloads
+#+ "Pictures MenuDirectory" Popup $[HOME]/Pictures
 +			"Modules"	Popup Module-Popup
 +			""		Nop		
 +			"Exit Fvwm"	Popup Quit-Verify
 
+Module FvwmGtk
+*FvwmGtk: Destroy gnome-all
+*FvwmGtk: Menu gnome-all
+*FvwmGtk: Title "Gnome Menus"
+*FvwmGtk: Separator
+*FvwmGtk: Destroy gnome-sys
+*FvwmGtk: Submenu "System" gnome-sys
+*FvwmGtk: Destroy gnome-user
+*FvwmGtk: Submenu "User" gnome-user
+*FvwmGtk: Destroy gnome-redhat
+*FvwmGtk: Submenu "RedHat" gnome-redhat
 
+PipeRead 'fvwm-menu-desktop --type gtk --enable-mini-icons --icon-folder :re --icon-app :re --icon-title :re --icon-toptitle :re'
+
+PipeRead 'fvwm-menu-desktop --type gtk --desktop gnome-user --enable-mini-icons'
+
+PipeRead 'fvwm-menu-desktop --type gtk --desktop gnome-redhat --enable-mini-icons'
+
+# To obtain the menu above with Alt-button1 on the root window
+Mouse 1  R  M  SendToModule FvwmGtk gnome-all
+
+
+#fvwm-menu-desktop >~/.fvwm/fvwm-menu-desktop
+Read $[HOME]/.fvwm/fvwm-menu-desktop
 
 #these don't work? :(
 AddToMenu Module-Popup	"Modules"	Title	
@@ -506,6 +573,30 @@ AddToFunc   XRoachInvasion
 + I Exec exec xroach -roaches 1 -rc Black -speed 30
 + I Exec exec xroach -roaches 1 -rc White -speed 40
 
+DestroyMenu "XRoachInvasion"
+AddToMenu "XRoachInvasion" "xRoach Invasion!" Title
++ "5 roaches, -rc Cyan -speed 17"           Exec xroach -roaches 5 -rc Cyan -speed 17
++ "3 roaches, -rc Red -speed 15"            Exec xroach -roaches 3 -rc Red -speed 15
++ "7 roaches, -rc Green -speed 10"          Exec xroach -roaches 7 -rc Green -speed 10
++ "3 roaches, -rc Blue -speed 20"           Exec xroach -roaches 3 -rc Blue -speed 20
++ "1 roaches, -rc Black -speed 30"          Exec xroach -roaches 1 -rc Black -speed 30
++ "1 roaches, -rc White -speed 40"          Exec xroach -roaches 1 -rc White -speed 40
+
 DestroyFunc XRoachExterminate
 AddToFunc   XRoachExterminate
-+ I Exec killall xroach
++ I Exec exec killall xroach
+
+DestroyMenu "XPenguinsInvasion"
+AddToMenu "XPenguinsInvasion" "xPenguins Invasion!" Title
++ "Big Penguins and Turtles" Exec xpenguins --theme "Big Penguins" --theme "Turtles"
++ "Big Penguins" Exec xpenguins --theme "Big Penguins"
++ "Default" Exec xpenguins
++ "Penguins" Exec xpenguins --theme "Penguins"
++ "Classic Penguins" Exec xpenguins --theme "Classic Penguins"
++ "Bill" Exec xpenguins --theme "Bill"
+
+DestroyFunc XPenguinsExterminate
+AddToFunc   XPenguinsExterminate
++ I Exec exec killall xpenguins
+
+

@@ -8,15 +8,19 @@ WARN=$(/sbin/smartctl -A /dev/$DRIVE | grep FAIL)
 if [[ ! -z $WARN ]] ; then
   echo "WARNING. FAIL. $WARN"
   wall "diskmon $DRIVE WARNING. FAIL. $WARN"
-  # show historical values, is the raw count increasing ??
-  grep -E "DATE=|FAILING_NOW" /home/james/discmon_${DRIVE}.log |tail -20 |wall
+  # show historical values, is the raw count increasing ?? - showing last two
+  #grep -E "DATE=|FAILING_NOW" /home/james/discmon_${DRIVE}.log |tail -20 |wall
+  LAST50=$(grep -E "DATE=|FAILING_NOW" /home/james/discmon_sda.log |tail -50 | sed -r 's/DATE=(\w+\s+\w+\s+\w+).*/\1/;s/.*FAILING_NOW\s+//')
+  # not in quotes, want to have results on one line:
+  echo Check errors not increasing: $LAST50 |wall
+
 fi
 
 #crontab entry for root:
 ## 22:11 daily. monitor disc drive warnings/failures
 #11        22      *        *       *      /home/james/bin/diskmon.sh >/tmp/diskmon.out 2>&1
 
-
+#
 # Reallocated_Sector_Ct raw value is 4035 = 4035 reallocated sectors.
 # value=2 < threshold=36 ius the normalized value/thresh.
 #  5 Reallocated_Sector_Ct   0x0033   002   002   036    Pre-fail  Always   FAILING_NOW 4035
@@ -56,3 +60,5 @@ fi
 #     242 Total_LBAs_Read         0x0000   100   253   000    Old_age   Offline      -       370970339
 # 
 # 
+#
+#Check errors not increasing: Fri 10 Apr 4035 Fri 10 Apr 4035 Fri 10 Apr 4035 Fri 10 Apr Sat 11 Apr Sun 12 Apr Mon 13 Apr Tue 14 Apr Wed 15 Apr Thu 16 Apr Fri 17 Apr 4035 Fri 17 Apr 4035 Sat 18 Apr 4035 Sun 19 Apr 4035 Mon 20 Apr 4035 Tue 21 Apr 4035 Wed 22 Apr 4035 Thu 23 Apr 4035 Fri 24 Apr 4035 Sat 25 Apr 4035 Sun 26 Apr 4035

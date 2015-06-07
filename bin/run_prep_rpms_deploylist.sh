@@ -19,6 +19,8 @@ mkdir -p /scratch/james/RPMS/$RPMNDIR
 
 cd $TCBASE
 
+DTS=$(date +%d%m%Y_%H%M)
+mv deploylist2{,_${DTS}}.txt
 if [[ ! -e deploylist2.txt ]]; then
     #perl $TCBASE/MOS-base/scripts/deploylist.pl -fc9 $TCBASE/deployments/OMN-Traffic-Control >deploylist.txt
     #FILES=$(cat deploylist.txt)
@@ -29,6 +31,7 @@ if [[ ! -e deploylist2.txt ]]; then
     FILES=$(cat deploylist2.txt)
 fi
 
+mv /scratch/james/RPMS/$RPMNDIR/deploylist_local{,_${DTS}}.txt
 if [[ ! -e /scratch/james/RPMS/$RPMNDIR/deploylist_local.txt ]]; then
     #rm deploylist_local.txt
     #for f in $FILES; do echo $(basename $f >>deploylist_local.txt); done
@@ -64,3 +67,5 @@ for f in $FILES; do bn=$(basename $f); scf=/scratch/james/RPMS/$RPMNDIR/$bn; ls 
 #75780 -rw-r--r-- 1 james users 77595476 Dec  4 15:03 /home/james/work/TCHOD3/corrib_router/META/FAKE_RELEASE_AREA/RPMS/OMN-CORRIB-ROUTER-vx.xx.xx-1.FC9.i686.rpm
 #Binary files /home/james/work/TCHOD3/corrib_router/META/FAKE_RELEASE_AREA/RPMS/OMN-CORRIB-ROUTER-vx.xx.xx-1.FC9.i686.rpm and /scratch/james/RPMS/rpms_cobwebs/OMN-CORRIB-ROUTER-vx.xx.xx-1.FC9.i686.rpm differ
 #[root@vb-48]# rpm -ivh --force /scratch/james/RPMS/rpms_cobwebs/OMN-CORRIB-ROUTER-vx.xx.xx-1.FC9.i686.rpm
+
+diff -u /scratch/james/RPMS/$RPMNDIR/deploylist_local{,_${DTS}}.txt
