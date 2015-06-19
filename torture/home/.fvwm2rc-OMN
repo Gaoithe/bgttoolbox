@@ -188,17 +188,26 @@ Style "X-Chat" StartsOnPage 0 1,SkipMapping
 #     S for Shift, M for Meta, C for Control, or A for any. You can combine
 #     these, so things like SM (shift-Meta) are valid.
 #
-Key F1 A N Desk 0 0
-Key F2 A N Desk 0 1
-Key F3 A N Desk 0 2
-Key F4 A N Desk 0 3
-Key F5 A N Desk 1 0
-Key F6 A N Desk 1 1
-Key F7 A N Desk 1 2
-Key F8 A N Desk 1 3
+
+### Ctrl-Function<n> switches desktop view
+Key F1 A C Desk 0 0
+Key F2 A C Desk 0 1
+Key F3 A C Desk 0 2
+Key F4 A C Desk 0 3
+Key F5 A C Desk 1 0
+Key F6 A C Desk 1 1
+Key F7 A C Desk 1 2
+Key F8 A C Desk 1 3
 
 #Alt-F1 in gnome pops up gnome menu
 #Alt-F2 run program
+Key F1 A M Current Menu Utilities
+Key F2 A M Current Exec exec rxvt +sb -name fvwm-run-dialog -title "Run command-line" -geometry 80x1+420+640 \
+       --keysym.0xFF0D: " &\n exit\n" -e bash
+Key F5 A M Current Menu MenuFvwmRoot
+Key F6 A M All (AcceptsFocus CurrentPage !Iconic !Shaded) Thumbnail
+#Key F6 A M Current Module FvwmConsole - not what we want - Fvwm error/info console
+
 
 # Familiar alt-tabbing
 #Key Tab A M Next (CurrentDesk !Iconic) Focus
@@ -212,12 +221,18 @@ Key F3  A   M   Next
 
 # Alt-Space should pop the windows menu, but it doesn't... . . . yes it does actually.
 Key Space   A   M   Current Menu WinFuncMenu
-#TODO: get working:
+#DONE: get working: - it does work!
 Key Super_L   A   M   Current Menu Utilities
+Key Super_L   A   N   Current Menu Utilities
+Key Super_L   A   S   Popup Module-Popup
+# Key Super_L   A   C   Module FvwmPager - not what we want, starts a new pager
+Key Super_L   A   C   ShowPager
+#Key Super_L   A   S   Module FvwmConsole
 #TODO: get Print shift-Print alt-Print working:
 #Key Print   A   S   FvwmDesktopScreenshot 5
 Key Print   A   S   Pick (CirculateHit) FvwmWindowScreenshot
 Key Print   A   N   Exec exec gnome-screenshot &
+## TODO - minimize all would be nice
 
 #Key F1 A M Menu MenuFvwmRoot
 #Key Tab A M WindowList Root c c NoDeskSort, SelectOnRelease Meta_L
@@ -244,8 +259,10 @@ Key Down    A   SC  Scroll +0   +100
 
 Key Up      A   SCM Exec xmms --rew
 Key Down    A   SCM Exec xmms --fwd
-Key Left    A   SCM Exec aumix -v-1
-Key Right   A   SCM Exec aumix -v+1
+#Key Left    A   SCM Exec aumix -v-1
+#Key Right   A   SCM Exec aumix -v+1
+Key Left    A   SCM Exec amixer set Master -5%
+Key Right   A   SCM Exec amixer set Master +5%
 
 # Ctrl-Alt L lock screen
 Key L      A   CM Exec  exec xscreensaver-command -lock &
@@ -398,15 +415,17 @@ Mouse 1  R  M  SendToModule FvwmGtk gnome-all
 #fvwm-menu-desktop >~/.fvwm/fvwm-menu-desktop
 Read $[HOME]/.fvwm/fvwm-menu-desktop
 
-#these don't work? :(
+#these don't work? :( - ? yes they do
 AddToMenu Module-Popup	"Modules"	Title	
 +			"Identify"	Module	FvwmIdent
 +			"Talk"  	Module	FvwmTalk
++			"XKILL"  	Exec xkill
 +			""		Nop
 +			"Button-Bar"	Module	FvwmButtons
 +			"Pager"		Module  FvwmPager 0 0
 +			"Pager (2 desks)" Module  FvwmPager 0 1
 +			"WinList"	Module  FvwmWinList
++			"XKILL"  	Exec xkill
 +			""		Nop
 +			"Banner"	Module	FvwmBanner
 +                       "ScrollBar"     Module  FvwmScroll 50 50
@@ -599,4 +618,37 @@ DestroyFunc XPenguinsExterminate
 AddToFunc   XPenguinsExterminate
 + I Exec exec killall xpenguins
 
+# Show Pager if currently iconified
+DestroyFunc ShowPager
+AddToFunc   ShowPager
++ I All (FvwmPager) Iconify off
++ I TestRc (!Match) Module FvwmPager
 
+#####
+# Name:     Thumbnail
+# Purpose:  Iconify a window with a reduced screenshot of the application
+#           Window, looks really cool.
+#
+#           Uses FvwmEvent to remove the Icon when deiconified, you will want
+#           to remove this if you use WindowStyle elsewhere.
+#
+#           Thumbnailing example: [6]http://dev.gentoo.org/~taviso/step2.png
+#
+##################
+# TODO: it works! But it kills FvwmPager (or minimizes/thumbnails and cannot restore . . . )
+DestroyFunc Thumbnail
+AddToFunc Thumbnail
++ I Raise
++ I PipeRead "xwd -silent -id $[w.id] | convert -scale $[fvwm_icon_size] -frame 1x1 \
+    -mattecolor black -quality 0 xwd:- png:$[HOME]/.fvwm/icon.tmp.$[w.id].png \
+    && echo WindowStyle IconOverride, Icon $[HOME]/.fvwm/icon.tmp.$[w.id].png, StaysOnBottom \
+    || echo Nop"
++ I Iconify
+
+DestroyFunc DeThumbnail
+AddToFunc DeThumbnail
++ I DestroyWindowStyle
++ I Exec exec rm -f $HOME/.fvwm/icon.tmp.$[w.id].png
+
+# FIXME: This will destroy all Windowstyle settings.
+*FvwmEvent: deiconify DeThumbnail
