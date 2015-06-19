@@ -12,3 +12,11 @@ grep -B1 -A3 -E "Error | failed|Zoikes|Yikes|No such|workareas|\[javac\]" plv*.l
 #EOF
 #logrotate -s builderr.logrotate.state builderr.logrotate.config
 
+TESTDIR=
+[[ -e test-dir ]] && TESTDIR=test-dir
+[[ -e deployments/OMN-Traffic-Control/test-dir ]] && TESTDIR=deployments/OMN-Traffic-Control/test-dir
+if [[ ! -z $TESTDIR ]] ; then
+  find $TESTDIR/test-dir1/apps/omn/clog-dir/ -type f -size +1c -exec tail {} +
+  find $TESTDIR/test-dir1/apps/omn -name samson.stdout -type f -size +1c -exec tail {} +        
+  cat $TESTDIR/test-dir1/apps/omn/samson.stderr
+fi

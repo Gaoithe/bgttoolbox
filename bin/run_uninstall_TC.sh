@@ -28,16 +28,26 @@ false && mv bin oldlog/bin_${DTS}
 
 rm -rf cassandra cconf-dir certs clog-dir core-dumps dfl-dir etc java snmp tomcat webserver
 [[ -e monmemu ]] && rm -rf monmemu.older && mv monmemu{,.older} && mkdir monmemu
-
-mkdir dfl-dir
-touch dfl-dir/.ACTIVE
+rm -rf dfl-dir dfl-dir.old/
 
 rm -rf operations_cdrs pstat-dir  qsr-journal  qsr-storage
 rm -rf cstat-dir META-INF com
 rm -rf .tomcat-assure
 
+#rm -rf .cassandra .cassandra_partitioner .ccache .cconf_repl
+rm -rf .wassail-port .shep-stats .patch*
+
+mkdir dfl-dir
+touch dfl-dir/.ACTIVE
+
+
 ### some problem files in /tmp for machines sharing build and running a TC node
 # as builder owner i.e. james@...  OR root:
 rm -rf /tmp/pooky.cvp /tmp/.cas-batch
 
-ls"
+ls
+ls -al lib bin scripts
+# mv lib lib.old
+# mv bin bin.old
+
+"

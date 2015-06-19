@@ -11,11 +11,15 @@ if [[ -z $RPMNDIR ]] ; then
     [[ "$1" != "" ]] && RPMNDIR=$1
 fi
 
-INSTALL_FROM_SLINGSHOT=false
-INSTALL_FROM_SLINGSHOT=true
+if [[ -z $INSTALL_FROM_SLINGSHOT ]] ; then
+    INSTALL_FROM_SLINGSHOT=false
+    #INSTALL_FROM_SLINGSHOT=true
+fi
 
-INSTALL_LATEST=true
-INSTALL_LATEST=false
+if [[ -z $INSTALL_LATEST ]] ; then
+    INSTALL_LATEST=true
+    INSTALL_LATEST=false
+fi
 
 if $INSTALL_FROM_SLINGSHOT; then
 
@@ -89,13 +93,20 @@ fi
 # take backup of clean cconf dir
 su - omn -c "tar -jcvf cconf-dir_CLEAN_001.tbz  cconf-dir"
 
-# disabble sca process - which always dumps cores
+# disable sca process - which always dumps cores
 #[root@vb-48]# ls -alstr etc/samson.d/procs.default 
 #4 -r--r--r-- 1 omn omn 3851 2015-03-30 22:38 etc/samson.d/procs.default
 #[root@vb-48]# grep sca etc/samson.d/procs.default 
 #    R      090     .         bin/sca
 chmod o+w /apps/omn/etc/samson.d/procs.default
 perl -pi -e 's/^(.*bin\/sca)/#$1/' /apps/omn/etc/samson.d/procs.default
+
+# workaround: 
+#just removing the cconf-dir/isr-*/drill_ipdip_services-*/default-* works
+su - omn -c "mv cconf-dir/isr-*/drill_ipdip_services-*/default-* cconf_REMOVED_DRILL_IPDIP_THINGY"
+
+# workaround: java classpath log4j
+
 
 # as root user:
 echo $CAS_JMX_PORT
@@ -106,7 +117,6 @@ grep CAS_JMX_PORT ~/.bash_profile
 # start samson
 HOST=$(cat /VHOST)
 echo SAMSON_HOST=$HOST > /apps/omn/etc/samson.hostname
-
 
 #[root@vb-28]# ulimit -c unlimited; 
 cat /apps/omn/etc/samson.hostname

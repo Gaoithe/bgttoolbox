@@ -7,6 +7,7 @@
 TCBASE=.
 TCBASE=~/work/TCHOD3
 TCBASE=/home/james/work/TCHOD3
+TCBASE=/home/james/work/TCHOD7
 
 if [[ -z $RPMNDIR ]] ; then
     RPMNDIR=rpms_HOD_Nov21
