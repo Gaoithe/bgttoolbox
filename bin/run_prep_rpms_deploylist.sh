@@ -27,7 +27,10 @@ if [[ ! -e deploylist2.txt ]]; then
     #FILES=$(cat deploylist.txt)
     perl $TCBASE/MOS-base/scripts/deploylist.pl -fc9 $TCBASE/deployments/OMN-Traffic-Control >deploylist2.txt
     #miaow
-    ls /slingshot/TOMCAT/v*/*/*/RPMS/OMN-TOMCAT-v1.02.43-1.FC9.i386.rpm >>deploylist2.txt
+    #ls /slingshot/TOMCAT/v*/*/*/RPMS/OMN-TOMCAT-v1.02.43-1.FC9.i386.rpm >>deploylist2.txt   #:8090
+    #ls /slingshot/TOMCAT/v*/*/*/RPMS/OMN-TOMCAT-v1.02.48-1.FC9.i386.rpm >>deploylist2.txt   #:8888 I think.
+    ls /slingshot/TOMCAT/LATEST/RPMS/*FC9*.rpm >>deploylist2.txt
+
     diff -u deploylist{,2}.txt
     FILES=$(cat deploylist2.txt)
 fi
