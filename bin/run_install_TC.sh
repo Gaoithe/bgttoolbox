@@ -13,7 +13,7 @@ fi
 
 if [[ -z $INSTALL_FROM_SLINGSHOT ]] ; then
     INSTALL_FROM_SLINGSHOT=false
-    #INSTALL_FROM_SLINGSHOT=true
+    INSTALL_FROM_SLINGSHOT=true
 fi
 
 if [[ -z $INSTALL_LATEST ]] ; then
@@ -26,12 +26,20 @@ if $INSTALL_FROM_SLINGSHOT; then
     if $INSTALL_LATEST; then
         /slingshot/MOS-base/LATEST/scripts/rpmturbo.sh `/slingshot/MOS-base/LATEST/scripts/deploylist.pl -fc9 /slingshot/deployments/OMN-Traffic-Control/LATEST`
     else 
-        REL=13-Q1
-        REL=13-Q2
-        REL=14-Q1
-        #REL=14-Q2
-        REL=15-Q1
-        PLAT=FC9
+
+        if [[ -z $REL ]] ; then
+            REL=13-Q1
+            REL=13-Q2
+            REL=14-Q1
+            #REL=14-Q2
+            REL=14-Q3
+            #REL=15-Q1
+        fi
+
+        if [[ -z $PLAT ]] ; then
+            PLAT=FC9
+        fi
+
         PUB=/slingshot/PUBLISHED/OMN-Traffic-Control/$REL
         PUB_BASE=$PUB/BASE/$PLAT
         PUB_PAT=$PUB/PATCHES/$PLAT
@@ -108,6 +116,7 @@ su - omn -c "mv cconf-dir/isr-*/drill_ipdip_services-*/default-* cconf_REMOVED_D
 # workaround: java classpath log4j
 
 
+
 # as root user:
 echo $CAS_JMX_PORT
 grep CAS_JMX_PORT ~/.bash_profile
@@ -115,8 +124,35 @@ grep CAS_JMX_PORT ~/.bash_profile
 
 # as root user:
 # start samson
+HOST=hostname
 HOST=$(cat /VHOST)
 echo SAMSON_HOST=$HOST > /apps/omn/etc/samson.hostname
+
+
+############################################################
+# link to genlicence 
+# lib/libtbx-v2-79-27.so TBXVER=v2-79-27 TBXVDIR=v2/79/27
+TBXVDIR=$(ls lib/libtbx-*.so|sed "s/[^-]*\-//;s/\..*//;s/-/\//g")
+#echo TBXVER=$TBXVER
+TBXSDIR=/slingshot/tbx/$TBXVDIR/lnk/linux.fc9
+echo TBXVDIR=$TBXVDIR TBXSDIR=$TBXSDIR
+ln -sf $TBXSDIR libtbx
+
+LICENCE=$(./libtbx/genlicence "$(head -1 cluster.info |sed 's/[^"]*"//;s/"//g')"  $(bin/hostid) 29999|cut -d"'" -f2)
+grep $LICENCE cluster.info
+if [[ $? != 0 ]] ; then 
+   DTS=$(date +%Y%m%d_%H%M); cp -p cluster{,_${DTS}}.info
+   OLDLICENCE=$(grep -P "${HOST}\s+\d+\s+omn" cluster.info|sed "s/.* //")
+   echo new LICENCE=$LICENCE OLDLICENCE=$OLDLICENCE
+   perl -pi -e s/$OLDLICENCE/$LICENCE/ cluster.info   
+   FEATSIG=$(grep ^featsig: cluster.info)
+   NEWFEATSIG=$(./libtbx/genfeaturelicence cluster.info `bin/hostid`)
+   # TODO: can we do this? continually append feature signatures? more than the nodes we have?
+   perl -pi -e "s/^featsig: /featsig: $NEWFEATSIG/" cluster.info   
+fi
+
+############################################################
+
 
 #[root@vb-28]# ulimit -c unlimited; 
 cat /apps/omn/etc/samson.hostname
@@ -128,7 +164,7 @@ mv samson.stderr oldlog/samson.stderr_${DTS}
 mv samson.stdout oldlog/samson.stdout_${DTS} 
 
 nohup ./scripts/samson.sh  &
-
+cat samson.stderr
 
 # after this sci in run_solo_start_TC.sh and run_rejoin_TC.sh
 # as omn user:   START hygiene processes  solo_start on first node and rejoin on others
