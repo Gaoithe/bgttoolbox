@@ -12,8 +12,8 @@ if [[ -z $RPMNDIR ]] ; then
 fi
 
 if [[ -z $INSTALL_FROM_SLINGSHOT ]] ; then
-    INSTALL_FROM_SLINGSHOT=false
     INSTALL_FROM_SLINGSHOT=true
+    INSTALL_FROM_SLINGSHOT=false
 fi
 
 if [[ -z $INSTALL_LATEST ]] ; then
@@ -132,13 +132,15 @@ echo SAMSON_HOST=$HOST > /apps/omn/etc/samson.hostname
 ############################################################
 # link to genlicence 
 # lib/libtbx-v2-79-27.so TBXVER=v2-79-27 TBXVDIR=v2/79/27
+cd /apps/omn
 TBXVDIR=$(ls lib/libtbx-*.so|sed "s/[^-]*\-//;s/\..*//;s/-/\//g")
 #echo TBXVER=$TBXVER
 TBXSDIR=/slingshot/tbx/$TBXVDIR/lnk/linux.fc9
 echo TBXVDIR=$TBXVDIR TBXSDIR=$TBXSDIR
 ln -sf $TBXSDIR libtbx
+HOSTID=$(/apps/omn/bin/hostid)
 
-LICENCE=$(./libtbx/genlicence "$(head -1 cluster.info |sed 's/[^"]*"//;s/"//g')"  $(bin/hostid) 29999|cut -d"'" -f2)
+LICENCE=$(./libtbx/genlicence "$(head -1 cluster.info |sed 's/[^"]*"//;s/"//g')" $HOSTID 29999|cut -d"'" -f2)
 grep $LICENCE cluster.info
 if [[ $? != 0 ]] ; then 
    DTS=$(date +%Y%m%d_%H%M); cp -p cluster{,_${DTS}}.info
@@ -146,7 +148,7 @@ if [[ $? != 0 ]] ; then
    echo new LICENCE=$LICENCE OLDLICENCE=$OLDLICENCE
    perl -pi -e s/$OLDLICENCE/$LICENCE/ cluster.info   
    FEATSIG=$(grep ^featsig: cluster.info)
-   NEWFEATSIG=$(./libtbx/genfeaturelicence cluster.info `bin/hostid`)
+   NEWFEATSIG=$(./libtbx/genfeaturelicence cluster.info $HOSTID)
    # TODO: can we do this? continually append feature signatures? more than the nodes we have?
    perl -pi -e "s/^featsig: /featsig: $NEWFEATSIG/" cluster.info   
 fi
