@@ -20,6 +20,7 @@ TSHOSTS="10.122.251.140 10.122.251.141 10.122.251.151 10.122.251.152"
 for h in $IPKOHOSTS $TSHOSTS; do
  echo HOST=$h |tee -a ${LOG}
  # log locally and in /tmp/ on host
- ssh omn@$h "{ df -h; ls -alstr *core*; bin/bci -listals; bin/bci -listsev1s; bin/clex -ch 0 -s -${PERIOD}; bin/clex -ch 2 -s -${PERIOD}; bin/clex -ch 3 -s -${SPERIOD} >/tmp/3.log; cat /tmp/3.log |bin/reafer_pdu_parse -pdus; cat /tmp/3.log |bin/clog_parse|grep -v \"  .*\.\..*$\"; bin/clex -ch 4 -s -${SPERIOD}; bin/clex -ch 7 -s -${SPERIOD}; } |tee -a /tmp/$LOG" |tee -a ${LOG}
+ ssh omn@$h "{ df -h; ls -alstr *core*; echo ALARMS; bin/bci -listals; echo SEV1S; bin/bci -listsev1s; scripts/cstat_mmsc.sh; bin/clex -ch 0 -s -${PERIOD}; } " |tee -a ${LOG}
+ #ssh omn@$h "{ df -h; ls -alstr *core*; bin/bci -listals; bin/bci -listsev1s; scripts/cstat_mmsc.sh; bin/clex -ch 0 -s -${PERIOD}; bin/clex -ch 2 -s -${PERIOD}; bin/clex -ch 3 -s -${SPERIOD} >/tmp/3.log; cat /tmp/3.log |bin/reafer_pdu_parse -pdus; cat /tmp/3.log |bin/clog_parse|grep -v \"  .*\.\..*$\"; bin/clex -ch 4 -s -${SPERIOD}; bin/clex -ch 7 -s -${SPERIOD}; } |tee -a /tmp/$LOG" |tee -a ${LOG}
 done
 
