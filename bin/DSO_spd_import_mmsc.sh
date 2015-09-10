@@ -13,7 +13,7 @@ log(){
 }
 
 send_alarm(){ 
-    /apps/omn/bin/scate -alarm 8006 -1 "SPD Import Failed" -2 `hostname` -3 $1
+    /apps/omn/bin/scate -alarm 8006 -1 "SPD Import Failed" -2 `hostname` -3 "$*"
 }
 
 clear_alarms(){

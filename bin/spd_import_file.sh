@@ -13,7 +13,7 @@ log(){
 }
 
 send_alarm(){ 
-    /apps/omn/bin/scate -alarm 8006 -1 "SPD Import Failed" -2 `hostname` -3 $1
+    /apps/omn/bin/scate -alarm 8006 -1 "SPD Import Failed" -2 `hostname` -3 "$*"
 }
 
 clear_alarms(){
@@ -42,7 +42,7 @@ fi
 log "END Check for new file"
 
 log "BEGIN Import" 
-/apps/omn/bin/spdci -dtb MMSC -cmd import_new $IMPORT_FILE 2>&1| tee $LOG_FILE
+/apps/omn/bin/spdci -dtb default -cmd import_new $IMPORT_FILE 2>&1| tee $LOG_FILE
 RC=`tail -n 5 /data/spd_import/spd_import.log | grep -ci "data imported ok"`
 
 if [ $RC == 0 ]; then
