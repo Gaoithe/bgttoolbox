@@ -134,10 +134,10 @@ done
 
 log "Housekeeping"
 ERROR=
-if [[ ! -z $OLDEST_DAYS ]] ; 
+if [[ ! -z $OLDEST_DAYS ]] ; then
     # find stat files and exclude logfile
     COUNT=$(find $DEST_DIR -type f -mtime +${OLDEST_DAYS} ! -iname "*.log"  |wc -l)
-    if ((count>0)); then
+    if ((COUNT>0)); then
         # alarm(optional - comment in or out) and remove old files
         log "Warning: stat files were not collected/removed from stat directory. Houskeeping is removing $COUNT files."
         #send_alarm "Warning: stat files were not collected/removed from stat directory. Houskeeping is removing $COUNT files."
