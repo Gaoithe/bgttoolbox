@@ -8,10 +8,14 @@ DTS=$(date +%Y%m%d%H -d "1 hour ago")
 PREFIX=$DEST_DIR/$DTS
 OLDEST_DAYS=100
 
+# save stdout and stderr to file descriptors 3 and 4, then redirect them to log file
+exec 3>&1 4>&2 >>${LOG_FILE} 2>&1
+
 log(){
     echo "$(date +%d/%m/%Y-%H:%M:%S) $*" >> $LOG_FILE;
 }
 
+# if you raise alarm scate process hangs around until alarms cleared.
 send_alarm(){ 
     log "ALARM STAT harvester warning $*"
     /apps/omn/bin/scate -alarm 8006 -1 "STAT harvester warning" -2 `hostname` -3 "$*"
@@ -24,6 +28,9 @@ clear_alarms(){
     done;
 }
 
+# clear all alarms before script runs again
+clear_alarms
+
 if [ ! -d $DEST_DIR ]; then
     mkdir -p $DEST_DIR
     if [ ! -d $DEST_DIR ]; then
@@ -34,9 +41,9 @@ fi
 
 log "BEGIN $PREFIX"
 
-clear_alarms
-
 log "Short term stats"
+# format of cstat file: 10/9/2015-15:00:28 38
+# date +%D-%T
 ERROR=
 cstat_ci -get "minni.fsm_req_in" -abs -1h -changes_only > ${PREFIX}_minni.fsm_req_in
 test ${PIPESTATUS[0]} -ne 0 && ERROR=${PIPESTATUS[0]} && log "cmd error:${PIPESTATUS[0]} cmd:!:0 !:*"
@@ -67,6 +74,43 @@ test ${PIPESTATUS[0]} -ne 0 && ERROR=${PIPESTATUS[0]} && log "cmd error:${PIPEST
 cstat_ci -get "reafer.total_msgs_out_requests" -abs -1h -changes_only > ${PREFIX}_reafer.total_msgs_out_requests
 test ${PIPESTATUS[0]} -ne 0 && ERROR=${PIPESTATUS[0]} && log "cmd error:${PIPESTATUS[0]} cmd:!:0 !:*"
 [[ ! -z $ERROR ]] && send_alarm "Short term stat error"
+
+
+make_count_statfile(){
+    name=$1; shift
+    ZERROR=0
+    ERROR=0
+    for stat in $*; do 
+        #echo $stat;
+        bin/cstat_ci -get $stat -1h > ${PREFIX}_${stat}; 
+        test ${PIPESTATUS[0]} -ne 0 && ERROR=${PIPESTATUS[0]} && log "$name cmd error:${PIPESTATUS[0]} cmd:!:0 !:*"
+        count=$(cat ${PREFIX}_${stat} | awk '{ SUM += $2} END { print SUM }')
+        echo $count > ${PREFIX}_COUNT_${stat}
+        echo $stat $count
+        rm -f ${PREFIX}_${stat};
+        ((ZERROR+=ERROR)) 
+    done
+    (( ZERROR != 0 )) && send_alarm "Short term stat error: $name"
+}
+
+# TELSTAR MCN
+make_count_statfile "MCN/telstar" `bin/cstat_ci -list | grep telstar`
+
+# SPUTNIK
+make_count_statfile "SIP/sputnik" `bin/cstat_ci -list | grep sputnik`
+
+#ZERROR=0
+#ERROR=0
+#bin/cstat_ci -list | grep sputnik > /tmp/sputnik.stats
+#for stat in `cat /tmp/sputnik.stats`; do 
+#    bin/cstat_ci -get $stat -1h > ${PREFIX}_${stat}; 
+#    count=$(cat ${PREFIX}_${stat} | awk '{ SUM += $2} END { print SUM }')
+#    echo $count > ${PREFIX}_COUNT_${stat}
+#    echo $stat $count;
+#    rm -f ${PREFIX}_${stat}; 
+#    ((ZERROR+=ERROR)) 
+#done
+#(( ZERROR != 0 )) && send_alarm "Short term stat error: SIP/sputnik"
 
 
 log "Long term stats"
@@ -124,8 +168,9 @@ i=1
 while ((i<2)); do
     # count hour by hour
     ODTS=$(date +%d%m%y%H -d "$i hour ago")
+    CSTATDTS=$(date +%D-%T -d "$i hour ago")
     grep END_POINT: operations_cdrs/OPS_CDR_${ODTS}* |sed "s/.*END_POINT://;s/[ \\t].*//" |sort |uniq -c >${DEST_DIR}/ODTS.log
-    while read -r count EP; do LOG=${PREFIX}_CDRS_${EP}; echo $count >$LOG; done <${DEST_DIR}/ODTS.log
+    while read -r count EP; do LOG=${PREFIX}_CDRS_${EP}; echo "$CSTATDTS $count" >$LOG; done <${DEST_DIR}/ODTS.log
     rm -rf ${DEST_DIR}/ODTS.log
     # ls -alstr ${PREFIX}_CDRS_*
     ((i++))
