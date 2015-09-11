@@ -28,6 +28,49 @@ clear_alarms(){
     done;
 }
 
+make_count_statfile(){
+    name=$1; shift
+    ZERROR=0
+    ERROR=0
+    for stat in $*; do 
+        #echo $stat;
+        # format of cstat file: 10/9/2015-15:00:28 38
+        bin/cstat_ci -get $stat -1h > ${PREFIX}_${stat}; 
+        test ${PIPESTATUS[0]} -ne 0 && ERROR=${PIPESTATUS[0]} && log "make_count_statfile $name cmd error:${PIPESTATUS[0]} cmd:!:0 !:*"
+        count=$(cat ${PREFIX}_${stat} | awk '{ SUM += $2} END { print SUM }')
+        echo $count > ${PREFIX}_COUNT_${stat}
+        echo $stat $count
+        # some operators may like to use the more detailed stat file
+        rm -f ${PREFIX}_${stat};
+        ((ZERROR+=ERROR)) 
+    done
+    (( ZERROR != 0 )) && send_alarm "Short term stat error: $name"
+}
+
+get_longterm_stat(){
+    shortname=$1; shift
+    name=$1; shift
+    bin/psx -x -n "$name" -s -1h -e -0h -total |sed "s/Stat not found/0/" > ${PREFIX}_${shortname}
+    test ${PIPESTATUS[0]} -ne 0 && ERROR=${PIPESTATUS[0]} && log "get_longterm_stat $name cmd error:${PIPESTATUS[0]} cmd:!:0 !:*"
+    echo $shortname $name $ERROR
+    ((ZERROR+=ERROR))
+}
+
+get_longterm_stat_list(){
+    shortname=$1; shift
+    name=$1; shift
+
+    bin/psx -l -n "${name}" | 
+        while read stat; do 
+            #echo -n "$name"/"$stat ";
+            bin/psx -x -n "$name"/"$stat" -s -1h -e 0h -total; 
+        done > ${PREFIX}_${shortname}
+
+    test ${PIPESTATUS[0]} -ne 0 && ERROR=${PIPESTATUS[0]} && log "get_longterm_stat_list $name cmd error:${PIPESTATUS[0]} cmd:!:0 !:*"
+    echo $shortname $name $ERROR
+    ((ZERROR+=ERROR))
+}
+
 # clear all alarms before script runs again
 clear_alarms
 
@@ -42,56 +85,21 @@ fi
 log "BEGIN $PREFIX"
 
 log "Short term stats"
+
+#ERROR=
+#cstat_ci -get "minni.fsm_err_out" -abs -1h -changes_only > ${PREFIX}_minni.fsm_err_out
+#test ${PIPESTATUS[0]} -ne 0 && ERROR=${PIPESTATUS[0]} && log "cmd error:${PIPESTATUS[0]} cmd:!:0 !:*"
 # format of cstat file: 10/9/2015-15:00:28 38
 # date +%D-%T
-ERROR=
-cstat_ci -get "minni.fsm_req_in" -abs -1h -changes_only > ${PREFIX}_minni.fsm_req_in
-test ${PIPESTATUS[0]} -ne 0 && ERROR=${PIPESTATUS[0]} && log "cmd error:${PIPESTATUS[0]} cmd:!:0 !:*"
-cstat_ci -get "minni.fsm_err_out" -abs -1h -changes_only > ${PREFIX}_minni.fsm_err_out
-test ${PIPESTATUS[0]} -ne 0 && ERROR=${PIPESTATUS[0]} && log "cmd error:${PIPESTATUS[0]} cmd:!:0 !:*"
-cstat_ci -get "dinni.mt_fsm_msc_req_out" -abs -1h -changes_only > ${PREFIX}_dinni.mt_fsm_msc_req_out
-test ${PIPESTATUS[0]} -ne 0 && ERROR=${PIPESTATUS[0]} && log "cmd error:${PIPESTATUS[0]} cmd:!:0 !:*"
-cstat_ci -get "dinni.mt_fsm_rsp_in" -abs -1h -changes_only > ${PREFIX}_dinni.mt_fsm_rsp_in
-test ${PIPESTATUS[0]} -ne 0 && ERROR=${PIPESTATUS[0]} && log "cmd error:${PIPESTATUS[0]} cmd:!:0 !:*"
-cstat_ci -get "dinni.mt_fsm_uerror_in" -abs -1h -changes_only > ${PREFIX}_dinni.mt_fsm_uerror_in
-test ${PIPESTATUS[0]} -ne 0 && ERROR=${PIPESTATUS[0]} && log "cmd error:${PIPESTATUS[0]} cmd:!:0 !:*"
-cstat_ci -get "dinni.sri_req_out" -abs -1h -changes_only > ${PREFIX}_dinni.sri_req_out
-test ${PIPESTATUS[0]} -ne 0 && ERROR=${PIPESTATUS[0]} && log "cmd error:${PIPESTATUS[0]} cmd:!:0 !:*"
-cstat_ci -get "dinni.sri_cnf_in" -abs -1h -changes_only > ${PREFIX}_dinni.sri_cnf_in
-test ${PIPESTATUS[0]} -ne 0 && ERROR=${PIPESTATUS[0]} && log "cmd error:${PIPESTATUS[0]} cmd:!:0 !:*"
-cstat_ci -get "dinni.sri_uerror_in" -abs -1h -changes_only > ${PREFIX}_dinni.sri_uerror_in
-test ${PIPESTATUS[0]} -ne 0 && ERROR=${PIPESTATUS[0]} && log "cmd error:${PIPESTATUS[0]} cmd:!:0 !:*"
-cstat_ci -get "qsr.delivery_attempts" -abs -1h -changes_only > ${PREFIX}_qsr.delivery_attempts
-test ${PIPESTATUS[0]} -ne 0 && ERROR=${PIPESTATUS[0]} && log "cmd error:${PIPESTATUS[0]} cmd:!:0 !:*"
-cstat_ci -get "qsr.delivery_retries" -abs -1h -changes_only > ${PREFIX}_qsr.delivery_retries
-test ${PIPESTATUS[0]} -ne 0 && ERROR=${PIPESTATUS[0]} && log "cmd error:${PIPESTATUS[0]} cmd:!:0 !:*"
-cstat_ci -get "qsr.messages" -abs -1h -changes_only > ${PREFIX}_qsr.messages
-test ${PIPESTATUS[0]} -ne 0 && ERROR=${PIPESTATUS[0]} && log "cmd error:${PIPESTATUS[0]} cmd:!:0 !:*"
-cstat_ci -get "qsr.receipts" -abs -1h -changes_only > ${PREFIX}_qsr.receipts
-test ${PIPESTATUS[0]} -ne 0 && ERROR=${PIPESTATUS[0]} && log "cmd error:${PIPESTATUS[0]} cmd:!:0 !:*"
-cstat_ci -get "reafer.total_msgs_in_requests" -abs -1h -changes_only > ${PREFIX}_reafer.total_msgs_in_requests
-test ${PIPESTATUS[0]} -ne 0 && ERROR=${PIPESTATUS[0]} && log "cmd error:${PIPESTATUS[0]} cmd:!:0 !:*"
-cstat_ci -get "reafer.total_msgs_out_requests" -abs -1h -changes_only > ${PREFIX}_reafer.total_msgs_out_requests
-test ${PIPESTATUS[0]} -ne 0 && ERROR=${PIPESTATUS[0]} && log "cmd error:${PIPESTATUS[0]} cmd:!:0 !:*"
-[[ ! -z $ERROR ]] && send_alarm "Short term stat error"
+#[[ ! -z $ERROR ]] && send_alarm "Short term stat error"
 
+#make_count_statfile minni minni.fsm_req_in minni.fsm_err_out
 
-make_count_statfile(){
-    name=$1; shift
-    ZERROR=0
-    ERROR=0
-    for stat in $*; do 
-        #echo $stat;
-        bin/cstat_ci -get $stat -1h > ${PREFIX}_${stat}; 
-        test ${PIPESTATUS[0]} -ne 0 && ERROR=${PIPESTATUS[0]} && log "$name cmd error:${PIPESTATUS[0]} cmd:!:0 !:*"
-        count=$(cat ${PREFIX}_${stat} | awk '{ SUM += $2} END { print SUM }')
-        echo $count > ${PREFIX}_COUNT_${stat}
-        echo $stat $count
-        rm -f ${PREFIX}_${stat};
-        ((ZERROR+=ERROR)) 
-    done
-    (( ZERROR != 0 )) && send_alarm "Short term stat error: $name"
-}
+make_count_statfile dinni dinni.mt_fsm_msc_req_out dinni.mt_fsm_rsp_in dinni.mt_fsm_uerror_in dinni.sri_req_out dinni.sri_cnf_in dinni.sri_uerror_in
+
+make_count_statfile storage/quasar qsr.delivery_attempts qsr.delivery_retries qsr.messages qsr.receipts
+
+make_count_statfile ESME/reafer reafer.total_msgs_in_requests reafer.total_msgs_out_requests
 
 # TELSTAR MCN
 make_count_statfile "MCN/telstar" `bin/cstat_ci -list | grep telstar`
@@ -99,52 +107,26 @@ make_count_statfile "MCN/telstar" `bin/cstat_ci -list | grep telstar`
 # SPUTNIK
 make_count_statfile "SIP/sputnik" `bin/cstat_ci -list | grep sputnik`
 
-#ZERROR=0
-#ERROR=0
-#bin/cstat_ci -list | grep sputnik > /tmp/sputnik.stats
-#for stat in `cat /tmp/sputnik.stats`; do 
-#    bin/cstat_ci -get $stat -1h > ${PREFIX}_${stat}; 
-#    count=$(cat ${PREFIX}_${stat} | awk '{ SUM += $2} END { print SUM }')
-#    echo $count > ${PREFIX}_COUNT_${stat}
-#    echo $stat $count;
-#    rm -f ${PREFIX}_${stat}; 
-#    ((ZERROR+=ERROR)) 
-#done
-#(( ZERROR != 0 )) && send_alarm "Short term stat error: SIP/sputnik"
-
 
 log "Long term stats"
-ERROR=
-# absent subscriber
-psx -x -n "GSM MAP DELIVERY error response/ABSENT_SUBSCRIBER_SM_006" -s -1h -e -0h -total |sed "s/Stat not found/0/" > ${PREFIX}_absent_subscriber_sm
-test ${PIPESTATUS[0]} -ne 0 && ERROR=${PIPESTATUS[0]} && log "cmd error:${PIPESTATUS[0]} cmd:!:0 !:*"
-psx -x -n "GSM MAP DELIVERY error response/ABSENT_SUBSCRIBER_027" -s -1h -e -0h -total |sed "s/Stat not found/0/" > ${PREFIX}_absent_subscriber
-test ${PIPESTATUS[0]} -ne 0 && ERROR=${PIPESTATUS[0]} && log "cmd error:${PIPESTATUS[0]} cmd:!:0 !:*"
+ZERROR=0
 
-# unknown subscriber
-psx -x -n "GSM MAP DELIVERY error response/UNKNOWN_SUBSCRIBER_001" -s -1h -e -0h -total |sed "s/Stat not found/0/" > ${PREFIX}_unknown_subscriber
-test ${PIPESTATUS[0]} -ne 0 && ERROR=${PIPESTATUS[0]} && log "cmd error:${PIPESTATUS[0]} cmd:!:0 !:*"
+# absent_subscriber
+#get_longterm_stat absent_subscriber_sm "GSM MAP DELIVERY error response/ABSENT_SUBSCRIBER_SM_006" 
+#get_longterm_stat absent_subscriber "GSM MAP DELIVERY error response/ABSENT_SUBSCRIBER_027"
+#get_longterm_stat unknown_subscriber "GSM MAP DELIVERY error response/UNKNOWN_SUBSCRIBER_001"
 
 # ESME
-psx -l -n "Incoming Normal Message Requests Received" | while read stat; do echo ; psx -x -n "Incoming Normal Message Requests Received"/"$stat" -s -1h -e 0h -total; done > ${PREFIX}_esme_in_req_received
-test ${PIPESTATUS[0]} -ne 0 && ERROR=${PIPESTATUS[0]} && log "cmd error:${PIPESTATUS[0]} cmd:!:0 !:*"
+#get_longterm_stat_list esme_in_req_received "Incoming Normal Message Requests Received"
+#get_longterm_stat_list esme_in_req_accepted "Incoming Normal Message Requests Accepted"
+#get_longterm_stat_list esme_in_req_rejected "Incoming Normal Message Requests Rejected"
+get_longterm_stat_list esme_out_req_sent psx "Outgoing Normal Message Requests Sent"
+get_longterm_stat_list esme_out_req_accepted "Outgoing Normal Message Requests Accepted"
+get_longterm_stat_list esme_out_req_rejected "Outgoing Normal Message Requests Rejected"
 
-psx -l -n "Incoming Normal Message Requests Accepted" | while read stat; do echo ; psx -x -n "Incoming Normal Message Requests Accepted"/"$stat" -s -1h -e 0h -total; done > ${PREFIX}_esme_in_req_accepted
-test ${PIPESTATUS[0]} -ne 0 && ERROR=${PIPESTATUS[0]} && log "cmd error:${PIPESTATUS[0]} cmd:!:0 !:*"
+# disable error check here
+#[[ ! -z $ERROR ]] && send_alarm "Long term stat error"
 
-psx -l -n "Incoming Normal Message Requests Rejected" | while read stat; do echo ; psx -x -n "Incoming Normal Message Requests Rejected"/"$stat" -s -1h -e 0h -total; done > ${PREFIX}_esme_in_req_rejected
-test ${PIPESTATUS[0]} -ne 0 && ERROR=${PIPESTATUS[0]} && log "cmd error:${PIPESTATUS[0]} cmd:!:0 !:*"
-
-psx -l -n "Outgoing Normal Message Requests Sent" | while read stat; do echo ; psx -x -n "Outgoing Normal Message Requests Sent"/"$stat" -s -1h -e 0h -total; done > ${PREFIX}_esme_out_req_sent
-test ${PIPESTATUS[0]} -ne 0 && ERROR=${PIPESTATUS[0]} && log "cmd error:${PIPESTATUS[0]} cmd:!:0 !:*"
-
-psx -l -n "Outgoing Normal Message Requests Accepted" | while read stat; do echo ; psx -x -n "Outgoing Normal Message Requests Accepted"/"" -s -1h -e 0h -total; done > ${PREFIX}_esme_out_req_accepted
-test ${PIPESTATUS[0]} -ne 0 && ERROR=${PIPESTATUS[0]} && log "cmd error:${PIPESTATUS[0]} cmd:!:0 !:*"
-
-psx -l -n "Outgoing Normal Message Requests Rejected" | while read stat; do echo ; psx -x -n "Outgoing Normal Message Requests Rejected"/"$stat" -s -1h -e 0h -total; done > ${PREFIX}_esme_out_req_rejected
-test ${PIPESTATUS[0]} -ne 0 && ERROR=${PIPESTATUS[0]} && log "cmd error:${PIPESTATUS[0]} cmd:!:0 !:*"
-
-[[ ! -z $ERROR ]] && send_alarm "Long term stat error"
 
 #$ scripts/pstat_ci.pl -p "Outgoing Normal Message Requests Accepted","Incoming Total Message Requests Received","Incoming Normal Message Requests Accepted","Outgoing Total Message Requests Sent","Call Attempts"
 #<pstat_ci.pl> no output file specified (-o),will default to stdout
@@ -154,7 +136,6 @@ test ${PIPESTATUS[0]} -ne 0 && ERROR=${PIPESTATUS[0]} && log "cmd error:${PIPEST
 
 
 log "operations CDRs"
-ERROR=
 
 # from operations_cdrs count by END_POINT.
 # count for each day . . . e.g. 
@@ -170,7 +151,28 @@ while ((i<2)); do
     ODTS=$(date +%d%m%y%H -d "$i hour ago")
     CSTATDTS=$(date +%D-%T -d "$i hour ago")
     grep END_POINT: operations_cdrs/OPS_CDR_${ODTS}* |sed "s/.*END_POINT://;s/[ \\t].*//" |sort |uniq -c >${DEST_DIR}/ODTS.log
-    while read -r count EP; do LOG=${PREFIX}_CDRS_${EP}; echo "$CSTATDTS $count" >$LOG; done <${DEST_DIR}/ODTS.log
+
+    # grep for I_ERR:1.311 Blocking for CDMA_delay
+    # MCN Chinguitel Mauretania
+    C=$(grep 1.311.*END_POINT:BLOCKED operations_cdrs/OPS_CDR_${ODTS}* |wc -l)
+    echo $C BLOCKED_CDMA_delay_CldPa_Notify >> ${DEST_DIR}/ODTS.log
+
+    # non-Mauretanian DA
+    C=$(grep -P "END_POINT:BLOCKED" operations_cdrs/OPS_CDR_${ODTS}* |grep -Pv "\sDA_ADDR:1.1.222\d{8}\s" |wc -l)
+    echo $C DA_NON_222_BLOCKED |tee -a ${DEST_DIR}/ODTS.log
+    if ((C>0)); then 
+        grep -P "END_POINT:BLOCKED" operations_cdrs/OPS_CDR_${ODTS}* |grep -Pv "\sDA_ADDR:1.1.222\d{8}\s" |sed "s/.*DA_ADDR://;s/PRE_TRANS.*//" |sort |uniq -c
+    fi
+    C=$(grep -P "END_POINT:(ESME|STORAGE|Mobile)" operations_cdrs/OPS_CDR_${ODTS}* |grep -Pv "\sDA_ADDR:1.1.222\d{8}\s" |wc -l)
+    echo $C DA_NON_222 >> ${DEST_DIR}/ODTS.log
+    if ((C>0)); then 
+        echo WARNING $C DA_NON_222
+        grep -P "END_POINT:(ESME|STORAGE|Mobile)" operations_cdrs/OPS_CDR_${ODTS}* |grep -Pv "\sDA_ADDR:1.1.222\d{8}\s" |sed "s/.*DA_ADDR://;s/PRE_TRANS.*//" |sort |uniq -c
+        echo END WARNING $C DA_NON_222
+    fi
+
+    #while read -r count EP; do LOG=${PREFIX}_CDRS_${EP}; echo "$CSTATDTS $count" >$LOG; done <${DEST_DIR}/ODTS.log
+    while read -r count EP; do LOG=${PREFIX}_CDRS_${EP}; echo "$count" >$LOG; done <${DEST_DIR}/ODTS.log
     rm -rf ${DEST_DIR}/ODTS.log
     # ls -alstr ${PREFIX}_CDRS_*
     ((i++))
@@ -178,7 +180,6 @@ done
 
 
 log "Housekeeping"
-ERROR=
 if [[ ! -z $OLDEST_DAYS ]] ; then
     # find stat files and exclude logfile
     COUNT=$(find $DEST_DIR -type f -mtime +${OLDEST_DAYS} ! -iname "*.log"  |wc -l)
