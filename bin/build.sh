@@ -1,13 +1,14 @@
 #!/bin/bash
 
-
-BRANCH=OMN-Traffic-Control-14-Q3
+#BRANCH=OMN-Traffic-Control-14-Q3
+#BRANCH=OMN-Traffic-Control-15-Q3
+MONSTERFLAGS=-restart
 
 echo "Building mod.list"
 if [[ -z $BRANCH ]] ; then
-   /slingshot/sbe/LATEST/scripts/build_order --cvs-modules --root /slingshot/deployments/OMN-Traffic-Control >mod.list
+   [[ ! -e mod.list ]] && /slingshot/sbe/LATEST/scripts/build_order --cvs-modules --root /slingshot/deployments/OMN-Traffic-Control >mod.list
    echo "Building mod.graph"
-   /slingshot/sbe/LATEST/scripts/build_order --digraph --include-non-metas --root /slingshot/deployments/OMN-Traffic-Control >mod.graph
+   [[ ! -e mod.graph ]] && /slingshot/sbe/LATEST/scripts/build_order --digraph --include-non-metas --root /slingshot/deployments/OMN-Traffic-Control >mod.graph
 else 
    cp /slingshot/BRANCHES-PLANS/${BRANCH}.plan branch.plan
    echo "# BRANCH-NAME ${BRANCH}" >mod.list
@@ -30,7 +31,7 @@ echo "just for fun" > PURPOSE
 /home/james/bin/buildall.sh modvers
 #[james@nebraska TCHOD4]$ buildall.sh -oneshot hammer-x/drill/custard/server modvers
 
-/home/james/bin/buildall.sh spotless
+[[ $MONSTERFLAGS != "-restart" ]] && /home/james/bin/buildall.sh spotless
 
 ## apply some changes needed for building
 touch SBUG_SRC_BASE
@@ -52,4 +53,6 @@ export JAVA_TARGET_VERSION=1.7
 unset JAVA
 unset JAVA_HOME
 
-nice time /homes/brian/scripts/buildmonster.pl 
+nice time /homes/brian/scripts/buildmonster.pl $MONSTERFLAGS
+
+build_greperr.sh
