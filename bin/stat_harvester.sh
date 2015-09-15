@@ -159,7 +159,7 @@ while ((i<2)); do
 
     # non-Mauretanian DA
     C=$(grep -P "END_POINT:BLOCKED" operations_cdrs/OPS_CDR_${ODTS}* |grep -Pv "\sDA_ADDR:1.1.222\d{8}\s" |wc -l)
-    echo $C DA_NON_222_BLOCKED |tee -a ${DEST_DIR}/ODTS.log
+    echo $C DA_NON_222_BLOCKED >> ${DEST_DIR}/ODTS.log
     if ((C>0)); then 
         grep -P "END_POINT:BLOCKED" operations_cdrs/OPS_CDR_${ODTS}* |grep -Pv "\sDA_ADDR:1.1.222\d{8}\s" |sed "s/.*DA_ADDR://;s/PRE_TRANS.*//" |sort |uniq -c
     fi
@@ -171,10 +171,14 @@ while ((i<2)); do
         echo END WARNING $C DA_NON_222
     fi
 
+    # show the COUNT stats in general log
+    cat ${DEST_DIR}/ODTS.log
+
+    # while true; do sleep 600; 
     # too heavy on machine :-7  should be -1h instead -10m
     echo "WATCH: for messages to foreign ops. Mobile."
     clex -ch 7 -s -10m |sdi -ts -tcap |grep " Address" |grep -vP "\b222\d{8}\b"
-    echo "WATCH: for messages to foreign ops. Mobile."
+    echo "WATCH: for messages to foreign ops. ESME."
     clex -ch 3 -s -10m |bin/reafer_pdu_parse -pdus |grep destination_addr |grep -vP "\b222\d{8}\b"
     echo "WATCH END"
 
