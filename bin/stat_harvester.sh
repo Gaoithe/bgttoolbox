@@ -171,6 +171,13 @@ while ((i<2)); do
         echo END WARNING $C DA_NON_222
     fi
 
+    # too heavy on machine :-7  should be -1h instead -10m
+    echo "WATCH: for messages to foreign ops. Mobile."
+    clex -ch 7 -s -10m |sdi -ts -tcap |grep " Address" |grep -vP "\b222\d{8}\b"
+    echo "WATCH: for messages to foreign ops. Mobile."
+    clex -ch 3 -s -10m |bin/reafer_pdu_parse -pdus |grep destination_addr |grep -vP "\b222\d{8}\b"
+    echo "WATCH END"
+
     #while read -r count EP; do LOG=${PREFIX}_CDRS_${EP}; echo "$CSTATDTS $count" >$LOG; done <${DEST_DIR}/ODTS.log
     while read -r count EP; do LOG=${PREFIX}_CDRS_${EP}; echo "$count" >$LOG; done <${DEST_DIR}/ODTS.log
     rm -rf ${DEST_DIR}/ODTS.log
