@@ -107,6 +107,7 @@ make_count_statfile "MCN/telstar" `bin/cstat_ci -list | grep telstar`
 # SPUTNIK
 make_count_statfile "SIP/sputnik" `bin/cstat_ci -list | grep sputnik`
 
+make_count_statfile "SCTP/frosti" frosti.send_ss_request frosti.send_cs_request frosti.outbound_msg_req frosti.outbound_begin frosti.outbound_continue frosti.inbound_begin frosti.inbound_continue frosti.inbound_end
 
 log "Long term stats"
 ZERROR=0
