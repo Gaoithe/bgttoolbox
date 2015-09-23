@@ -19,6 +19,7 @@ true && su - omn -c "tar -jcvf oldlog/cconf-dir_${DTS}.tbz cconf-dir"
 
 # as root
 echo "UN-INSTALLING OMN rpms"
+# rm -rf /var/lib/rpm/__db.000 # remove rpm transaction lock
 rpm -e `rpm -qg OMN`
 
 #as omn user, optionally backup and clear out stuff

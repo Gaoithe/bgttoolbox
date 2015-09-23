@@ -12,8 +12,8 @@ if [[ -z $RPMNDIR ]] ; then
 fi
 
 if [[ -z $INSTALL_FROM_SLINGSHOT ]] ; then
-    INSTALL_FROM_SLINGSHOT=true
     INSTALL_FROM_SLINGSHOT=false
+    INSTALL_FROM_SLINGSHOT=true
 fi
 
 if [[ -z $INSTALL_LATEST ]] ; then
@@ -32,7 +32,8 @@ if $INSTALL_FROM_SLINGSHOT; then
             REL=13-Q2
             REL=14-Q1
             #REL=14-Q2
-            REL=14-Q3
+            #REL=14-Q3
+            ##REL=14-Q4
             #REL=15-Q1
         fi
 
@@ -75,7 +76,12 @@ if $INSTALL_FROM_SLINGSHOT; then
 
         echo "####################### you might wish to INSTALL/APPLY locally built or UN-PUBLISHED patches ################################"
         PAT=/slingshot/PATCHES/OMN-Traffic-Control-${REL}
-        /slingshot/MOS-base/LATEST/scripts/rpmturbo.sh -oaat $(find $PAT -name "*${PLAT}*.rpm")
+        LASTRPM=$(rpm -qg OMN |grep Traffic-Control |tail -1)
+        PATCH_NUMS_INSTALLED=$(rpm -qg OMN |grep Traffic-Control.*-p |sed "s/.*\-p/p/;s/-.*//")
+        PATCH_NUMS_GREP=$(echo $PATCH_NUMS_INSTALLED |sed "s/ /|/g")
+        UNPUB=$(find $PAT -name "*${PLAT}*.rpm" |grep -Pv $PATCH_NUMS_GREP)
+
+        /slingshot/MOS-base/LATEST/scripts/rpmturbo.sh -oaat $UNPUB
         # scp RPMS/OMN-Traffic-Control-15-Q1-pxx-1.FC9.i386.^Cm /scratch/james/RPMS/
         # rpm -qg OMN |grep Traffic
         # rpm -ql -p /slingshot/PATCHES/OMN-Traffic-Control-15-Q1/v1/00/01/RPMS/OMN-Traffic-Control-15-Q1-p02-11.FC9.i386.rpm
@@ -93,8 +99,12 @@ else
     # e.g. rpm -qlp OMN-CORRIB-ROUTER-vx.xx.xx-1.FC9.i686.rpm  |grep cobweb
     #grep -i corrib.router deploylist_local.txt
 
-    /slingshot/MOS-base/LATEST/scripts/rpmturbo.sh deploylist_local.txt
     #/slingshot/MOS-base/LATEST/scripts/rpmturbo.sh deploylist_SLINGSHOT.txt
+    /slingshot/MOS-base/LATEST/scripts/rpmturbo.sh deploylist_local.txt
+    if [[ $? != 0 ]] ; then 
+        /slingshot/MOS-base/LATEST/scripts/rpmturbo.sh --force deploylist_local.txt
+    fi
+
 fi
 
 # as omn user:
@@ -111,7 +121,7 @@ perl -pi -e 's/^(.*bin\/sca)/#$1/' /apps/omn/etc/samson.d/procs.default
 
 # workaround: 
 #just removing the cconf-dir/isr-*/drill_ipdip_services-*/default-* works
-su - omn -c "mv cconf-dir/isr-*/drill_ipdip_services-*/default-* cconf_REMOVED_DRILL_IPDIP_THINGY"
+#su - omn -c "mv cconf-dir/isr-*/drill_ipdip_services-*/default-* cconf_REMOVED_DRILL_IPDIP_THINGY"
 
 # workaround: java classpath log4j
 
@@ -124,19 +134,27 @@ grep CAS_JMX_PORT ~/.bash_profile
 
 # as root user:
 # start samson
-HOST=hostname
 HOST=$(cat /VHOST)
+[[ $? != 0 ]] && HOST=$(hostname)
 echo SAMSON_HOST=$HOST > /apps/omn/etc/samson.hostname
+cat /apps/omn/etc/samson.hostname
 
 
 ############################################################
+# see: run_licence_cluster.sh
 # link to genlicence 
 # lib/libtbx-v2-79-27.so TBXVER=v2-79-27 TBXVDIR=v2/79/27
 cd /apps/omn
 TBXVDIR=$(ls lib/libtbx-*.so|sed "s/[^-]*\-//;s/\..*//;s/-/\//g")
 #echo TBXVER=$TBXVER
 TBXSDIR=/slingshot/tbx/$TBXVDIR/lnk/linux.fc9
+# if dev local build . . . 
+# TBXVDIR=vx/xx/xx TBXSDIR=/slingshot/tbx/vx/xx/xx/lnk/linux.fc9
+if [ ! -e  $TBXSDIR ] ; then
+  TBXSDIR=/slingshot/tbx/LATEST/lnk/linux.fc9
+fi
 echo TBXVDIR=$TBXVDIR TBXSDIR=$TBXSDIR
+rm libtbx
 ln -sf $TBXSDIR libtbx
 HOSTID=$(/apps/omn/bin/hostid)
 
@@ -144,14 +162,25 @@ LICENCE=$(./libtbx/genlicence "$(head -1 cluster.info |sed 's/[^"]*"//;s/"//g')"
 grep $LICENCE cluster.info
 if [[ $? != 0 ]] ; then 
    DTS=$(date +%Y%m%d_%H%M); cp -p cluster{,_${DTS}}.info
-   OLDLICENCE=$(grep -P "${HOST}\s+\d+\s+omn" cluster.info|sed "s/.* //")
+   OLDLICENCE=$(grep -P "^${HOST}\s+\d+\s+omn" cluster.info|sed "s/.* //"|head -n 1)
    echo new LICENCE=$LICENCE OLDLICENCE=$OLDLICENCE
-   perl -pi -e s/$OLDLICENCE/$LICENCE/ cluster.info   
+   [[ ! -z "$OLDLICENCE" ]] && perl -pi -e "s/$OLDLICENCE/$LICENCE/" cluster.info   
    FEATSIG=$(grep ^featsig: cluster.info)
    NEWFEATSIG=$(./libtbx/genfeaturelicence cluster.info $HOSTID)
-   # TODO: can we do this? continually append feature signatures? more than the nodes we have?
+   #echo DEBUG FEATSIG=$FEATSIG NEWFEATSIG=$NEWFEATSIG
+   # TODO: can we do this? continually append feature signatures? more than the nodes we have? . . . yes so far.
    perl -pi -e "s/^featsig: /featsig: $NEWFEATSIG/" cluster.info   
+   grep $NEWFEATSIG cluster.info 
 fi
+
+
+### just 4 commands to update feature licence and check
+# HOSTID=$(/apps/omn/bin/hostid)
+# NEWFEATSIG=$(./libtbx/genfeaturelicence cluster.info $HOSTID)
+# grep $NEWFEATSIG cluster.info 
+# perl -pi -e "s/^featsig: /featsig: $NEWFEATSIG/" cluster.info
+# grep $NEWFEATSIG cluster.info 
+
 
 ############################################################
 
@@ -166,7 +195,7 @@ mv samson.stderr oldlog/samson.stderr_${DTS}
 mv samson.stdout oldlog/samson.stdout_${DTS} 
 
 nohup ./scripts/samson.sh  &
-cat samson.stderr
+[ -e samson.stderr ] && cat samson.stderr
 
 # after this sci in run_solo_start_TC.sh and run_rejoin_TC.sh
 # as omn user:   START hygiene processes  solo_start on first node and rejoin on others

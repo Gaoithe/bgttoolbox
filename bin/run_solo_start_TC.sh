@@ -54,6 +54,9 @@ echo "RUN $THISNODE sci really started"
 sbug_session -cmd enable -path corrib_router/cobwebs -level 3 -verbose
 
 # ripley error => touch dfl-dir/.ACTIVE (see above, should already be done)
+### OR edit s#/data/dfl-dir#dfl-dir#  [omn@vb-28] cat cconf-dir/dfl-03/profiles-08/default-07 
+#name: "default"
+#root: "dfl-dir"
 
 #touch dfl-dir/.ACTIVE
 
