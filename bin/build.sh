@@ -2,25 +2,49 @@
 
 #BRANCH=OMN-Traffic-Control-14-Q3
 #BRANCH=OMN-Traffic-Control-15-Q3
-MONSTERFLAGS=-restart
+#MONSTERFLAGS=-restart
 
-echo "Building mod.list"
+BRANCH=
+MONSTERFLAGS=
+
+DTS=$(date +%Y%m%d_%H%M); 
+
+# check mod.list and mod.graph 
+if [[ $MONSTERFLAGS != "-restart" ]] ; then
+   [[ -e mod.list ]] && mv mod{,_${DTS}}.list
+   [[ -e mod.graph ]] && mv mod{,_${DTS}}.graph
+fi
+
 if [[ -z $BRANCH ]] ; then
-   [[ ! -e mod.list ]] && /slingshot/sbe/LATEST/scripts/build_order --cvs-modules --root /slingshot/deployments/OMN-Traffic-Control >mod.list
-   echo "Building mod.graph"
-   [[ ! -e mod.graph ]] && /slingshot/sbe/LATEST/scripts/build_order --digraph --include-non-metas --root /slingshot/deployments/OMN-Traffic-Control >mod.graph
+   if [[ ! -e mod.list ]] ; then
+       echo "Building mod.list"
+       /slingshot/sbe/LATEST/scripts/build_order --cvs-modules --root /slingshot/deployments/OMN-Traffic-Control >mod.list
+       [[ -e mod.graph ]] && mv mod{,_${DTS}}.graph
+   fi
+   if [[ ! -e mod.graph ]] ; then 
+       echo "Building mod.graph"
+       /slingshot/sbe/LATEST/scripts/build_order --digraph --include-non-metas --root /slingshot/deployments/OMN-Traffic-Control >mod.graph
+   fi
 else 
-   cp /slingshot/BRANCHES-PLANS/${BRANCH}.plan branch.plan
-   echo "# BRANCH-NAME ${BRANCH}" >mod.list
-   grep -v ^# branch.plan |awk '{print $2}' >>  mod.list
-   echo "Building mod.graph"
-   DTCVER=$(grep deployments/OMN-Traffic-Control mod.list |cut -d" " -f 3 |sed "s/-/\//g")
-   /slingshot/sbe/LATEST/scripts/build_order --digraph --include-non-metas --root /slingshot/deployments/OMN-Traffic-Control/$DTCVER/SRC >mod.graph
+   PLANFILES="/slingshot/BRANCHES-PLANS/${BRANCH}.plan branch.plan"
+   if [[ ! -e mod.list || ! -e branch.plan || $(diff -q $PLANFILES) ]] ; then
+       echo "Building mod.list"
+       cp $PLANFILES
+       #cp /slingshot/BRANCHES-PLANS/${BRANCH}.plan branch.plan
+       echo "# BRANCH-NAME ${BRANCH}" >mod.list
+       grep -v ^# branch.plan |awk '{print $2}' >>  mod.list
+       [[ -e mod.graph ]] && mv mod{,_${DTS}}.graph
+   fi
+   if [[ ! -e mod.graph ]] ; then 
+       echo "Building mod.graph"
+       DTCVER=$(grep deployments/OMN-Traffic-Control branch.plan |cut -d" " -f 3 |sed "s/-/\//g")
+       /slingshot/sbe/LATEST/scripts/build_order --digraph --include-non-metas --root /slingshot/deployments/OMN-Traffic-Control/$DTCVER/SRC >mod.graph
+   fi
 fi
 
 if [[ $MONSTERFLAGS != "-restart" ]] ; then
 
-echo "just for fun" > PURPOSE
+   echo "just for fun" > PURPOSE
 
    # james machine nebraska doesn't like cvs -Q -z9 co -R whatever # presumably -z9 is the problem. it repeatedly gets stuck :-(
    # buildall.sh gets branch from BRANCH-NAME in mod.list
