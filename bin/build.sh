@@ -2,10 +2,10 @@
 
 #BRANCH=OMN-Traffic-Control-14-Q3
 #BRANCH=OMN-Traffic-Control-15-Q3
-#MONSTERFLAGS=-restart
-
 BRANCH=
-MONSTERFLAGS=
+
+#MONSTERFLAGS=
+MONSTERFLAGS=-restart
 
 DTS=$(date +%Y%m%d_%H%M); 
 
@@ -66,11 +66,18 @@ if [[ $MONSTERFLAGS != "-restart" ]] ; then
    #cp -p {/home/james/work/TC/,}libtbx/Makefile
 
    # see sbe/CHANGES make vars LINUX_VER and LINUX_REAL_VER populated
-   cat >Makefile.slingshot.fakeyfakey <<EOF
+   # BUT CAUSES PROBLEM: in mimx/libcommon
+   # mm4.flex_gen.h:2423:17: error: comparison between signed and unsigned integer expressions [-Werror=sign-compare]
+   # SOLUTION:
+   # mv ../../Makefile.slingshot.fakeyfakey{,_maugh} 
+   # gmake spotless all __FAKE_RELEASE_AREA
+   if [[ false ]] ; then
+      cat >Makefile.slingshot.fakeyfakey <<EOF
 FAKEY_SUPPORTED_LINUX=Y
 FAKEY_PRETEND_VERSION=FC9
 FAKEY_REAL_VERSION=F19
 EOF
+   fi
 
 fi
 
