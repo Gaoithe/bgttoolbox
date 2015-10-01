@@ -28,8 +28,8 @@ ssh ${ROOTUSER}@${HOST} /apps/omn/scripts/run_uninstall_TC.sh |tee -a TC_uninsta
 monmemu_plot.sh stop -host omn@${HOST}
 
 # TODO, how to run these in parallel ?
-echo -n INSTALL_FROM_SLINGSHOT=$INSTALL_FROM_SLINGSHOT 
-$INSTALL_FROM_SLINGSHOT && echo -n " INSTALL_LATEST=$INSTALL_LATEST REL=$REL PLAT=$PLAT "
+echo -n "INSTALL_FROM_SLINGSHOT=$INSTALL_FROM_SLINGSHOT "
+$INSTALL_FROM_SLINGSHOT && echo -n "INSTALL_LATEST=$INSTALL_LATEST REL=$REL PLAT=$PLAT "
 echo ssh ${ROOTUSER}@${HOST} run_install_TC.sh $HOST 
 ssh ${ROOTUSER}@${HOST} "INSTALL_FROM_SLINGSHOT=$INSTALL_FROM_SLINGSHOT INSTALL_LATEST=$INSTALL_LATEST PLAT=$PLAT REL=$REL /apps/omn/scripts/run_install_TC.sh" |tee -a TC_install_${HOST}.log; 
 

@@ -312,8 +312,8 @@ AddToFunc InitFunction    "I" Module FvwmButtons
 +                         "I" exec google-chrome &
 +                         "I" exec /usr/X11R6/lib/xscreensaver/noseguy -root -program fortune
 +			  "I" exec xterm -sb -sl 1000 -j -ls -fn 7x14 -name "Local Shell"
-+			  "I" exec xterm -geometry 100x60+0+0 -name "dspsrv Mail Betty" -e mutt
-+			  "I" exec xterm -geometry 100x60+0+0 -name "doolin Mail Doolin.com" -e ssh doolin.com
+#+			  "I" exec xterm -geometry 100x60+0+0 -name "dspsrv Mail Betty" -e mutt
+#+			  "I" exec xterm -geometry 100x60+0+0 -name "doolin Mail Doolin.com" -e ssh doolin.com
 +			  "I" exec xchat 
 #+			  "I" exec xterm -geometry 100x60+0+0 -name "Kinsey" -e ssh kinsey
 #+			  "I" exec xterm -geometry 100x60+0+0 -name "Owsla" -e ssh owsla.ie.suberic.net
