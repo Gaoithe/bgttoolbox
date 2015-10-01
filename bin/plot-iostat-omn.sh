@@ -5,8 +5,7 @@ Usage: $0 <directory>
 directory should contain <ts_secs>-<Day>-<date>-<time>-iostat files
 EOF
 
-for dir
-do
+#[james@nebraska 201509251905]$ ~/bin/plot-iostat-omn.sh  10.109.22.13_sysstat/etc/sysstat/iostat/
 
 # iostat -kx 1
 # avg-cpu:  %user   %nice %system %iowait  %steal   %idle
@@ -21,7 +20,7 @@ plot_disk() {
 disk=$1
 suffix=$2
 gnuplot <<EOF
-set xlabel "time (s)"
+set xlabel "time (60s intervals)"
 
 set size 1
 set terminal pngcairo size ${width:-1280}, 800
@@ -30,9 +29,9 @@ set terminal pngcairo size ${width:-1000}, 600
 set grid
 
 set output "iostat-bw$suffix.png"
-set ylabel "throughput (MB/s)"
-plot "$disk" using (\$7/1024) with linespoints pt 5 title "write xB/s", \
-     "$disk" using (\$6/1024) with linespoints pt 4 title "read xB/s"
+set ylabel "throughput (kB/s)"
+plot "$disk" using (\$7/1024) with linespoints pt 5 title "write kB/s", \
+     "$disk" using (\$6/1024) with linespoints pt 4 title "read kB/s"
 
 unset grid
 
@@ -104,6 +103,9 @@ EOF
 }
 
 
+for dir
+do
+
 cd $dir
 
 FILES=$(ls -tr *-iostat)
@@ -118,7 +120,7 @@ for d in $DEVICES; do
     [[ -f iostat-disk-${d} ]] || for f in $FILES; do 
         grep ^${d} $f >> iostat-disk-${d}
     done
-    plot_disk iostat-disk-${d}
+    plot_disk iostat-disk-${d} $d
 done
 
 #[[ -f iostat-disk ]] || grep ${IOSTAT_DISK:-sda} iostat > iostat-disk
