@@ -125,7 +125,7 @@ set output "%s"
 #set nokey
 set style data lines\n''' % (scenario_name,outputfile_path)
 
-gnuplot_lines = gnuplot_lines_io + '''set ylabel "%"
+gnuplot_lines = gnuplot_lines_io + '''set ylabel "read/write per sec"
 set ytics 10
 set grid xtics ytics'''
 
