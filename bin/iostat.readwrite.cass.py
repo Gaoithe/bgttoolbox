@@ -5,16 +5,46 @@ import commands
 import getopt
 
 '''
-Linux 3.10.0-123.20.1.el7.x86_64 (node21)       27/03/15        _x86_64_        (32 CPU)
+Larry has scripts to plot data we collect in sysstat
 
-avg-cpu:  %user   %nice %system %iowait  %steal   %idle
-          24.77    0.89    9.51    0.37    0.00   64.45
+    iostat.readwrite.cass.py and iostat.util.CASS.py
+    http://nebraska/scratch/james/PROXIMUS/iostat.readwrite.cass.py 
+    http://nebraska/scratch/james/PROXIMUS/iostat.util.CASS.py
 
-Device:         rrqm/s   wrqm/s     r/s     w/s    rkB/s    wkB/s avgrq-sz avgqu-sz   await r_await w_await  svctm  %util
-sda               0.02     0.59    0.13    0.88     3.60    29.00    64.34     0.10   98.74    3.83  112.91   4.70   0.48
-sdb               0.01    30.91    0.42   13.00    11.66  1473.45   221.29     1.98  147.25    4.17  151.88   2.31   3.11
-sdc               0.00     0.38    0.02   14.17     0.90  6809.74   960.10     1.89  133.44    1.92  133.59   4.79   6.80
-sdd               0.01     2.69    5.49    6.90    81.71  2853.14   473.56     2.90  234.32   61.79  371.55   3.81   4.72
+    THe readwrite script plots r/s and w/s for each device selected by script (edit script)
+    The util script plots %util
+
+e.g. usage:
+
+   ~/bin/iostat.readwrite.cass.py -i ${vm}_ALLDATA -o ${vm}_RW_ALLDATA.png -n "${vm}_RW_ALLDATA" 2>/dev/null
+   ~/bin/iostat.util.CASS.py -i ${vm}_ALLDATA -o ${vm}_UTIL_ALLDATA.png -n "${vm}_UTIL_ALLDATA" 2>/dev/null
+
+e.g. of INPUT (files from /apps/omn/etc/sysstat/iostat):
+
+    Linux 3.10.0-123.20.1.el7.x86_64 (node21)       27/03/15        _x86_64_        (32 CPU)
+    
+    avg-cpu:  %user   %nice %system %iowait  %steal   %idle
+              24.77    0.89    9.51    0.37    0.00   64.45
+    
+    Device:         rrqm/s   wrqm/s     r/s     w/s    rkB/s    wkB/s avgrq-sz avgqu-sz   await r_await w_await  svctm  %util
+    sda               0.02     0.59    0.13    0.88     3.60    29.00    64.34     0.10   98.74    3.83  112.91   4.70   0.48
+    sdb               0.01    30.91    0.42   13.00    11.66  1473.45   221.29     1.98  147.25    4.17  151.88   2.31   3.11
+    sdc               0.00     0.38    0.02   14.17     0.90  6809.74   960.10     1.89  133.44    1.92  133.59   4.79   6.80
+    sdd               0.01     2.69    5.49    6.90    81.71  2853.14   473.56     2.90  234.32   61.79  371.55   3.81   4.72
+
+James has 2 scripts:
+
+    http://nebraska/scratch/james/PROXIMUS/srunPR_GETsysstat.sh
+    Used to collect sysstat from multiple hosts (over ssh and scp).
+
+    http://nebraska/scratch/james/PROXIMUS/run_iostat_plots.sh
+    combine multiple small iostat files into one big file for 
+
+## use something like srunPR_GETsysstat.sh to pack up and scp iostat files from hosts back
+## unpack each into a seperate dir by name/ip like this:
+##  for f in *.tbz; do echo f=$f; d=${f%.tbz}; mkdir $d; echo d=$d; cd $d; tar -jxvf ../$f; cd ..; done
+## generate graphs by running this script: run_iostat_plots.sh
+## run_iostat_plots.sh looks at each directory in current dir for <dir>/etc/sysstat/iostat/ files
 
 '''
 
