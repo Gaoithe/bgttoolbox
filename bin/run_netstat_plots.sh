@@ -19,10 +19,14 @@ for vm in $(ls); do
             done
         fi
         #~/bin/iostat.readwrite.cass.py -i ${vm}_ALLDATA -o ${vm}_RW_ALLDATA.png -n "${vm}_RW_ALLDATA" 2>/dev/null
-        ~/bin/ifconfig.plot.py -i ${vm}_ALLDATA -o ${vm}_ALLDATA.png -n "${vm}_ALLDATA" 2>/dev/null
-        ls -alstr Gnuplot_Stats/${vm}*ALLDATA
+        ~/bin/ifconfig.plot.py -i ${vm}_ALLDATA -o ${vm}_ifconfig_ALLDATA.png -n "${vm}_ifconfig_ALLDATA" 2>/dev/null
+        #ls -alstr Gnuplot_Stats/${vm}*ALLDATA
+        ls -alstr Gnuplot_Stats/
         cd -
     fi
     pwd
 done
+
+
+#[james@nebraska ifconfig]$  ~/bin/ifconfig.plot.py -i 10.109.22.13_ALLDATA -o 10.109.22.13_ALLDATA_TIME_x.png -n 1443539516-Tue-29-15:11:56-ifconfig
 

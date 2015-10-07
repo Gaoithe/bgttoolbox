@@ -116,7 +116,12 @@ datafile = directory + '/' + inputfile + '.dat'
 if not os.path.isfile(datafile):
     in_file = open(inputfile)
     out_file = open(datafile,'w+')
+    first_address = "meh"
+    last_address = "meh"
     address = "meh"
+    ifSet=set([])
+    addressSet=set([])
+    addressList=[]
     #old_rx_bytes=0
     #old_tx_bytes=0
     old_rx_bytes={}
@@ -139,18 +144,32 @@ if not os.path.isfile(datafile):
              #currentDateX = parser.parse(currentDateStr);
              currentDate = currentDateX.strftime('%Y-%m-%d %H:%M:%S')
              print(currentDate + "\r"),
+
+             if last_address != "meh":
+                out_file.write("\n")
              out_file.write("\"" + currentDate + "\" ")
+
           if line_list[0] == 'inet':
              if line_list[1].startswith("10.109."):
                 address = line_list[1]
-                #print address
-                if not address in old_rx_bytes:
-                   old_rx_bytes[address]=0
-                if not address in old_tx_bytes:
-                   old_tx_bytes[address]=0
+                ifSet.add(address)
              else:
                 address = "meh"
-          if address != "meh" and line_list[0] == 'RX' and line_list[1] == 'packets':
+
+          if address and address != "meh" and line_list[0] == 'RX' and line_list[1] == 'packets':
+
+             if address not in addressSet:
+                last_address = address
+                addressList.append(address)
+             addressSet.add(address)
+             #print address
+             if not address in old_rx_bytes:
+                old_rx_bytes[address]=0
+             if not address in old_tx_bytes:
+                old_tx_bytes[address]=0
+             if not first_address or first_address == "meh":
+                first_address = address
+
              rx_bytes = line_list[4]
              delta = 0
              if int(old_rx_bytes[address]) > 0:
@@ -161,12 +180,12 @@ if not os.path.isfile(datafile):
              #out_file.write(" ")
              out_file.write(str(delta))
              out_file.write(" ")
-          if address != "meh" and line_list[0] == 'RX' and line_list[1] == 'errors':
+          if address and address != "meh" and line_list[0] == 'RX' and line_list[1] == 'errors':
              out_file.write(line_list[2])
              out_file.write(" ")
              out_file.write(line_list[4])
              out_file.write(" ")
-          if address != "meh" and line_list[0] == 'TX' and line_list[1] == 'packets':
+          if address and address != "meh" and line_list[0] == 'TX' and line_list[1] == 'packets':
              tx_bytes = line_list[4]
              delta = 0
              if int(old_tx_bytes[address]) > 0:
@@ -176,7 +195,7 @@ if not os.path.isfile(datafile):
              #out_file.write(" ")
              out_file.write(str(delta))
              out_file.write(" ")
-          if address != "meh" and line_list[0] == 'TX' and line_list[1] == 'errors':
+          if address and address != "meh" and line_list[0] == 'TX' and line_list[1] == 'errors':
              out_file.write(line_list[2])
              out_file.write(" ")
              out_file.write(line_list[4])
@@ -184,9 +203,10 @@ if not os.path.isfile(datafile):
              out_file.write(address)
              out_file.write(" ")
 
-             if address != "meh" and address.startswith("10.109.22.10"):
-                #out_file.write("\"" + currentDate + "\"")
-                out_file.write("\n")
+             ##if address and address != "meh" and address.startswith("10.109.22.10"):
+             #if address and address == last_address:
+             #   #out_file.write("\"" + currentDate + "\"")
+             #   out_file.write("\n")
 
     in_file.close()
     out_file.close()
@@ -227,9 +247,13 @@ set grid xtics ytics'''
 
 gnuplot_lines += ''' 
 datafile = "%s"
-firstrow = system('head -1 '.datafile)
-set xlabel word(firstrow, 20)
+firstrow = system('head -1 ' . datafile . '|sed "s/\\"[^\\"]*\\"/QUOTED/g"')
+#firstrow = system('head -1 ' . datafile . '|sed s/foo/QUOTED/g')
+set xlabel word(firstrow, 15)
 ''' % datafile
+
+# we do not get addressList if datafile not regenerated
+#gnuplot_lines += '''set xlabel "%s"\n''' % addressList[1]
 
 gnuplot_lines += ''' 
 set xdata time
