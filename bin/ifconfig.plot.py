@@ -401,7 +401,7 @@ unset border
 set label 1 sprintf("RX_max:%%2.3g", RX_max) center at graph 0.2,first RX_max nopoint offset 0,-1.5 front
 set label 2 sprintf("TX_max:%%2.3g", TX_max) center at graph 0.5,first TX_max nopoint offset 0,-1.5 front
 set label 3 sprintf("RX_mean:%%2.3g", RX_mean) center at graph 0.2,first RX_mean point pt 7 ps 1 offset 0,0.8 front
-set label 4 sprintf("TX_mean:%%2.3g", TX_mean) center at graph 0.2,first TX_mean point pt 7 ps 1 offset 0,0.8 front
+set label 4 sprintf("TX_mean:%%2.3g", TX_mean) center at graph 0.5,first TX_mean point pt 7 ps 1 offset 0,0.8 front
 #set label 1 sprintf("RX_max:%%2.3g mean:%%2.3g", RX_max, RX_mean) center at graph 0.2,first RX_max point pt 7 ps 1 offset 0,-1.5 front
 #set label 2 sprintf("TX_max:%%2.3g mean:%%2.3g", TX_max, TX_mean) center at graph 0.2,first TX_max point pt 7 ps 1 offset 0,-1.5 front
 #set label 1 sprintf("RX_max:%%2.3g mean:%%2.3g", RX_max, RX_mean) center at graph 0.2,first RX_mean point pt 7 ps 1 offset 0,1.5 front
@@ -450,7 +450,7 @@ unset border
 set label 1 sprintf("RX_max:%%2.3g", RX_max) center at graph 0.2,first RX_max nopoint offset 0,-1.5 front
 set label 2 sprintf("TX_max:%%2.3g", TX_max) center at graph 0.5,first TX_max nopoint offset 0,-1.5 front
 set label 3 sprintf("RX_mean:%%2.3g", RX_mean) center at graph 0.2,first RX_mean point pt 7 ps 1 offset 0,0.8 front
-set label 4 sprintf("TX_mean:%%2.3g", TX_mean) center at graph 0.2,first TX_mean point pt 7 ps 1 offset 0,0.8 front
+set label 4 sprintf("TX_mean:%%2.3g", TX_mean) center at graph 0.5,first TX_mean point pt 7 ps 1 offset 0,0.8 front
 
 set datafile sep whitespace
 ''' % (datafile,csvfile,i*7+2,i*7+3)
