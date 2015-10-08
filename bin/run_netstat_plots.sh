@@ -20,7 +20,8 @@ for vm in $(ls); do
         fi
         #~/bin/iostat.readwrite.cass.py -i ${vm}_ALLDATA -o ${vm}_RW_ALLDATA.png -n "${vm}_RW_ALLDATA" 2>/dev/null
         #~/bin/ifconfig.plot.py -i ${vm}_ALLDATA -o ${vm}_ifconfig_ALLDATA.png -n "${vm}_ifconfig_ALLDATA" 2>/dev/null
-        ~/bin/ifconfig.plot.py -i ${vm}_ALLDATA -o ${vm}_ifconfig_ALLDATA.png -n "${vm}_ifconfig_ALLDATA" 2>&1 |tee Gnuplot_Stats/
+        echo ~/bin/ifconfig.plot.py -i ${vm}_ALLDATA -o ${vm}_ifconfig_ALLDATA.png -n "${vm}_ifconfig_ALLDATA" 2>&1 |tee -a Gnuplot_Stats/run_plots.log
+        ~/bin/ifconfig.plot.py -i ${vm}_ALLDATA -o ${vm}_ifconfig_ALLDATA.png -n "${vm}_ifconfig_ALLDATA" 2>&1 |tee -a Gnuplot_Stats/run_plots.log
         #ls -alstr Gnuplot_Stats/${vm}*ALLDATA
         ls -alstr Gnuplot_Stats/
         cd -
