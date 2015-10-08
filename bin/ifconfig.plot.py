@@ -6,6 +6,7 @@ import getopt
 import re
 from datetime import datetime
 #from dateutil import parser
+from subprocess import Popen,PIPE
 
 '''
 
@@ -113,6 +114,7 @@ outputfile_path = directory + '/' + outputfile
 #datafile = "/tmp/netdatforplot"
 datafile = directory + '/' + inputfile + '.dat'
 
+addressList=[]
 if not os.path.isfile(datafile):
     in_file = open(inputfile)
     out_file = open(datafile,'w+')
@@ -121,7 +123,6 @@ if not os.path.isfile(datafile):
     address = "meh"
     ifSet=set([])
     addressSet=set([])
-    addressList=[]
     #old_rx_bytes=0
     #old_tx_bytes=0
     old_rx_bytes={}
@@ -231,11 +232,16 @@ gnuplot_lines_io = '''set title "%s"
 set terminal png notransparent size 1200,800
 set output "%s"
 #set nokey
-set style data lines\n''' % (scenario_name,outputfile_path)
+#set style data lines
+#set style data points
+#set style data dots
+set style data linespoints
+''' % (scenario_name,outputfile_path)
 
 gnuplot_lines = gnuplot_lines_io + '''set ylabel "bytes"
 set ytics 1000
-set logscale y; set ytics 1,10,1e12
+#set logscale y; set ytics 1,10,1e12
+set ytics ("bottom" 0, "" 10 1, "1e4" 1e4, "1e5" 1e5, "1e6" 1e6, "1e7" 1e7)
 #set ytics ("bottom" 0, "" 10, "top" 20)
 #set ytics ("bottom" 0, "" 10 1, "top" 20)
 set grid xtics ytics'''
@@ -248,7 +254,6 @@ set grid xtics ytics'''
 gnuplot_lines += ''' 
 datafile = "%s"
 firstrow = system('head -1 ' . datafile . '|sed "s/\\"[^\\"]*\\"/QUOTED/g"')
-#firstrow = system('head -1 ' . datafile . '|sed s/foo/QUOTED/g')
 set xlabel word(firstrow, 15)
 ''' % datafile
 
@@ -267,34 +272,63 @@ set autoscale x
 '''
 
 # edit each item to plot:
+# format "<date>" [ <rxdelta> <rxerr> <rxdrop> <txdelta> <txerr> <txdrop> <address> ] * N 
+#   first i = 0 2,5,3,4,6,7
+#   2nd   i = 1 9,12,10,11,13,14 
 
 plot_string_io = 'plot "%s"  using 0:2 title "RX bytes delta", "%s"  using 0:5 title "TX bytes delta"' % (datafile,datafile)
 plot_string_io = 'plot "%s"  using 0:9 title "RX bytes delta", "%s"  using 0:12 title "TX bytes delta"' % (datafile,datafile)
-plot_string_io = 'plot "%s"  using 1:9 title "RX bytes delta", "%s"  using 1:12 title "TX bytes delta"' % (datafile,datafile)
 
-### Config filennames ##########
-#plot_script_name = '/tmp/netdatforplot.gp'
-plot_script_name = directory + '/' + inputfile + '.gp'
-################################
+if not addressList:
+   #firstrow = os.system('''head -1 "%s"|sed "s/\\"[^\\"]*\\"/QUOTED/g"''' % datafile)
+   firstrow = Popen('''head -1 "%s"|sed "s/\\"[^\\"]*\\"/QUOTED/g"''' % datafile, shell=True, stdout=PIPE).stdout.read()
+   print "DEBUG:" + firstrow
+   line_list = firstrow.split()
+   i = 0
+   while i*7+8 <= len(line_list):
+       print "address:%s" % line_list[i*7+7]
+       addressList.append(line_list[i*7+7])
+       i += 1
 
-gnuplot_script = open(plot_script_name, 'w+')
-# need to create something like this:
-# plot "/tmp/cpu.data" using 1:2 title "User", "/tmp/cpu.data" using 1:3 title "Nice"
-gnuplot_script.write(gnuplot_lines)
-gnuplot_script.write('\n')
-gnuplot_script.write(plot_string_io)
+# address offset, start at 0 . . . 
+i = 0
+for address in addressList:
+   outputfile_path = directory + '/' + str(address) + "_" + outputfile
 
-gnuplot_script.close()
+   plot_string_io = 'plot "%s" using 1:%d title "RX bytes delta", "%s" using 1:%d title "TX bytes delta"' % (datafile,i*7+2,datafile,i*7+5)
+   plot_string_io += ', "%s" using 1:%d title "RX err", "%s" using 1:%d title "RX drop"' % (datafile,i*7+3,datafile,i*7+4)
+   plot_string_io += ', "%s" using 1:%d title "TX err", "%s" using 1:%d title "TX drop"' % (datafile,i*7+6,datafile,i*7+7)
 
-while not os.path.isfile(plot_script_name):
-   time.sleep(1)
-   print 'gnuplot script not created'
+   gnuplot_xlabel = 'set xlabel "%s"\n' % addressList[i]
+   gnuplot_xlabel += 'set output "%s"' % outputfile_path
 
-gnuplot_binary = '/usr/bin/gnuplot'
-import subprocess as sub
-try:
-   sub.call([gnuplot_binary,plot_script_name])
-except OSError:
-   print 'error running gnuplot command - is gnuplot installed ? Exiting ...'
-   sys.exit()
- 
+   ### Config filennames ##########
+   #plot_script_name = '/tmp/netdatforplot.gp'
+   plot_script_name = directory + '/' + str(address) + "_" + inputfile + '.gp'
+   ################################
+
+   gnuplot_script = open(plot_script_name, 'w+')
+   # need to create something like this:
+   # plot "/tmp/cpu.data" using 1:2 title "User", "/tmp/cpu.data" using 1:3 title "Nice"
+   gnuplot_script.write(gnuplot_lines)
+   gnuplot_script.write('\n')
+   gnuplot_script.write(gnuplot_xlabel)
+   gnuplot_script.write('\n')
+   gnuplot_script.write(plot_string_io)
+   gnuplot_script.write('\n')
+   gnuplot_script.close()
+
+   while not os.path.isfile(plot_script_name):
+      time.sleep(1)
+      print 'gnuplot script not created'
+
+   gnuplot_binary = '/usr/bin/gnuplot'
+   import subprocess as sub
+   try:
+      sub.call([gnuplot_binary,plot_script_name])
+   except OSError:
+      print 'error running gnuplot command - is gnuplot installed ? Exiting ...'
+      sys.exit()
+
+   i+=1
+
