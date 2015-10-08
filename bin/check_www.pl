@@ -84,7 +84,7 @@ sub fail {
 
     if ($gMsisdn) {
         # TODO exec 
-        `~/bin/sendsms.pl $gMsisdn "check_www.pl FAIL url=$gUrl $message ${user}\@${host}"`;
+        `ssh iowa "sendsms.pl $gMsisdn \"check_www.pl FAIL url=$gUrl $message ${user}\@${host}\""`;
     }
 
     die $message;
@@ -133,7 +133,7 @@ if (!$g) {
         print "g:$g\n" if ($verbose);
 
         # test the fail methods
-        fail "get match Success."
+        #fail "get match Success."
 
     } else {
         fail "get match fail gGet:$gGet"
