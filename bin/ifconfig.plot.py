@@ -296,12 +296,12 @@ set xlabel word(firstrow, 15)
 gnuplot_lines += ''' 
 set xdata time
 set timefmt '"%Y-%m-%d %H:%M:%S"'
-#set timefmt "\\"%a %b %d %H:%M:%S UTC %Y\\""
-#set timefmt "%a %b %d %H:%M:%S UTC %Y"
+#set timefmt '"%a %b %d %H:%M:%S UTC %Y"'
 #set format x "%m-%d\\n%H:%M"
 set autoscale y  
 set autoscale x
-#set xrange ["2013-07-21 16:00":"2013-07-22 16:00"]
+# bring legend to front in case it is hidden
+#set key opaque
 '''
 
 
@@ -320,7 +320,7 @@ if not addressList:
        i += 1
 
 
-def write_gnuplot_script(identifier,plot_string_io):
+def write_gnuplot_script(identifier,plot_string_io,before_gnuplot_lines="",after_gnuplot_lines=""):
     """ Write script for gnuplot. General gnuplot vars set for plot. Plot specific command. """
 
     outputfile_path = directory + '/' + identifier + outputfile
@@ -331,12 +331,11 @@ def write_gnuplot_script(identifier,plot_string_io):
     plot_script_name = directory + '/' + identifier + inputfile + '.gp'
 
     gnuplot_script = open(plot_script_name, 'w+')
-    gnuplot_script.write(gnuplot_lines)
-    gnuplot_script.write('\n')
-    gnuplot_script.write(gnuplot_xlabel)
-    gnuplot_script.write('\n')
-    gnuplot_script.write("plot " + plot_string_io)
-    gnuplot_script.write('\n')
+    gnuplot_script.write(before_gnuplot_lines + "\n")
+    gnuplot_script.write(gnuplot_lines + "\n")
+    gnuplot_script.write(gnuplot_xlabel+"\n")
+    gnuplot_script.write("plot " + plot_string_io + "\n")
+    gnuplot_script.write(after_gnuplot_lines + "\n")
     gnuplot_script.close()
 
     #return outputfile_path
@@ -376,19 +375,66 @@ plot_strings_all=""
 
 i = 0
 for address in addressList:
-    plot_string_io = ' "%s" using 1:%d title "RX bytes delta %s", "%s" using 1:%d title "TX bytes delta"' % (datafile,i*7+2,str(address),datafile,i*7+5)
-    plot_string_io += ', "%s" using 1:%d title "RX err", "%s" using 1:%d title "RX drop"' % (datafile,i*7+3,datafile,i*7+4)
-    plot_string_io += ', "%s" using 1:%d title "TX err", "%s" using 1:%d title "TX drop"' % (datafile,i*7+6,datafile,i*7+7)   
+
+    # RX_max and TX_max
+    # nuts. Stats command not available in timedata mode, can do it with csv though
+    before_gnuplot_lines = ''' 
+datafile = "%s"
+csvfile = "%s"
+set datafile sep ','
+
+# Get RX_max RX_min TX_max TX_min
+stats csvfile using %d name 'RX_'
+stats csvfile using %d name 'TX_'
+
+## Find x time position of _max values
+#stats csvfile using 1 every ::RX_index_max::RX_index_max nooutput
+#RX_X_max = STATS_max
+#stats csvfile using 1 every ::TX_index_max::TX_index_max nooutput
+#TX_X_max = STATS_max
+## unfortunately x position RX_X_max/TX_X_max date/time format we get year "2015" only
+##info = sprintf("RX_X_max:%%d", RX_X_max)
+##print info
+
+unset border
+
+set label 1 sprintf("RX_max:%%2.3g", RX_max) center at graph 0.2,first RX_max nopoint offset 0,-1.5 front
+set label 2 sprintf("TX_max:%%2.3g", TX_max) center at graph 0.5,first TX_max nopoint offset 0,-1.5 front
+set label 3 sprintf("RX_mean:%%2.3g", RX_mean) center at graph 0.2,first RX_mean point pt 7 ps 1 offset 0,0.8 front
+set label 4 sprintf("TX_mean:%%2.3g", TX_mean) center at graph 0.2,first TX_mean point pt 7 ps 1 offset 0,0.8 front
+#set label 1 sprintf("RX_max:%%2.3g mean:%%2.3g", RX_max, RX_mean) center at graph 0.2,first RX_max point pt 7 ps 1 offset 0,-1.5 front
+#set label 2 sprintf("TX_max:%%2.3g mean:%%2.3g", TX_max, TX_mean) center at graph 0.2,first TX_max point pt 7 ps 1 offset 0,-1.5 front
+#set label 1 sprintf("RX_max:%%2.3g mean:%%2.3g", RX_max, RX_mean) center at graph 0.2,first RX_mean point pt 7 ps 1 offset 0,1.5 front
+#set label 2 sprintf("TX_max:%%2.3g mean:%%2.3g", TX_max, TX_mean) center at graph 0.2,first TX_mean point pt 7 ps 1 offset 0,1.5 front
+#set label 2 sprintf("TX_max:%%.2f mean:%%.2f", TX_max, TX_mean) center at graph 0.2,first TX_mean point pt 7 ps 1 offset 0,1.5
+
+a = sprintf("RX_max:%%.2f mean:%%.2f", RX_max, RX_mean)
+print a
+b = sprintf("TX_max:%%.2f mean:%%.2f", TX_max, TX_mean)
+print b
+#print RX_X_max,RX_max,RX_mean,TX_X_max,TX_max,TX_mean
+
+set datafile sep whitespace
+#set datafile sep ' '
+#unset datafile sep ' '
+
+''' % (datafile,csvfile,i*7+2,i*7+5)
+
+    plot_string_io = ' datafile using 1:%d title "RX bytes delta %s", datafile using 1:%d title "TX bytes delta"' % (i*7+2,str(address),i*7+5)
+    #plot_string_io += ', RX_max title "RX max" w l lt 1, TX_max title "TX max" w l lt 2'
+    plot_string_io += ', RX_mean title "RX mean" w l lt 1, TX_mean title "TX mean" w l lt 2'
+    plot_string_io += ', datafile using 1:%d title "RX err", datafile using 1:%d title "RX drop"' % (i*7+3,i*7+4)
+    plot_string_io += ', datafile using 1:%d title "TX err", datafile using 1:%d title "TX drop"' % (i*7+6,i*7+7)   
     #plot_strings[address] = plot_string_io
     if plot_strings_all != "":
        plot_strings_all += ","
     plot_strings_all += plot_string_io
-    plot_script_name = write_gnuplot_script(str(address)+"_",plot_string_io)
+    plot_script_name = write_gnuplot_script(str(address)+"_",plot_string_io,before_gnuplot_lines)
     run_gnuplot_script(plot_script_name)
     i+=1
 
 # PLOT: total RX and TX.
-plot_string_tot = ' "%s" using 1:%d title "RX bytes total", "%s" using 1:%d title "TX bytes total"' % (datafile,i*7+2,datafile,i*7+3)
+plot_string_tot = ' datafile using 1:%d title "RX bytes total", datafile using 1:%d title "TX bytes total"' % (i*7+2,i*7+3)
 
 #plot_script_name = write_gnuplot_script("combitot",plot_string_tot + plot_strings_all):
 plot_script_name = write_gnuplot_script("",plot_string_tot + "," + plot_strings_all)
