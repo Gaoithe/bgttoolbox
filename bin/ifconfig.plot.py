@@ -23,6 +23,7 @@ Run gnuplot and generate .png for each plot.
 e.g. usage:
 
    ~/bin/ifconfig.plot.py -i ${vm}_ALLDATA -o ${vm}_UTIL_ALLDATA.png -n "${vm}_UTIL_ALLDATA" 2>/dev/null
+    for f in *ifconfig; do ~/bin/ifconfig.plot.py -i $f; -o ${f}.png -n $f; done
 
 [james@nebraska 10.109.6.13]$ less etc/sysstat/ifconfig/*-Sun-04-07* 
 
