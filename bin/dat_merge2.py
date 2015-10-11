@@ -67,22 +67,57 @@ data={}
 for key in coldict:
     totals[key]=0 
 #import csv
-from pandas import merge, read_table
+from pandas import concat, merge, ordered_merge, read_table, read_csv, groupby
 previousB = False
 
 for file in args.inputfiles:
 
     data[file] = read_table(file, sep=r" ", header=None)
-    print data[file]
+    #data[file].columns = data[file].columns.str.join(file)
+    #data[file] = data[file].rename(columns=lambda x: str(x)+"_foo", inplace=True)
+    
+    #data[file] = read_csv(file, index_col=0, sep=r" ", header=None)
+
+    print "FILE " + file + ":" + str(data[file])
+    #print data[file].describe()
+
+    #rx = data[file].groupby(1)
+    #print rx
+    #print rx.describe()
+
+    #tx = data[file].groupby(4)
+    #print tx
+    #print tx.describe()
+
 
     if previousB:
-        kw1 = dict(how='left', \
-                   left_on=[3,4], \
-                   right_on=[1,1], \
-                   suffixes=('l', 'r'))
+        #kw1 = dict(how='left', \
+        #           left_on=[3,4], \
+        #           right_on=[1,1], \
+        #           suffixes=('l', 'r'))
 
-        df1 = merge(previous, data[file], how='left',on=0)
-        print df1
+        # Merge in by date(0,0). outer merge to keep all data points.
+        previous = merge(previous, data[file], how='outer', left_on=0, right_on=0)##, ignore_index=True)
+        #previous = merge(previous, data[file], how='left', on=0)##, ignore_index=True)
+        #previous = previous.join(data[file], on=1, how='left', rsuffix="a")
+
+        #previous = previous.append(data[file])
+
+        #previous = ordered_merge(previous, data[file], fill_method='ffill')
+
+        # concat with axis=1, ignore_index=True GOOD but want date(index column) merged.
+        #previous = concat([previous, data[file]], axis=1, ignore_index=True)
+        #previous = concat([previous, data[file]], axis=1, ignore_index=True)
+
+        #previous = concat([previous, data[file]], axis=1, join_axes=[previous.index])
+
+
+        # nah nah nah
+        #previous = previous.append(data[file],axis=1, ignore_index=True)
+        #previous = append([previous, data[file]], axis=1, ignore_index=True)
+        #previous = concat([previous, data[file]], axis=1, ignore_index=True, join_axes=[previous.index])
+
+        print "merge in " + file + ":" + str(previous)
         
         #df1.drop_duplicates(cols=[3], inplace=True)
 
