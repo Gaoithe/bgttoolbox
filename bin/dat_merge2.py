@@ -9,6 +9,7 @@ from datetime import datetime
 '''
 Read multiple gnuplot space seperated .dat files (date + ifconfig datfiles), space seperated.
 Combine rows from same date + time.
+ DONE. finally. phew. KISS first use small data files work out library/pandas functions.
 Add TX and RX bytes total.
 Write out a combined dat file.
 
@@ -68,11 +69,15 @@ for key in coldict:
     totals[key]=0 
 #import csv
 from pandas import concat, merge, ordered_merge, read_table, read_csv, groupby
-previousB = False
+mergedB = False
+
+rxcols = []
+txcols = []
 
 for file in args.inputfiles:
 
     data[file] = read_table(file, sep=r" ", header=None)
+    #data[file] = read_table(file, sep=r" ", header=None, names=['rx','rxerr','rxdrop','tx','txerr','txdrop','ip'])
     #data[file].columns = data[file].columns.str.join(file)
     #data[file] = data[file].rename(columns=lambda x: str(x)+"_foo", inplace=True)
     
@@ -90,61 +95,52 @@ for file in args.inputfiles:
     #print tx.describe()
 
 
-    if previousB:
-        #kw1 = dict(how='left', \
-        #           left_on=[3,4], \
-        #           right_on=[1,1], \
-        #           suffixes=('l', 'r'))
-
+    if mergedB:
         # Merge in by date(0,0). outer merge to keep all data points.
-        previous = merge(previous, data[file], how='outer', left_on=0, right_on=0)##, ignore_index=True)
-        #previous = merge(previous, data[file], how='left', on=0)##, ignore_index=True)
-        #previous = previous.join(data[file], on=1, how='left', rsuffix="a")
-
-        #previous = previous.append(data[file])
-
-        #previous = ordered_merge(previous, data[file], fill_method='ffill')
-
-        # concat with axis=1, ignore_index=True GOOD but want date(index column) merged.
-        #previous = concat([previous, data[file]], axis=1, ignore_index=True)
-        #previous = concat([previous, data[file]], axis=1, ignore_index=True)
-
-        #previous = concat([previous, data[file]], axis=1, join_axes=[previous.index])
-
-
-        # nah nah nah
-        #previous = previous.append(data[file],axis=1, ignore_index=True)
-        #previous = append([previous, data[file]], axis=1, ignore_index=True)
-        #previous = concat([previous, data[file]], axis=1, ignore_index=True, join_axes=[previous.index])
-
-        print "merge in " + file + ":" + str(previous)
-        
-        #df1.drop_duplicates(cols=[3], inplace=True)
-
-        #print df1[[0,1]]
+        merged = merge(merged, data[file], how='outer', left_on=0, right_on=0)##, ignore_index=True)
+        print "merge in " + file + ":" + str(merged)
 
     else:
-        
-        previous = data[file]
-        previousB = True
-        
-    #in_file = open(file)
-    #a_list = []
-    #a_list.append(file)
-    #csv_reader = csv.reader(in_file, delimiter=' ')
-    #for row in csv_reader:
-    #    a_list.append(row[2])
-    ## Convert the list to a generator object
-    #o_data.append((n for n in a_list))
-    #file_h.close()
+        merged = data[file]
+        mergedB = True
 
-    #for line in in_file:
-    #   line_list = line.split()
-    #   #print line_list     # get device or inet address . . . 
-    #   if len(line_list) >= 4:
+    rxcols.append(list(merged)[1])
+    txcols.append(list(merged)[4])
 
+print rxcols
+print txcols
 
-df1.to_csv(args.outfile, sep=' ')
+merged['SUMALL'] = merged.sum(axis=1)
+print list(merged)
+allcols = list(merged)
+
+import re
+
+rxcols = [1]
+print rxcols
+print rxcols
+rxcols += filter(lambda x:re.search(r'^1_', x), allcols)
+print rxcols
+
+txcols = [4]
+txcols += filter(lambda x:re.search(r'^4_', x), allcols)
+print txcols
+
+rxcols_int = [8]
+rxcols_int += filter(lambda x:re.search(r'^8_', x), allcols)
+print rxcols_int
+
+txcols_int = [11]
+txcols_int += filter(lambda x:re.search(r'^11_', x), allcols)
+print txcols_int
+
+merged['rxsum'] = merged[[1,'1_x','1_y']].sum(axis=1)
+merged['rxtot'] = merged[rxcols].sum(axis=1)
+merged['txtot'] = merged[txcols].sum(axis=1)
+print merged.describe()
+
+merged.to_csv(args.outfile, sep=' ', na_rep=0, index=False, header=False)
+
 
 if not os.path.isfile(args.outfile):
     out_file = open(args.outfile,'w+')
