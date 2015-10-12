@@ -218,7 +218,8 @@ if not os.path.isfile(datafile):
 
              rx_bytes = line_list[4]
              delta = 0
-             if int(old_rx_bytes[address]) > 0:
+             # also check int(rx_bytes) >= as upon host restart values go back to 0.
+             if int(old_rx_bytes[address]) > 0 and int(rx_bytes) > int(old_rx_bytes[address]):
                 delta = int(rx_bytes) - int(old_rx_bytes[address])
              #print "DEBUG addr:%s rx:%s old:%s d:%s" % (address,rx_bytes,old_rx_bytes[address],delta)
              old_rx_bytes[address] = rx_bytes
@@ -232,7 +233,7 @@ if not os.path.isfile(datafile):
           if address and address != "meh" and line_list[0] == 'TX' and line_list[1] == 'packets':
              tx_bytes = line_list[4]
              delta = 0
-             if int(old_tx_bytes[address]) > 0:
+             if int(old_tx_bytes[address]) > 0 and int(rx_bytes) > int(old_tx_bytes[address]):
                 delta = int(tx_bytes) - int(old_tx_bytes[address])
              old_tx_bytes[address] = tx_bytes
              totals['TX'] += delta
