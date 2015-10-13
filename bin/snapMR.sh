@@ -30,7 +30,7 @@ for h in $HOSMCN; do
     #notdone=$?
     notdone=${PIPESTATUS[0]}
     # ssh exits with the exit status of the remote command or with 255 if an error occurred.
-    echo error=$notdone iTryHost=$iTryHost iTryTunnelUp=$iTryTunnelUp
+    echo return=$notdone iTryHost=$iTryHost iTryTunnelUp=$iTryTunnelUp
     if [[ $notdone == 255 && $iTryTunnelUp < 2 ]] ; then
         # # the annoying thing is that if password prompt and we are too slow it fails, falls in here and restarts tunnel
         mauritania_tunnel down && mauritania_tunnel up
