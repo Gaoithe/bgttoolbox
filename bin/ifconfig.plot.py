@@ -97,6 +97,22 @@ lo: flags=73<UP,LOOPBACK,RUNNING>  mtu 65536
 # remove the .dat file to regenerate .csv and the .dat file
 
 
+
+DIFFERENT FORMAT: fedora 19
+Tue 13 Oct 16:37:25 UTC 2015
+
+eth0      Link encap:Ethernet  HWaddr A4:BA:DB:FA:84:0A  
+          inet addr:192.168.128.28  Bcast:192.168.128.255  Mask:255.255.255.0
+          inet6 addr: fe80::a6ba:dbff:fefa:840a/64 Scope:Link
+          UP BROADCAST RUNNING MULTICAST  MTU:1500  Metric:1
+          RX packets:61646152 errors:0 dropped:44796 overruns:0 frame:0
+          TX packets:78728426 errors:0 dropped:10 overruns:0 carrier:0
+          collisions:0 txqueuelen:1000 
+          RX bytes:35180526957 (32.7 GiB)  TX bytes:89304838067 (83.1 GiB)
+          Interrupt:16 
+
+
+
 '''
 
 # options for script
@@ -154,13 +170,11 @@ if not os.path.isfile(datafile):
     csv_file = open(csvfile,'w+')
     first_address = "meh"
     last_address = "meh"
-    address = "meh"
+    address = None
     ifSet=set([])
     addressSet=set([])
-    #old_rx_bytes=0
-    #old_tx_bytes=0
-    old_rx_bytes={}
-    old_tx_bytes={}
+    old_rxtx_bytes={}
+    rxtx_data={}
     totals={}
     totals['RX']=0
     totals['TX']=0
@@ -169,8 +183,29 @@ if not os.path.isfile(datafile):
     currentDate = ""
 
     for line in in_file:
+
+       line = line.rstrip() # chomp
+
+       # handle different ifconfig format :-P
+       #cat $f | sed -r "s/(packets|errors|dropped|overruns|frame|bytes):/\1 /g" >> ${vm}_ALLDATA
+       line = re.sub(r'\s+', r' ', line)
+       line = re.sub(r'(packets|errors|dropped|overruns|frame|bytes):', r'\1 ', line)
+       line = re.sub(r'addr:', r'', line)
+       line = re.sub(r'\s+Bcast:', r' broadcast ', line)
+       line = re.sub(r'\s+Mask:', r' netmask ', line)
+       #inet 10.109.6.13  netmask 255.255.255.224  broadcast 10.109.6.31
+       #RX packets 14633197  bytes 28276332496 (26.3 GiB)
+       #RX errors 0  dropped 188  overruns 0  frame 0
+       #TX packets 19084622  bytes 4121498235 (3.8 GiB)
+       #TX errors 0  dropped 0 overruns 0  carrier 0  collisions 0
+       #inet addr:192.168.128.28  Bcast:192.168.128.255  Mask:255.255.255.0
+       #RX packets:61646152 errors:0 dropped:44796 overruns:0 frame:0
+       #TX packets:78728426 errors:0 dropped:10 overruns:0 carrier:0
+       #RX bytes:35180526957 (32.7 GiB)  TX bytes:89304838067 (83.1 GiB)
+
        line_list = line.split()
-       #print line_list     # get device or inet address . . . 
+       #print "DEBUG:" + str(line_list)     # get device or inet address . . . 
+
        if len(line_list) >= 4:
           #print "split: %s+%s+%s+%s" % (line_list[0],line_list[1],line_list[2],line_list[3])
           #Sun Oct  4 07:48:48 UTC 2015
@@ -178,72 +213,118 @@ if not os.path.isfile(datafile):
              currentDateStr = line.rstrip() # chomp
              #print currentDateStr
              #currentDateX = datetime.strptime(currentDateStr, "%a %b %d %H:%M:%S UTC %Y")
-             currentDateX = datetime.strptime(currentDateStr, "%a %b %d %H:%M:%S %Z %Y")
+             try:
+                currentDateX = datetime.strptime(currentDateStr, "%a %b %d %H:%M:%S %Z %Y")
+             except:
+                #ValueError: time data 'Tue 13 Oct 16:37:15 UTC 2015' does not match format '%a %b %d %H:%M:%S %Z %Y'
+                currentDateX = datetime.strptime(currentDateStr, "%a %d %b %H:%M:%S %Z %Y")
+                   
              #currentDateX = parser.parse(currentDateStr);
              currentDate = currentDateX.strftime('%Y-%m-%d %H:%M:%S')
              print(currentDate + "\r"),
 
              #### END of one chunk detect. Write totals, END OF LINE, next date
+             # write last address 1of2, TODO: hmmm. not the best place for doing this
+             if address and address != "meh":
+                write_data(out_file,csv_file,address)
+             address = None
              if last_address != "meh":
                  write_data(out_file,csv_file,str(totals['RX']))
                  write_data(out_file,csv_file,str(totals['TX']))
                  write_data(out_file,csv_file,"\n")
+
              write_data(out_file,csv_file,"\"" + currentDate + "\"")
              totals['RX']=0
              totals['TX']=0
 
           if line_list[0] == 'inet':
-             if line_list[1].startswith("10.109."):
-                address = line_list[1]
-                ifSet.add(address)
-             else:
-                address = "meh"
 
-          if address and address != "meh" and line_list[0] == 'RX' and line_list[1] == 'packets':
+             # write last address 2of2, TODO: hmmm. not the best place for doing this
+             if address and address != "meh":
+                write_data(out_file,csv_file,address)
+
+             # SELECT which addresses here
+             # Write out data just for selected addresses, edit the startswith line to select different:
+             address = line_list[1]
+             ifSet.add(address)
+             #print "DEBUG: GOT addr=%s" % (address)
+             #if line_list[1].startswith("10.109."):
+             #   address = line_list[1]
+             #   ifSet.add(address)
+             #else:
+             #   address = "meh"
+
+             for attrib in [ "bytes", "errors", "dropped" ]:
+                 rxtx_data['RX',address,attrib] = None
+                 rxtx_data['TX',address,attrib] = None
+
+
+          if address and address != "meh" and line_list[0] == 'RX' or line_list[0] == 'TX':
+
+             rxtx = line_list[0]
+
+             # handle at least two styles of ifconfig output:
+
+             #inet 10.109.6.13  netmask 255.255.255.224  broadcast 10.109.6.31
+             #RX packets 14633197  bytes 28276332496 (26.3 GiB)
+             #RX errors 0  dropped 188  overruns 0  frame 0
+             #TX packets 19084622  bytes 4121498235 (3.8 GiB)
+             #TX errors 0  dropped 0 overruns 0  carrier 0  collisions 0
+
+             #inet addr:192.168.128.28  Bcast:192.168.128.255  Mask:255.255.255.0
+             #RX packets:61646152 errors:0 dropped:44796 overruns:0 frame:0
+             #TX packets:78728426 errors:0 dropped:10 overruns:0 carrier:0
+             #RX bytes:35180526957 (32.7 GiB)  TX bytes:89304838067 (83.1 GiB)
+
+             ### rxtx_bytes = line_list[4]
+             last = "meh"
+             for item in line_list:
+                 if item == 'TX' or item == 'RX':
+                     rxtx = item
+                 if last == "bytes" or last == "errors" or last == "dropped":
+                     if rxtx_data[rxtx,address,last]:
+                         print "ERROR: SKIPPED data point rxtx_data[%s,%s,%s]=%s" % (rxtx,address,last,rxtx_data[rxtx,address,last])
+                     rxtx_data[rxtx,address,last] = item
+                     #print "DEBUG: GOT data point rxtx_data[%s,%s,%s]=%s" % (rxtx,address,last,rxtx_data[rxtx,address,last])
+                 last=item
 
              # build up list of addresses, initialise old values for delta calc
+             # address adding here because we ignore interfaces without RX and TX stat values
              if address not in addressSet:
+                print "Add stats for address:%s" % address
                 last_address = address
                 addressList.append(address)
              addressSet.add(address)
              #print address
-             if not address in old_rx_bytes:
-                old_rx_bytes[address]=0
-             if not address in old_tx_bytes:
-                old_tx_bytes[address]=0
+             if not address in old_rxtx_bytes:
+                old_rxtx_bytes[address]=0
+                old_rxtx_bytes['RX',address]=0
+                old_rxtx_bytes['TX',address]=0
              if not first_address or first_address == "meh":
                 first_address = address
 
              # TODO: min and max and average RX calc ?here or better/more generic in gnuplot script
 
-             rx_bytes = line_list[4]
-             delta = 0
-             # also check int(rx_bytes) >= as upon host restart values go back to 0.
-             if int(old_rx_bytes[address]) > 0 and int(rx_bytes) > int(old_rx_bytes[address]):
-                delta = int(rx_bytes) - int(old_rx_bytes[address])
-             #print "DEBUG addr:%s rx:%s old:%s d:%s" % (address,rx_bytes,old_rx_bytes[address],delta)
-             old_rx_bytes[address] = rx_bytes
-             totals['RX'] += delta
-             #write_data(out_file,csv_file,rx_bytes)
-             write_data(out_file,csv_file,str(delta))
+             for rxtx in ['RX','TX']:
 
-          if address and address != "meh" and line_list[0] == 'RX' and line_list[1] == 'errors':
-             write_data(out_file,csv_file,line_list[2])
-             write_data(out_file,csv_file,line_list[4])
-          if address and address != "meh" and line_list[0] == 'TX' and line_list[1] == 'packets':
-             tx_bytes = line_list[4]
-             delta = 0
-             if int(old_tx_bytes[address]) > 0 and int(rx_bytes) > int(old_tx_bytes[address]):
-                delta = int(tx_bytes) - int(old_tx_bytes[address])
-             old_tx_bytes[address] = tx_bytes
-             totals['TX'] += delta
-             #write_data(out_file,csv_file,tx_bytes)
-             write_data(out_file,csv_file,str(delta))
-          if address and address != "meh" and line_list[0] == 'TX' and line_list[1] == 'errors':
-             write_data(out_file,csv_file,line_list[2])
-             write_data(out_file,csv_file,line_list[4])
-             write_data(out_file,csv_file,address)
+                 if rxtx_data[rxtx,address,"bytes"] and rxtx_data[rxtx,address,"errors"] and rxtx_data[rxtx,address,"dropped"]:
+                     rxtx_bytes = rxtx_data[rxtx,address,"bytes"]
+                     delta = 0
+                     # also check int(rxtx_bytes) >= as upon host restart values go back to 0.
+                     if int(old_rxtx_bytes[rxtx,address]) > 0 and int(rxtx_bytes) > int(old_rxtx_bytes[rxtx,address]):
+                         delta = int(rxtx_bytes) - int(old_rxtx_bytes[rxtx,address])
+                     old_rxtx_bytes[rxtx,address] = rxtx_bytes
+                     totals['RX'] += delta
+                     #print "DEBUG WRITE RX info addr:%s rx:%s old:%s d:%s" % (address,rxtx_bytes,old_rxtx_bytes[rxtx,address],delta)
+                     #write_data(out_file,csv_file,rxtx_bytes)
+                     write_data(out_file,csv_file,str(delta))
+                     write_data(out_file,csv_file,rxtx_data[rxtx,address,"errors"])
+                     write_data(out_file,csv_file,rxtx_data[rxtx,address,"dropped"])
+                     for attrib in [ "bytes", "errors", "dropped" ]:
+                         rxtx_data[rxtx,address,attrib] = None
 
+       # end for loop
+       #foobar  
 
     in_file.close()
     out_file.close()
@@ -438,7 +519,7 @@ set datafile sep whitespace
 
 
 # PLOT: total RX and TX.
-    before_gnuplot_lines = ''' 
+before_gnuplot_lines = ''' 
 datafile = "%s"
 csvfile = "%s"
 set datafile sep ','
@@ -459,7 +540,7 @@ set datafile sep whitespace
 
 plot_string_tot = ' datafile using 1:%d title "RX bytes total", datafile using 1:%d title "TX bytes total"' % (i*7+2,i*7+3)
 #plot_script_name = write_gnuplot_script("combitot",plot_string_tot + plot_strings_all):
-plot_script_name = write_gnuplot_script("",plot_string_tot + "," + plot_strings_all,before_gnuplot_lines)
+plot_script_name = write_gnuplot_script("",plot_string_tot + "," + plot_strings_all, before_gnuplot_lines)
 
 run_gnuplot_script(plot_script_name)
 

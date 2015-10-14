@@ -37,7 +37,7 @@ for vm in $(ls); do
             rm -f ${vm}_ALLDATA
             for f in $(ls -tr *-ifconfig); do
                 echo f=$f;
-                cat $f >> ${vm}_ALLDATA
+                cat $f | sed -r "s/(packets|errors|dropped|overruns|frame|bytes):/\1 /g" >> ${vm}_ALLDATA
             done
         fi
         #~/bin/iostat.readwrite.cass.py -i ${vm}_ALLDATA -o ${vm}_RW_ALLDATA.png -n "${vm}_RW_ALLDATA" 2>/dev/null
