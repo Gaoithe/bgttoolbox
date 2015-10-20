@@ -2,9 +2,10 @@
 
 DTS=$(date +%Y%m%d%H%M)
 #exec 3>&1 4>&2 > srunNG_avail_${DTS}.log 2>&1
-LOG=srunNG_${DTS}.log
+LOG=snapLOG/srunNG_${DTS}.log
 PERIOD=1d
 SPERIOD=1m
+SPERIOD=1s
 
 source srunNGHOSTS.sh
 #NG_USSD_HOSTS="10.159.50.81 10.159.50.82 10.159.50.83"
