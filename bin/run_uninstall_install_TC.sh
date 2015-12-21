@@ -1,4 +1,6 @@
 
+# Disclaimer: This script is an example test script, it is NOT SUPPORTED for use. 
+#             Use this script at your own risk.
 
 # UNINSTALL RPMs and clear out stuff (if needed)
 # see also notes_bluesky_gandhi, notes_building.txt, notes_garv_vb-27..., ~/notes_gui_crash
