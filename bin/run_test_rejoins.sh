@@ -34,14 +34,32 @@ date
 
 sci -list
 
+date
 echo "RUN $THISNODE Doing stop"
+touch .run_stop_rejoin_STOP
 sci -stop
-
 OCOUNT=0
-LASTONE=
-while [[ "$LASTONE" == "" ]] ; do
+QUIET=0
+OLDTAIL=
+LASTONE=$(tail samson.stdout |grep sysstat.sh)
+MCICHECK1=$(mci list |grep $THISNODE |grep -vP "Stopped")
+while [[ "$LASTONE" == "" &&  -n "$MCICHECK1" ]] ; do
   LASTONE=$(tail samson.stdout |grep sysstat.sh)
+  MCICHECK1=$(mci list |grep $THISNODE |grep -vP "Stopped")
+  echo -n .
   sleep 1
+
+  NEWTAIL=$(tail samson.stdout)
+  if [[ "$OLDTAIL" == "$NEWTAIL" ]]; then
+      ((QUIET++))
+      if (( QUIET > 15 )) ; then
+          sci -list
+          echo "ERROR: it is too quiet, process stopping stalled ? Need manual intervention."
+          exit -1
+      fi 
+  else
+      OLDTAIL="$NEWTAIL"
+  fi
 
   OLASTONE=$(tail samson.stdout |grep personality.sh)
   if [[ "$OLASTONE" != "" ]] ; then
@@ -57,23 +75,49 @@ while [[ "$LASTONE" == "" ]] ; do
       kill -9 $PID
     fi
   fi
-
 done
 #21-Nov-14 17:30:55.757               sysstat.sh: exit status 0
 
+
 date
 echo "RUN $THISNODE Doing rejoin"
-rm -rf cconf-dir.old  dfl-dir.old
-sci -rejoin
+# TODO: get dfl-dir from cconf
+rm -rf cconf-dir.old dfl-dir.old /data/dfl-dir.old
+touch .run_stop_rejoin_REJOIN
+RCHECK=$(sci -rejoin)
+#### Cannot rejoin while /data/dfl-dir.old exists
+if [[ -n "$RCHECK" ]] ; then 
+    echo "ERROR: $RCHECK, need manual intervention."
+    exit -1
+fi
 
 sci -check
 sci -list
 tail samson.stdout
+if [[ samson.stderr -nt .run_stop_rejoin_REJOIN ]] ; then 
+    echo "WARNING: there is something new in samson.stderr"
+    ls -alstr samson.stderr 
+    cat samson.stderr
+fi
 
 LASTONE=
 while [[ "$LASTONE" == "" ]] ; do
-  tail -1 samson.stdout
+  LINFO="$INFO"
+  INFO=$(tail -1 samson.stdout)
+  if [[ "$INFO" != "$LINFO" ]]; then
+      echo $INFO
+      QUIET=0
+  else 
+      ((QUIET++))
+      if (( QUIET > 50 )) ; then
+          sci -list
+          echo "ERROR: it is too quiet, process starting stalled ? Need manual intervention."
+          exit -1
+      fi 
+  fi
+ 
   LASTONE=$(tail samson.stdout |grep cumulus_mediator.sh)
+  echo -n .
   sleep 1
 done
 # Are processes really started?

@@ -1,5 +1,8 @@
 #!/bin/bash
 
+# Disclaimer: This script is an example test script, it is NOT SUPPORTED for use. 
+#             Use this script at your own risk.
+  
 [[ $(whoami) != 'omn' ]] && { echo "ERROR: must be run as omn"; exit -1; }
 
 # as omn user:   START hygiene processes  solo_start on first node and rejoin on others

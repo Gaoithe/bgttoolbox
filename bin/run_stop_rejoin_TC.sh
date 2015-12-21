@@ -21,9 +21,9 @@ echo THISNODE=$THISNODE OTHERNODES=$OTHERNODES
 date
 #mci list
 # if the other node(s) is(are) not all in "UNKNOWN" state then don't do anything
-MCICHECK1=$(mci list |grep $THISNODE |grep -v Running)
+MCICHECK1=$(mci list |grep $THISNODE |grep -vP "Running|Stopped")
 if [[ -n "$MCICHECK1" ]] ; then
-  echo MCI processes on THIS node not all in Running state, need manual intervention. MCICHECK1=$MCICHECK1
+  echo MCI processes on THIS node not all in Running(or Stopped) state, need manual intervention. MCICHECK1=$MCICHECK1
   exit -1
 fi
 MCICHECK2=$(mci list |grep -v $THISNODE |grep -v UNKNOWN)
@@ -39,13 +39,30 @@ fi
 #################################################################
 date
 echo "RUN $THISNODE Doing stop"
+touch .run_stop_rejoin_STOP
 sci -stop
 OCOUNT=0
-LASTONE=
-while [[ "$LASTONE" == "" ]] ; do
+QUIET=0
+OLDTAIL=
+LASTONE=$(tail samson.stdout |grep sysstat.sh)
+MCICHECK1=$(mci list |grep $THISNODE |grep -vP "Stopped")
+while [[ "$LASTONE" == "" &&  -n "$MCICHECK1" ]] ; do
   LASTONE=$(tail samson.stdout |grep sysstat.sh)
+  MCICHECK1=$(mci list |grep $THISNODE |grep -vP "Stopped")
   echo -n .
   sleep 1
+
+  NEWTAIL=$(tail samson.stdout)
+  if [[ "$OLDTAIL" == "$NEWTAIL" ]]; then
+      ((QUIET++))
+      if (( QUIET > 15 )) ; then
+          sci -list
+          echo "ERROR: it is too quiet, process stopping stalled ? Need manual intervention."
+          exit -1
+      fi 
+  else
+      OLDTAIL="$NEWTAIL"
+  fi
 
   OLASTONE=$(tail samson.stdout |grep personality.sh)
   if [[ "$OLASTONE" != "" ]] ; then
@@ -70,8 +87,14 @@ done
 #################################################################
 date
 echo "RUN $THISNODE Doing rejoin"
-rm -rf cconf-dir.old dfl-dir.old; 
-sci -rejoin
+rm -rf cconf-dir.old dfl-dir.old /data/dfl-dir.old; 
+touch .run_stop_rejoin_REJOIN
+RCHECK=$(sci -rejoin)
+#### Cannot rejoin while /data/dfl-dir.old exists
+if [[ -n "$RCHECK" ]] ; then 
+    echo "ERROR: $RCHECK, need manual intervention."
+    exit -1
+fi
 sci -check
 sci -list
 
@@ -92,16 +115,30 @@ sci -list
 #[[ "$MY_JMX_PORT" != "$CA_JMX_PORT" ]] && echo "MAUGH frurggggh ERROR: cassandra port WRONG in $CASENVFILE file, it is $CA_JMX_PORT, it should be $MY_JMX_PORT"
 #echo MY_JMX_PORT=$MY_JMX_PORT CASENVFILE=$CASENVFILE CA_JMX_PORT=$CA_JMX_PORT
 
-ls -alstr samson.stderr 
-tail samson.stderr
+if [[ samson.stderr -nt .run_stop_rejoin_REJOIN ]] ; then 
+    echo "WARNING: there is something new in samson.stderr"
+    ls -alstr samson.stderr 
+    cat samson.stderr
+fi
 #tail -f samson.stdout
 tail samson.stdout
 
+QUIET=0
 LASTONE=
 while [[ "$LASTONE" == "" ]] ; do
   LINFO="$INFO"
   INFO=$(tail -1 samson.stdout)
-  [[ "$INFO" != "$LINFO" ]] && echo $INFO
+  if [[ "$INFO" != "$LINFO" ]]; then
+      echo $INFO
+      QUIET=0
+  else 
+      ((QUIET++))
+      if (( QUIET > 50 )) ; then
+          sci -list
+          echo "ERROR: it is too quiet, process starting stalled ? Need manual intervention."
+          exit -1
+      fi 
+  fi
   LASTONE=$(tail samson.stdout |grep cumulus_mediator.sh)
   echo -n .
   sleep 1
