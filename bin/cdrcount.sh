@@ -1,4 +1,8 @@
 #!/bin/bash
+
+# Disclaimer: This script is an example test script, it is NOT SUPPORTED for use. 
+#             Use this script at your own risk.
+
 DAYSAGO=1
 SHORTCODE="565 300 777"
 [[ ! -z $1 ]] && DAYSAGO=$1 && shift

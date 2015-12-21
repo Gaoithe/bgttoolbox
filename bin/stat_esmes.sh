@@ -1,5 +1,8 @@
 #!/bin/bash
 
+# Disclaimer: This script is an example test script, it is NOT SUPPORTED for use. 
+#             Use this script at your own risk.
+
 OCDRSDIR=/data/operations_cdrs
 STATDIR=/logs/stats/
 

@@ -1,5 +1,8 @@
 #! /bin/bash
 
+# Disclaimer: This script is an example test script, it is NOT SUPPORTED for use. 
+#             Use this script at your own risk.
+
 # A script to convert short-term stats into plaintext format and those those in windstat user's directory for QoS team to download
 
 DEST_DIR=/logs/stats
