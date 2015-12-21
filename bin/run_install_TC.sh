@@ -146,6 +146,10 @@ cat /apps/omn/etc/samson.hostname
 # lib/libtbx-v2-79-27.so TBXVER=v2-79-27 TBXVDIR=v2/79/27
 cd /apps/omn
 TBXVDIR=$(ls lib/libtbx-*.so|sed "s/[^-]*\-//;s/\..*//;s/-/\//g")
+
+# Disclaimer: This script is an example test script, it is NOT SUPPORTED for use. 
+#             Use this script at your own risk.
+
 #echo TBXVER=$TBXVER
 TBXSDIR=/slingshot/tbx/$TBXVDIR/lnk/linux.fc9
 # if dev local build . . . 
