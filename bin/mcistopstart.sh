@@ -7,7 +7,7 @@
 
 plist="reafer gummi g2c mist_sti sparta h2c q2c quasar"
 plist="careca riquelme reafer dinni g2c c2g quasar"
-plist=$1
+plist=$*
 [[ -z $plist ]] && echo "error: pass list of process names to script." && echo "usage: $0 reafer dinni g2c c2g quasar" && exit
 
 bin/mci list |grep -E $(echo $plist|tr " " "|") 
@@ -24,4 +24,5 @@ for p in $plist; do
 done
 
 
+bin/bci -listals
 

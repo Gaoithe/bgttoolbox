@@ -68,6 +68,8 @@ DTS=$(date +%Y%m%d%H%M%S )
 mv ping.log ping_old_${DATETIME}.log
 
 while true; do 
+   ### -W 10 . . .  mileage seems to vary. Does it really exit? default seems not to be 10, it didn't exit, we saw 30sec pause in ping log
+   ### anyway, fping actually seems to be the tool that should be used.
    ping -W 10 -D -I eth2 $GW >> ping.log
    error=$?
    # if ping exits there is a problem

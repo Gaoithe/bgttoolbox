@@ -3,6 +3,11 @@
 # Disclaimer: This script is an example test script, it is NOT SUPPORTED for use. 
 #             Use this script at your own risk.
 
+# seconds after samson activity until stop inactivity or quiet in log
+MAGIC_WAIT_FOR_STOP_QUIET=30
+MAGIC_WAIT_FOR_STOP_COUNT=5
+MAGIC_WAIT_FOR_REJOIN_COUNT=50
+
 [[ $(whoami) != 'omn' ]] && { echo "ERROR: must be run as omn."; exit -1; }
 
 SCISTATE=$(./bin/sci -check)
@@ -55,7 +60,7 @@ while [[ "$LASTONE" == "" &&  -n "$MCICHECK1" ]] ; do
   NEWTAIL=$(tail samson.stdout)
   if [[ "$OLDTAIL" == "$NEWTAIL" ]]; then
       ((QUIET++))
-      if (( QUIET > 15 )) ; then
+      if (( QUIET > $MAGIC_WAIT_FOR_STOP_QUIET )) ; then
           sci -list
           echo "ERROR: it is too quiet, process stopping stalled ? Need manual intervention."
           exit -1
@@ -67,8 +72,9 @@ while [[ "$LASTONE" == "" &&  -n "$MCICHECK1" ]] ; do
   OLASTONE=$(tail samson.stdout |grep personality.sh)
   if [[ "$OLASTONE" != "" ]] ; then
     ((OCOUNT++))
-    if (( $OCOUNT > 5 )) ; then 
-      echo "ERROR: PROBLEM: sci -stop stuck and didn't stop something . . . sysstat.sh usually. KILL KILL KILL"
+    if (( $OCOUNT > $MAGIC_WAIT_FOR_STOP_COUNT )) ; then 
+      echo "ERROR: sci -stop is stuck?, maybe need to kill sysstat.sh"
+      echo "MCICHECK1=$MCICHECK1 LASTONE=$LASTONE"
       ps -fu omn
       PSINFO=$(ps -fu omn |grep sysstat.sh |grep -v grep)
       echo $PSINFO
@@ -133,7 +139,7 @@ while [[ "$LASTONE" == "" ]] ; do
       QUIET=0
   else 
       ((QUIET++))
-      if (( QUIET > 50 )) ; then
+      if (( QUIET > $MAGIC_WAIT_FOR_REJOIN_COUNT )) ; then
           sci -list
           echo "ERROR: it is too quiet, process starting stalled ? Need manual intervention."
           exit -1
@@ -143,6 +149,11 @@ while [[ "$LASTONE" == "" ]] ; do
   echo -n .
   sleep 1
 done
+
+
+rm -rf cconf-dir.old dfl-dir.old /data/dfl-dir.old; 
+
+
 # Are processes really started?
 date
 sci -list

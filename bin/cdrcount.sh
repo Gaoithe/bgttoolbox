@@ -15,6 +15,13 @@ for d in $DAYSAGO; do
   YDTS=$(date +%d%m%y -d "$((d+1)) day ago")
   TDTS=$(date +%d%m%y -d "$((d-1)) day ago")
   CDRDTS=$(date +%Y%m%d -d "$d day ago")
+
+  SUM=$(./scripts/cluster_cmd.sh "cat assure_test_logs/ussd/Assure_tcussd0*_${CDRDTS}* |wc -l" |grep ^[0-9]*$ |sed -r ': rep;/.*/ {N;s/\n/+/g;t rep}')
+  echo DATE=$ODTS Assure count on each node SUM=$SUM ans=$(($SUM)), NOT date exclusive as date-time stamp in assure is unix time format.
+  SUM=$(./scripts/cluster_cmd.sh "grep '^869,261,.*' assure_test_logs/ussd/Assure_tcussd0*_${CDRDTS}* |wc -l" |grep ^[0-9]*$ |sed -r ': rep;/.*/ {N;s/\n/+/g;t rep}')
+  echo DATE=$ODTS Assure count ^869,261, on each node SUM=$SUM ans=$(($SUM)), NOT date exclusive as date-time stamp in assure is unix time format.
+
+
   ## ODTS = OPS CDR DTS, Y = yesterday T = tomorrow (relative to ODTS/DAYSAGO)
   OFILE=/tmp/cdrcount_${ODTS}.txt
   YFILE=/tmp/cdrcount_${YDTS}.txt
@@ -33,9 +40,9 @@ for d in $DAYSAGO; do
       ./scripts/cluster_cmd.sh "cat /data/operations_cdrs/OPS_CDR_${TDTS}* |grep -P '^THREAD_ID|USSD_text' |sed 's/with: /WITHCHOMP/'|sed -r '$!N;s/\n[^T][^H][^R][^E][^A][^D].*USSD_dlg_id:/CHOMPYSTUFF USSD_dlg_id:/;P;D' >$TFILE"
   fi
 
-  OCOUNT=$(./scripts/cluster_cmd.sh "cat $OFILE |grep -P 'MSG_TYPE:(869|869|358|359|360|361).*SUB_TIME:${CDRDTS}'" |wc -l)
-  YCOUNT=$(./scripts/cluster_cmd.sh "cat $YFILE |grep -P 'MSG_TYPE:(869|869|358|359|360|361).*SUB_TIME:${CDRDTS}'" |wc -l)
-  TCOUNT=$(./scripts/cluster_cmd.sh "cat $TFILE |grep -P 'MSG_TYPE:(869|869|358|359|360|361).*SUB_TIME:${CDRDTS}'" |wc -l)
+  OCOUNT=$(./scripts/cluster_cmd.sh "cat $OFILE |grep -P 'MSG_TYPE:(869|868|358|359|360|361).*SUB_TIME:${CDRDTS}'" |wc -l)
+  YCOUNT=$(./scripts/cluster_cmd.sh "cat $YFILE |grep -P 'MSG_TYPE:(869|868|358|359|360|361).*SUB_TIME:${CDRDTS}'" |wc -l)
+  TCOUNT=$(./scripts/cluster_cmd.sh "cat $TFILE |grep -P 'MSG_TYPE:(869|868|358|359|360|361).*SUB_TIME:${CDRDTS}'" |wc -l)
   echo d=$d CDRDTS=$CDRDTS $ODTS Y=$YDTS T=$TDTS
   echo DATE=$ODTS TOTALS OCOUNT=$OCOUNT YCOUNT=$YCOUNT TCOUNT=$TCOUNT TOT=$((OCOUNT+YCOUNT+TCOUNT))
 
@@ -50,10 +57,26 @@ for d in $DAYSAGO; do
     #COUNTB1=$(./scripts/cluster_cmd.sh "cat \$(ls -tr /data/operations_cdrs/OPS_CDR_${ODTS}* |head -1)"|grep "MSG_TYPE:869"|grep -P "USSD_text:$shortcode\b" |grep -v $CDRDTS |wc -l)
     #COUNTB2=$(./scripts/cluster_cmd.sh "cat \$(ls -tr /data/operations_cdrs/OPS_CDR_${ODTS}* |tail -1)"|grep "MSG_TYPE:869"|grep -P "USSD_text:$shortcode\b" |grep -v $CDRDTS |wc -l)
     #echo DATE=$ODTS SHORTCODE=$shortcode COUNT=$COUNT COUNTB1=$COUNTB1 COUNTB2=$COUNTB2 TOT=$((COUNT+COUNTB1+COUNTB2)) add COUNTB1/B2 to preceding or foillowing days count
-    scOCOUNT=$(./scripts/cluster_cmd.sh "cat $OFILE |grep -P 'MSG_TYPE:(869|869|358|359|360|361).*SUB_TIME:${CDRDTS}' |grep -P 'USSD_text:$shortcode\b' " |wc -l)
-    scYCOUNT=$(./scripts/cluster_cmd.sh "cat $YFILE |grep -P 'MSG_TYPE:(869|869|358|359|360|361).*SUB_TIME:${CDRDTS}' |grep -P 'USSD_text:$shortcode\b' " |wc -l)
-    scTCOUNT=$(./scripts/cluster_cmd.sh "cat $TFILE |grep -P 'MSG_TYPE:(869|869|358|359|360|361).*SUB_TIME:${CDRDTS}' |grep -P 'USSD_text:$shortcode\b' " |wc -l)
+    scOCOUNT=$(./scripts/cluster_cmd.sh "cat $OFILE |grep -P 'MSG_TYPE:(869|868|358|359|360|361).*SUB_TIME:${CDRDTS}' |grep -P 'USSD_text:$shortcode\b' " |wc -l)
+    scYCOUNT=$(./scripts/cluster_cmd.sh "cat $YFILE |grep -P 'MSG_TYPE:(869|868|358|359|360|361).*SUB_TIME:${CDRDTS}' |grep -P 'USSD_text:$shortcode\b' " |wc -l)
+    scTCOUNT=$(./scripts/cluster_cmd.sh "cat $TFILE |grep -P 'MSG_TYPE:(869|868|358|359|360|361).*SUB_TIME:${CDRDTS}' |grep -P 'USSD_text:$shortcode\b' " |wc -l)
     echo DATE=$ODTS SHORTCODE=$shortcode scOCOUNT=$scOCOUNT scYCOUNT=$scYCOUNT scTCOUNT=$scTCOUNT TOT=$((scOCOUNT+scYCOUNT+scTCOUNT))
+
+    #SUM=$(./scripts/cluster_cmd.sh  'cat assure_test_logs/ussd/Assure_tcussd0*_${CDRDTS}* '" |grep -P '\b$shortcode\b,.*,.*,.*,.*,.*,.*,.*,.*,$'|wc -l" |grep ^[0-9]*$ |sed -r ': rep;/.*/ {N;s/\n/+/g;t rep}')
+    SUM=$(./scripts/cluster_cmd.sh  'cat assure_test_logs/ussd/Assure_tcussd0*_${CDRDTS}* '" |grep -P '869,261,.*\b$shortcode\b,.*,.*,.*,.*,.*,.*,.*,.*,$'|wc -l" |grep ^[0-9]*$ |sed -r ': rep;/.*/ {N;s/\n/+/g;t rep}')
+    echo DATE=$ODTS Assure count on each node SHORTCODE=$shortcode SUM=$SUM ans=$(($SUM)), NOT date exclusive as date-time stamp in assure is unix time format.
+
   done
 done
 
+
+#[tcussd03] Running.. cat assure_test_logs/ussd/Assure_tcussd0*_20151219* |grep -P '\b540\b,.*,.*,.*,.*,.*,.*,.*,.*,$' |sed 's/^\([^,]*,[^,]*\),.*/\1/' |sort |uniq -c
+#     25 358,102
+#     18 359,103
+#      9 361,105
+#      8 869,0
+#     12 869,261
+#[omn@tcussd01 ~]$ #
+#
+#THE MAGIC NUMBERS:
+#      2 869,261
