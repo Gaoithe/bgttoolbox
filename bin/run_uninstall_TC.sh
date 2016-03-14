@@ -2,13 +2,20 @@
 
 [[ $(whoami) != 'root' ]] && { echo "ERROR: must be run as root"; exit -1; }
 
+[[ -z $HOST ]] && HOST=$(cat /VHOST)
+[[ -z $HOST ]] && [[ $? != 0 ]] && HOST=$(hostname)
+
+echo ==============================================
+echo ========== UN-INSTALLING HOST=$HOST ==========
+echo ==============================================
+
 # UNINSTALL RPMs and clear out stuff (if needed)
 # see also notes_bluesky_gandhi, notes_building.txt, notes_garv_vb-27..., ~/notes_gui_crash
 
 #as omn user:
 su - omn -c "ps -fu omn"
 #mci list; mci stop all; mci list; 
-su - omn -c "sci -list; sci -stop; sleep 30; sci -check; sci -quit"
+su - omn -c "{ sci -list; sci -stop; sleep 30; sci -check; sci -quit }|grep -Ev 'Cannot open|that samson is running'" 
 #sudo -c stop samson
 
 DTS=$(date +%Y%m%d_%H%M); 
@@ -19,9 +26,12 @@ true && su - omn -c "tar -jcvf oldlog/cconf-dir_${DTS}.tbz cconf-dir"
 
 
 #### when scripts/rpm install goes wrong it's really awkward. :-P
-PIDS=$(pstree -anp |grep -A1 run_uninstall |grep -v grep|sed s/.*,// |grep -v -P "^(--|//|grep)$" |cut -d" " -f 1)
+pstree -anp |grep -A1 run_uninstall_TC.sh|grep -vE "grep|pstree|sshd|$$|$PPID"
+echo me=$$ mommy=$PPID
+PIDS=$(pstree -anp |grep -A1 run_uninstall_TC.sh |grep -vE "grep|pstree|sshd|$$|$PPID"|sed s/.*,// |grep -v -P "^(--|//|grep)$" |cut -d" " -f 1)
 if [[ ! -z $PIDS ]] ; then
    echo "WARNING: old run install script(s) hanging around, killing it/them . . . "
+   echo "PIDS=$PIDS"
    kill $PIDS
    kill -9 $PIDS
 fi
@@ -59,7 +69,10 @@ if [[ ! -z $(ls /var/lib/rpm/__db.* 2>/dev/null) ]] ; then
 fi
 
 # as root
-echo "UN-INSTALLING OMN rpms"
+echo ==============================================
+echo ========== UN-INSTALLING OMN RPMs ============
+echo ==============================================
+
 # rm -rf /var/lib/rpm/__db.000 # remove rpm transaction lock
 
 ############## Check is df hanging, rpm -e is hanging because mounts are hanging ? because df is hanging ?
@@ -98,6 +111,9 @@ touch dfl-dir/.ACTIVE
 # as builder owner i.e. james@...  OR root:
 rm -rf /tmp/pooky.cvp /tmp/.cas-batch
 
+echo ==============================================
+echo ========== HOW CLEAN ?            ============
+echo ==============================================
 ls
 ls -al lib bin scripts
 # mv lib lib.old

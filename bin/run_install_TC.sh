@@ -2,6 +2,30 @@
 
 [[ $(whoami) != 'root' ]] && { echo "ERROR: must be run as root"; exit -1; }
 
+[[ -z $HOST ]] && HOST=$(cat /VHOST)
+[[ -z $HOST ]] && [[ $? != 0 ]] && HOST=$(hostname)
+
+echo ==============================================
+echo ========== INSTALLING HOST=$HOST =============
+echo INSTALL_FROM_SLINGSHOT=$INSTALL_FROM_SLINGSHOT
+echo INSTALL_LATEST=$INSTALL_LATEST
+echo REL=$REL
+echo PLAT=$PLAT
+echo ==============================================
+
+#Can't locate strict.pm in @INC (you may need to install the strict module) (@INC contains: /apps/omn/perl/lib/site_perl/5.20.1/i686-linux /apps/omn/perl/lib/site_perl/5.20.1 /apps/omn/perl/lib/5.20.1/i686-linux /apps/omn/perl/lib/5.20.1 .) at /slingshot/MOS-base/LATEST/scripts/deploylist.pl line 12.
+#[omn@vb-60] export |grep -i perl
+#declare -x PATH="/apps/omn/perl/bin:/usr/lib/qt-3.3/bin:/usr/kerberos/sbin:/usr/kerberos/bin:/usr/lib/ccache:/usr/local/bin:/bin:/usr/bin:/usr/local/sbin:/usr/sbin:/sbin:/apps/omn/bin"
+#[omn@vb-60] which perl
+#~/perl/bin/perl
+which perl
+echo $PATH
+#[omn@vb-60] perl
+#print @INC;
+#print "\n";
+#/apps/omn/perl/lib/site_perl/5.20.1/i686-linux /apps/omn/perl/lib/site_perl/5.20.1 /apps/omn/perl/lib/5.20.1/i686-linux /apps/omn/perl/lib/5.20.1 .
+
+
 # as root user, install rpms
 #cd rpms_james
 
@@ -24,7 +48,7 @@ fi
 if $INSTALL_FROM_SLINGSHOT; then
 
     if $INSTALL_LATEST; then
-        /slingshot/MOS-base/LATEST/scripts/rpmturbo.sh `/slingshot/MOS-base/LATEST/scripts/deploylist.pl -fc9 /slingshot/deployments/OMN-Traffic-Control/LATEST`
+        /slingshot/MOS-base/LATEST/scripts/rpmturbo.sh `/usr/bin/perl /slingshot/MOS-base/LATEST/scripts/deploylist.pl -fc9 /slingshot/deployments/OMN-Traffic-Control/LATEST`
     else 
 
         if [[ -z $REL ]] ; then
@@ -54,7 +78,7 @@ if $INSTALL_FROM_SLINGSHOT; then
         
         echo "####################### INSTALL BASE set of rpms ################################"
         ls /slingshot/$BASE
-        BASE_RPMS=$(/slingshot/MOS-base/LATEST/scripts/deploylist.pl -fc9 /slingshot/$BASE)
+        BASE_RPMS=$(/usr/bin/perl /slingshot/MOS-base/LATEST/scripts/deploylist.pl -fc9 /slingshot/$BASE)
         echo BASE_RPMS=$BASE_RPMS
         # TODO: --force is sometimes necessary
         #file /apps/omn/scripts conflicts between attempted installs of OMN-MOS-HAMMER-X-v1.10.02-1.FC9.i386 and OMN-MOS-REAFER-v1.12.08-1.FC9.i386
@@ -145,7 +169,7 @@ cat /apps/omn/etc/samson.hostname
 # link to genlicence 
 # lib/libtbx-v2-79-27.so TBXVER=v2-79-27 TBXVDIR=v2/79/27
 cd /apps/omn
-TBXVDIR=$(ls lib/libtbx-*.so|sed "s/[^-]*\-//;s/\..*//;s/-/\//g")
+TBXVDIR=$(ls lib/libtbx-*.so|tail -1 |sed "s/[^-]*\-//;s/\..*//;s/-/\//g")
 
 # Disclaimer: This script is an example test script, it is NOT SUPPORTED for use. 
 #             Use this script at your own risk.
@@ -161,22 +185,27 @@ echo TBXVDIR=$TBXVDIR TBXSDIR=$TBXSDIR
 rm libtbx
 ln -sf $TBXSDIR libtbx
 HOSTID=$(/apps/omn/bin/hostid)
+echo HOSTID=$HOSTID
 
 LICENCE=$(./libtbx/genlicence "$(head -1 cluster.info |sed 's/[^"]*"//;s/"//g')" $HOSTID 29999|cut -d"'" -f2)
-grep $LICENCE cluster.info
-if [[ $? != 0 ]] ; then 
-   DTS=$(date +%Y%m%d_%H%M); cp -p cluster{,_${DTS}}.info
-   OLDLICENCE=$(grep -P "^${HOST}\s+\d+\s+omn" cluster.info|sed "s/.* //"|head -n 1)
-   echo new LICENCE=$LICENCE OLDLICENCE=$OLDLICENCE
-   [[ ! -z "$OLDLICENCE" ]] && perl -pi -e "s/$OLDLICENCE/$LICENCE/" cluster.info   
-   FEATSIG=$(grep ^featsig: cluster.info)
-   NEWFEATSIG=$(./libtbx/genfeaturelicence cluster.info $HOSTID)
-   #echo DEBUG FEATSIG=$FEATSIG NEWFEATSIG=$NEWFEATSIG
-   # TODO: can we do this? continually append feature signatures? more than the nodes we have? . . . yes so far.
-   perl -pi -e "s/^featsig: /featsig: $NEWFEATSIG/" cluster.info   
-   grep $NEWFEATSIG cluster.info 
+echo LICENCE=$LICENCE
+if [[ -z $LICENCE ]] ; then 
+  echo "ERROR: can't make a licence" #'
+else
+  grep $LICENCE cluster.info
+  if [[ $? != 0 ]] ; then 
+    DTS=$(date +%Y%m%d_%H%M); cp -p cluster{,_${DTS}}.info
+    OLDLICENCE=$(grep -P "^${HOST}\s+\d+\s+omn" cluster.info|sed "s/.* //"|head -n 1)
+    echo new LICENCE=$LICENCE OLDLICENCE=$OLDLICENCE
+    [[ ! -z "$OLDLICENCE" ]] && perl -pi -e "s/$OLDLICENCE/$LICENCE/" cluster.info   
+    FEATSIG=$(grep ^featsig: cluster.info)
+    NEWFEATSIG=$(./libtbx/genfeaturelicence cluster.info $HOSTID)
+    #echo DEBUG FEATSIG=$FEATSIG NEWFEATSIG=$NEWFEATSIG
+    # TODO: can we do this? continually append feature signatures? more than the nodes we have? . . . yes so far.
+    perl -pi -e "s/^featsig: /featsig: $NEWFEATSIG/" cluster.info   
+    grep $NEWFEATSIG cluster.info 
+  fi
 fi
-
 
 ### just 4 commands to update feature licence and check
 # HOSTID=$(/apps/omn/bin/hostid)

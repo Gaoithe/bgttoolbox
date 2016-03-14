@@ -3,9 +3,16 @@
 # Disclaimer: This script is an example test script, it is NOT SUPPORTED for use. 
 #             Use this script at your own risk.
 
+# e.g. usage:
+#./scripts/cluster_cmd.sh rm -rf /tmp/cdrcount_070316.txt
+#./scripts/cdrcount.sh "1" "0011223344 0011223345 484 326 610 737 822 901 909"
+
+
 DAYSAGO=1
 DAYSAGO="1 2 3 4 5"
 SHORTCODE="540 565 300 777"
+SHORTCODE="0011223344 0011223345 484 326 610 737 822 901 909"
+
 [[ ! -z $1 ]] && DAYSAGO=$1 && shift
 [[ ! -z $1 ]] && SHORTCODE=$1 && shift
 echo $0 \"$DAYSAGO\" \"$SHORTCODE\"
@@ -65,6 +72,10 @@ for d in $DAYSAGO; do
     #SUM=$(./scripts/cluster_cmd.sh  'cat assure_test_logs/ussd/Assure_tcussd0*_${CDRDTS}* '" |grep -P '\b$shortcode\b,.*,.*,.*,.*,.*,.*,.*,.*,$'|wc -l" |grep ^[0-9]*$ |sed -r ': rep;/.*/ {N;s/\n/+/g;t rep}')
     SUM=$(./scripts/cluster_cmd.sh  'cat assure_test_logs/ussd/Assure_tcussd0*_${CDRDTS}* '" |grep -P '869,261,.*\b$shortcode\b,.*,.*,.*,.*,.*,.*,.*,.*,$'|wc -l" |grep ^[0-9]*$ |sed -r ': rep;/.*/ {N;s/\n/+/g;t rep}')
     echo DATE=$ODTS Assure count on each node SHORTCODE=$shortcode SUM=$SUM ans=$(($SUM)), NOT date exclusive as date-time stamp in assure is unix time format.
+    
+    ./scripts/cluster_cmd.sh "cat $OFILE $YFILE $TFILE |grep -P 'MSG_TYPE:(869|869|358|359|360|361).*SUB_TIME:${CDRDTS}' |grep -P 'USSD_text:${shortcode}\b' " |grep -v "Running.. cat "|sed -r 's/THREAD.*MSG_TYPE://;s/\s.*ORIG_IDNT:/,/;s/\s.*DEST_IDNT:/,/;s/\s.*END_POINT:/,/;s/\s.*FINAL_STATE:/,/;s/\s.*USSD_text:/,/;s/\s.*[A-Za-z_].*$//;s/6215[0-9]{11}/IMSI/'|cut -d , -f 1,2,3,6,4,5 |sort |uniq -c |tee countcdrs_${ODTS}_${shortcode}.txt
+    ls -alstr countcdrs_${ODTS}_${shortcode}.txt
+    #cat countcdrs_${ODTS}_${shortcode}.txt
 
   done
 done
