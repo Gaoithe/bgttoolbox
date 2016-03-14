@@ -9,6 +9,8 @@
 # Hardcoded, VIP check on "eth0" of form "eth[0-9]+:[0-9]+:" e.g. eth0:3:
 # Hardcoded, /usr/sbin/ifconfig
 
+# ##### NOTE, there is now a PATCH on 15Q1 (and other releases) which fixes this VIP ISSUE on startup/restart of a host 
+
 LOG_FILE=/logs/vip_check.log
 
 log(){
