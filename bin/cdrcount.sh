@@ -84,12 +84,8 @@ for d in $DAYSAGO; do
 
     #./scripts/cluster_cmd.sh "cat $OFILE $YFILE $TFILE |grep -P 'MSG_TYPE:(869|869|358|359|360|361).*SUB_TIME:${CDRDTS}' |grep -P 'USSD_text:${shortcode}\b|OA_ADDR:\d+\.\d+\.${shortcode}' " |grep -v "Running.. cat "|sed -r 's/THREAD.*MSG_TYPE://;s/\s.*ORIG_IDNT:/,/;s/\s.*DEST_IDNT:/,/;s/\s.*END_POINT:/,/;s/\s.*FINAL_STATE:/,/;s/\s.*USSD_text:/,/;s/\s.*[A-Za-z_].*$//;s/6215[0-9]{11}/IMSI/'|cut -d , -f 1,2,3,6,4,5 |sort |uniq -c |tee countcdrs_${ODTS}_${shortcode}.txt
     #cat $SCFILE |grep -v "Running.. cat "|sed -r 's/THREAD.*MSG_TYPE://;s/\s.*ORIG_IDNT:/,/;s/\s.*DEST_IDNT:/,/;s/\s.*END_POINT:/,/;s/\s.*FINAL_STATE:/,/;s/\s.*USSD_text:/,/;s/\s.*[A-Za-z_].*$//;s/6215[0-9]{11}/IMSI/'|cut -d , -f 1,2,3,6,4,5 |sort |uniq -c |tee countcdrs_${ODTS}_${shortcode}.txt
-    #cat $SCFILE |grep -v "Running.. "|sed -r 's/THREAD.*MSG_TYPE://;s/\s.*OA_ADDR:/,/;s/\s.*DA_ADDR:/,/;s/\s.*ORIG_IDNT:/,/;s/\s.*DEST_IDNT:/,/;s/\s.*END_POINT:/,/;s/\s.*FINAL_STATE:/,/;s/\s.*USSD_text:/,/;s/\s.*[A-Za-z_].*$//;s/6215[0-9]{11}/IMSI/;s/1\.1\.23[0-9]{11}/MSISDN/'|cut -d , -f 1,2,3,4,5,6,7,8 |sort |uniq -c |tee countcdrs_${ODTS}_${shortcode}.txt
-    ### NOTE the \s.*ORIG_IDNT here doesn't work.
-    #cat $SCFILE |grep -v "Running.. "|sed -r 's/THREAD.*MSG_TYPE://;s/\s.*\sOA_ADDR:/,/;s/\s.*DA_ADDR:/,/;s/\s.*ORIG_IDNT:/,/;s/\s[^:]*DEST_IDNT:/,/;s/\s.*END_POINT:/,/;s/\s.*FINAL_STATE:/,/;s/\s.*USSD_text:/,/;s/\s.*[A-Za-z_].*$//;s/6215[0-9]{11}/IMSI/;s/[01]\.[01]\.23[0-9]{10}[0-9]*/MSISDN/'|cut -d , -f 1,2,3,4,5,6,7,8 |sort |uniq -c |tee countcdrs_${ODTS}_${shortcode}.txt
     cat $SCFILE |grep -v "Running.. "|sed -r 's/THREAD.*MSG_TYPE://;s/DEST_IDNT:([A-Z_a-z0-9]*\:)*([A-Z_a-z0-9]*)$/Di:\2/;s/TEXT:(OA_ADDR|DA_ADDR):/TEXT_xA:/;s/\s.*OA_ADDR:/,/;s/\s.*DA_ADDR:/,/;s/\s.*ORIG_IDNT:/,/;s/\s.*DEST_IDNT:/,/;s/END_POINT:NO ROUTE/END_POINT:NO_ROUTE/;s/\s.*END_POINT:/,/;s/\s.*FINAL_STATE:/,/;s/\s.*USSD_text:/,/;s/\s.*[A-Za-z_].*$//;s/6215[0-9]{11}/IMSI/;s/[01]\.[01]\.23[0-9]{10}[0-9]*/MSISDN/'|cut -d , -f 1,2,3,4,5,6,7,8 |sort |uniq -c |tee countcdrs_${ODTS}_${shortcode}.txt
     ls -alstr countcdrs_${ODTS}_${shortcode}.txt
-
     #cat countcdrs_${ODTS}_${shortcode}.txt
 
   done
