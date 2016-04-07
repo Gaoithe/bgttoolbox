@@ -33,13 +33,13 @@ IDS=$(echo "$MSISDN_INFO" |sed "s/^\[ *//;s/]//"|cut -d" " -f 1)
 echo IDS=$IDS
 
 # find any otid/dtid matching search
-TIDS=$(cat $CH7FILE |grep -P "^\[\s*($(echo $IDS |sed "s/ /\|/g"))]"|grep -P -A1 "otid =|dtid =" |sed "s/.*:\s*//;s/ $//g;s/ /./g" |grep -v -P "dtid|otid|--" |sort|uniq)
+TIDS=$(cat $CH7FILE |grep -P "^\[\s*($(echo $IDS |sed "s/ /\|/g"))]"|grep -P -A1 "otid\s=|dtid\s=" |sed "s/.*:\s*//;s/ $//g;s/[ \t]/./g" |grep -v -P "dtid|otid|--" |sort|uniq)
 echo TIDS=$TIDS
 # find any otid/dtid associated with the search tids
-OTIDS=$(cat $CH7FILE |grep -P -A2 "otid =|dtid =" |grep -v -P "dtid|otid|}\s*$" |grep -B1 -A1 -P "\s+($(echo $TIDS |sed "s/ /\|/g"))\s*$" |sed "s/.*:\s*//;s/ $//g;s/ /./g" |grep -v -P -- "--" |sort|uniq)
+OTIDS=$(cat $CH7FILE |grep -P -A2 "otid\s=|dtid\s=" |grep -v -P "dtid|otid|}\s*$" |grep -B1 -A1 -P "\s+($(echo $TIDS |sed "s/ /\|/g"))\s*$" |sed "s/.*:\s*//;s/ $//g;s/[ \t]/./g" |grep -v -P -- "--" |sort|uniq)
 echo OTIDS=$OTIDS
 # find all message IDs 
-MIDS=$(cat $CH7FILE |grep -P -A2 "otid =|dtid =" |grep -v -P "dtid|otid|}\s*$" |grep -B1 -A1 -P "\s+($(echo $OTIDS |sed "s/ /\|/g"))\s*$" |sed "s/^\[ *//;s/]//"|cut -d" " -f 1|sort|uniq)
+MIDS=$(cat $CH7FILE |grep -P -A2 "otid\s=|dtid\s=" |grep -v -P "dtid|otid|}\s*$" |grep -B1 -A1 -P "\s+($(echo $OTIDS |sed "s/ /\|/g"))\s*$" |sed "s/^\[ *//;s/]//"|cut -d" " -f 1|sort|uniq)
 echo MIDS=$MIDS
 
 #for otid in $OTIDS; do otid_hex=$(echo $otid |sed "s/\.//g"); otid_dec=$(printf %d 0x$otid_hex); echo 0x$otid_hex = $otid_dec; done
@@ -77,8 +77,32 @@ fi
 
 if [[ -e ${BASEFILE}.ch2 ]] ; then
     echo "\n\nCHANNEL 2/0:\n" >> ${CH7FILE}_${MSISDN}_sum.txt
-    grep -P "$MSISDN|$(echo $TIDS_DEC|sed 's/ /|/g')|$(echo $OTIDS_DEC|sed 's/ /|/g')" ${BASEFILE}.ch[02] >> ${CH7FILE}_${MSISDN}_sum.txt
+    grep -P "$(echo $MSISDN $TIDS_DEC $OTIDS_DEC|sed 's/ /|/g')" ${BASEFILE}.ch[02] >> ${CH7FILE}_${MSISDN}_sum.txt
 fi
+
+
+parselogdate(){
+    # usage: parselogdate <date> <seperator>  e.g. parselogdate 6/4/2016-16:33:00.000 ""
+    # e.g. IN: 6/4/2016-16:33:00.000
+    # e.g. OUT: 06 04 2016 16 33 00
+    DTS=${1%%.*}
+    SEP=$2
+    echo $DTS |sed 's/[-/\:]/ /g' |xargs printf "%02d %02d %d %02d %02d %02d" |sed "s/ 20\([0-9][0-9]\) / \1 /;s/ /$SEP/g"
+}
+
+BEGIN_DTS=$(head -n 1 ${CH7FILE}_${MSISDN}_summary.txt |sed "s/^.*]\s//;s/\..*//")
+END_DTS=$(tail -n 1 ${CH7FILE}_${MSISDN}_summary.txt |sed "s/^.*]\s//;s/\..*//")
+#[omn@tcussd01 ~]$ echo BEGIN=$BEGIN_DTS END=$END_DTS
+#BEGIN=6/4/2016-16:33:00 END=6/4/2016-16:33:00
+CDRDTS=$(parselogdate $BEGIN_DTS "" |sed s/....$//)
+echo BEGIN=$BEGIN_DTS END=$END_DTS CDRDTS=$CDRDTS
+
+#/data/operations_cdrs/OPS_CDR_07041609*
+#OPS_CDR_070416090045_126  OPS_CDR_070416092132_132  OPS_CDR_070416093421_138  OPS_CDR_070416094052_144  OPS_CDR_070416094740_150  OPS_CDR_070416095420_156
+# ./scripts/cluster_cmd.sh "grep $MSISDN /data/operations_cdrs/OPS_CDR_*"
+./scripts/cluster_cmd.sh "grep $MSISDN /data/operations_cdrs/OPS_CDR_${CDRDTS}*" |grep -v Running |sed "s/^\(.*\)\(SUB_TIME:.*\)\(DEL_TIME:\)/\2\1\2\3/"  |sort >> ${CH7FILE}_${MSISDN}_sum.txt
+
+
 
 ls -al ${CH7FILE}_${MSISDN}*
 
