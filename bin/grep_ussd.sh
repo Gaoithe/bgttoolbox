@@ -26,8 +26,12 @@ echo FILE=$FILE CH7FILE=$CH7FILE BASEFILE=$BASEFILE MSISDN=$MSISDN
 #less $CH7FILE |grep -B200 -A200 $MSISDN >/tmp/grep_begin${MSISDN}.out
 #MSISDN_INFO=$(grep $MSISDN /tmp/grep_begin${MSISDN}.out)
 echo grep $MSISDN $CH7FILE
+
+
 MSISDN_INFO=$(grep $MSISDN $CH7FILE)
-[[ -z "$MSISDN_INFO" ]] && echo "no match" && exit
+if [[ -z "$MSISDN_INFO" ]] ; then
+    echo "ch7 no match"
+else
 echo "MSISDN_INFO="; echo "$MSISDN_INFO"
 IDS=$(echo "$MSISDN_INFO" |sed "s/^\[ *//;s/]//"|cut -d" " -f 1)
 echo IDS=$IDS
@@ -70,6 +74,9 @@ grep -P -B1 -A4 "begin =|abort =|end =|Opcode |msisdn =|otid =|dtid =|$MSISDN|us
 #grep -A1 -P 'ussd_text|msisdn =|abort =|end =' ${CH7FILE}_${MSISDN}.txt |sed -r 's/\s\s*/ /g' |grep -vP "ussd_text|msisdn =|--" |sed "s/.*tid =.*//" > ${CH7FILE}_${MSISDN}_sum.txt
 grep -A1 -P 'ussd_text|msisdn =|abort =|end =|begin =|errorCode =' ${CH7FILE}_${MSISDN}.txt |sed -r 's/\s\s*/ /g' |grep -vP "ussd_text|msisdn =|--|tid =" |sed "s/.*begin =.*//" > ${CH7FILE}_${MSISDN}_sum.txt
 
+fi
+
+
 if [[ -e ${BASEFILE}.ch3 ]] ; then
     echo "\n\nCHANNEL 3:\n" >> ${CH7FILE}_${MSISDN}_sum.txt
     #grep -P "ESME: HSI|Direction:|command_id:|short_message:|message_id:|sequence_number:|destination_addr:|source_addr:|$MSISDN|^Time:" ${BASEFILE}.ch3 |grep -B5 -A2 $MSISDN >> ${CH7FILE}_${MSISDN}_sum.txt
@@ -94,17 +101,22 @@ parselogdate(){
 
 BEGIN_DTS=$(head -n 1 ${CH7FILE}_${MSISDN}_summary.txt |sed "s/^.*]\s//;s/\..*//")
 END_DTS=$(tail -n 1 ${CH7FILE}_${MSISDN}_summary.txt |sed "s/^.*]\s//;s/\..*//")
-#[omn@tcussd01 ~]$ echo BEGIN=$BEGIN_DTS END=$END_DTS
-#BEGIN=6/4/2016-16:33:00 END=6/4/2016-16:33:00
-CDRDTS=$(parselogdate $BEGIN_DTS "" |sed s/....$//)
-echo BEGIN=$BEGIN_DTS END=$END_DTS CDRDTS=$CDRDTS
+#e.g. BEGIN=7/4/2016-13:34:02 END=7/4/2016-13:34:02 CDRDTS=07041613
+if [[ -z $BEGIN_DTS ]] ; then
+    BEGIN_DTS=$(echo $(head ${BASEFILE}.ch2 || grep ^Time: ${BASEFILE}.ch3|head) |sed "s/^.*]\s//;s/\..*//;s/^Time:\s*//")
+fi
+if [[ -z $BEGIN_DTS ]] ; then
+    echo No grep OPS_CDRs because do not know BEGIN time
+else
+    # whack out minutes and seconds so we grep CDRs for hour.
+    CDRDTS=$(parselogdate $BEGIN_DTS "" |sed s/....$//)
+    echo BEGIN=$BEGIN_DTS END=$END_DTS CDRDTS=$CDRDTS
 
-#/data/operations_cdrs/OPS_CDR_07041609*
-#OPS_CDR_070416090045_126  OPS_CDR_070416092132_132  OPS_CDR_070416093421_138  OPS_CDR_070416094052_144  OPS_CDR_070416094740_150  OPS_CDR_070416095420_156
-# ./scripts/cluster_cmd.sh "grep $MSISDN /data/operations_cdrs/OPS_CDR_*"
-./scripts/cluster_cmd.sh "grep $MSISDN /data/operations_cdrs/OPS_CDR_${CDRDTS}*" |grep -v Running |sed "s/^\(.*\)\(SUB_TIME:.*\)\(DEL_TIME:\)/\2\1\2\3/"  |sort >> ${CH7FILE}_${MSISDN}_sum.txt
-
-
+    #/data/operations_cdrs/OPS_CDR_07041609*
+    #OPS_CDR_070416090045_126  OPS_CDR_070416092132_132  OPS_CDR_070416093421_138  OPS_CDR_070416094052_144  OPS_CDR_070416094740_150  OPS_CDR_070416095420_156
+    # ./scripts/cluster_cmd.sh "grep $MSISDN /data/operations_cdrs/OPS_CDR_*"
+    ./scripts/cluster_cmd.sh "grep $MSISDN /data/operations_cdrs/OPS_CDR_${CDRDTS}*" |grep -v Running |sed "s/^\(.*\)\(SUB_TIME:.*\)\(DEL_TIME:\)/\2\1\2\3/"  |sort >> ${CH7FILE}_${MSISDN}_sum.txt
+fi
 
 ls -al ${CH7FILE}_${MSISDN}*
 
