@@ -72,7 +72,9 @@ grep -A1 -P 'ussd_text|msisdn =|abort =|end =|begin =|errorCode =' ${CH7FILE}_${
 
 if [[ -e ${BASEFILE}.ch3 ]] ; then
     echo "\n\nCHANNEL 3:\n" >> ${CH7FILE}_${MSISDN}_sum.txt
-    grep -P "ESME: HSI|Direction:|command_id:|short_message:|message_id:|sequence_number:|destination_addr:|source_addr:|$MSISDN|^Time:" ${BASEFILE}.ch3 |grep -B5 -A2 $MSISDN >> ${CH7FILE}_${MSISDN}_sum.txt
+    #grep -P "ESME: HSI|Direction:|command_id:|short_message:|message_id:|sequence_number:|destination_addr:|source_addr:|$MSISDN|^Time:" ${BASEFILE}.ch3 |grep -B5 -A2 $MSISDN >> ${CH7FILE}_${MSISDN}_sum.txt
+    grep -A3 -P "ESME:\s|Direction:|command_id:|short_message:|message_id:|sequence_number:|destination_addr:|source_addr:|$MSISDN|^Time:|tag: 0x0424 message_payload|tag: 0x0501 ussd_service_op" ${BASEFILE}.ch3 |grep -vP "^--$|^From:|^To:|^PDU|^Decode|^\[|command_status:|service_type:|source_addr_|dest_addr_|^[0-9A-F]{8}\s[0-9A-F\s]*$|esm_class:|registered_delivery:|data_coding:|len:" |grep -B5 -A7 $MSISDN >> ${CH7FILE}_${MSISDN}_sum.txt
+
 fi
 
 if [[ -e ${BASEFILE}.ch2 ]] ; then
