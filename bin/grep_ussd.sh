@@ -80,7 +80,7 @@ fi
 if [[ -e ${BASEFILE}.ch3 ]] ; then
     echo "\n\nCHANNEL 3:\n" >> ${CH7FILE}_${MSISDN}_sum.txt
     #grep -P "ESME: HSI|Direction:|command_id:|short_message:|message_id:|sequence_number:|destination_addr:|source_addr:|$MSISDN|^Time:" ${BASEFILE}.ch3 |grep -B5 -A2 $MSISDN >> ${CH7FILE}_${MSISDN}_sum.txt
-    grep -A3 -P "ESME:\s|Direction:|command_id:|short_message:|message_id:|sequence_number:|destination_addr:|source_addr:|$MSISDN|^Time:|tag: 0x0424 message_payload|tag: 0x0501 ussd_service_op" ${BASEFILE}.ch3 |grep -vP "^--$|^From:|^To:|^PDU|^Decode|^\[|command_status:|service_type:|source_addr_|dest_addr_|^[0-9A-F]{8}\s[0-9A-F\s]*$|esm_class:|registered_delivery:|data_coding:|len:" |grep -B5 -A7 $MSISDN >> ${CH7FILE}_${MSISDN}_sum.txt
+    grep -A3 -P "ESME:\s|Direction:|command_id:|short_message:|message_id:|sequence_number:|destination_addr:|source_addr:|$MSISDN|^Time:|tag: 0x0424 message_payload|tag: 0x0501 ussd_service_op" ${BASEFILE}.ch3 |grep -vP "^--$|^From:|^To:|^PDU|^Decode|^\[|command_status:|service_type:|source_addr_|dest_addr_|^[0-9A-F]{8}\s[0-9A-F\s]*$|esm_class:|registered_delivery:|data_coding:|len:" |grep -B6 -A7 $MSISDN >> ${CH7FILE}_${MSISDN}_sum.txt
 
 fi
 
@@ -99,8 +99,8 @@ parselogdate(){
     echo $DTS |sed 's/[-/\:]/ /g' |xargs printf "%02d %02d %d %02d %02d %02d" |sed "s/ 20\([0-9][0-9]\) / \1 /;s/ /$SEP/g"
 }
 
-BEGIN_DTS=$(head -n 1 ${CH7FILE}_${MSISDN}_summary.txt |sed "s/^.*]\s//;s/\..*//")
-END_DTS=$(tail -n 1 ${CH7FILE}_${MSISDN}_summary.txt |sed "s/^.*]\s//;s/\..*//")
+BEGIN_DTS=$(head -n 1 ${CH7FILE}_${MSISDN}_summary.txt |sed "s/^[^]]*]\s//;s/\..*//")
+END_DTS=$(tail -n 1 ${CH7FILE}_${MSISDN}_summary.txt |sed "s/^[^]]*]\s//;s/\..*//")
 #e.g. BEGIN=7/4/2016-13:34:02 END=7/4/2016-13:34:02 CDRDTS=07041613
 if [[ -z $BEGIN_DTS ]] ; then
     BEGIN_DTS=$(echo $(head ${BASEFILE}.ch2 || grep ^Time: ${BASEFILE}.ch3|head) |sed "s/^.*]\s//;s/\..*//;s/^Time:\s*//")
