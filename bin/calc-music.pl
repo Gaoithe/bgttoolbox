@@ -46,6 +46,27 @@ G Major: G A B C D E F#
                                                 Aeolian key G => E(12)
            xxxxxxxxxxxxxxx                                 xxxxxxxxxxxxxxx
                                                             Locrian key G => F#(14)
+
+Mode name	Note names (all natural)
+ionian mode	C, D, E, F, G, A, B, C
+dorian mode	D, E, F, G, A, B, C, D
+phrygian mode	E, F, G, A, B, C, D, E
+lydian mode	F, G, A, B, C, D, E, F
+mixolydian mode	G, A, B, C, D, E, F, G
+aeolian mode	A, B, C, D, E, F, G, A
+locrian mode	B, C, D, E, F, G, A, B
+
+e.g. G ionian mode(normal G major): G, A, B, C, D, E, F#, G.   <a href=https://www.basicmusictheory.com/g-ionian-mode>g-ionian-mode</a> <a href=https://www.basicmusictheory.com/g-major-scale>g-major-scale</a>
+e.g. G phrygian mode: G, Ab, Bb, C, D, Eb, F, G.   <a href=https://www.basicmusictheory.com/g-phrygian-mode>g-phrygian-mode</a>
+
+e.g. A7 is A mixolydian: A, B, C#, D, E, F#, G, A    Root,3rd,5th,7th: A C# E G    on guitar: 002020 = EAEGC#E  (Rx1 3x1 5x3 7x1)  7th note is played (duhrr A7)
+
+A  Major:  A   B   C#  D   E   F#  G#  A             Root,3rd,5th,7th: A C# E G#   on guitar: 002220 = EAEAC#E  (Rx2 3x1 5x3)
+ major = ionian mode 
+
+A  Minor:  A   B   C   D   E   F   G   A             Root,3rd,5th,7th: A C E G     on guitar: 002200 = EAEACE   (Rx2 3x1 5x3)
+ natural minor = aeolian mode
+
 EINDE
 ;
 
@@ -72,12 +93,12 @@ $chromaticScaleR="A  A# B  C  C# D  D# E  F  F# G  G# A  A# B  C  C# D  D# E  F 
                      "CC00BC", "CC00EF", "EE0000", "EE0023", "EE0056", "EE3399",
                      "EFFF55", "FFFFFF" );
 
-# Major chords => 0 2 45 7 9 BC   (semi-tone spacing)
+# Major chords => 0 2 45 7 9 BC   (semi-tone spacing)   # major = ionian mode 
 @majorSemiToneSpacing = ( 0,2,4,5,7,9,11 );
 @majorR35ToneSpacing = ( 0,4,7 );
 @pentatonicMajorSemiToneSpacing = ( 0,2,4,7,9 );
 # Minor chords    0 23 5 78 A C
-@minorSemiToneSpacing = ( 0,2,3,5,7,8,10 );
+@minorSemiToneSpacing = ( 0,2,3,5,7,8,10 );             # minor = aeolian mode
 @minorR35ToneSpacing = ( 0,3,7 );
 @pentatonicMinorSemiToneSpacing = ( 0,2,3,7,8 );
 
@@ -126,10 +147,11 @@ printf " %-2s\n",$notes[$root];
 sub printGuitarFretboard
 {
 foreach $note (@guitarFretNotes) {
-  print "\n||";
+  print "\n";
   for ($i=0;$i<$maxGuitarFrets;$i++) {
 #    print "| $notes[$note+$i%$maxScaleNotes]";
     printf "| %-2s", $notes[$note+$i%$maxScaleNotes];
+    if ($i==0) { print "|"; }
   }
   print "|";
 }
@@ -147,7 +169,7 @@ sub printGuitarFretboardScale
 local ($root, *scaleToneSpacing) = @_;
 
   foreach $note (@guitarFretNotes) {
-    print "\n||";
+    print "\n";
     for ($i=0;$i<$maxGuitarFrets;$i++) {
       # if this_note     isin  this_scale
       # if ($note+$i)%$maxScaleNotes isin (@scaleToneSpacing)+$root
@@ -161,6 +183,7 @@ local ($root, *scaleToneSpacing) = @_;
       else {
         print "|   ";
       }
+      if ($i==0) { print "|"; }
     }
     print "|";
   }
