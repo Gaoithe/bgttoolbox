@@ -157,9 +157,9 @@ sub printScaleRoot3rd5th7th
 {
 local ($root, $what, *scaleToneSpacing) = @_;
 # printf " %-2s  3rd=%-2s 5th=%-2s\n",$notes[$root],$scaleNote[2],$scaleNote[4];
-printf " %-2s  3rd=%-2s 5th=%-2s",$notes[$root],$scaleNote[1],$scaleNote[2];
-if ($#scaleNote > 2) { printf " 7th=%-2s",$scaleNote[3]; }
-printf "\n";
+printf " Root:%-2s  3rd:%-2s 5th:%-2s",$notes[$root],$notes[($scaleToneSpacing[1] + $root) % $maxScaleNotes],$notes[($scaleToneSpacing[2] + $root) % $maxScaleNotes];
+if ($#scaleToneSpacing > 2) { printf " 7th:%-2s",$notes[($scaleToneSpacing[3] + $root) % $maxScaleNotes]; }
+#printf "\n";
 }
 
 
@@ -445,9 +445,9 @@ for($root=0;$root<$maxScaleNotes;$root++){
 print "\n\n<h3>Dominant 7th (Mixolydian mode) chords on the fretboard</h3>";
 for($root=0;$root<$maxScaleNotes;$root++){
   print "\n$notes[$root] Dominant 7th(=Mixolydian): ";
-  &printScale($root,"Dominant 7th chord",*mixolydianR357ToneSpacing);
-  &printScaleRoot3rd5th7th($root,"Dominant 7th chord",*mixolydianR357ToneSpacing);
-  &printGuitarFretboardScale($root,*mixolydianR357ToneSpacing);
+  &printScale($root,"Dominant 7th chord",*mixolydianR357SemiToneSpacing);
+  &printScaleRoot3rd5th7th($root,"Dominant 7th chord",*mixolydianR357SemiToneSpacing);
+  &printGuitarFretboardScale($root,*mixolydianR357SemiToneSpacing);
 }
 
 
