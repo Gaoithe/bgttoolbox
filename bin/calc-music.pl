@@ -93,6 +93,16 @@ $chromaticScaleR="A  A# B  C  C# D  D# E  F  F# G  G# A  A# B  C  C# D  D# E  F 
                      "CC00BC", "CC00EF", "EE0000", "EE0023", "EE0056", "EE3399",
                      "EFFF55", "FFFFFF" );
 
+# starting with C. white notes on piano
+@naturalNoteSemiToneSpacing = ( 0,2,4,5,7,9,11, 12,14,16,17,19,21,23, 24 );
+#ionian mode	C, D, E, F, G, A, B, C        0,2,4,5,7,9,11, 12,14,16,17,19,21,23, 24
+#dorian mode	D, E, F, G, A, B, C, D          0,2,3,5,7,9,  10,12,14,15,17,19,21, 22 (subtract 2)
+#phrygian mode	E, F, G, A, B, C, D, E
+#lydian mode	F, G, A, B, C, D, E, F
+#mixolydian modeG, A, B, C, D, E, F, G                0,2,4,  5,7,9,10,12,14,16, 17 (subtract 7)
+#aeolian mode	A, B, C, D, E, F, G, A
+#locrian mode	B, C, D, E, F, G, A, B
+
 # Major chords => 0 2 45 7 9 BC   (semi-tone spacing)   # major = ionian mode 
 @majorSemiToneSpacing = ( 0,2,4,5,7,9,11 );
 @majorR35ToneSpacing = ( 0,4,7 );
@@ -101,6 +111,9 @@ $chromaticScaleR="A  A# B  C  C# D  D# E  F  F# G  G# A  A# B  C  C# D  D# E  F 
 @minorSemiToneSpacing = ( 0,2,3,5,7,8,10 );             # minor = aeolian mode
 @minorR35ToneSpacing = ( 0,3,7 );
 @pentatonicMinorSemiToneSpacing = ( 0,2,3,7,8 );
+# e.g. A7 mixolydian
+@mixolydianSemiToneSpacing = ( 0,2,4,5,7,9,10 );        # 7th/dominant = mixolydian mode
+@mixolydianR357SemiToneSpacing = ( 0,4,7,10 );        # 7th/dominant = mixolydian mode
 
 # interesting perl feature! look at major and minor semitonespacing,
 # there was more messing with major and it got left before going all the way to the end.
@@ -138,6 +151,15 @@ foreach $i (sort numericCompare @scaleToneSpacing) {
 }
 printf " %-2s\n",$notes[$root];
 # printf " %-2s  3rd=%-2s 5th=%-2s\n",$notes[$root],$scaleNote[2],$scaleNote[4];
+}
+
+sub printScaleRoot3rd5th7th
+{
+local ($root, $what, *scaleToneSpacing) = @_;
+# printf " %-2s  3rd=%-2s 5th=%-2s\n",$notes[$root],$scaleNote[2],$scaleNote[4];
+printf " %-2s  3rd=%-2s 5th=%-2s",$notes[$root],$scaleNote[1],$scaleNote[2];
+if ($#scaleNote > 2) { printf " 7th=%-2s",$scaleNote[3]; }
+printf "\n";
 }
 
 
@@ -397,22 +419,35 @@ for($root=0;$root<$maxScaleNotes;$root++){
 
 
 print "\n\nMORE USEFUL:\n";
-print "Major and Minor chord notes\n";
+print "<h3>Major and Minor chord notes</h3>\n";
 for($root=0;$root<$maxScaleNotes;$root++){
   &printScale($root,"Major chord",*majorR35ToneSpacing);
   &printScale($root,"Minor chord",*minorR35ToneSpacing);
 }
 
-print "\n\nMajor chords on the fretboard, you can REALLY see the major modes HERE!";
+print "\n\n<h3>Major (Ionian mode) chords on the fretboard</h3>";
 for($root=0;$root<$maxScaleNotes;$root++){
   print "\n$notes[$root] Major: ";
+  &printScale($root,"Major chord",*majorR35ToneSpacing);
+  &printScaleRoot3rd5th7th($root,"Major chord",*majorR35ToneSpacing);
   &printGuitarFretboardScale($root,*majorR35ToneSpacing);
 }
 
-print "\n\nMinor chords on the fretboard, you can REALLY see the minor modes HERE!";
+print "\n\n<h3>Minor (Aeolian mode) chords on the fretboard</h3>";
 for($root=0;$root<$maxScaleNotes;$root++){
-  print "\n$notes[$root] Major: ";
+  print "\n$notes[$root] Minor(=Aeolian): ";
+  &printScale($root,"Minor chord",*minorR35ToneSpacing);
+  &printScaleRoot3rd5th7th($root,"Minor chord",*minorR35ToneSpacing);
   &printGuitarFretboardScale($root,*minorR35ToneSpacing);
+}
+
+# A7 mixolydian
+print "\n\n<h3>Dominant 7th (Mixolydian mode) chords on the fretboard</h3>";
+for($root=0;$root<$maxScaleNotes;$root++){
+  print "\n$notes[$root] Dominant 7th(=Mixolydian): ";
+  &printScale($root,"Dominant 7th chord",*mixolydianR357ToneSpacing);
+  &printScaleRoot3rd5th7th($root,"Dominant 7th chord",*mixolydianR357ToneSpacing);
+  &printGuitarFretboardScale($root,*mixolydianR357ToneSpacing);
 }
 
 
