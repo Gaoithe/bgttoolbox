@@ -110,6 +110,12 @@ if (!$rc || $help || !$gUrl) {
 
 my $h = head($gUrl);
 if (!$h) {
+    # how do we get more info e.g. error 404 / other ?
+    # LWP::Simple doc says:
+    #  You will not be able to examine the response code or response headers (like 'Content-Type') when you are accessing the web using this function. If you need that information you should use the full OO interface (see LWP::UserAgent).
+    #print @{[Data::Dumper->Dump([\$h], ['*h'])]} if ($verbose);
+    #my $g = get($gUrl);
+    #print @{[Data::Dumper->Dump([\$g], ['*g'])]} if ($verbose);
     fail "The Server for url=$gUrl is DOWN!!!!" 
 } else {
     print "h=$h\n" if ($veryverbose);
@@ -136,6 +142,7 @@ if (!$g) {
         #fail "get match Success."
 
     } else {
+        print "g:$g\n" if ($verbose);
         fail "get match fail gGet:$gGet"
     }        
 }

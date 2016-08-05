@@ -3,6 +3,9 @@
 # Disclaimer: This script is an example test script, it is NOT SUPPORTED for use. 
 #             Use this script at your own risk.
 
+# remove files older than 4 days
+./scripts/cluster_cmd.sh 'find /tmp/cdrcount_* -mtime +4 -exec rm -rf {} +'
+
 DAYSAGO=1
 DAYSAGO="1 2 3 4 5"
 SHORTCODE="540 565 300 777"
