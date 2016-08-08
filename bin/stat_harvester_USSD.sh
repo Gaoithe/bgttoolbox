@@ -1,5 +1,8 @@
 #! /bin/bash
 
+# Disclaimer: This script is an example test script, it is NOT SUPPORTED for use. 
+#             Use this script at your own risk.
+
 # A script to convert short-term stats into plaintext format and those those in windstat user's directory for QoS team to download
 
 DEST_DIR=/logs/stats
@@ -176,6 +179,11 @@ while ((i<2)); do
         echo END WARNING $C DA_NON_222
     fi
 
+    # per-ESME per ERR/state/USSD_text counts:
+    #TC_USSD_MENU    I_ERR:1.130 PS_ERR:-.-  O_ERR:1.130 JIMI:USSD Menu Server       FINAL_STATE:USER_CANCEL_HANDSET ASS_FS:2        ASS_RT:14       USSD_dlg_id:-   USSD_dlg_sn:-   USSD_key:-      ASS_SC:400      USSD_text:400   TP:Router End of Life   
+    #grep END_POINT: ${OCDRSDIR}/OPS_CDR_${ODTS}* |sed -r 's/.*DEST_IDNT://;s/\s*PPS_ID:.*PPS_ERR:/ PS_ERR:/;s/\s*SILO:.*END_POINT:/ /;s/\s*USSD_Req_text.*USSD_text:/ USSD_text:/;s/USSD_Req_text.*//;s/DEST_ESMEbytext:.*TP:/TP:/;s/USSD_dlg_id:.*ASS_SC:/ASS_SC:/' |grep -v ^[0-9] |sort |uniq -c >> ${DEST_DIR}/ODTS.log
+    grep END_POINT: ${OCDRSDIR}/OPS_CDR_${ODTS}* |sed -r 's/.*MSG_TYPE:([0-9]*)\s.*DEST_IDNT:(\w*)//;s/\s*PPS_ID:.*PPS_ERR:/ PS_ERR:/;s/\s*SILO:.*END_POINT:/ /;s/\s*USSD_Req_text.*USSD_text:/ USSD_text:/;s/USSD_Req_text.*//;s/DEST_ESMEbytext:.*TP:/TP:/;s/USSD_dlg_id:.*ASS_SC:/ASS_SC:/;s/ASS_SC:.*TP:/TP:/;s/\s\s*/ /g' |grep -v ^[0-9] |sort |uniq -c >> ${DEST_DIR}/ODTS.log
+
     # show the COUNT stats in general log
     cat ${DEST_DIR}/ODTS.log
 
@@ -188,7 +196,13 @@ while ((i<2)); do
     echo "WATCH END"
 
     #while read -r count EP; do LOG=${PREFIX}_CDRS_${EP}; echo "$CSTATDTS $count" >$LOG; done <${DEST_DIR}/ODTS.log
-    while read -r count EP; do LOG=${PREFIX}_CDRS_${EP}; echo "$count" >$LOG; done <${DEST_DIR}/ODTS.log
+    ls -alstr ${DEST_DIR}/ODTS.log
+    while read -r count EP blargh; do
+        if [[ -z $blargh ]] ; then
+            LOG=${PREFIX}_CDRS_${EP% *};
+            echo "$count" >$LOG;
+        fi
+    done <${DEST_DIR}/ODTS.log
     rm -rf ${DEST_DIR}/ODTS.log
     # ls -alstr ${PREFIX}_CDRS_*
     ((i++))
