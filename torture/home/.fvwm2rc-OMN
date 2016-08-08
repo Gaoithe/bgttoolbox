@@ -360,10 +360,12 @@ AddToFunc FuncFvwmMenuDirectory
 
 ########################Menus ########################################
 AddToMenu Utilities	"Utilities"	Title 	
++			"Terminal"		    Exec  exec gnome-terminal &
 +			"xterm"		        Exec  exec xterm +sb &
 +			"emacs"		        Exec  exec emacs &
 #+			"mozilla"               Exec  exec mozilla &
 +			"chrome"                Exec  exec google-chrome &
++			"Skype"		        Exec  exec skype &
 +                       "screensaver - lock"     Exec  exec xscreensaver-command -lock &
 +                       "xscreensaver - config"  Exec  exec xscreensaver-command -prefs &
 +			""		Nop
