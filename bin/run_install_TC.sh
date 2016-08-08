@@ -59,6 +59,8 @@ if $INSTALL_FROM_SLINGSHOT; then
             #REL=14-Q3
             ##REL=14-Q4
             #REL=15-Q1
+            REL=15-Q2
+            REL=15-Q3
         fi
 
         if [[ -z $PLAT ]] ; then
@@ -75,6 +77,8 @@ if $INSTALL_FROM_SLINGSHOT; then
         #BASE=deployments/OMN-Traffic-Control/v1/33/18
         BASE=$(grep BASE $PUB/info|awk '{print $3}')
         echo BASE=$BASE
+
+        [[ -z $BASE ]] && exit -127
         
         echo "####################### INSTALL BASE set of rpms ################################"
         ls /slingshot/$BASE

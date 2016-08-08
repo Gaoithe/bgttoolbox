@@ -24,7 +24,10 @@ monmemu_plot.sh stop -host omn@${HOST}
 
 # TODO, how to run these in parallel ?
 #ssh vroot@vb-28 /apps/omn/scripts/run_install_TC.sh |tee -a TC_install.log; 
-ssh vroot@${HOST} /apps/omn/scripts/run_install_TC.sh |tee -a TC_install.log; 
+echo -n "INSTALL_FROM_SLINGSHOT=$INSTALL_FROM_SLINGSHOT "
+$INSTALL_FROM_SLINGSHOT && echo -n "INSTALL_LATEST=$INSTALL_LATEST REL=$REL PLAT=$PLAT "
+echo ssh ${ROOTUSER}@${HOST} run_install_TC.sh $HOST 
+ssh ${ROOTUSER}@${HOST} "INSTALL_FROM_SLINGSHOT=$INSTALL_FROM_SLINGSHOT INSTALL_LATEST=$INSTALL_LATEST PLAT=$PLAT REL=$REL /apps/omn/scripts/run_install_TC.sh" |tee -a TC_install_${HOST}.log; 
 
 #ssh omn@vb-28 /apps/omn/scripts/run_solo_start_TC.sh |tee -a TC_solo_start.log; 
 #ssh omn@${HOST} /apps/omn/scripts/run_rejoin_TC.sh |tee -a TC_rejoin.log; 
