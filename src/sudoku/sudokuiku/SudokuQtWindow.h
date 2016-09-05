@@ -38,20 +38,12 @@
 **
 ****************************************************************************/
 
-#ifndef WINDOW_H
-#define WINDOW_H
+#ifndef SUDOKUQTWINDOW_H
+#define SUDOKUQTWINDOW_H
 
 #include <QWidget>
 
-QPainterPath qpp_rectPath(void);
-QPainterPath qpp_roundRectPath(void);
-QPainterPath qpp_ellipsePath();
-QPainterPath qpp_piePath();
-QPainterPath qpp_polygonPath();
-QPainterPath qpp_groupPath();
-QPainterPath qpp_cogPath();
-QPainterPath qpp_starPath();
-QPainterPath qpp_starsPath(int j);
+QPainterPath qpp_sudokuPath(void);
 
 QT_BEGIN_NAMESPACE
 class QComboBox;
@@ -60,12 +52,12 @@ class QSpinBox;
 QT_END_NAMESPACE
 class RenderArea;
 
-class Window : public QWidget
+class SudokuQtWindow : public QWidget
 {
     Q_OBJECT
 
 public:
-    Window();
+    SudokuQtWindow();
 
 private slots:
     void fillRuleChanged();
@@ -95,4 +87,4 @@ private:
 };
 
 
-#endif // WINDOW_H
+#endif // SUDOKUQTWINDOW_H

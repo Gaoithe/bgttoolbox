@@ -9,11 +9,15 @@ HEADERS       = qtrenderarea.h \
     SudokuInit.h \
     SudokuLoad.h \
     SudokuSolve.h \
-    SudokuMainPocketC.h
+    SudokuMainPocketC.h \
+    SudokuQtWindow.h \
+    itoa.h
 SOURCES       = qtmain.cpp \
                 qtrenderarea.cpp \
                 qtwindow.cpp \
-    SudokuMainPocketC.cpp
+    SudokuMainPocketC.cpp \
+    SudokuQtWindow.cpp \
+    itoa.cpp
 unix:!mac:!vxworks:!integrity:LIBS += -lm
 
 # install
