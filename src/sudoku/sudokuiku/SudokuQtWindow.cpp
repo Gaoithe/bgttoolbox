@@ -285,23 +285,23 @@ SudokuQtWindow::SudokuQtWindow()
 
     QPushButton *mPushButtonLoad0;
     mPushButtonLoad0 = new QPushButton(tr("Load0"));
-    connect(mPushButtonLoad0, SIGNAL(clicked()), this, SLOT(load0()));
+    connect(mPushButtonLoad0, SIGNAL(clicked()), this, SLOT(sload0()));
 
     QPushButton *mPushButtonLoad1;
     mPushButtonLoad1 = new QPushButton(tr("Load1"));
-    connect(mPushButtonLoad1, SIGNAL(clicked()), this, SLOT(load1()));
+    connect(mPushButtonLoad1, SIGNAL(clicked()), this, SLOT(sload1()));
 
     QPushButton *mPushButtonLoad2;
     mPushButtonLoad2 = new QPushButton(tr("Load2"));
-    connect(mPushButtonLoad2, SIGNAL(clicked()), this, SLOT(load2()));
+    connect(mPushButtonLoad2, SIGNAL(clicked()), this, SLOT(sload2()));
 
     QPushButton *mPushButtonLoad3;
     mPushButtonLoad3 = new QPushButton(tr("Load3"));
-    connect(mPushButtonLoad3, SIGNAL(clicked()), this, SLOT(load3()));
+    connect(mPushButtonLoad3, SIGNAL(clicked()), this, SLOT(sload3()));
 
     QPushButton *mPushButtonLoad4;
     mPushButtonLoad4 = new QPushButton(tr("Load4"));
-    connect(mPushButtonLoad4, SIGNAL(clicked()), this, SLOT(load4()));
+    connect(mPushButtonLoad4, SIGNAL(clicked()), this, SLOT(sload4()));
 
     /*
     QPushButtonPaint *mPushButton2;
@@ -405,35 +405,35 @@ void SudokuQtWindow::pushButton2()
     setBox(buttonX,buttonY,'0'+buttonNumber);
 }
 
-void SudokuQtWindow::load0()
+void SudokuQtWindow::sload0()
 {
     this->clearBox();
     load();
     this->setBoxes();
 }
 
-void SudokuQtWindow::load1()
+void SudokuQtWindow::sload1()
 {
     this->clearBox();
     load1();
     this->setBoxes();
 }
 
-void SudokuQtWindow::load2()
+void SudokuQtWindow::sload2()
 {
     this->clearBox();
     load2();
     this->setBoxes();
 }
 
-void SudokuQtWindow::load3()
+void SudokuQtWindow::sload3()
 {
     this->clearBox();
     load3();
     this->setBoxes();
 }
 
-void SudokuQtWindow::load4()
+void SudokuQtWindow::sload4()
 {
     this->clearBox();
     load4();
