@@ -1,16 +1,24 @@
 
 #include "qtrenderarea.h"
+#include "itoa.h"
+#include "qtwindow.h"
 
 #include <QPainter>
 #include <QtWidgets>
 
-RenderArea::RenderArea(const QPainterPath &path, QWidget *parent)
+RenderArea::RenderArea(const QPainterPath &path, QWidget *parent, char *text)
     : QWidget(parent), path(path)
 {
     penWidth = 1;
     rotationAngle = 0;
     setBackgroundRole(QPalette::Base);
 
+    this->timesFont = QFont("Times", 50);
+    this->timesFont.setStyleStrategy(QFont::ForceOutline);
+
+    if (text) {
+        setText(text[0] - '0',text);
+    }
 /*  // Experimenting with table.
  *  // 10*10 each item 2row 2col ab-cd- b-title c-row-title
     int rows = 10;
@@ -39,9 +47,6 @@ RenderArea::RenderArea(const QPainterPath &path, QWidget *parent)
         table->setVerticalHeaderItem(r, new QTableWidgetItem(QString::number(1 + r)));
     }
 */
-
-
-
 }
 
 QSize RenderArea::minimumSizeHint() const
@@ -103,3 +108,18 @@ void RenderArea::paintEvent(QPaintEvent *)
     painter.drawPath(path);
 }
 
+void RenderArea::setText(int n, char *t)
+{
+    this->num = n;
+    if (t) this->text = t;
+    else this->text = itoa(n);
+    // do nothing . . unless it is a
+    //QPainterPath sudokuPath = qpp_sudokuPath("0");
+    //QPainterPath pp(this);
+
+    // clear this path.
+    this->path = QPainterPath();
+    // add new value/text
+    this->path.addText(10, 70, timesFont, Window::tr(text));
+    update();
+}

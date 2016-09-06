@@ -67,6 +67,8 @@ SudokuQtWindow::SudokuQtWindow()
     cogPath[0] = qpp_cogPath();
     cogPath[1] = qpp_cogPath();
 
+    renderAreas.push_back(new RenderArea(QPainterPath(),NULL,"RA"));
+    jNCount++;
     renderAreas.push_back(new RenderArea(sudokuPath));
     jNCount++;
     renderAreas.push_back(new RenderArea(rectPath));
@@ -274,6 +276,9 @@ SudokuQtWindow::SudokuQtWindow()
     painter.drawRect(10, 10, 100, 100);
     connect(mPushButton1, SIGNAL(clicked()), this, SLOT(pushButton1()));
 
+    QPushButton *mPushButton2;
+    mPushButton2 = new QPushButton(tr("Rotate NUMs"));
+    connect(mPushButton2, SIGNAL(clicked()), this, SLOT(pushButton2()));
     /*
     QPushButtonPaint *mPushButton2;
     mPushButton2 = new QPushButtonPaint(tr("SuDoKu"));
@@ -303,7 +308,7 @@ SudokuQtWindow::SudokuQtWindow()
     mPushButton1->setCheckable(true);
     mPushButton1->setChecked(true);
     mainLayout->addWidget(mPushButton1);
-    //mainLayout->addWidget(mPushButton2);
+    mainLayout->addWidget(mPushButton2);
     mainLayout->addWidget(mPushButton3);
     mainLayout->addWidget(mPushButton4);
 
@@ -358,6 +363,18 @@ QVariant SudokuQtWindow::currentItemData(QComboBox *comboBox)
 void SudokuQtWindow::pushButton1()
 {
     sudokumain(1,NULL);
+}
+
+int buttonX=0,buttonY=0,buttonNumber=0;
+void SudokuQtWindow::pushButton2()
+{
+    buttonNumber++;
+    buttonX++;
+    if (buttonX>=9) buttonX=0,buttonY++;
+    if (buttonY>=9) buttonX=0,buttonY=0;
+    RenderArea *ra = renderAreas.value(buttonX+buttonY*9);
+    ra->setText(buttonNumber%10);
+
 }
 
 void SudokuQtWindow::clearBox()

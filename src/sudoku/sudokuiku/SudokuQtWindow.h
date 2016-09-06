@@ -64,6 +64,7 @@ private slots:
     void fillGradientChanged();
     void penColorChanged();
     void pushButton1();
+    void pushButton2();
     void clearBox();
     void fillBox();
 

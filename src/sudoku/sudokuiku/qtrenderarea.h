@@ -11,7 +11,7 @@ class RenderArea : public QWidget
     Q_OBJECT
 
 public:
-    explicit RenderArea(const QPainterPath &path, QWidget *parent = 0);
+    explicit RenderArea(const QPainterPath &path, QWidget *parent = 0, char *text = NULL);
 
     QSize minimumSizeHint() const;
     QSize sizeHint() const;
@@ -22,6 +22,7 @@ public slots:
     void setPenWidth(int width);
     void setPenColor(const QColor &color);
     void setRotationAngle(int degrees);
+    void setText(int n, char *t=NULL);
 
 protected:
     void paintEvent(QPaintEvent *event);
@@ -33,6 +34,11 @@ private:
     int penWidth;
     QColor penColor;
     int rotationAngle;
+
+    char *text;
+    int num;
+    QFont timesFont;
+
 };
 
 
