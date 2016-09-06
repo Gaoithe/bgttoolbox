@@ -17,20 +17,29 @@ public:
 
 const float Pi = 3.14159f;
 
-QPainterPath qpp_sudokuPath()
+QPainterPath qpp_sudokuPath(char *number)
 {
-    QPainterPath rectPath;
+    /*
+     * QPainterPath rectPath;
     rectPath.moveTo(20.0, 30.0);
-    rectPath.lineTo(80.0, 30.0);
-    rectPath.lineTo(80.0, 70.0);
-    rectPath.lineTo(20.0, 70.0);
+    rectPath.lineTo(40.0, 30.0);
+    rectPath.lineTo(40.0, 50.0);
+    rectPath.lineTo(20.0, 50.0);
     rectPath.closeSubpath();
     return rectPath;
+    */
+
+    //QPainterPath textPath[9*9];
+    QPainterPath textPath;
+    QFont timesFont("Times", 50);
+    timesFont.setStyleStrategy(QFont::ForceOutline);
+    textPath.addText(10, 70, timesFont, Window::tr(number));
+    return textPath;
 }
 
 SudokuQtWindow::SudokuQtWindow()
 {
-    QPainterPath sudokuPath = qpp_sudokuPath();
+    QPainterPath sudokuPath = qpp_sudokuPath("0");
 
     QPainterPath rectPath = qpp_rectPath();
 
@@ -80,6 +89,14 @@ SudokuQtWindow::SudokuQtWindow()
         textPathNums[jj].addText(10, 70, timesFont, tr(s));
         renderAreas.push_back(new RenderArea(textPathNums[jj]));
     }*/
+
+    while(jNCount<81) {
+        // add widget
+        QPainterPath sudokuPathNUM = qpp_sudokuPath(itoa(jNCount%10));
+        RenderArea* it = new RenderArea(sudokuPathNUM);
+        renderAreas.push_back(new RenderArea(sudokuPathNUM));
+        jNCount++;
+    }
 
     fillRuleComboBox = new QComboBox;
     fillRuleComboBox->addItem(tr("Odd Even"), Qt::OddEvenFill);
@@ -180,6 +197,7 @@ SudokuQtWindow::SudokuQtWindow()
         // add widget
         topLayout->addWidget(*it, (iNCount/9)*2 + 1, iNCount % 9);
     }
+
     hlineFrame = new QFrame();
     hlineFrame->setFrameShape(QFrame::HLine);
     //hlineFrame->setFrameStyle(QFrame::Box | QFrame::Plain);
