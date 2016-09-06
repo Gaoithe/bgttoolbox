@@ -5,6 +5,8 @@
 #include <QtWidgets>
 #include "SudokuMainPocketC.h"
 
+extern void pocketcRegisterWindow(SudokuQtWindow *w);
+
 // SudokuQtSudokuQtWindow.cpp // qtSudokuQtWindow.cpp provide SudokuQtWindow class/object
 
 class QPushButtonPaint:QPushButton
@@ -369,6 +371,10 @@ SudokuQtWindow::SudokuQtWindow()
     penWidthSpinBox->setValue(2);
 
     setWindowTitle(tr("SudokuIkku"));
+
+    //alertMessageDialog = new QErrorMessage(this);
+
+    pocketcRegisterWindow(this);
 }
 
 void SudokuQtWindow::fillRuleChanged()
@@ -446,7 +452,6 @@ void SudokuQtWindow::ssolveY()
 void SudokuQtWindow::shint()
 {
     sudokuHint();
-    this->setBoxes();
 }
 
 void SudokuQtWindow::sload0()
@@ -524,5 +529,26 @@ void SudokuQtWindow::fillBox()
     //    connect(penWidthSpinBox, SIGNAL(valueChanged(int)), *it, SLOT(setPenWidth(int)));
     //    connect(rotationAngleSpinBox, SIGNAL(valueChanged(int)), *it, SLOT(setRotationAngle(int)));
     //}
+
+}
+
+int SudokuQtWindow::alertMessage(string m, int next)
+{
+    QString mess(m.c_str());
+    //alertMessageDialog->showMessage(mess);
+
+    QMessageBox::StandardButton reply;
+    //reply = QMessageBox::information(this, tr("Help/Hint"), mess);
+    if (next) {
+        reply = QMessageBox::information(this, tr("Help/Hint"), mess, QMessageBox::Yes | QMessageBox::Cancel);
+    } else {
+        reply = QMessageBox::information(this, tr("Help/Hint"), mess, QMessageBox::Ok);
+    }
+    //if (next && reply == QMessageBox::Yes)
+    //    sudokuHint();
+    if (reply == QMessageBox::Cancel)
+        return 1;
+    else
+        return 0;
 
 }

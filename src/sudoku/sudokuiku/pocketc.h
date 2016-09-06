@@ -8,9 +8,21 @@ using namespace std;
 #include <stdio.h>
 #include <unistd.h> // sleep
 
-void alert(string s)
+#include "SudokuQtWindow.h"
+
+class SudokuQtWindow *W=NULL;
+void pocketcRegisterWindow(SudokuQtWindow *w)
 {
-  printf("alert: %s",s.c_str());
+    W = w;
+}
+
+int alert(string s, int cancel=0, int next=1)
+{
+    if (!cancel) {
+        printf("alert: %s",s.c_str());
+        return W->alertMessage(s,next);
+    }
+    return cancel;
 }
 
 void mmclose(void){

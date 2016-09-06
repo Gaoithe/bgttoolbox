@@ -42,6 +42,8 @@
 #define SUDOKUQTWINDOW_H
 
 #include <QWidget>
+#include <string>
+using namespace std;
 
 QPainterPath qpp_sudokuPath(void);
 
@@ -49,6 +51,7 @@ QT_BEGIN_NAMESPACE
 class QComboBox;
 class QLabel;
 class QSpinBox;
+class QErrorMessage;
 QT_END_NAMESPACE
 class RenderArea;
 
@@ -58,6 +61,7 @@ class SudokuQtWindow : public QWidget
 
 public:
     SudokuQtWindow();
+    int alertMessage(string m, int next=1);
 
 private slots:
     void fillRuleChanged();
@@ -95,6 +99,8 @@ private:
     QSpinBox *penWidthSpinBox;
     QComboBox *penColorComboBox;
     QSpinBox *rotationAngleSpinBox;
+
+    //QErrorMessage *alertMessageDialog;
 };
 
 
