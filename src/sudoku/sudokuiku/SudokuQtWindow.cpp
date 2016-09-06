@@ -283,6 +283,22 @@ SudokuQtWindow::SudokuQtWindow()
     mPushButton2 = new QPushButton(tr("Rotate NUMs"));
     connect(mPushButton2, SIGNAL(clicked()), this, SLOT(pushButton2()));
 
+    QPushButton *mPushButtonSolveW;
+    mPushButtonSolveW = new QPushButton(tr("SolveW"));
+    connect(mPushButtonSolveW, SIGNAL(clicked()), this, SLOT(ssolveW()));
+
+    QPushButton *mPushButtonSolveX;
+    mPushButtonSolveX = new QPushButton(tr("SolveX"));
+    connect(mPushButtonSolveX, SIGNAL(clicked()), this, SLOT(ssolveX()));
+
+    QPushButton *mPushButtonSolveY;
+    mPushButtonSolveY = new QPushButton(tr("SolveY"));
+    connect(mPushButtonSolveY, SIGNAL(clicked()), this, SLOT(ssolveY()));
+
+    QPushButton *mPushButtonHint;
+    mPushButtonHint = new QPushButton(tr("Hint"));
+    connect(mPushButtonHint, SIGNAL(clicked()), this, SLOT(shint()));
+
     QPushButton *mPushButtonLoad0;
     mPushButtonLoad0 = new QPushButton(tr("Load0"));
     connect(mPushButtonLoad0, SIGNAL(clicked()), this, SLOT(sload0()));
@@ -331,6 +347,10 @@ SudokuQtWindow::SudokuQtWindow()
     mPushButton1->setDefault(true);
     mPushButton1->setCheckable(true);
     mPushButton1->setChecked(true);
+    mainLayout->addWidget(mPushButtonSolveW);
+    mainLayout->addWidget(mPushButtonSolveX);
+    mainLayout->addWidget(mPushButtonSolveY);
+    mainLayout->addWidget(mPushButtonHint);
     mainLayout->addWidget(mPushButton1);
     mainLayout->addWidget(mPushButton2);
     mainLayout->addWidget(mPushButton3);
@@ -403,6 +423,30 @@ void SudokuQtWindow::pushButton2()
     RenderArea *ra = renderAreas.value(buttonX+buttonY*9);
     ra->setText(buttonNumber%10);
     setBox(buttonX,buttonY,'0'+buttonNumber);
+}
+
+void SudokuQtWindow::ssolveW()
+{
+    solveW();
+    this->setBoxes();
+}
+
+void SudokuQtWindow::ssolveX()
+{
+    solveX();
+    this->setBoxes();
+}
+
+void SudokuQtWindow::ssolveY()
+{
+    solveY();
+    this->setBoxes();
+}
+
+void SudokuQtWindow::shint()
+{
+    sudokuHint();
+    this->setBoxes();
 }
 
 void SudokuQtWindow::sload0()
