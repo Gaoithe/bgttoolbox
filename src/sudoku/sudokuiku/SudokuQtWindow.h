@@ -65,7 +65,13 @@ private slots:
     void penColorChanged();
     void pushButton1();
     void pushButton2();
+    void load0();
+    void load1();
+    void load2();
+    void load3();
+    void load4();
     void clearBox();
+    void setBoxes();
     void fillBox();
 
 private:

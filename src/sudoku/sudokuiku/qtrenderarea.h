@@ -23,6 +23,7 @@ public slots:
     void setPenColor(const QColor &color);
     void setRotationAngle(int degrees);
     void setText(int n, char *t=NULL);
+    char getText();
 
 protected:
     void paintEvent(QPaintEvent *event);
@@ -35,7 +36,7 @@ private:
     QColor penColor;
     int rotationAngle;
 
-    char *text;
+    char *text=NULL;
     int num;
     QFont timesFont;
 

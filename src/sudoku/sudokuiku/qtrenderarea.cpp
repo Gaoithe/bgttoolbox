@@ -19,34 +19,6 @@ RenderArea::RenderArea(const QPainterPath &path, QWidget *parent, char *text)
     if (text) {
         setText(text[0] - '0',text);
     }
-/*  // Experimenting with table.
- *  // 10*10 each item 2row 2col ab-cd- b-title c-row-title
-    int rows = 10;
-    int cols = 10;
-
-    QTableWidget *table = new QTableWidget(rows, cols, this);
-    table->setSizeAdjustPolicy(QTableWidget::AdjustToContents);
-    for (int c = 0; c < cols; ++c) {
-        QString character(QChar('A' + c));
-        table->setHorizontalHeaderItem(c, new QTableWidgetItem(character));
-    }
-
-    table->setItemPrototype(table->item(rows - 1, cols - 1));
-    //table->setItemDelegate(new SpreadSheetDelegate());
-
-    //table->setItem(0, 0, new SpreadSheetItem("Item"));
-    //table->item(0, 0)->setBackgroundColor(titleBackground);
-    //table->item(0, 0)->setToolTip("tip");
-    //table->item(0, 0)->setFont(titleFont);
-
-    QStringList lSrows, lScols;
-    for (int c = 0; c < table->columnCount(); ++c)
-        lScols << QChar('A' + c);
-    for (int r = 0; r < table->rowCount(); ++r) {
-        lSrows << QString::number(1 + r);
-        table->setVerticalHeaderItem(r, new QTableWidgetItem(QString::number(1 + r)));
-    }
-*/
 }
 
 QSize RenderArea::minimumSizeHint() const
@@ -112,6 +84,7 @@ void RenderArea::setText(int n, char *t)
 {
     this->num = n;
     if (t) this->text = t;
+    else if (n == 0) this->text = " ";
     else this->text = itoa(n);
     // do nothing . . unless it is a
     //QPainterPath sudokuPath = qpp_sudokuPath("0");
@@ -122,4 +95,10 @@ void RenderArea::setText(int n, char *t)
     // add new value/text
     this->path.addText(10, 70, timesFont, Window::tr(text));
     update();
+}
+
+char RenderArea::getText()
+{
+    if (this->text) return this->text[0];
+    else return '0';
 }

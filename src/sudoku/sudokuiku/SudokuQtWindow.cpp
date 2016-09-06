@@ -2,8 +2,8 @@
 #include "SudokuQtWindow.h"
 #include "itoa.h"
 #include "qtwindow.h"
-
 #include <QtWidgets>
+#include "SudokuMainPocketC.h"
 
 // SudokuQtSudokuQtWindow.cpp // qtSudokuQtWindow.cpp provide SudokuQtWindow class/object
 
@@ -39,6 +39,8 @@ QPainterPath qpp_sudokuPath(char *number)
 
 SudokuQtWindow::SudokuQtWindow()
 {
+    init(); initgrps();
+
     QPainterPath sudokuPath = qpp_sudokuPath("0");
 
     QPainterPath rectPath = qpp_rectPath();
@@ -198,6 +200,7 @@ SudokuQtWindow::SudokuQtWindow()
         }
         // add widget
         topLayout->addWidget(*it, (iNCount/9)*2 + 1, iNCount % 9);
+        setBox(iNCount%9,iNCount/9,(*it)->getText());
     }
 
     hlineFrame = new QFrame();
@@ -279,6 +282,27 @@ SudokuQtWindow::SudokuQtWindow()
     QPushButton *mPushButton2;
     mPushButton2 = new QPushButton(tr("Rotate NUMs"));
     connect(mPushButton2, SIGNAL(clicked()), this, SLOT(pushButton2()));
+
+    QPushButton *mPushButtonLoad0;
+    mPushButtonLoad0 = new QPushButton(tr("Load0"));
+    connect(mPushButtonLoad0, SIGNAL(clicked()), this, SLOT(load0()));
+
+    QPushButton *mPushButtonLoad1;
+    mPushButtonLoad1 = new QPushButton(tr("Load1"));
+    connect(mPushButtonLoad1, SIGNAL(clicked()), this, SLOT(load1()));
+
+    QPushButton *mPushButtonLoad2;
+    mPushButtonLoad2 = new QPushButton(tr("Load2"));
+    connect(mPushButtonLoad2, SIGNAL(clicked()), this, SLOT(load2()));
+
+    QPushButton *mPushButtonLoad3;
+    mPushButtonLoad3 = new QPushButton(tr("Load3"));
+    connect(mPushButtonLoad3, SIGNAL(clicked()), this, SLOT(load3()));
+
+    QPushButton *mPushButtonLoad4;
+    mPushButtonLoad4 = new QPushButton(tr("Load4"));
+    connect(mPushButtonLoad4, SIGNAL(clicked()), this, SLOT(load4()));
+
     /*
     QPushButtonPaint *mPushButton2;
     mPushButton2 = new QPushButtonPaint(tr("SuDoKu"));
@@ -311,6 +335,11 @@ SudokuQtWindow::SudokuQtWindow()
     mainLayout->addWidget(mPushButton2);
     mainLayout->addWidget(mPushButton3);
     mainLayout->addWidget(mPushButton4);
+    mainLayout->addWidget(mPushButtonLoad0);
+    mainLayout->addWidget(mPushButtonLoad1);
+    mainLayout->addWidget(mPushButtonLoad2);
+    mainLayout->addWidget(mPushButtonLoad3);
+    mainLayout->addWidget(mPushButtonLoad4);
 
     setLayout(mainLayout);
 
@@ -359,7 +388,6 @@ QVariant SudokuQtWindow::currentItemData(QComboBox *comboBox)
     return comboBox->itemData(comboBox->currentIndex());
 }
 
-#include "SudokuMainPocketC.h"
 void SudokuQtWindow::pushButton1()
 {
     sudokumain(1,NULL);
@@ -374,18 +402,70 @@ void SudokuQtWindow::pushButton2()
     if (buttonY>=9) buttonX=0,buttonY=0;
     RenderArea *ra = renderAreas.value(buttonX+buttonY*9);
     ra->setText(buttonNumber%10);
+    setBox(buttonX,buttonY,'0'+buttonNumber);
+}
 
+void SudokuQtWindow::load0()
+{
+    this->clearBox();
+    load();
+    this->setBoxes();
+}
+
+void SudokuQtWindow::load1()
+{
+    this->clearBox();
+    load1();
+    this->setBoxes();
+}
+
+void SudokuQtWindow::load2()
+{
+    this->clearBox();
+    load2();
+    this->setBoxes();
+}
+
+void SudokuQtWindow::load3()
+{
+    this->clearBox();
+    load3();
+    this->setBoxes();
+}
+
+void SudokuQtWindow::load4()
+{
+    this->clearBox();
+    load4();
+    this->setBoxes();
+}
+
+void SudokuQtWindow::setBoxes()
+{
+    for(int j=0;j<9;j++) {
+        int j10=j*10;
+        for(int i=0;i<9;i++) {
+            //c=it.substr(i+j10,1);
+            char c=it[i+j10];
+            int s=c-'0';
+            RenderArea *ra = renderAreas.value(j+i*9);
+            ra->setText(s);
+        }
+    }
 }
 
 void SudokuQtWindow::clearBox()
 {
-
+    int n=0;
     for(QList<RenderArea*>::iterator it = renderAreas.begin(); it != renderAreas.end(); it++) {
         // remove from renderAreas and delete
-        delete *it;
+        //delete *it;
+        (*it)->setText(0," ");
+        setBox(n%9,n/9,'0');
+        n++;
     }
-    renderAreas.clear();
-
+    //renderAreas.clear();
+    init(); initgrps();
 }
 
 void SudokuQtWindow::fillBox()
