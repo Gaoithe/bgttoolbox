@@ -463,18 +463,21 @@ void SudokuQtWindow::ssolveW()
 {
     solveW();
     this->setBoxes();
+    dumpEngine();
 }
 
 void SudokuQtWindow::ssolveX()
 {
     solveX();
     this->setBoxes();
+    dumpEngine();
 }
 
 void SudokuQtWindow::ssolveY()
 {
     solveY();
     this->setBoxes();
+    dumpEngine();
 }
 
 void SudokuQtWindow::shint()
@@ -487,6 +490,7 @@ void SudokuQtWindow::sload0()
     this->clearBox();
     load();
     this->setBoxes();
+    dumpEngine();
 }
 
 void SudokuQtWindow::sload1()
@@ -494,6 +498,7 @@ void SudokuQtWindow::sload1()
     this->clearBox();
     load1();
     this->setBoxes();
+    dumpEngine();
 }
 
 void SudokuQtWindow::sload2()
@@ -501,6 +506,7 @@ void SudokuQtWindow::sload2()
     this->clearBox();
     load2();
     this->setBoxes();
+    dumpEngine();
 }
 
 void SudokuQtWindow::sload3()
@@ -508,6 +514,7 @@ void SudokuQtWindow::sload3()
     this->clearBox();
     load3();
     this->setBoxes();
+    dumpEngine();
 }
 
 void SudokuQtWindow::sload4()
@@ -515,6 +522,7 @@ void SudokuQtWindow::sload4()
     this->clearBox();
     load4();
     this->setBoxes();
+    dumpEngine();
 }
 
 void SudokuQtWindow::setBoxes()

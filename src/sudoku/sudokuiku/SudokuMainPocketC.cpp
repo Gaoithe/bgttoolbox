@@ -14,6 +14,39 @@ int oldi,oldj; //static
 char sudoku[81];
 int maybe[81];
 int nope[81];
+
+void dumpEngine(){
+    char line[20];
+    printf("SUDOKU:\n");
+    for(i=0;i<9;i++) {
+        snprintf(line,9,sudoku+i*9);
+        printf(" : %s : \n",line);
+    }
+    for(i=0;i<9;i++) {
+        printf(" : ");
+        for(j=0;j<9;j++) {
+            printf("%02x ",sudoku[i*9+j]);
+        }
+        printf(": \n");
+    }
+    printf("MAYBE:\n");
+    for(i=0;i<9;i++) {
+        printf(" : ");
+        for(j=0;j<9;j++) {
+            printf("%03x ",maybe[i*9+j]);
+        }
+        printf(": \n");
+    }
+    printf("NOPE:\n");
+    for(i=0;i<9;i++) {
+        printf(" : ");
+        for(j=0;j<9;j++) {
+            printf("%03x ",nope[i*9+j]);
+        }
+        printf(": \n");
+    }
+}
+
 // maybe|nope[(i+j*9)] & (2<<num)
 int valid(int i, int j){
   return (i>=0 && i<=8 &&
