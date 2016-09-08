@@ -42,6 +42,7 @@
 #define SUDOKUQTWINDOW_H
 
 #include <QWidget>
+#include <QtWidgets>
 
 QPainterPath qpp_sudokuPath(void);
 
@@ -63,6 +64,7 @@ private slots:
     void fillRuleChanged();
     void fillGradientChanged();
     void penColorChanged();
+    void pushButtonMode();
     void pushButton1();
     void pushButton2();
     void ssolveW();
@@ -79,6 +81,8 @@ private slots:
     void fillBox();
 
 private:
+    int mode=0;
+
     void populateWithColors(QComboBox *comboBox);
     QVariant currentItemData(QComboBox *comboBox);
 
@@ -95,6 +99,13 @@ private:
     QSpinBox *penWidthSpinBox;
     QComboBox *penColorComboBox;
     QSpinBox *rotationAngleSpinBox;
+
+    QGridLayout *topLayout;
+    QGridLayout *mainLayout;
+    QGridLayout *botGameLayout;
+    QGridLayout *botAppearanceLayout;
+    QWidget *botGameFrame;
+    QWidget *botAppearanceFrame;
 };
 
 
