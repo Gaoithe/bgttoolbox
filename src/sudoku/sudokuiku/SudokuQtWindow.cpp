@@ -531,8 +531,9 @@ void SudokuQtWindow::setBoxes()
         int j10=j*10;
         for(int i=0;i<9;i++) {
             //c=it.substr(i+j10,1);
-            char c=it[i+j10];
-            int s=c-'0';
+            int s = getEngine(i,j);
+            //char c=it[i+j10];
+            //int s=c-'0';
             RenderArea *ra = renderAreas.value(j+i*9);
             ra->setText(s);
         }

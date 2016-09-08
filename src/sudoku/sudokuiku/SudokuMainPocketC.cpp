@@ -15,17 +15,21 @@ char sudoku[81];
 int maybe[81];
 int nope[81];
 
+int getEngine(int i, int j){
+    return (int)sudoku[j*9+i];
+}
+
 void dumpEngine(){
     char line[20];
     printf("SUDOKU:\n");
-    for(i=0;i<9;i++) {
-        snprintf(line,9,sudoku+i*9);
-        printf(" : %s : \n",line);
-    }
+    //for(i=0;i<9;i++) {
+    //    snprintf(line,9,sudoku+i*9);
+    //    printf(" : %s : \n",line);
+    //}
     for(i=0;i<9;i++) {
         printf(" : ");
         for(j=0;j<9;j++) {
-            printf("%02x ",sudoku[i*9+j]);
+            printf("%x ",sudoku[i+j*9]);
         }
         printf(": \n");
     }
@@ -33,7 +37,7 @@ void dumpEngine(){
     for(i=0;i<9;i++) {
         printf(" : ");
         for(j=0;j<9;j++) {
-            printf("%03x ",maybe[i*9+j]);
+            printf("%03x ",maybe[j*9+i]);
         }
         printf(": \n");
     }
@@ -41,7 +45,7 @@ void dumpEngine(){
     for(i=0;i<9;i++) {
         printf(" : ");
         for(j=0;j<9;j++) {
-            printf("%03x ",nope[i*9+j]);
+            printf("%03x ",nope[j*9+i]);
         }
         printf(": \n");
     }

@@ -6,6 +6,7 @@ extern char *it;
 int sudokumain(int argc, char *argv[]);
 
 // SudokuEng
+int getEngine(int i, int j);
 void dumpEngine();
 void updOne(int un, int ki, int maskin, int maskout);
 void updMaybeNope(int i, int j, int v, int un);
