@@ -2,7 +2,6 @@
 #include "SudokuQtWindow.h"
 #include "itoa.h"
 #include "qtwindow.h"
-#include <QtWidgets>
 #include "SudokuMainPocketC.h"
 
 extern void pocketcRegisterWindow(SudokuQtWindow *w);
@@ -189,7 +188,13 @@ SudokuQtWindow::SudokuQtWindow()
     hlineFrame->setFrameShape(QFrame::HLine);
 
     /* in 3^H9 columns add all the funny shapes in one layout*/
-    QGridLayout *topLayout = new QGridLayout;
+    topLayout = new QGridLayout;
+    mainLayout = new QGridLayout;
+    botGameFrame = new QWidget(this);
+    botGameLayout = new QGridLayout(botGameFrame);
+    botAppearanceFrame = new QWidget(this);
+    botAppearanceLayout = new QGridLayout(botAppearanceFrame);
+
     int iNCount=0;
     for(QList<RenderArea*>::iterator it = renderAreas.begin(); it != renderAreas.end(); it++, iNCount++) {
         //topLayout->addWidget(*it, iNCount / 9, iNCount % 9);
@@ -221,54 +226,52 @@ SudokuQtWindow::SudokuQtWindow()
     }
 
 
-    QGridLayout *mainLayout = new QGridLayout;
-
-    int imainrow = 0;
-    mainLayout->addLayout(topLayout, imainrow++, 0, 1, 4);
-
-    //mainLayout->addWidget(*table, 0, 0, 1, 4);
-
-    mainLayout->addWidget(fillRuleLabel, imainrow, 0);
-    mainLayout->addWidget(fillRuleComboBox, imainrow++/*fromrow*/, 1/*fromcol*/, 1/*rowspan*/, 3/*colspan*/);
+    int iapprow = 0;
+    botAppearanceLayout->addWidget(fillRuleLabel, iapprow, 0);
+    botAppearanceLayout->addWidget(fillRuleComboBox, iapprow++/*fromrow*/, 1/*fromcol*/, 1/*rowspan*/, 3/*colspan*/);
 
     // test: separating line
     hlineFrame = new QFrame();
     hlineFrame->setFrameShape(QFrame::HLine);
-    mainLayout->addWidget(hlineFrame, imainrow++, 0, 1, 4);
+    botAppearanceLayout->addWidget(hlineFrame, iapprow++, 0, 1, 4);
 
-    mainLayout->addWidget(fillGradientLabel, imainrow, 0);
-    mainLayout->addWidget(fillColor1ComboBox, imainrow, 1);
-    mainLayout->addWidget(fillToLabel, imainrow, 2);
-    mainLayout->addWidget(fillColor2ComboBox, imainrow++, 3);
-
-    // test: separating line
-    hlineFrame = new QFrame();
-    hlineFrame->setFrameShape(QFrame::HLine);
-    mainLayout->addWidget(hlineFrame, imainrow++, 0, 1, 4);
-
-    mainLayout->addWidget(penWidthLabel, imainrow, 0);
-    mainLayout->addWidget(penWidthSpinBox, imainrow++, 1, 1, 3);
+    botAppearanceLayout->addWidget(fillGradientLabel, iapprow, 0);
+    botAppearanceLayout->addWidget(fillColor1ComboBox, iapprow, 1);
+    botAppearanceLayout->addWidget(fillToLabel, iapprow, 2);
+    botAppearanceLayout->addWidget(fillColor2ComboBox, iapprow++, 3);
 
     // test: separating line
     hlineFrame = new QFrame();
     hlineFrame->setFrameShape(QFrame::HLine);
-    mainLayout->addWidget(hlineFrame, imainrow++, 0, 1, 4);
+    botAppearanceLayout->addWidget(hlineFrame, iapprow++, 0, 1, 4);
 
-    mainLayout->addWidget(penColorLabel, imainrow, 0);
-    mainLayout->addWidget(penColorComboBox, imainrow++, 1, 1, 3);
+    botAppearanceLayout->addWidget(penWidthLabel, iapprow, 0);
+    botAppearanceLayout->addWidget(penWidthSpinBox, iapprow++, 1, 1, 3);
 
     // test: separating line
     hlineFrame = new QFrame();
     hlineFrame->setFrameShape(QFrame::HLine);
-    mainLayout->addWidget(hlineFrame, imainrow++, 0, 1, 4);
+    botAppearanceLayout->addWidget(hlineFrame, iapprow++, 0, 1, 4);
 
-    mainLayout->addWidget(rotationAngleLabel, imainrow, 0);
-    mainLayout->addWidget(rotationAngleSpinBox, imainrow++, 1, 1, 3);
+    botAppearanceLayout->addWidget(penColorLabel, iapprow, 0);
+    botAppearanceLayout->addWidget(penColorComboBox, iapprow++, 1, 1, 3);
+
+    // test: separating line
+    hlineFrame = new QFrame();
+    hlineFrame->setFrameShape(QFrame::HLine);
+    botAppearanceLayout->addWidget(hlineFrame, iapprow++, 0, 1, 4);
+
+    botAppearanceLayout->addWidget(rotationAngleLabel, iapprow, 0);
+    botAppearanceLayout->addWidget(rotationAngleSpinBox, iapprow++, 1, 1, 3);
+
+    QPushButton *mPushButtonMode;
+    mPushButtonMode = new QPushButton(tr("Game/Tool Mode"));
+    connect(mPushButtonMode, SIGNAL(clicked()), this, SLOT(pushButtonMode()));
 
     int debug = 0;
     if (debug == 1) {
         QPushButton *mPB = new QPushButton(tr("0014"));
-        mainLayout->addWidget(mPB, 0, 0, 1, 4);
+        botGameLayout->addWidget(mPB, 0, 0, 1, 4);
     }
 
     QPushButton *mPushButton1;
@@ -349,20 +352,29 @@ SudokuQtWindow::SudokuQtWindow()
     mPushButton1->setDefault(true);
     mPushButton1->setCheckable(true);
     mPushButton1->setChecked(true);
-    mainLayout->addWidget(mPushButtonSolveW);
-    mainLayout->addWidget(mPushButtonSolveX);
-    mainLayout->addWidget(mPushButtonSolveY);
-    mainLayout->addWidget(mPushButtonHint);
-    mainLayout->addWidget(mPushButton1);
-    mainLayout->addWidget(mPushButton2);
-    mainLayout->addWidget(mPushButton3);
-    mainLayout->addWidget(mPushButton4);
-    mainLayout->addWidget(mPushButtonLoad0);
-    mainLayout->addWidget(mPushButtonLoad1);
-    mainLayout->addWidget(mPushButtonLoad2);
-    mainLayout->addWidget(mPushButtonLoad3);
-    mainLayout->addWidget(mPushButtonLoad4);
 
+    int igamerow = 0, igamecol = 0;
+    botGameLayout->addWidget(mPushButtonSolveW,igamerow,igamecol++,1,1);
+    botGameLayout->addWidget(mPushButtonSolveX,igamerow,igamecol++,1,1);
+    botGameLayout->addWidget(mPushButtonSolveY,igamerow,igamecol++,1,1);
+    botGameLayout->addWidget(mPushButtonHint,igamerow++,igamecol++,1,1);
+    botGameLayout->addWidget(mPushButton1,igamerow,igamecol=0,1,1);
+    botGameLayout->addWidget(mPushButton2,igamerow,igamecol++,1,1);
+    botGameLayout->addWidget(mPushButton3,igamerow,igamecol++,1,1);
+    botGameLayout->addWidget(mPushButton4,igamerow++,igamecol++,1,1);
+    botGameLayout->addWidget(mPushButtonLoad0,igamerow,igamecol=0,1,1);
+    botGameLayout->addWidget(mPushButtonLoad1,igamerow,igamecol++,1,1);
+    botGameLayout->addWidget(mPushButtonLoad2,igamerow,igamecol++,1,1);
+    botGameLayout->addWidget(mPushButtonLoad3,igamerow++,igamecol++,1,1);
+    botGameLayout->addWidget(mPushButtonLoad4,igamerow,igamecol=0,1,1);
+
+    int imainrow = 0;
+    mainLayout->addLayout(topLayout, imainrow++, 0, 1, 4);
+    mainLayout->addWidget(mPushButtonMode, imainrow++, 0, 1, 1);
+    //mainLayout->addLayout(botAppearanceLayout, imainrow++, 0, 1, 4);
+    //mainLayout->addLayout(botGameLayout, imainrow++, 0, 1, 4);
+    mainLayout->addWidget(botAppearanceFrame, imainrow++, 0, 1, 4);
+    mainLayout->addWidget(botGameFrame, imainrow++, 0, 1, 4);
     setLayout(mainLayout);
 
     fillRuleChanged();
@@ -375,6 +387,8 @@ SudokuQtWindow::SudokuQtWindow()
     //alertMessageDialog = new QErrorMessage(this);
 
     pocketcRegisterWindow(this);
+
+    pushButtonMode();
 }
 
 void SudokuQtWindow::fillRuleChanged()
@@ -412,6 +426,20 @@ void SudokuQtWindow::populateWithColors(QComboBox *comboBox)
 QVariant SudokuQtWindow::currentItemData(QComboBox *comboBox)
 {
     return comboBox->itemData(comboBox->currentIndex());
+}
+
+void SudokuQtWindow::pushButtonMode()
+{
+    if (mode==0) {
+        mode=1;
+        botAppearanceFrame->setVisible(false);
+        botGameFrame->setVisible(true);
+    } else {
+        mode=0;
+        botAppearanceFrame->setVisible(true);
+        botGameFrame->setVisible(false);
+    }
+
 }
 
 void SudokuQtWindow::pushButton1()
