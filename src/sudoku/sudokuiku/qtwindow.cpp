@@ -352,9 +352,13 @@ Window::Window()
 
     penWidthSpinBox = new QSpinBox;
     penWidthSpinBox->setRange(0, 20);
-
     penWidthLabel = new QLabel(tr("&Pen Width:"));
     penWidthLabel->setBuddy(penWidthSpinBox);
+
+    numberSizeSpinBox = new QSpinBox;
+    numberSizeSpinBox->setRange(10, 70);
+    numberSizeLabel = new QLabel(tr("&Number Size:"));
+    numberSizeLabel->setBuddy(numberSizeSpinBox);
 
     penColorComboBox = new QComboBox;
     populateWithColors(penColorComboBox);
@@ -378,6 +382,7 @@ Window::Window()
 
     for(QList<RenderArea*>::iterator it = renderAreas.begin(); it != renderAreas.end(); it++) {
         connect(penWidthSpinBox, SIGNAL(valueChanged(int)), *it, SLOT(setPenWidth(int)));
+        connect(numberSizeSpinBox, SIGNAL(valueChanged(int)), *it, SLOT(setNumberSize(int)));
         connect(rotationAngleSpinBox, SIGNAL(valueChanged(int)), *it, SLOT(setRotationAngle(int)));
     }
 
@@ -455,38 +460,24 @@ Window::Window()
     mainLayout->addWidget(fillRuleComboBox, imainrow++/*fromrow*/, 1/*fromcol*/, 1/*rowspan*/, 3/*colspan*/);
 
     // test: separating line
-    hlineFrame = new QFrame();
-    hlineFrame->setFrameShape(QFrame::HLine);
-    mainLayout->addWidget(hlineFrame, imainrow++, 0, 1, 4);
+    //hlineFrame = new QFrame();
+    //hlineFrame->setFrameShape(QFrame::HLine);
+    //mainLayout->addWidget(hlineFrame, imainrow++, 0, 1, 4);
 
     mainLayout->addWidget(fillGradientLabel, imainrow, 0);
     mainLayout->addWidget(fillColor1ComboBox, imainrow, 1);
     mainLayout->addWidget(fillToLabel, imainrow, 2);
     mainLayout->addWidget(fillColor2ComboBox, imainrow++, 3);
 
-    // test: separating line
-    hlineFrame = new QFrame();
-    hlineFrame->setFrameShape(QFrame::HLine);
-    mainLayout->addWidget(hlineFrame, imainrow++, 0, 1, 4);
-
     mainLayout->addWidget(penWidthLabel, imainrow, 0);
-    mainLayout->addWidget(penWidthSpinBox, imainrow++, 1, 1, 3);
-
-    // test: separating line
-    hlineFrame = new QFrame();
-    hlineFrame->setFrameShape(QFrame::HLine);
-    mainLayout->addWidget(hlineFrame, imainrow++, 0, 1, 4);
-
-    mainLayout->addWidget(penColorLabel, imainrow, 0);
-    mainLayout->addWidget(penColorComboBox, imainrow++, 1, 1, 3);
-
-    // test: separating line
-    hlineFrame = new QFrame();
-    hlineFrame->setFrameShape(QFrame::HLine);
-    mainLayout->addWidget(hlineFrame, imainrow++, 0, 1, 4);
+    mainLayout->addWidget(penWidthSpinBox, imainrow, 1);
+    mainLayout->addWidget(penColorLabel, imainrow, 2);
+    mainLayout->addWidget(penColorComboBox, imainrow++, 3);
 
     mainLayout->addWidget(rotationAngleLabel, imainrow, 0);
-    mainLayout->addWidget(rotationAngleSpinBox, imainrow++, 1, 1, 3);
+    mainLayout->addWidget(rotationAngleSpinBox, imainrow, 1);
+    mainLayout->addWidget(numberSizeLabel, imainrow, 2);
+    mainLayout->addWidget(numberSizeSpinBox, imainrow++, 3);
 
     int debug = 0;
     if (debug == 1) {
@@ -543,6 +534,7 @@ Window::Window()
     fillGradientChanged();
     penColorChanged();
     penWidthSpinBox->setValue(2);
+    numberSizeSpinBox->setValue(30/*TODO calculate default number font height */);
 
     setWindowTitle(tr("SudokuIkku"));
 }

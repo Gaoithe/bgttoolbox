@@ -21,6 +21,7 @@ public slots:
     void setFillGradient(const QColor &color1, const QColor &color2);
     void setPenWidth(int width);
     void setPenColor(const QColor &color);
+    void setNumberSize(int h);
     void setRotationAngle(int degrees);
     void setText(int n, char *t=NULL);
     char getText();
@@ -34,6 +35,7 @@ private:
     QColor fillColor2;
     int penWidth;
     QColor penColor;
+    int numberSize;
     int rotationAngle;
 
     char *text=NULL;

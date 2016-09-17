@@ -10,10 +10,11 @@ RenderArea::RenderArea(const QPainterPath &path, QWidget *parent, char *text)
     : QWidget(parent), path(path)
 {
     penWidth = 1;
+    numberSize = 30;
     rotationAngle = 0;
     setBackgroundRole(QPalette::Base);
 
-    this->timesFont = QFont("Times", 50);
+    this->timesFont = QFont("Times", numberSize); // point size: originally 50, now 30 . .
     this->timesFont.setStyleStrategy(QFont::ForceOutline);
 
     if (text) {
@@ -23,7 +24,7 @@ RenderArea::RenderArea(const QPainterPath &path, QWidget *parent, char *text)
 
 QSize RenderArea::minimumSizeHint() const
 {
-    return QSize(40, 40);
+    return QSize(20, 20);
 }
 
 QSize RenderArea::sizeHint() const
@@ -47,6 +48,13 @@ void RenderArea::setFillGradient(const QColor &color1, const QColor &color2)
 void RenderArea::setPenWidth(int width)
 {
     penWidth = width;
+    update();
+}
+
+void RenderArea::setNumberSize(int h)
+{
+    numberSize = h;
+    this->timesFont = QFont("Times", numberSize);
     update();
 }
 

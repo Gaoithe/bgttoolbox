@@ -103,6 +103,8 @@ private:
     QSpinBox *penWidthSpinBox;
     QComboBox *penColorComboBox;
     QSpinBox *rotationAngleSpinBox;
+    QSpinBox *numberSizeSpinBox;
+    QLabel *numberSizeLabel;
 
     //QErrorMessage *alertMessageDialog;
     QGridLayout *topLayout;
@@ -111,6 +113,7 @@ private:
     QGridLayout *botAppearanceLayout;
     QWidget *botGameFrame;
     QWidget *botAppearanceFrame;
+
 };
 
 

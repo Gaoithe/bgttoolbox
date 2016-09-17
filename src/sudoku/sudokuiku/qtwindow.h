@@ -92,6 +92,9 @@ private:
     QSpinBox *penWidthSpinBox;
     QComboBox *penColorComboBox;
     QSpinBox *rotationAngleSpinBox;
+    QSpinBox *numberSizeSpinBox;
+    QLabel *numberSizeLabel;
+
 };
 
 

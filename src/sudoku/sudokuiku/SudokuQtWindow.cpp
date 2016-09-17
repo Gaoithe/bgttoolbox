@@ -142,6 +142,11 @@ SudokuQtWindow::SudokuQtWindow()
     rotationAngleSpinBox->setWrapping(true);
     rotationAngleSpinBox->setSuffix(QLatin1String("\xB0"));
 
+    numberSizeSpinBox = new QSpinBox;
+    numberSizeSpinBox->setRange(10, 70);
+    numberSizeLabel = new QLabel(tr("&Number Size:"));
+    numberSizeLabel->setBuddy(numberSizeSpinBox);
+
     rotationAngleLabel = new QLabel(tr("&Rotation Angle:"));
     rotationAngleLabel->setBuddy(rotationAngleSpinBox);
 
@@ -153,6 +158,7 @@ SudokuQtWindow::SudokuQtWindow()
     for(QList<RenderArea*>::iterator it = renderAreas.begin(); it != renderAreas.end(); it++) {
         connect(penWidthSpinBox, SIGNAL(valueChanged(int)), *it, SLOT(setPenWidth(int)));
         connect(rotationAngleSpinBox, SIGNAL(valueChanged(int)), *it, SLOT(setRotationAngle(int)));
+        connect(numberSizeSpinBox, SIGNAL(valueChanged(int)), *it, SLOT(setNumberSize(int)));
     }
 
     /*
@@ -241,28 +247,20 @@ SudokuQtWindow::SudokuQtWindow()
     botAppearanceLayout->addWidget(fillColor2ComboBox, iapprow++, 3);
 
     // test: separating line
-    hlineFrame = new QFrame();
-    hlineFrame->setFrameShape(QFrame::HLine);
-    botAppearanceLayout->addWidget(hlineFrame, iapprow++, 0, 1, 4);
+    //hlineFrame = new QFrame();
+    //hlineFrame->setFrameShape(QFrame::HLine);
+    //botAppearanceLayout->addWidget(hlineFrame, iapprow++, 0, 1, 4);
 
     botAppearanceLayout->addWidget(penWidthLabel, iapprow, 0);
-    botAppearanceLayout->addWidget(penWidthSpinBox, iapprow++, 1, 1, 3);
-
-    // test: separating line
-    hlineFrame = new QFrame();
-    hlineFrame->setFrameShape(QFrame::HLine);
-    botAppearanceLayout->addWidget(hlineFrame, iapprow++, 0, 1, 4);
-
-    botAppearanceLayout->addWidget(penColorLabel, iapprow, 0);
-    botAppearanceLayout->addWidget(penColorComboBox, iapprow++, 1, 1, 3);
-
-    // test: separating line
-    hlineFrame = new QFrame();
-    hlineFrame->setFrameShape(QFrame::HLine);
-    botAppearanceLayout->addWidget(hlineFrame, iapprow++, 0, 1, 4);
+    botAppearanceLayout->addWidget(penWidthSpinBox, iapprow, 1);
+    botAppearanceLayout->addWidget(penColorLabel, iapprow, 2);
+    botAppearanceLayout->addWidget(penColorComboBox, iapprow++, 3);
 
     botAppearanceLayout->addWidget(rotationAngleLabel, iapprow, 0);
-    botAppearanceLayout->addWidget(rotationAngleSpinBox, iapprow++, 1, 1, 3);
+    botAppearanceLayout->addWidget(rotationAngleSpinBox, iapprow, 1);
+    botAppearanceLayout->addWidget(numberSizeLabel, iapprow, 2);
+    botAppearanceLayout->addWidget(numberSizeSpinBox, iapprow++, 3);
+
 
     QPushButton *mPushButtonMode;
     mPushButtonMode = new QPushButton(tr("Game/Tool Mode"));
@@ -381,6 +379,7 @@ SudokuQtWindow::SudokuQtWindow()
     fillGradientChanged();
     penColorChanged();
     penWidthSpinBox->setValue(2);
+    numberSizeSpinBox->setValue(30/*TODO calculate default number font height */);
 
     setWindowTitle(tr("SudokuIkku"));
 
