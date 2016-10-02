@@ -124,6 +124,7 @@ int validateSudoku(){
   int done=1;
   int rc=0;
   char value;
+  int x,y;
 
   for(i=0;i<9;i++) {
   for(j=0;j<9;j++) {
@@ -159,9 +160,9 @@ int validateSudoku(){
        // 3x3 group box
        int xoff=(i/3)*3;
        int yoff=(j/3)*3;
-       for(x=0;x<9;x++) {
-       for(y=0;y<9;y++) {
-          if (x==i && y==j) break;
+       for(x=0;x<3;x++) {
+       for(y=0;y<3;y++) {
+          if (x+xoff==i && y+yoff==j) break;
           if(sudoku[x+xoff+(y+yoff)*9] == value){
               rc = -10000;
               printf("duplicate in 3x3 box @%i,%i and %i,%i\n",i,j,x+xoff,y+yoff);
