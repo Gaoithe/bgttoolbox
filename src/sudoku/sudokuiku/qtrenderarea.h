@@ -11,10 +11,13 @@ class RenderArea : public QWidget
     Q_OBJECT
 
 public:
-    explicit RenderArea(const QPainterPath &path, QWidget *parent = 0, char *text = NULL);
-
+    explicit RenderArea(const QPainterPath &path, QWidget *parent = 0, char *text = NULL, int xx=0, int yy=0);
     QSize minimumSizeHint() const;
     QSize sizeHint() const;
+    void setXY(int xx,int yy);
+
+signals:
+    void redirectKey(int num, int x, int y);
 
 public slots:
     void setFillRule(Qt::FillRule rule);
@@ -25,9 +28,11 @@ public slots:
     void setRotationAngle(int degrees);
     void setText(int n, char *t=NULL);
     char getText();
+    void sendKey(){emit redirectKey(num,x,y);}
 
 protected:
     void paintEvent(QPaintEvent *event);
+    void keyPressEvent(QKeyEvent *e);
 
 private:
     QPainterPath path;
@@ -40,6 +45,7 @@ private:
 
     char *text=NULL;
     int num;
+    int x,y;
     QFont timesFont;
 
 };

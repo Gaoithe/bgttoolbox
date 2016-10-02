@@ -98,8 +98,13 @@ SudokuQtWindow::SudokuQtWindow()
     while(jNCount<81) {
         // add widget
         QPainterPath sudokuPathNUM = qpp_sudokuPath(itoa(jNCount%10));
-        RenderArea* it = new RenderArea(sudokuPathNUM);
-        renderAreas.push_back(new RenderArea(sudokuPathNUM));
+        //RenderArea *it = new RenderArea(sudokuPathNUM,xx=(jNCount%9),yy=(jNCount/9));
+        RenderArea *it = new RenderArea(sudokuPathNUM);
+        it->setXY(jNCount%9,jNCount/9);
+        renderAreas.push_back(it);
+        //renderAreas.push_back(new RenderArea(sudokuPathNUM,x=(jNCount%9)+1,y=(jNCount/9)+1));
+        connect(it, SIGNAL(it->redirectKey(int,int,int)), this, SLOT(handleKey(int,int,int)));
+
         jNCount++;
     }
 
@@ -261,10 +266,13 @@ SudokuQtWindow::SudokuQtWindow()
     botAppearanceLayout->addWidget(numberSizeLabel, iapprow, 2);
     botAppearanceLayout->addWidget(numberSizeSpinBox, iapprow++, 3);
 
-
     QPushButton *mPushButtonMode;
     mPushButtonMode = new QPushButton(tr("Game/Tool/Edit Mode"));
     connect(mPushButtonMode, SIGNAL(clicked()), this, SLOT(pushButtonMode()));
+
+    mLight = new LightWidget(Qt::red);
+    mLight->setColor(Qt::blue);
+    connect(mLight, SIGNAL(clicked()), this, SLOT(vvalidateSudoku()));
 
     int debug = 0;
     if (debug == 1) {
@@ -349,7 +357,7 @@ SudokuQtWindow::SudokuQtWindow()
 
     QPushButton *mPushButton5;
     mPushButton5 = new QPushButton(tr("VALIDATE"));
-    connect(mPushButton5, SIGNAL(clicked()), this, SLOT(validateSudoku()));
+    connect(mPushButton5, SIGNAL(clicked()), this, SLOT(vvalidateSudoku()));
 
     mPushButton1->setDefault(true);
     mPushButton1->setCheckable(true);
@@ -373,7 +381,8 @@ SudokuQtWindow::SudokuQtWindow()
 
     int imainrow = 0;
     mainLayout->addLayout(topLayout, imainrow++, 0, 1, 4);
-    mainLayout->addWidget(mPushButtonMode, imainrow++, 0, 1, 1);
+    mainLayout->addWidget(mPushButtonMode, imainrow, 0, 1, 1);
+    mainLayout->addWidget(mLight, imainrow++, 1, 1, 1);
     //mainLayout->addLayout(botAppearanceLayout, imainrow++, 0, 1, 4);
     //mainLayout->addLayout(botGameLayout, imainrow++, 0, 1, 4);
     mainLayout->addWidget(botAppearanceFrame, imainrow++, 0, 1, 4);
@@ -444,6 +453,18 @@ void SudokuQtWindow::pushButtonMode()
         botGameFrame->setVisible(false);
     }
 
+}
+
+void SudokuQtWindow::vvalidateSudoku()
+{
+    int rc = validateSudoku();
+    if (rc==0) {
+        mLight->setColor(Qt::green);
+    } else if (rc<0) {
+        mLight->setColor(Qt::red);
+    } else {
+        mLight->setColor(Qt::yellow);
+    }
 }
 
 void SudokuQtWindow::pushButton1()
@@ -592,4 +613,15 @@ int SudokuQtWindow::alertMessage(string m, int next)
     else
         return 0;
 
+}
+
+void SudokuQtWindow::keyPressEvent(QKeyEvent *e)
+{
+    QWidget::keyPressEvent(e);
+}
+
+void SudokuQtWindow::handleKey(int n, int x, int y)
+{
+    setBox(x,y,n+'0');
+    vvalidateSudoku();
 }

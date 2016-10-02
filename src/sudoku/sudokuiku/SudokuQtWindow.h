@@ -45,6 +45,7 @@
 #include <QtWidgets>
 #include <string>
 using namespace std;
+#include "lightwidget.h"
 
 QPainterPath qpp_sudokuPath(void);
 
@@ -64,10 +65,17 @@ public:
     SudokuQtWindow();
     int alertMessage(string m, int next=1);
 
+protected:
+    void keyPressEvent(QKeyEvent *event) Q_DECL_OVERRIDE;
+
+public slots:
+    void handleKey(int n, int x, int y);
+
 private slots:
     void fillRuleChanged();
     void fillGradientChanged();
     void penColorChanged();
+    void vvalidateSudoku();
     void pushButtonMode();
     void pushButton1();
     void pushButton2();
@@ -113,6 +121,8 @@ private:
     QGridLayout *botAppearanceLayout;
     QWidget *botGameFrame;
     QWidget *botAppearanceFrame;
+
+    LightWidget *mLight;
 
 };
 

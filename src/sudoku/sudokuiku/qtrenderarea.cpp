@@ -6,9 +6,15 @@
 #include <QPainter>
 #include <QtWidgets>
 
-RenderArea::RenderArea(const QPainterPath &path, QWidget *parent, char *text)
+RenderArea::RenderArea(const QPainterPath &path, QWidget *parent, char *text, int xx, int yy)
     : QWidget(parent), path(path)
 {
+    // set focus so can handle keypress
+    setFocusPolicy(Qt::StrongFocus);
+
+    x = xx;
+    y = yy;
+
     penWidth = 1;
     numberSize = 30;
     rotationAngle = 0;
@@ -20,6 +26,12 @@ RenderArea::RenderArea(const QPainterPath &path, QWidget *parent, char *text)
     if (text) {
         setText(text[0] - '0',text);
     }
+}
+
+void RenderArea::setXY(int xx,int yy)
+{
+    x = xx;
+    y = yy;
 }
 
 QSize RenderArea::minimumSizeHint() const
@@ -86,6 +98,23 @@ void RenderArea::paintEvent(QPaintEvent *)
     gradient.setColorAt(1.0, fillColor2);
     painter.setBrush(gradient);
     painter.drawPath(path);
+}
+
+void RenderArea::keyPressEvent(QKeyEvent *e)
+{
+    QString lastKey = e->text();
+    qDebug() << lastKey;
+    char c = lastKey.toStdString().c_str()[0];
+    int n = c - '0';
+    if (n > 0 && n <=9 && this->num == 0) {
+        setText(n,&c);
+        // TODO SIGNAL and set sudoku values
+        // TODO validate ?
+        //keyPressed = QtCore.pyqtSignal()
+        //    super(MyWidget, self).keyPressEvent(event)
+        //    self.keyPressed.emit()
+    }
+    QWidget::keyPressEvent(e);
 }
 
 void RenderArea::setText(int n, char *t)
