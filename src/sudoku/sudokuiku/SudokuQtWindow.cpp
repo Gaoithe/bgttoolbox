@@ -263,7 +263,7 @@ SudokuQtWindow::SudokuQtWindow()
 
 
     QPushButton *mPushButtonMode;
-    mPushButtonMode = new QPushButton(tr("Game/Tool Mode"));
+    mPushButtonMode = new QPushButton(tr("Game/Tool/Edit Mode"));
     connect(mPushButtonMode, SIGNAL(clicked()), this, SLOT(pushButtonMode()));
 
     int debug = 0;
@@ -347,6 +347,10 @@ SudokuQtWindow::SudokuQtWindow()
     mPushButton4 = new QPushButton(tr("Fill"));
     connect(mPushButton4, SIGNAL(clicked()), this, SLOT(fillBox()));
 
+    QPushButton *mPushButton5;
+    mPushButton5 = new QPushButton(tr("VALIDATE"));
+    connect(mPushButton5, SIGNAL(clicked()), this, SLOT(validateSudoku()));
+
     mPushButton1->setDefault(true);
     mPushButton1->setCheckable(true);
     mPushButton1->setChecked(true);
@@ -359,7 +363,8 @@ SudokuQtWindow::SudokuQtWindow()
     botGameLayout->addWidget(mPushButton1,igamerow,igamecol=0,1,1);
     botGameLayout->addWidget(mPushButton2,igamerow,igamecol++,1,1);
     botGameLayout->addWidget(mPushButton3,igamerow,igamecol++,1,1);
-    botGameLayout->addWidget(mPushButton4,igamerow++,igamecol++,1,1);
+    botGameLayout->addWidget(mPushButton4,igamerow,igamecol++,1,1);
+    botGameLayout->addWidget(mPushButton5,igamerow++,igamecol++,1,1);
     botGameLayout->addWidget(mPushButtonLoad0,igamerow,igamecol=0,1,1);
     botGameLayout->addWidget(mPushButtonLoad1,igamerow,igamecol++,1,1);
     botGameLayout->addWidget(mPushButtonLoad2,igamerow,igamecol++,1,1);

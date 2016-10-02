@@ -43,4 +43,6 @@ void solveW();
 void solveX();
 void solveY();
 
+int validateSudoku();
+
 #endif // SUDOKUMAINPOCKETC_H

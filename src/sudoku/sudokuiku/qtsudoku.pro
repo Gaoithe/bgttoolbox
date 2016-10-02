@@ -11,13 +11,15 @@ HEADERS       = qtrenderarea.h \
     SudokuSolve.h \
     SudokuMainPocketC.h \
     SudokuQtWindow.h \
-    itoa.h
+    itoa.h \
+    lightwidget.h
 SOURCES       = qtmain.cpp \
                 qtrenderarea.cpp \
                 qtwindow.cpp \
     SudokuMainPocketC.cpp \
     SudokuQtWindow.cpp \
-    itoa.cpp
+    itoa.cpp \
+    lightwidget.cpp
 unix:!mac:!vxworks:!integrity:LIBS += -lm
 
 # install

@@ -116,3 +116,60 @@ void solveY(){
 // one of x must be 2 so n can't be
 
 // nihongo . . . Pitagora sui-chi
+
+// return 0: done and valid, 1: not done and valid so far, -1*(i+j*9): invalid@i,j - first i,j found, -NEGother
+int validateSudoku(){
+  // check all numbers filled, all numbers from 1-9 (or 0 for unfilled)
+  // foreach box check horiz line, vert line, 3x3 group for duplicate
+  int done=1;
+  int rc=0;
+  char value;
+
+  for(i=0;i<9;i++) {
+  for(j=0;j<9;j++) {
+   idx=i+j*9;
+   value = sudoku[idx];
+   if(value<0 || value>9){
+       rc = -2*(i+j*9);
+       printf("bad content @%i,%i\n",i,j);
+       return rc;
+   } else if(sudoku[idx]==0){
+       done = 0;
+       rc = 1;
+       printf("not done @%i,%i, ",i,j);
+   } else {
+       // horiz line
+       for(x=0;x<9;x++) {
+          if (x==i) break;
+          if(sudoku[x+j*9] == value){
+              rc = -10000;
+              printf("duplicate on h line @%i,%i and %i,%i\n",i,j,x,j);
+              return rc;
+          }
+       }
+       // vert line
+       for(y=0;y<9;y++) {
+          if (y==j) break;
+          if(sudoku[i+y*9] == value){
+              rc = -10000;
+              printf("duplicate on v line @%i,%i and %i,%i\n",i,j,i,y);
+              return rc;
+          }
+       }
+       // 3x3 group box
+       int xoff=(i/3)*3;
+       int yoff=(j/3)*3;
+       for(x=0;x<9;x++) {
+       for(y=0;y<9;y++) {
+          if (x==i && y==j) break;
+          if(sudoku[x+xoff+(y+yoff)*9] == value){
+              rc = -10000;
+              printf("duplicate in 3x3 box @%i,%i and %i,%i\n",i,j,x+xoff,y+yoff);
+              return rc;
+          }
+       }}
+   }
+  }}
+  printf("VALID\n");
+  return rc;
+}

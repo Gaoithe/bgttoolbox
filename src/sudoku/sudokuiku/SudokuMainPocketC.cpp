@@ -51,6 +51,7 @@ void dumpEngine(){
     }
 }
 
+
 // maybe|nope[(i+j*9)] & (2<<num)
 int valid(int i, int j){
   return (i>=0 && i<=8 &&
