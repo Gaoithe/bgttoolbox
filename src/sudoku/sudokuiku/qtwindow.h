@@ -43,6 +43,11 @@
 
 #include <QWidget>
 
+/* *
+ * SudokuQtWindow newer window interface. does what qtwindow did.
+ * . . . I think qtwindow is redundant ?
+ * */
+
 QPainterPath qpp_rectPath(void);
 QPainterPath qpp_roundRectPath(void);
 QPainterPath qpp_ellipsePath();

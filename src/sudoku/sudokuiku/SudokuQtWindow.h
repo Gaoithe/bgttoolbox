@@ -47,6 +47,17 @@
 using namespace std;
 #include "lightwidget.h"
 
+/* *
+ * SudokuQtWindow arranges all the widgets and hooks up actions
+ * QList<RenderArea*> renderAreas containing all the widgets
+ * Labels and controls are contained in this widnow class AND
+ * QGridLayouts containing sudoku square, game controls, settings controls
+ *  QGridLayout *topLayout;
+    QGridLayout *mainLayout;
+    QGridLayout *botGameLayout;
+    QGridLayout *botAppearanceLayout;
+ * */
+
 QPainterPath qpp_sudokuPath(void);
 
 QT_BEGIN_NAMESPACE

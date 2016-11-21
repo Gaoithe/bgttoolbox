@@ -5,6 +5,10 @@
 #include <QPainterPath>
 #include <QWidget>
 
+/* *
+ * a RenderArea widget is a base class for Number and other widgets
+ * SudokuQtWindow arranges all the widgets and hooks up actions
+ * */
 
 class RenderArea : public QWidget
 {
