@@ -1,5 +1,13 @@
 #!/bin/bash
 
+
+UNAMEN=$(uname -n)
+if [[ ${UNAMEN%%\.*} != "dell-b-14" ]] ; then 
+   echo tcussd01; ssh -t -t -g -L 127.2.0.4:8888:10.161.77.68:8888 -L 127.2.0.4:29997:10.161.77.68:29997 root@dell-b-14 ./sshGH.sh;
+   #ssh root@dell-b-14 ./sshNG.sh
+   exit
+fi
+
 #globacomgh_tunnel down && globacomgh_tunnel up
 # 
 DTS=$(date +%Y%m%d_%H%M)
