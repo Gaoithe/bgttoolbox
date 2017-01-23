@@ -126,7 +126,7 @@ if (junitResultList.size() > 0) { %>
      <% junitResult.getChildren().each { packageResult -> %>
         <TR><TD class="bg2" colspan="2"> Name: ${packageResult.getName()} Failed: ${packageResult.getFailCount()} test(s), Passed: ${packageResult.getPassCount()} test(s), Skipped: ${packageResult.getSkipCount()} test(s), Total: ${packageResult.getPassCount()+packageResult.getFailCount()+packageResult.getSkipCount()} test(s)</TD></TR>
         <% packageResult.getFailedTests().each{ failed_test -> %>
-          <TR bgcolor="#ffcccc"><TD class="test_failed" colspan="2"><B><li>Failed: ${failed_test.getFullName()} </li></B></TD></TR>
+          <TR bgcolor="#ffcccc"><TD class="test_failed" colspan="2"><B><li>FAIL: ${failed_test.getFullName()} </li></B></TD></TR>
         <% }
       }
  } %>
@@ -134,6 +134,38 @@ if (junitResultList.size() > 0) { %>
  <BR/>
 <%
 } %>
+
+<!-- JUnit TEMPLATE: all tests PASS FAIL SKIP >
+<% 
+if (junitResultList.size() > 0) { %>
+ <TABLE width="100%">
+ <TR><TD class="bg1" colspan="2"><B>${junitResultList.first().displayName}</B></TD></TR>
+ <% junitResultList.each{
+  junitResult -> %>
+     <% junitResult.getChildren().each { packageResult -> %>
+        <TR><TD class="bg2" colspan="2"> Name: ${packageResult.getName()} Failed: ${packageResult.getFailCount()} test(s), Passed: ${packageResult.getPassCount()} test(s), Skipped: ${packageResult.getSkipCount()} test(s), Total: ${packageResult.getPassCount()+packageResult.getFailCount()+packageResult.getSkipCount()} test(s)</TD></TR>
+        <% packageResult.getChildren().each{ suite -> 
+               suite.getChildren().each{ test ->
+           def colour = "lightgreen"
+           def highlight1=""
+           def highlight2=""
+           RESULT = test.getStatus() // FAILED or PASSED or SKIPPED
+           if (RESULT == hudson.tasks.junit.CaseResult.Status.FAILED || RESULT == hudson.tasks.junit.CaseResult.Status.REGRESSION) {
+               colour = "#ffcccc" 
+               highlight1="<B>"
+               highlight2="</B>"
+           }
+           if (RESULT == hudson.tasks.junit.CaseResult.Status.SKIPPED) { colour = "#ffffb3" }
+         %>
+          <TR bgcolor="${colour}"><TD class="test" colspan="2">${highlight1}<li>${RESULT}: ${test.getFullName()} </li>${highlight2}</TD></TR>
+        <% } }
+      }
+ } %>
+ </TABLE>
+ <BR/>
+<%
+} %>
+
 
 
 test.groovy
