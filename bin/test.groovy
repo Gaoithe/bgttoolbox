@@ -90,6 +90,8 @@ try {
 } catch(e) {
         //cucumberTestResultAction not exist in this build
 }
+// API: http://hudson-ci.org/javadoc/hudson/tasks/junit/PackageResult.html
+
 if (junitResultList.size() > 0) { %>
  <TABLE width="100%">
  <TR><TD class="bg1" colspan="2"><B>${junitResultList.first().displayName}</B></TD></TR>
@@ -97,8 +99,8 @@ if (junitResultList.size() > 0) { %>
   junitResult -> %>
      <% junitResult.getChildren().each { packageResult -> %>
         <TR><TD class="bg2" colspan="2"> Name: ${packageResult.getName()} Failed: ${packageResult.getFailCount()} test(s), Passed: ${packageResult.getPassCount()} test(s), Skipped: ${packageResult.getSkipCount()} test(s), Total: ${packageResult.getPassCount()+packageResult.getFailCount()+packageResult.getSkipCount()} test(s)</TD></TR>
-        <% packageResult.getFailedTests().each{ failed_test -> %>
-          <TR bgcolor="white"><TD class="test_failed" colspan="2"><B><li>Failed: ${failed_test.getFullName()} </li></B></TD></TR>
+        <% packageResult.getPassedTests().each{ test -> %>
+          <TR bgcolor="lightgreen"><TD class="test" colspan="2"><B><li>PASS: ${test.getFullName()} </li></B></TD></TR>
         <% }
       }
  } %>
@@ -107,17 +109,31 @@ if (junitResultList.size() > 0) { %>
 <%
 } %>
 
-<!-- CONSOLE OUTPUT -->
-<% if(build.result==hudson.model.Result.FAILURE) { %>
-<TABLE width="100%" cellpadding="0" cellspacing="0">
-<TR><TD class="bg1"><B>CONSOLE OUTPUT</B></TD></TR>
-<% 	build.getLog(100).each() { line -> %>
-	<TR><TD class="console">${org.apache.commons.lang.StringEscapeUtils.escapeHtml(line)}</TD></TR>
-<% 	} %>
-</TABLE>
-<BR/>
-<% } %>
+<!-- JUnit TEMPLATE -->
 
+<% def junitResultList2 = it.JUnitTestResult
+try {
+ def cucumberTestResultAction2 = it.getAction("org.jenkinsci.plugins.cucumber.jsontestsupport.CucumberTestResultAction")
+ junitResultList.add(cucumberTestResultAction.getResult())
+} catch(e) {
+        //cucumberTestResultAction not exist in this build
+}
+if (junitResultList.size() > 0) { %>
+ <TABLE width="100%">
+ <TR><TD class="bg1" colspan="2"><B>${junitResultList.first().displayName}</B></TD></TR>
+ <% junitResultList.each{
+  junitResult -> %>
+     <% junitResult.getChildren().each { packageResult -> %>
+        <TR><TD class="bg2" colspan="2"> Name: ${packageResult.getName()} Failed: ${packageResult.getFailCount()} test(s), Passed: ${packageResult.getPassCount()} test(s), Skipped: ${packageResult.getSkipCount()} test(s), Total: ${packageResult.getPassCount()+packageResult.getFailCount()+packageResult.getSkipCount()} test(s)</TD></TR>
+        <% packageResult.getFailedTests().each{ failed_test -> %>
+          <TR bgcolor="#ffcccc"><TD class="test_failed" colspan="2"><B><li>Failed: ${failed_test.getFullName()} </li></B></TD></TR>
+        <% }
+      }
+ } %>
+ </TABLE>
+ <BR/>
+<%
+} %>
 
 
 test.groovy
