@@ -80,6 +80,34 @@ Build URL : $BUILD_URL<br><br>
 <BR/>
 
 
+
+
+<!-- JUnit TEMPLATE -->
+
+<% def junitResultList = it.JUnitTestResult
+try {
+ def cucumberTestResultAction = it.getAction("org.jenkinsci.plugins.cucumber.jsontestsupport.CucumberTestResultAction")
+ junitResultList.add(cucumberTestResultAction.getResult())
+} catch(e) {
+        //cucumberTestResultAction not exist in this build
+}
+if (junitResultList.size() > 0) { %>
+ <TABLE width="100%">
+ <TR><TD class="bg1" colspan="2"><B>${junitResultList.first().displayName}</B></TD></TR>
+ <% junitResultList.each{
+  junitResult -> %>
+     <% junitResult.getChildren().each { packageResult -> %>
+        <TR><TD class="bg2" colspan="2"> Name: ${packageResult.getName()} Failed: ${packageResult.getFailCount()} test(s), Passed: ${packageResult.getPassCount()} test(s), Skipped: ${packageResult.getSkipCount()} test(s), Total: ${packageResult.getPassCount()+packageResult.getFailCount()+packageResult.getSkipCount()} test(s)</TD></TR>
+        <% packageResult.getFailedTests().each{ failed_test -> %>
+          <TR bgcolor="white"><TD class="test_failed" colspan="2"><B><li>Failed: ${failed_test.getFullName()} </li></B></TD></TR>
+        <% }
+      }
+ } %>
+ </TABLE>
+ <BR/>
+<%
+} %>
+
 <!-- JUnit TEMPLATE  hudson.tasks.junit.TestResult   -->
 
 <j:set var="junitResultList" value="${testResult}" />
