@@ -22,14 +22,7 @@
         testFailed = String.format("%d",(testResult.result.failCount))
         testSkipped = String.format("%d",(testResult.result.skipCount))
         buildDuration = String.format("%.2f",(testResult.result.duration ))
-    } else {
-        testCount = "0"
-        testPassed = "0"
-        testFailed = "0"
-        testSkipped = "0"
-        buildDuration = "0"
     }
-
 
     def workspace = build.getEnvVars()["WORKSPACE"]
     def buildName = build.getEnvVars()["JOB_NAME"]
@@ -37,6 +30,8 @@
     def BUILD_URL = build.getEnvVars()["BUILD_URL"]
 
     def testResult = hudson.tasks.junit.TestResult
+
+    def testResult2 = build.getAction(hudson.tasks.junit.TestResultAction.class)
 
 %>
 
@@ -81,6 +76,10 @@ Build URL : $BUILD_URL<br><br>
 
 
 
+<!-- JUnit TEMPLATE  hudson.tasks.junit.TestResult   -->
+
+<br>testResult:${testResult}
+<br>testResult2:${testResult2}
 
 <!-- JUnit TEMPLATE -->
 
@@ -108,27 +107,16 @@ if (junitResultList.size() > 0) { %>
 <%
 } %>
 
-<!-- JUnit TEMPLATE  hudson.tasks.junit.TestResult   -->
-
-<j:set var="junitResultList" value="${testResult}" />
-<j:if test="${junitResultList.isEmpty()!=true}">
-  <TABLE width="100%">
-    <TR><TD class="bg1" colspan="2"><B>JUnit Tests</B></TD></TR>
-    <j:forEach var="junitResult" items="${it.JUnitTestResult}">
-      <j:forEach var="packageResult" items="${junitResult.getChildren()}">
-        <TR><TD class="bg2" colspan="2"> Name: ${packageResult.getName()} Failed: ${packageResult.getFailCount()} test(s), Passed: ${packageResult.getPassCount()} test(s), Skipped: ${packageResult.getSkipCount()} test(s), Total: ${packageResult.getPassCount()+packageResult.getFailCount()+packageResult.getSkipCount()} test(s)</TD></TR>
-        <j:forEach var="failed_test" items="${packageResult.getFailedTests()}">
-          <TR bgcolor="white"><TD class="test_failed" colspan="2"><B><li>Failed: ${failed_test.getFullName()} </li></B></TD></TR>
-        </j:forEach>
-        <j:forEach var="test" items="${packageResult.getTests()}">
-          <TR bgcolor="white"><TD class="test" colspan="2"><li>${test.getResult()}: ${test.getFullName()} </li></TD></TR>
-          <TR bgcolor="white"><TD class="test_failed" colspan="2"><B><li>${test.getResult()}: ${test.getFullName()} </li></B></TD></TR>
-        </j:forEach>
-      </j:forEach> 
-    </j:forEach>  
-  </TABLE>	
+<!-- CONSOLE OUTPUT -->
+<% if(build.result==hudson.model.Result.FAILURE) { %>
+<TABLE width="100%" cellpadding="0" cellspacing="0">
+<TR><TD class="bg1"><B>CONSOLE OUTPUT</B></TD></TR>
+<% 	build.getLog(100).each() { line -> %>
+	<TR><TD class="console">${org.apache.commons.lang.StringEscapeUtils.escapeHtml(line)}</TD></TR>
+<% 	} %>
+</TABLE>
 <BR/>
-</j:if>
+<% } %>
 
 
 
