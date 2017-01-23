@@ -21,7 +21,7 @@
         testPassed = String.format("%d",(testResult.result.passCount))
         testFailed = String.format("%d",(testResult.result.failCount))
         testSkipped = String.format("%d",(testResult.result.skipCount))
-        buildDuration = String.format("%.2f",(testResult.result.duration ))
+        testDuration = String.format("%.2f",(testResult.result.duration ))
     }
 
     def workspace = build.getEnvVars()["WORKSPACE"]
@@ -36,20 +36,9 @@
 %>
 
 Summary test report <br><br>
-
-<b><u>Configuration :</u></b><br>
+<b>TEST RESULT:</b> $testCount total, <b>$testPassed pass</b>, <b>$testFailed fail</b>, $testSkipped skip.<br>
 Workspace : $workspace<br>
-Project Name : $buildName $buildNumHash<br>
-
-<b><u>Execution Results :</u></b><br>
-Status : <font color="blue">$BUILD_STATUS</font><br>
-Tests run : $testCount<br>
-Failures : $testFailed<br>
-Errors : . . . TODO . . . <br>
-Skipped : $testSkipped<br>
-Total time : $buildDuration<br>
-Finished at: Tue May 06 17:12:19 IST 2014<br>
-Build URL : $BUILD_URL<br><br>
+Project Name : $buildName $buildNumHash<br><br>
 
 <!-- GENERAL INFO -->
 
@@ -71,15 +60,13 @@ Build URL : $BUILD_URL<br><br>
   <TR><TD>Project:</TD><TD>${project.name}</TD></TR>
   <TR><TD>Date of build:</TD><TD>${it.timestampString}</TD></TR>
   <TR><TD>Build duration:</TD><TD>${build.durationString}</TD></TR>
+  <TR><TD>Test duration:</TD><TD>${testDuration}</TD></TR>
 </TABLE>
 <BR/>
 
 
 
 <!-- JUnit TEMPLATE  hudson.tasks.junit.TestResult   -->
-
-<br>testResult:${testResult}
-<br>testResult2:${testResult2}
 
 <!-- JUnit TEMPLATE -->
 
@@ -91,49 +78,7 @@ try {
         //cucumberTestResultAction not exist in this build
 }
 // API: http://hudson-ci.org/javadoc/hudson/tasks/junit/PackageResult.html
-
-if (junitResultList.size() > 0) { %>
- <TABLE width="100%">
- <TR><TD class="bg1" colspan="2"><B>${junitResultList.first().displayName}</B></TD></TR>
- <% junitResultList.each{
-  junitResult -> %>
-     <% junitResult.getChildren().each { packageResult -> %>
-        <TR><TD class="bg2" colspan="2"> Name: ${packageResult.getName()} Failed: ${packageResult.getFailCount()} test(s), Passed: ${packageResult.getPassCount()} test(s), Skipped: ${packageResult.getSkipCount()} test(s), Total: ${packageResult.getPassCount()+packageResult.getFailCount()+packageResult.getSkipCount()} test(s)</TD></TR>
-        <% packageResult.getPassedTests().each{ test -> %>
-          <TR bgcolor="lightgreen"><TD class="test" colspan="2"><B><li>PASS: ${test.getFullName()} </li></B></TD></TR>
-        <% }
-      }
- } %>
- </TABLE>
- <BR/>
-<%
-} %>
-
-<!-- JUnit TEMPLATE -->
-
-<% def junitResultList2 = it.JUnitTestResult
-try {
- def cucumberTestResultAction2 = it.getAction("org.jenkinsci.plugins.cucumber.jsontestsupport.CucumberTestResultAction")
- junitResultList.add(cucumberTestResultAction.getResult())
-} catch(e) {
-        //cucumberTestResultAction not exist in this build
-}
-if (junitResultList.size() > 0) { %>
- <TABLE width="100%">
- <TR><TD class="bg1" colspan="2"><B>${junitResultList.first().displayName}</B></TD></TR>
- <% junitResultList.each{
-  junitResult -> %>
-     <% junitResult.getChildren().each { packageResult -> %>
-        <TR><TD class="bg2" colspan="2"> Name: ${packageResult.getName()} Failed: ${packageResult.getFailCount()} test(s), Passed: ${packageResult.getPassCount()} test(s), Skipped: ${packageResult.getSkipCount()} test(s), Total: ${packageResult.getPassCount()+packageResult.getFailCount()+packageResult.getSkipCount()} test(s)</TD></TR>
-        <% packageResult.getFailedTests().each{ failed_test -> %>
-          <TR bgcolor="#ffcccc"><TD class="test_failed" colspan="2"><B><li>FAIL: ${failed_test.getFullName()} </li></B></TD></TR>
-        <% }
-      }
- } %>
- </TABLE>
- <BR/>
-<%
-} %>
+%>
 
 <!-- JUnit TEMPLATE: all tests PASS FAIL SKIP >
 <% 
@@ -143,7 +88,7 @@ if (junitResultList.size() > 0) { %>
  <% junitResultList.each{
   junitResult -> %>
      <% junitResult.getChildren().each { packageResult -> %>
-        <TR><TD class="bg2" colspan="2"> Name: ${packageResult.getName()} Failed: ${packageResult.getFailCount()} test(s), Passed: ${packageResult.getPassCount()} test(s), Skipped: ${packageResult.getSkipCount()} test(s), Total: ${packageResult.getPassCount()+packageResult.getFailCount()+packageResult.getSkipCount()} test(s)</TD></TR>
+        <TR><TD class="bg2" colspan="2"> <B>TEST SUITE: ${packageResult.getName()} Failed: ${packageResult.getFailCount()} test(s), Passed: ${packageResult.getPassCount()} test(s)</B>, Skipped: ${packageResult.getSkipCount()} test(s), Total: ${packageResult.getPassCount()+packageResult.getFailCount()+packageResult.getSkipCount()} test(s)</TD></TR>
         <% packageResult.getChildren().each{ suite -> 
                suite.getChildren().each{ test ->
            def colour = "lightgreen"
