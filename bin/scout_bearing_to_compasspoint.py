@@ -21,3 +21,75 @@ def compass(angle):
 angles = np.arange(0, 360, 22.5) #[0, 44, 46, 134, 136, 224, 226, 314, 316, 359]
 for i in angles:
     print("{} => {}".format(i, compass(i)))
+
+
+
+# https://en.wikipedia.org/wiki/Kurt_Vonnegut
+# https://en.wikiquote.org/wiki/Kurt_Vonnegut
+quote1 = "We are what we pretend to be, so we must be careful about what we pretend to be."
+quote2 = "I sometimes wondered what the use of any of the arts was. The best thing I could come up with was what I call the canary in the coal mine theory of the arts. This theory says that artists are useful to society because they are so sensitive. They are super-sensitive. They keel over like canaries in poison coal mines long before more robust types realize that there is any danger whatsoever."
+quote3 = "Well, I've worried some about, you know, why write books . . .  why are we teaching people to write books when presidents and senators do not read them, and generals do not read them. And it's been the university experience that taught me that there is a very good reason, that you catch people before they become generals and presidents and so forth and you poison their minds with . . .  humanity, and however you want to poison their minds, it's presumably to encourage them to make a better world."
+
+from math import acos
+from math import sqrt
+from math import pi
+
+def length(v):
+    return sqrt(v[0]**2+v[1]**2)
+def add(v,w):
+   return (v[0]+w[0],v[1]+w[1])
+def diff(v,w):
+   return (v[0]-w[0],v[1]-w[1])
+def dot_product(v,w):
+   return v[0]*w[0]+v[1]*w[1]
+def determinant(v,w):
+   return v[0]*w[1]-v[1]*w[0]
+def inner_angle(v,w):
+   cosx=dot_product(v,w)/(length(v)*length(w))
+   rad=acos(cosx) # in radians
+   return rad*180/pi # returns degrees
+def angle_clockwise(A, B):
+    inner=inner_angle(A,B)
+    det = determinant(A,B)
+    if det<0: #this is a property of the det. If the det < 0 then B is clockwise of A
+        return inner
+    else: # if the det > 0 then A is immediately clockwise of B
+        return 360-inner
+
+def bearing(A, B):
+    # translate A to origin A-A
+    # translate B the same B-A
+    # get angle of B-A 
+    T = diff(B,A)
+    North = (0, 1)
+    return angle_clockwise(North,T) % 360
+
+A = (1, 0)
+B = (1, -1)
+North = (0, 1)
+O = (0, 0)
+
+#print(angle_clockwise(A, O))
+#print(inner_angle(A, O))
+#print(angle_clockwise(B, O))
+#print(inner_angle(B, O))
+
+print(angle_clockwise(A, B))
+print(inner_angle(A, B))
+# 45.
+
+print(angle_clockwise(B, A))
+print(inner_angle(B, A))
+
+print(angle_clockwise(North, A))
+print(angle_clockwise(North, B))
+
+print(bearing(A,B))
+print(bearing(B,A))
+print(bearing(North,A))
+print(bearing(A,North))
+print(bearing(North,B))
+print(bearing(B,North))
+
+print "=================================================="
+canary
