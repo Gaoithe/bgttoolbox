@@ -132,7 +132,8 @@ ax.plot(x81, x82)
 tau = np.linspace(0, 2*np.pi, 17)
 x161 = r*np.cos(tau)
 x162 = r*np.sin(tau)
-ax.plot(x161, x162)
+markers_on = [0,1]
+ax.plot(x161, x162,'-gD',markevery=markers_on)
 
 #X, Y = np.meshgrid(x81,x82)
 #X2, Y2 = np.meshgrid(x81,x82)
