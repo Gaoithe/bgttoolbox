@@ -92,4 +92,56 @@ print(bearing(North,B))
 print(bearing(B,North))
 
 print "=================================================="
-canary
+print "circle start at North=(0,1)"
+print "x^2 + y^2 = 0"
+print "circle advance by 360/8 => NE=(?,?)"
+
+
+# http://stackoverflow.com/questions/32092899/plot-equation-showing-a-circle/32097654#32097654
+
+import numpy as np
+import matplotlib.pyplot as plt
+
+# theta goes from 0 to 2pi
+theta = np.linspace(0, 2*np.pi, 100)
+
+# the radius of the circle
+r = np.sqrt(1.0)
+
+# compute x1 and x2
+x1 = r*np.cos(theta)
+x2 = r*np.sin(theta)
+
+# create the figure
+fig, ax = plt.subplots(1)
+#ax.plot(x1, x2)
+#markers_on = [10,20,30,40,50,60,70,80,90]
+markers_on = [0,100/16]
+ax.plot(x1, x2,'-gD',markevery=markers_on)
+ax.set_aspect(1)
+#plt.show()
+
+
+# eta goes from 0 to 2pi in 8 steps
+eta = np.linspace(0, 2*np.pi, 9)
+x81 = r*np.cos(eta)
+x82 = r*np.sin(eta)
+ax.plot(x81, x82)
+
+# tau goes from 0 to 2pi in 16 steps
+tau = np.linspace(0, 2*np.pi, 17)
+x161 = r*np.cos(tau)
+x162 = r*np.sin(tau)
+ax.plot(x161, x162)
+
+#X, Y = np.meshgrid(x81,x82)
+#X2, Y2 = np.meshgrid(x81,x82)
+#ax.plot(X,Y,X2,Y2)
+
+
+
+
+
+
+
+plt.show()
