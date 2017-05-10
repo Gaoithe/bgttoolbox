@@ -114,10 +114,10 @@ x2 = r*np.sin(theta)
 
 # create the figure
 fig, ax = plt.subplots(1)
-#ax.plot(x1, x2)
-#markers_on = [10,20,30,40,50,60,70,80,90]
-markers_on = [0,100/16]
-ax.plot(x1, x2,'-gD',markevery=markers_on)
+ax.plot(x1, x2)
+##markers_on = [10,20,30,40,50,60,70,80,90]
+#markers_on = [0,100/16]
+#ax.plot(x1, x2,'-gD',markevery=markers_on)
 ax.set_aspect(1)
 #plt.show()
 
@@ -135,10 +135,11 @@ x162 = r*np.sin(tau)
 markers_on = [0,1]
 ax.plot(x161, x162,'-gD',markevery=markers_on)
 
-#X, Y = np.meshgrid(x81,x82)
-#X2, Y2 = np.meshgrid(x81,x82)
-#ax.plot(X,Y,X2,Y2)
-
+X, Y = np.meshgrid(x81,x82)
+X2, Y2 = np.meshgrid(x161,x162)
+ax.plot(X,Y)
+ax.plot(X2,Y2)
+plt.plot(X2,Y2, marker='.', color='k', linestyle='none')
 
 
 
