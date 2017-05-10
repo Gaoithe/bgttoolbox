@@ -135,7 +135,10 @@ x161 = r*np.cos(tau)
 x162 = r*np.sin(tau)
 markers_on = [0,1]
 ax.plot(x161, x162,'-gD',markevery=markers_on)
-print "x16.1 is: " + x161
+print "x16.1 is: " 
+print x161
+print "x16.2 is: " 
+print x162
 
 X, Y = np.meshgrid(x81,x82)
 X2, Y2 = np.meshgrid(x161,x162)
@@ -150,12 +153,20 @@ ax.plot([-1,-1],[1,1],color='k',marker='o')
 line = lines.Line2D([0.3,0.6],[0.9,0.3],linestyle='dashed',color='k')
 plt.axes().add_line(line)
 
-for i in range(0,16):
-  x=x161[i]
-  y=x162[i]
-  for j in range(0,16):
-    x3=x161[j]
-    y3=x162[j]
+#for i in range(0,16):
+#  x=x161[i]
+#  y=x162[i]
+#  for j in range(0,16):
+#    x3=x161[j]
+#    y3=x162[j]
+#    ax.plot([x,y],[x3,y3],color='k',marker='o')
+
+for i in range(0,8):
+  x=x81[i]
+  y=x82[i]
+  for j in range(0,8):
+    x3=x81[j]
+    y3=x82[j]
     ax.plot([x,y],[x3,y3],color='k',marker='o')
 
 plt.show()
