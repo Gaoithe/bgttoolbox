@@ -101,6 +101,7 @@ print "circle advance by 360/8 => NE=(?,?)"
 
 import numpy as np
 import matplotlib.pyplot as plt
+import matplotlib.lines as lines
 
 # theta goes from 0 to 2pi
 theta = np.linspace(0, 2*np.pi, 100)
@@ -139,11 +140,21 @@ X, Y = np.meshgrid(x81,x82)
 X2, Y2 = np.meshgrid(x161,x162)
 ax.plot(X,Y)
 ax.plot(X2,Y2)
-plt.plot(X2,Y2, marker='.', color='k', linestyle='none')
+# grid
+ax.plot(X2,Y2, marker='.', color='k', linestyle='none')
 
+# a line - doesnt work
+ax.plot([-1,-1],[1,1],color='k',marker='o')
+# this line does work:
+line = lines.Line2D([0.3,0.6],[0.9,0.3],linestyle='dashed',color='k')
+plt.axes().add_line(line)
 
-
-
-
+for i in range(0,16):
+  x=x161[i]
+  y=x162[i]
+  for j in range(0,16):
+    x3=x161[j]
+    y3=x162[j]
+    ax.plot([x,y],[x3,y3],color='k',marker='o')
 
 plt.show()
