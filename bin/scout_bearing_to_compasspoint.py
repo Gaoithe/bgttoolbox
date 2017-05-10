@@ -135,6 +135,7 @@ x161 = r*np.cos(tau)
 x162 = r*np.sin(tau)
 markers_on = [0,1]
 ax.plot(x161, x162,'-gD',markevery=markers_on)
+print "x16.1 is: " + x161
 
 X, Y = np.meshgrid(x81,x82)
 X2, Y2 = np.meshgrid(x161,x162)
