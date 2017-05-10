@@ -171,6 +171,24 @@ for i in range(0,8):
   for j in range(0,8):
     x3=x81[j]
     y3=x82[j]
-    ax.plot([x,y],[x3,y3],color='k',marker='o')
+    ax.plot([x,x3],[y,y3],color='k',marker='o')
+
+
+# i=0 or j=0 Eastern most point
+for i in range(0,8):
+  x=x81[i]
+  y=x82[i]
+  A=(x,y)
+  for j in range(0,8):
+    x3=x81[j]
+    y3=x82[j]
+    B=(x3,y3)
+    #ax.plot([x,x3],[y,y3],color='k',marker='o')
+    print "i=%d j=%d A=(%0.1f,%0.1f) B=(%0.1f,%0.1f) bearing=%0.1f" % (i,j,x,y,x3,y3,bearing(A,B))
+
+
+##ax.plot(-0.5,-0.5,0.7,0.9)
+
+
 
 plt.show()
