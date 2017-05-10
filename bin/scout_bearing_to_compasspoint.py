@@ -91,12 +91,43 @@ print(bearing(A,North))
 print(bearing(North,B))
 print(bearing(B,North))
 
-print "=================================================="
-print "circle start at North=(0,1)"
-print "x^2 + y^2 = 0"
-print "circle advance by 360/8 => NE=(?,?)"
 
 
+###########################################################################################
+def print_post(bearing,postAlpha):
+    print "########################################"
+    print "#"
+    print("# POST: {} => {}".format(bearing, compass(bearing)[0]))
+    print "#"
+    print "#       1  2  3  4  5 - Easting"
+    print "#"
+    print "#    5  ",#A  B  C  D  E"
+    for i in range (0,4):
+        print "%c  " % postAlpha[i],
+    print "\n#    4  ",#F  G  H  J  K  I"
+    for i in range (5,10):
+        print "%c  " % postAlpha[i],
+    print "\n#    3  ",#L  M  N  O  P"
+    for i in range (11,15):
+        print "%c  " % postAlpha[i],
+    print "\n#    2  ",#Q  R  S  T  U"
+    for i in range (16,20):
+        print "%c  " % postAlpha[i],
+    print "\n#    1  ",#V  W  X  Y  Z"
+    for i in range (21,25):
+        print "%c  " % postAlpha[i],
+    print "\n#     \\"
+    print "#      Northing"
+    print "#"
+    print "########################################"
+    print ""
+
+import random
+import re
+
+
+
+###########################################################################################
 # http://stackoverflow.com/questions/32092899/plot-equation-showing-a-circle/32097654#32097654
 
 import numpy as np
@@ -122,7 +153,6 @@ ax.plot(x1, x2)
 ax.set_aspect(1)
 #plt.show()
 
-
 # eta goes from 0 to 2pi in 8 steps
 eta = np.linspace(0, 2*np.pi, 9)
 x81 = r*np.cos(eta)
@@ -132,6 +162,92 @@ print "x8.1 is: "
 print x81
 print "x8.2 is: " 
 print x82
+
+###########################################################################################
+# print posts, randomize alphabets
+alphabet = "ABCDEFGHJKILMNOPQRSTUVWXYZ"
+posts = np.arange(0, 360, 22.5) #[0, 22.5, 45 . . . 337.5]
+    
+xy = []
+postAlpha = []
+postAlpha.append(alphabet)
+i=0
+for p in posts:
+    print_post(p,postAlpha[-1])
+    postAlpha.append(''.join(random.sample(alphabet,len(alphabet))))
+    xy.append((x81[i],x82[i]))
+    i+=1
+
+###########################################################################################
+
+def print_blanks(quote):
+    ''' Print __ ___ ____ form of quote. '''
+    print "#" * (len(quote) + 4)
+    print "#%s#" % (" "*(len(quote)+2))
+    print "# %s #" % quote
+    print "#%s#" % (" "*(len(quote)+2))
+    print "#" * (len(quote) + 4)
+    print ""
+    blanks = re.sub(r" ","  ",quote)
+    blanks = re.sub(r"[A-Za-z]","__ ",blanks)
+    print "#" * (len(blanks) + 4)
+    print "#%s#" % (" "*(len(blanks)+2))
+    print "#%s#" % (" "*(len(blanks)+2))
+    print "# %s #" % blanks
+    print "#%s#" % (" "*(len(blanks)+2))
+    print "#" * (len(blanks) + 4)
+    print ""
+
+def print_instructions(quote):
+    ''' Print instructions '''
+    # for each word in quote WORD: 1, x letters
+    for word in quote.split():
+        print "########################################"
+        print "#"
+        # Start at POST XX
+        # pick random start post
+        r = random.randrange(8)
+        bearing = posts[r]
+        #alpha = postAlpha[r]
+        print("# START at POST: {} => {}".format(bearing, compass(bearing)[0]))
+        print "#"
+
+        i=0
+        for c in word:            
+            # pick random next post
+            n = random.randrange(8)
+            bearing = posts[n]
+            alpha = postAlpha[n]
+            # Follow bearing XXX to next Post,
+            #    Record letter @ Easting 2, Northing 2  _______
+            # Follow bearing XXX to next Post,
+            #    Record letter @ Easting 2, Northing 2  _______
+            # 
+            print("# %d. Follow bearing %f to next Post," % (i,bearing(xy[r],xy[n])))
+            pos = alpha.index(c)
+            easting = (pos + 1) % 5
+            northing = 5 - (pos/5)
+            if (pos == 10):
+                easting=6
+                northing=4
+            print "#    Record letter @ Easting %d, Northing %d  _______" % (easting,northing)
+            print "#    DEBUG c:%s" % (c)
+            # next
+            r = n
+        print "#"
+        print "########################################"
+    pass
+
+quote = "We are what we pretend to be, so we must be careful about what we pretend to be."
+print_blanks(quote)
+
+
+print "=================================================="
+print "circle start at North=(0,1)"
+print "x^2 + y^2 = 0"
+print "circle advance by 360/8 => NE=(?,?)"
+
+
 
 # tau goes from 0 to 2pi in 16 steps
 tau = np.linspace(0, 2*np.pi, 17)
