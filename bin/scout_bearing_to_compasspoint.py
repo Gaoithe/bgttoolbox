@@ -128,6 +128,10 @@ eta = np.linspace(0, 2*np.pi, 9)
 x81 = r*np.cos(eta)
 x82 = r*np.sin(eta)
 ax.plot(x81, x82)
+print "x8.1 is: " 
+print x81
+print "x8.2 is: " 
+print x82
 
 # tau goes from 0 to 2pi in 16 steps
 tau = np.linspace(0, 2*np.pi, 17)
@@ -135,10 +139,10 @@ x161 = r*np.cos(tau)
 x162 = r*np.sin(tau)
 markers_on = [0,1]
 ax.plot(x161, x162,'-gD',markevery=markers_on)
-print "x16.1 is: " 
-print x161
-print "x16.2 is: " 
-print x162
+#print "x16.1 is: " 
+#print x161
+#print "x16.2 is: " 
+#print x162
 
 X, Y = np.meshgrid(x81,x82)
 X2, Y2 = np.meshgrid(x161,x162)
