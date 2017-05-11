@@ -95,6 +95,7 @@ print(bearing(B,North))
 
 ###########################################################################################
 def print_post(bearing,postAlpha):
+    # TODO: letterLocation = [][]
     print "########################################"
     print "#"
     print("# POST: {} => {}".format(bearing, compass(bearing)[0]))
@@ -102,6 +103,7 @@ def print_post(bearing,postAlpha):
     print "#        1   2   3   4   5 - Easting"
     print "#"
     print "#    5  ",#A  B  C  D  E"
+    # TODO: record location of letters  easting,westing and use to verify
     for i in range (0,5):
         print "%c  " % postAlpha[i],
     print "\n#    4  ",#F  G  H  J  K  I"
@@ -187,7 +189,8 @@ i=0
 for p in posts:
     print_post(p,postAlpha[-1])
     postAlpha.append(''.join(random.sample(alphabet,len(alphabet))))
-    xy.append((x161[i],x162[i]))
+    ip=i + 4
+    xy.append((-x161[ip%16],x162[ip%16]))
     i+=1
 
 ###########################################################################################
@@ -233,7 +236,7 @@ def print_instructions(quote):
 
         i=1
         for c in word:
-                ###### if c.upper() in alphabet:
+            if c.upper() in alphabet:
                 # pick random next post
                 n = random.randrange(16)
                 while n == r:
@@ -258,7 +261,7 @@ def print_instructions(quote):
                     easting = pos % 5
                     northing = 5 - ((pos-1)/5)
                 print "#    Record letter @ Easting %d, Northing %d  _______" % (easting,northing)
-                print "#    DEBUG post:{} {} c:{}".format(b,(xy[r],xy[n]),c)
+                print "#    DEBUG post:{} {} c:{}".format(b,xy[n],c)
                 # next
                 r = n
                 i+=1
