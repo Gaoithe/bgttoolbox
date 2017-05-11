@@ -1,0 +1,632 @@
+[james@nebraska bin]$ python scout_bearing_to_compasspoint.py
+0.0 => ['N']
+22.5 => ['NNE']
+45.0 => ['NE']
+67.5 => ['ENE']
+90.0 => ['E']
+112.5 => ['ESE']
+135.0 => ['SE']
+157.5 => ['SSE']
+180.0 => ['S']
+202.5 => ['SSW']
+225.0 => ['SW']
+247.5 => ['WSW']
+270.0 => ['W']
+292.5 => ['WNW']
+315.0 => ['NW']
+337.5 => ['NNW']
+
+########################################
+#
+# POST: 0.0 => N
+#
+#        1   2   3   4   5 - Easting
+#
+#    5   A   B   C   D   E   
+#    4   F   G   H   J   K   I   
+#    3   L   M   N   O   P   
+#    2   Q   R   S   T   U   
+#    1   V   W   X   Y   Z   
+#     \
+#      Northing
+#
+########################################
+
+########################################
+#
+# POST: 22.5 => NNE
+#
+#        1   2   3   4   5 - Easting
+#
+#    5   D   H   G   A   T   
+#    4   Z   W   Q   M   N   J   
+#    3   Y   L   V   R   P   
+#    2   C   B   X   I   F   
+#    1   K   E   S   U   O   
+#     \
+#      Northing
+#
+########################################
+
+########################################
+#
+# POST: 45.0 => NE
+#
+#        1   2   3   4   5 - Easting
+#
+#    5   E   Y   Z   Q   A   
+#    4   B   G   L   O   J   T   
+#    3   H   P   S   V   M   
+#    2   U   N   I   D   F   
+#    1   X   R   K   W   C   
+#     \
+#      Northing
+#
+########################################
+
+########################################
+#
+# POST: 67.5 => ENE
+#
+#        1   2   3   4   5 - Easting
+#
+#    5   K   W   R   Z   F   
+#    4   L   A   J   B   X   V   
+#    3   M   N   Q   D   C   
+#    2   S   E   U   O   H   
+#    1   P   T   I   G   Y   
+#     \
+#      Northing
+#
+########################################
+
+########################################
+#
+# POST: 90.0 => E
+#
+#        1   2   3   4   5 - Easting
+#
+#    5   H   F   I   R   W   
+#    4   Z   Q   X   Y   B   V   
+#    3   T   A   G   J   U   
+#    2   L   N   K   O   D   
+#    1   S   E   P   M   C   
+#     \
+#      Northing
+#
+########################################
+
+########################################
+#
+# POST: 112.5 => ESE
+#
+#        1   2   3   4   5 - Easting
+#
+#    5   L   F   I   U   V   
+#    4   N   Q   T   G   P   A   
+#    3   C   J   X   H   Y   
+#    2   S   O   M   W   Z   
+#    1   D   R   K   B   E   
+#     \
+#      Northing
+#
+########################################
+
+########################################
+#
+# POST: 135.0 => SE
+#
+#        1   2   3   4   5 - Easting
+#
+#    5   S   K   F   V   L   
+#    4   O   T   P   Y   N   I   
+#    3   A   G   Z   E   M   
+#    2   Q   U   C   W   J   
+#    1   X   R   B   D   H   
+#     \
+#      Northing
+#
+########################################
+
+########################################
+#
+# POST: 157.5 => SSE
+#
+#        1   2   3   4   5 - Easting
+#
+#    5   W   A   Z   Y   C   
+#    4   R   T   E   I   S   P   
+#    3   V   K   B   H   L   
+#    2   D   J   U   O   Q   
+#    1   G   X   F   N   M   
+#     \
+#      Northing
+#
+########################################
+
+########################################
+#
+# POST: 180.0 => S
+#
+#        1   2   3   4   5 - Easting
+#
+#    5   U   R   Z   C   N   
+#    4   B   V   K   M   A   S   
+#    3   F   I   W   J   P   
+#    2   O   D   H   E   G   
+#    1   Q   Y   T   X   L   
+#     \
+#      Northing
+#
+########################################
+
+########################################
+#
+# POST: 202.5 => SSW
+#
+#        1   2   3   4   5 - Easting
+#
+#    5   P   U   V   C   R   
+#    4   E   K   I   G   T   M   
+#    3   H   F   D   Q   Z   
+#    2   O   J   A   Y   L   
+#    1   W   X   N   B   S   
+#     \
+#      Northing
+#
+########################################
+
+########################################
+#
+# POST: 225.0 => SW
+#
+#        1   2   3   4   5 - Easting
+#
+#    5   U   R   K   G   H   
+#    4   F   Y   B   V   I   M   
+#    3   E   J   X   N   L   
+#    2   Q   T   A   Z   P   
+#    1   C   O   D   W   S   
+#     \
+#      Northing
+#
+########################################
+
+########################################
+#
+# POST: 247.5 => WSW
+#
+#        1   2   3   4   5 - Easting
+#
+#    5   T   K   O   A   N   
+#    4   P   F   E   W   C   Y   
+#    3   Z   L   J   G   D   
+#    2   R   V   M   U   X   
+#    1   I   Q   B   S   H   
+#     \
+#      Northing
+#
+########################################
+
+########################################
+#
+# POST: 270.0 => W
+#
+#        1   2   3   4   5 - Easting
+#
+#    5   O   G   H   S   C   
+#    4   J   F   L   W   E   A   
+#    3   T   Z   R   M   X   
+#    2   N   D   Q   Y   P   
+#    1   V   U   B   K   I   
+#     \
+#      Northing
+#
+########################################
+
+########################################
+#
+# POST: 292.5 => WNW
+#
+#        1   2   3   4   5 - Easting
+#
+#    5   N   B   P   U   Z   
+#    4   J   Y   T   H   W   A   
+#    3   F   O   V   E   D   
+#    2   M   K   Q   I   R   
+#    1   C   S   G   L   X   
+#     \
+#      Northing
+#
+########################################
+
+########################################
+#
+# POST: 315.0 => NW
+#
+#        1   2   3   4   5 - Easting
+#
+#    5   W   N   E   Z   L   
+#    4   M   H   J   Q   F   I   
+#    3   U   A   D   P   O   
+#    2   G   V   K   X   B   
+#    1   R   T   S   C   Y   
+#     \
+#      Northing
+#
+########################################
+
+########################################
+#
+# POST: 337.5 => NNW
+#
+#        1   2   3   4   5 - Easting
+#
+#    5   G   P   C   E   W   
+#    4   B   H   I   J   M   Z   
+#    3   D   Y   O   T   K   
+#    2   U   Q   N   L   A   
+#    1   F   X   R   V   S   
+#     \
+#      Northing
+#
+########################################
+
+####################################################################################
+#                                                                                  #
+# We are what we pretend to be, so we must be careful about what we pretend to be. #
+#                                                                                  #
+####################################################################################
+
+###############################################################################################################################################################################################################################
+#                                                                                                                                                                                                                             #
+#                                                                                                                                                                                                                             #
+# __ __   __ __ __   __ __ __ __   __ __   __ __ __ __ __ __ __   __ __   __ __ ,  __ __   __ __   __ __ __ __   __ __   __ __ __ __ __ __ __   __ __ __ __ __   __ __ __ __   __ __   __ __ __ __ __ __ __   __ __   __ __ . #
+#                                                                                                                                                                                                                             #
+###############################################################################################################################################################################################################################
+
+########################################
+#
+# Word 1
+# START at POST: 315.0 => NW
+#
+# 1. Follow bearing 90.0 to next Post,
+#    Record letter @ Easting 4, Northing 1  _______
+#    DEBUG post:45.0 (0.71,0.71) c:W
+# 2. Follow bearing 157.5 to next Post,
+#    Record letter @ Easting 2, Northing 1  _______
+#    DEBUG post:90.0 (1.00,0.00) c:e
+#
+########################################
+# # Word 1 is We, post path is [315.0, 45.0, 90.0]
+########################################
+########################################
+#
+# Word 2
+# START at POST: 0.0 => N
+#
+# 1. Follow bearing 112.5 to next Post,
+#    Record letter @ Easting 0, Northing 5  _______
+#    DEBUG post:45.0 (0.71,0.71) c:a
+# 2. Follow bearing 213.75 to next Post,
+#    Record letter @ Easting 0, Northing 5  _______
+#    DEBUG post:202.5 (-0.38,-0.92) c:r
+# 3. Follow bearing 101.25 to next Post,
+#    Record letter @ Easting 4, Northing 2  _______
+#    DEBUG post:180.0 (0.00,-1.00) c:e
+#
+########################################
+# # Word 2 is are, post path is [0.0, 45.0, 202.5, 180.0]
+########################################
+########################################
+#
+# Word 3
+# START at POST: 22.5 => NNE
+#
+# 1. Follow bearing 247.5 to next Post,
+#    Record letter @ Easting 0, Northing 4  _______
+#    DEBUG post:292.5 (-0.92,0.38) c:w
+# 2. Follow bearing 112.5 to next Post,
+#    Record letter @ Easting 4, Northing 3  _______
+#    DEBUG post:112.5 (0.92,-0.38) c:h
+# 3. Follow bearing 315.0 to next Post,
+#    Record letter @ Easting 0, Northing 2  _______
+#    DEBUG post:337.5 (-0.38,0.92) c:a
+# 4. Follow bearing 101.25 to next Post,
+#    Record letter @ Easting 6, Northing 4  _______
+#    DEBUG post:45.0 (0.71,0.71) c:t
+#
+########################################
+# # Word 3 is what, post path is [22.5, 292.5, 112.5, 337.5, 45.0]
+########################################
+########################################
+#
+# Word 4
+# START at POST: 135.0 => SE
+#
+# 1. Follow bearing 33.75 to next Post,
+#    Record letter @ Easting 4, Northing 2  _______
+#    DEBUG post:112.5 (0.92,-0.38) c:w
+# 2. Follow bearing 236.25 to next Post,
+#    Record letter @ Easting 4, Northing 2  _______
+#    DEBUG post:180.0 (0.00,-1.00) c:e
+#
+########################################
+# # Word 4 is we, post path is [135.0, 112.5, 180.0]
+########################################
+########################################
+#
+# Word 5
+# START at POST: 22.5 => NNE
+#
+# 1. Follow bearing 281.25 to next Post,
+#    Record letter @ Easting 0, Northing 3  _______
+#    DEBUG post:0.0 (-0.00,1.00) c:p
+# 2. Follow bearing 135.0 to next Post,
+#    Record letter @ Easting 4, Northing 5  _______
+#    DEBUG post:90.0 (1.00,0.00) c:r
+# 3. Follow bearing 281.25 to next Post,
+#    Record letter @ Easting 4, Northing 3  _______
+#    DEBUG post:292.5 (-0.92,0.38) c:e
+# 4. Follow bearing 67.5 to next Post,
+#    Record letter @ Easting 0, Northing 5  _______
+#    DEBUG post:22.5 (0.38,0.92) c:t
+# 5. Follow bearing 180.0 to next Post,
+#    Record letter @ Easting 3, Northing 4  _______
+#    DEBUG post:157.5 (0.38,-0.92) c:e
+# 6. Follow bearing 303.75 to next Post,
+#    Record letter @ Easting 1, Northing 2  _______
+#    DEBUG post:270.0 (-1.00,0.00) c:n
+# 7. Follow bearing 146.25 to next Post,
+#    Record letter @ Easting 3, Northing 3  _______
+#    DEBUG post:202.5 (-0.38,-0.92) c:d
+#
+########################################
+# # Word 5 is pretend, post path is [22.5, 0.0, 90.0, 292.5, 22.5, 157.5, 270.0, 202.5]
+########################################
+########################################
+#
+# Word 6
+# START at POST: 112.5 => ESE
+#
+# 1. Follow bearing 326.25 to next Post,
+#    Record letter @ Easting 4, Northing 2  _______
+#    DEBUG post:0.0 (-0.00,1.00) c:t
+# 2. Follow bearing 258.75 to next Post,
+#    Record letter @ Easting 3, Northing 3  _______
+#    DEBUG post:337.5 (-0.38,0.92) c:o
+#
+########################################
+# # Word 6 is to, post path is [112.5, 0.0, 337.5]
+########################################
+########################################
+#
+# Word 7
+# START at POST: 225.0 => SW
+#
+# 1. Follow bearing 123.75 to next Post,
+#    Record letter @ Easting 4, Northing 1  _______
+#    DEBUG post:202.5 (-0.38,-0.92) c:b
+# 2. Follow bearing 348.75 to next Post,
+#    Record letter @ Easting 3, Northing 5  _______
+#    DEBUG post:315.0 (-0.71,0.71) c:e
+#
+########################################
+# # Word 7 is be,, post path is [225.0, 202.5, 315.0]
+########################################
+########################################
+#
+# Word 8
+# START at POST: 67.5 => ENE
+#
+# 1. Follow bearing 315.0 to next Post,
+#    Record letter @ Easting 3, Northing 1  _______
+#    DEBUG post:22.5 (0.38,0.92) c:s
+# 2. Follow bearing 146.25 to next Post,
+#    Record letter @ Easting 4, Northing 2  _______
+#    DEBUG post:90.0 (1.00,0.00) c:o
+#
+########################################
+# # Word 8 is so, post path is [67.5, 22.5, 90.0]
+########################################
+########################################
+#
+# Word 9
+# START at POST: 45.0 => NE
+#
+# 1. Follow bearing 292.5 to next Post,
+#    Record letter @ Easting 2, Northing 1  _______
+#    DEBUG post:0.0 (-0.00,1.00) c:w
+# 2. Follow bearing 202.5 to next Post,
+#    Record letter @ Easting 1, Northing 3  _______
+#    DEBUG post:225.0 (-0.71,-0.71) c:e
+#
+########################################
+# # Word 9 is we, post path is [45.0, 0.0, 225.0]
+########################################
+########################################
+#
+# Word 10
+# START at POST: 247.5 => WSW
+#
+# 1. Follow bearing 56.25 to next Post,
+#    Record letter @ Easting 0, Northing 3  _______
+#    DEBUG post:45.0 (0.71,0.71) c:m
+# 2. Follow bearing 180.0 to next Post,
+#    Record letter @ Easting 2, Northing 2  _______
+#    DEBUG post:135.0 (0.71,-0.71) c:u
+# 3. Follow bearing 326.25 to next Post,
+#    Record letter @ Easting 0, Northing 1  _______
+#    DEBUG post:337.5 (-0.38,0.92) c:s
+# 4. Follow bearing 146.25 to next Post,
+#    Record letter @ Easting 2, Northing 4  _______
+#    DEBUG post:135.0 (0.71,-0.71) c:t
+#
+########################################
+# # Word 10 is must, post path is [247.5, 45.0, 135.0, 337.5, 135.0]
+########################################
+########################################
+#
+# Word 11
+# START at POST: 337.5 => NNW
+#
+# 1. Follow bearing 101.25 to next Post,
+#    Record letter @ Easting 1, Northing 4  _______
+#    DEBUG post:45.0 (0.71,0.71) c:b
+# 2. Follow bearing 180.0 to next Post,
+#    Record letter @ Easting 4, Northing 3  _______
+#    DEBUG post:135.0 (0.71,-0.71) c:e
+#
+########################################
+# # Word 11 is be, post path is [337.5, 45.0, 135.0]
+########################################
+########################################
+#
+# Word 12
+# START at POST: 315.0 => NW
+#
+# 1. Follow bearing 78.75 to next Post,
+#    Record letter @ Easting 1, Northing 2  _______
+#    DEBUG post:22.5 (0.38,0.92) c:c
+# 2. Follow bearing 281.25 to next Post,
+#    Record letter @ Easting 1, Northing 5  _______
+#    DEBUG post:0.0 (-0.00,1.00) c:a
+# 3. Follow bearing 225.0 to next Post,
+#    Record letter @ Easting 3, Northing 3  _______
+#    DEBUG post:270.0 (-1.00,0.00) c:r
+# 4. Follow bearing 146.25 to next Post,
+#    Record letter @ Easting 1, Northing 4  _______
+#    DEBUG post:202.5 (-0.38,-0.92) c:e
+# 5. Follow bearing 348.75 to next Post,
+#    Record letter @ Easting 0, Northing 4  _______
+#    DEBUG post:315.0 (-0.71,0.71) c:f
+# 6. Follow bearing 123.75 to next Post,
+#    Record letter @ Easting 4, Northing 5  _______
+#    DEBUG post:112.5 (0.92,-0.38) c:u
+# 7. Follow bearing 270.0 to next Post,
+#    Record letter @ Easting 2, Northing 3  _______
+#    DEBUG post:247.5 (-0.92,-0.38) c:l
+#
+########################################
+# # Word 12 is careful, post path is [315.0, 22.5, 0.0, 270.0, 202.5, 315.0, 112.5, 247.5]
+########################################
+########################################
+#
+# Word 13
+# START at POST: 22.5 => NNE
+#
+# 1. Follow bearing 270.0 to next Post,
+#    Record letter @ Easting 0, Northing 2  _______
+#    DEBUG post:337.5 (-0.38,0.92) c:a
+# 2. Follow bearing 168.75 to next Post,
+#    Record letter @ Easting 1, Northing 4  _______
+#    DEBUG post:180.0 (0.00,-1.00) c:b
+# 3. Follow bearing 0.0 to next Post,
+#    Record letter @ Easting 4, Northing 3  _______
+#    DEBUG post:0.0 (-0.00,1.00) c:o
+# 4. Follow bearing 247.5 to next Post,
+#    Record letter @ Easting 1, Northing 3  _______
+#    DEBUG post:315.0 (-0.71,0.71) c:u
+# 5. Follow bearing 123.75 to next Post,
+#    Record letter @ Easting 3, Northing 4  _______
+#    DEBUG post:112.5 (0.92,-0.38) c:t
+#
+########################################
+# # Word 13 is about, post path is [22.5, 337.5, 180.0, 0.0, 315.0, 112.5]
+########################################
+########################################
+#
+# Word 14
+# START at POST: 315.0 => NW
+#
+# 1. Follow bearing 112.5 to next Post,
+#    Record letter @ Easting 0, Northing 5  _______
+#    DEBUG post:90.0 (1.00,0.00) c:w
+# 2. Follow bearing 348.75 to next Post,
+#    Record letter @ Easting 0, Northing 2  _______
+#    DEBUG post:67.5 (0.92,0.38) c:h
+# 3. Follow bearing 247.5 to next Post,
+#    Record letter @ Easting 4, Northing 5  _______
+#    DEBUG post:247.5 (-0.92,-0.38) c:a
+# 4. Follow bearing 45.0 to next Post,
+#    Record letter @ Easting 0, Northing 5  _______
+#    DEBUG post:22.5 (0.38,0.92) c:t
+#
+########################################
+# # Word 14 is what, post path is [315.0, 90.0, 67.5, 247.5, 22.5]
+########################################
+########################################
+#
+# Word 15
+# START at POST: 112.5 => ESE
+#
+# 1. Follow bearing 326.25 to next Post,
+#    Record letter @ Easting 2, Northing 1  _______
+#    DEBUG post:0.0 (-0.00,1.00) c:w
+# 2. Follow bearing 191.25 to next Post,
+#    Record letter @ Easting 1, Northing 4  _______
+#    DEBUG post:202.5 (-0.38,-0.92) c:e
+#
+########################################
+# # Word 15 is we, post path is [112.5, 0.0, 202.5]
+########################################
+########################################
+#
+# Word 16
+# START at POST: 315.0 => NW
+#
+# 1. Follow bearing 146.25 to next Post,
+#    Record letter @ Easting 6, Northing 4  _______
+#    DEBUG post:157.5 (0.38,-0.92) c:p
+# 2. Follow bearing 22.5 to next Post,
+#    Record letter @ Easting 3, Northing 5  _______
+#    DEBUG post:67.5 (0.92,0.38) c:r
+# 3. Follow bearing 202.5 to next Post,
+#    Record letter @ Easting 3, Northing 4  _______
+#    DEBUG post:157.5 (0.38,-0.92) c:e
+# 4. Follow bearing 22.5 to next Post,
+#    Record letter @ Easting 2, Northing 1  _______
+#    DEBUG post:67.5 (0.92,0.38) c:t
+# 5. Follow bearing 225.0 to next Post,
+#    Record letter @ Easting 1, Northing 4  _______
+#    DEBUG post:202.5 (-0.38,-0.92) c:e
+# 6. Follow bearing 56.25 to next Post,
+#    Record letter @ Easting 2, Northing 2  _______
+#    DEBUG post:90.0 (1.00,0.00) c:n
+# 7. Follow bearing 213.75 to next Post,
+#    Record letter @ Easting 1, Northing 2  _______
+#    DEBUG post:157.5 (0.38,-0.92) c:d
+#
+########################################
+# # Word 16 is pretend, post path is [315.0, 157.5, 67.5, 157.5, 67.5, 202.5, 90.0, 157.5]
+########################################
+########################################
+#
+# Word 17
+# START at POST: 337.5 => NNW
+#
+# 1. Follow bearing 101.25 to next Post,
+#    Record letter @ Easting 6, Northing 4  _______
+#    DEBUG post:45.0 (0.71,0.71) c:t
+# 2. Follow bearing 202.5 to next Post,
+#    Record letter @ Easting 1, Northing 2  _______
+#    DEBUG post:180.0 (0.00,-1.00) c:o
+#
+########################################
+# # Word 17 is to, post path is [337.5, 45.0, 180.0]
+########################################
+########################################
+#
+# Word 18
+# START at POST: 180.0 => S
+#
+# 1. Follow bearing 0.0 to next Post,
+#    Record letter @ Easting 2, Northing 5  _______
+#    DEBUG post:0.0 (-0.00,1.00) c:b
+# 2. Follow bearing 146.25 to next Post,
+#    Record letter @ Easting 0, Northing 1  _______
+#    DEBUG post:112.5 (0.92,-0.38) c:e
+#
+########################################
+# # Word 18 is be., post path is [180.0, 0.0, 112.5]
+########################################
