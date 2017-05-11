@@ -99,22 +99,22 @@ def print_post(bearing,postAlpha):
     print "#"
     print("# POST: {} => {}".format(bearing, compass(bearing)[0]))
     print "#"
-    print "#       1  2  3  4  5 - Easting"
+    print "#        1   2   3   4   5 - Easting"
     print "#"
     print "#    5  ",#A  B  C  D  E"
-    for i in range (0,4):
+    for i in range (0,5):
         print "%c  " % postAlpha[i],
     print "\n#    4  ",#F  G  H  J  K  I"
-    for i in range (5,10):
+    for i in range (5,11):
         print "%c  " % postAlpha[i],
     print "\n#    3  ",#L  M  N  O  P"
-    for i in range (11,15):
+    for i in range (11,16):
         print "%c  " % postAlpha[i],
     print "\n#    2  ",#Q  R  S  T  U"
-    for i in range (16,20):
+    for i in range (16,21):
         print "%c  " % postAlpha[i],
     print "\n#    1  ",#V  W  X  Y  Z"
-    for i in range (21,25):
+    for i in range (21,26):
         print "%c  " % postAlpha[i],
     print "\n#     \\"
     print "#      Northing"
@@ -129,6 +129,7 @@ import re
 
 ###########################################################################################
 # http://stackoverflow.com/questions/32092899/plot-equation-showing-a-circle/32097654#32097654
+# circle of posts, location of posts
 
 import numpy as np
 import matplotlib.pyplot as plt
@@ -140,7 +141,7 @@ theta = np.linspace(0, 2*np.pi, 100)
 # the radius of the circle
 r = np.sqrt(1.0)
 
-# compute x1 and x2
+# compute x1 and x2 . . x,y arrays
 x1 = r*np.cos(theta)
 x2 = r*np.sin(theta)
 
@@ -163,6 +164,17 @@ print x81
 print "x8.2 is: " 
 print x82
 
+# tau goes from 0 to 2pi in 16 steps
+tau = np.linspace(0, 2*np.pi, 17)
+x161 = r*np.cos(tau)
+x162 = r*np.sin(tau)
+markers_on = [0,1]
+ax.plot(x161, x162,'-gD',markevery=markers_on)
+#print "x16.1 is: " 
+#print x161
+#print "x16.2 is: " 
+#print x162
+
 ###########################################################################################
 # print posts, randomize alphabets
 alphabet = "ABCDEFGHJKILMNOPQRSTUVWXYZ"
@@ -175,7 +187,7 @@ i=0
 for p in posts:
     print_post(p,postAlpha[-1])
     postAlpha.append(''.join(random.sample(alphabet,len(alphabet))))
-    xy.append((x81[i],x82[i]))
+    xy.append((x161[i],x162[i]))
     i+=1
 
 ###########################################################################################
@@ -201,45 +213,66 @@ def print_blanks(quote):
 def print_instructions(quote):
     ''' Print instructions '''
     # for each word in quote WORD: 1, x letters
+    iw = 1
+    alphabet = "ABCDEFGHJKILMNOPQRSTUVWXYZ"
     for word in quote.split():
+        wordpath=[]
+        wordpathr=[]
         print "########################################"
         print "#"
+        print "# Word %d" % iw
         # Start at POST XX
         # pick random start post
-        r = random.randrange(8)
-        bearing = posts[r]
+        r = random.randrange(16)
+        b = posts[r]
+        wordpath.append(b)
+        wordpathr.append(r)
         #alpha = postAlpha[r]
-        print("# START at POST: {} => {}".format(bearing, compass(bearing)[0]))
+        print("# START at POST: {} => {}".format(b, compass(b)[0]))
         print "#"
 
-        i=0
-        for c in word:            
-            # pick random next post
-            n = random.randrange(8)
-            bearing = posts[n]
-            alpha = postAlpha[n]
-            # Follow bearing XXX to next Post,
-            #    Record letter @ Easting 2, Northing 2  _______
-            # Follow bearing XXX to next Post,
-            #    Record letter @ Easting 2, Northing 2  _______
-            # 
-            print("# %d. Follow bearing %f to next Post," % (i,bearing(xy[r],xy[n])))
-            pos = alpha.index(c)
-            easting = (pos + 1) % 5
-            northing = 5 - (pos/5)
-            if (pos == 10):
-                easting=6
-                northing=4
-            print "#    Record letter @ Easting %d, Northing %d  _______" % (easting,northing)
-            print "#    DEBUG c:%s" % (c)
-            # next
-            r = n
+        i=1
+        for c in word:
+                ###### if c.upper() in alphabet:
+                # pick random next post
+                n = random.randrange(16)
+                while n == r:
+                    n = random.randrange(16)
+                b = posts[n]
+                wordpath.append(b)
+                wordpathr.append(n)
+                alpha = postAlpha[n]
+                # Follow bearing XXX to next Post,
+                #    Record letter @ Easting 2, Northing 2  _______
+                # Follow bearing XXX to next Post,
+                #    Record letter @ Easting 2, Northing 2  _______
+                # 
+                print("# {}. Follow bearing {} to next Post,".format(i,bearing(xy[r],xy[n])))
+                pos = alpha.index(c.upper())
+                easting = (pos + 1) % 5
+                northing = 5 - (pos/5)
+                if (pos == 10):
+                    easting=6
+                    northing=4
+                if (pos > 10):
+                    easting = pos % 5
+                    northing = 5 - ((pos-1)/5)
+                print "#    Record letter @ Easting %d, Northing %d  _______" % (easting,northing)
+                print "#    DEBUG post:{} {} c:{}".format(b,(xy[r],xy[n]),c)
+                # next
+                r = n
+                i+=1
         print "#"
         print "########################################"
-    pass
+        print "#",
+        print "# Word {} is {}, post path is {}".format(iw,word,wordpath)
+        print "########################################"
+        iw += 1
 
 quote = "We are what we pretend to be, so we must be careful about what we pretend to be."
 print_blanks(quote)
+
+print_instructions(quote)
 
 
 print "=================================================="
@@ -249,16 +282,6 @@ print "circle advance by 360/8 => NE=(?,?)"
 
 
 
-# tau goes from 0 to 2pi in 16 steps
-tau = np.linspace(0, 2*np.pi, 17)
-x161 = r*np.cos(tau)
-x162 = r*np.sin(tau)
-markers_on = [0,1]
-ax.plot(x161, x162,'-gD',markevery=markers_on)
-#print "x16.1 is: " 
-#print x161
-#print "x16.2 is: " 
-#print x162
 
 X, Y = np.meshgrid(x81,x82)
 X2, Y2 = np.meshgrid(x161,x162)
@@ -308,3 +331,41 @@ for i in range(0,8):
 
 
 plt.show()
+
+
+
+
+
+
+########################################
+#
+# Word 0
+# START at POST: 67.5 => ENE
+#
+# 0. Follow bearing 123.75 to next Post,
+#    Record letter @ Easting 1, Northing 1  _______
+#    DEBUG post:45.0 c:W
+# 0. Follow bearing 146.25 to next Post,
+#    Record letter @ Easting 6, Northing 4  _______
+#    DEBUG post:22.5 c:e
+#
+########################################
+# # Word 0 is We, post path is [67.5, 45.0, 22.5]
+########################################
+
+
+########################################
+#
+# POST: 337.5 => NNW
+#
+#        1   2   3   4   5 - Easting
+#
+#    5   Y   H   T   M   G   
+#    4   W   B   C   I   U   Q   
+#    3   K   P   Z   R   L   
+#    2   S   X   O   N   J   
+#    1   F   V   E   D   A   
+#     \
+#      Northing
+#
+########################################
