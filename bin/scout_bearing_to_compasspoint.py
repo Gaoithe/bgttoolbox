@@ -213,7 +213,7 @@ def print_blanks(quote):
     print "#" * (len(blanks) + 4)
     print ""
 
-def print_instructions(quote):
+def print_instructions(quote,words):
     ''' Print instructions '''
     # for each word in quote WORD: 1, x letters
     iw = 1
@@ -221,6 +221,7 @@ def print_instructions(quote):
     for word in quote.split():
         wordpath=[]
         wordpathr=[]
+        letterpath=[]
         print "########################################"
         print "#"
         print "# Word %d" % iw
@@ -252,31 +253,59 @@ def print_instructions(quote):
                 # 
                 print("# {}. Follow bearing {} to next Post,".format(i,bearing(xy[r],xy[n])))
                 pos = alpha.index(c.upper())
-                easting = (pos + 1) % 5
+                easting = (pos%5) + 1
                 northing = 5 - (pos/5)
                 if (pos == 10):
                     easting=6
                     northing=4
                 if (pos > 10):
-                    easting = pos % 5
+                    easting = ((pos-1)%5) + 1
                     northing = 5 - ((pos-1)/5)
+                letterpath.append((easting,northing))
                 print "#    Record letter @ Easting %d, Northing %d  _______" % (easting,northing)
-                print "#    DEBUG post:{} ({:1.2f},{:1.2f}) c:{}".format(b,xy[n][0],xy[n][1],c)
+                #print "#    DEBUG post:{} ({:1.2f},{:1.2f}) c:{}".format(b,xy[n][0],xy[n][1],c)
                 # next
                 r = n
                 i+=1
         print "#"
         print "########################################"
-        print "#",
-        print "# Word {} is {}, post path is {}".format(iw,word,wordpath)
-        print "########################################"
+        #print "#",
+        #print "# Word {} is {}, post path is {}".format(iw,word,wordpath)
+        #print "########################################"
+        words.append({'word':word,'path':wordpath,'pathr':wordpathr,'letterpath':letterpath})
         iw += 1
 
+def print_help(words):
+    ''' Print help / answer sheet
+    Use this sheet to make sure bearings are right and the game works . . 
+    And to check answers.'''
+    iw=1
+    print "########################################"
+    for w in words:
+        print "#"
+        print "# Help/Cheat sheet"
+        print "#  Use this sheet to check answers if needed."
+        print "#  Use this to make sure bearings are right and the game works when laying out posts."
+        print "#"
+        print "# Word {} is {} ".format(iw,w['word'])
+        #print "#  post path is {} ".format(w['pathr'])
+        print "#  post path is {} ".format(w['path'])
+        print "#  post path is {} ".format([compass(b)[0] for b in w['path']])
+        print "#  letters path is {} ".format(w['letterpath'])
+        iw += 1
+    print "#"
+    print "########################################"
+
+
+
 quote = "We are what we pretend to be, so we must be careful about what we pretend to be."
+
+words=[]
+print_instructions(quote,words)
+
 print_blanks(quote)
 
-print_instructions(quote)
-
+print_help(words)
 
 print "=================================================="
 print "circle start at North=(0,1)"
