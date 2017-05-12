@@ -281,11 +281,11 @@ def print_help(words):
     And to check answers.'''
     iw=1
     print "########################################"
+    print "#"
+    print "# Help/Cheat sheet"
+    print "#  Use this sheet to check answers if needed."
+    print "#  Use this to make sure bearings are right and the game works when laying out posts."
     for w in words:
-        print "#"
-        print "# Help/Cheat sheet"
-        print "#  Use this sheet to check answers if needed."
-        print "#  Use this to make sure bearings are right and the game works when laying out posts."
         print "#"
         print "# Word {} is {} ".format(iw,w['word'])
         #print "#  post path is {} ".format(w['pathr'])
