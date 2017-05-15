@@ -13,6 +13,11 @@ def compass(angle):
     """ test """
     return c[np.digitize([angle], a)]
 
+#compasspoints = ['N', 'NNE', 'NE', 'ENE', 'E', 'ESE', 'SE', 'SSE', 
+#              'S', 'SSW', 'SW', 'WSW', 'W', 'WNW', 'NW', 'NNW', 'N']
+#def compass(angle):
+#    return compasspoints[int(angle/22.5)]
+
 # Expression for the field calculator
 #compass(!Field_with_the_angles!)  # using the python processor of course
  
@@ -96,33 +101,33 @@ print(bearing(B,North))
 ###########################################################################################
 def print_post(bearing,postAlpha):
     # TODO: letterLocation = [][]
-    print "########################################"
-    print "#"
+    print("########################################")
+    print("#")
     print("# POST: {} => {}".format(bearing, compass(bearing)[0]))
-    print "#"
-    print "#        1   2   3   4   5 - Easting"
-    print "#"
-    print "#    5  ",#A  B  C  D  E"
+    print("#")
+    print("#        1   2   3   4   5 - Easting")
+    print("#")
+    print("#    5  ",)#A  B  C  D  E"
     # TODO: record location of letters  easting,westing and use to verify
     for i in range (0,5):
-        print "%c  " % postAlpha[i],
-    print "\n#    4  ",#F  G  H  J  K  I"
+        print("%c  " % postAlpha[i])
+    print("\n#    4  ",)#F  G  H  J  K  I"
     for i in range (5,11):
-        print "%c  " % postAlpha[i],
-    print "\n#    3  ",#L  M  N  O  P"
+        print("%c  " % postAlpha[i])
+    print("\n#    3  ",)#L  M  N  O  P"
     for i in range (11,16):
-        print "%c  " % postAlpha[i],
-    print "\n#    2  ",#Q  R  S  T  U"
+        print("%c  " % postAlpha[i])
+    print("\n#    2  ",)#Q  R  S  T  U"
     for i in range (16,21):
-        print "%c  " % postAlpha[i],
-    print "\n#    1  ",#V  W  X  Y  Z"
+        print("%c  " % postAlpha[i])
+    print("\n#    1  ",)#V  W  X  Y  Z"
     for i in range (21,26):
-        print "%c  " % postAlpha[i],
-    print "\n#     \\"
-    print "#      Northing"
-    print "#"
-    print "########################################"
-    print ""
+        print("%c  " % postAlpha[i])
+    print("\n#     \\")
+    print("#      Northing")
+    print("#")
+    print("########################################")
+    print("")
 
 import random
 import re
@@ -161,10 +166,8 @@ eta = np.linspace(0, 2*np.pi, 9)
 x81 = r*np.cos(eta)
 x82 = r*np.sin(eta)
 ax.plot(x81, x82)
-print "x8.1 is: " 
-print x81
-print "x8.2 is: " 
-print x82
+print("x8.1 is: ",x81) 
+print("x8.2 is: ",x82) 
 
 # tau goes from 0 to 2pi in 16 steps
 tau = np.linspace(0, 2*np.pi, 17)
@@ -172,16 +175,15 @@ x161 = r*np.cos(tau)
 x162 = r*np.sin(tau)
 markers_on = [0,1]
 ax.plot(x161, x162,'-gD',markevery=markers_on)
-#print "x16.1 is: " 
-#print x161
-#print "x16.2 is: " 
-#print x162
+#print "x16.1 is: ",x161)
+#print "x16.2 is: ",x162)
 
 ###########################################################################################
 # print posts, randomize alphabets
 alphabet = "ABCDEFGHJKILMNOPQRSTUVWXYZ"
 posts = np.arange(0, 360, 22.5) #[0, 22.5, 45 . . . 337.5]
-    
+#posts = range(0, 360, 22.5)
+ 
 xy = []
 postAlpha = []
 postAlpha.append(alphabet)
@@ -197,21 +199,21 @@ for p in posts:
 
 def print_blanks(quote):
     ''' Print __ ___ ____ form of quote. '''
-    print "#" * (len(quote) + 4)
-    print "#%s#" % (" "*(len(quote)+2))
-    print "# %s #" % quote
-    print "#%s#" % (" "*(len(quote)+2))
-    print "#" * (len(quote) + 4)
-    print ""
+    print("#" * (len(quote) + 4))
+    print("#%s#" % (" "*(len(quote)+2)))
+    print("# %s #" % quote)
+    print("#%s#" % (" "*(len(quote)+2)))
+    print("#" * (len(quote) + 4))
+    print("")
     blanks = re.sub(r" ","  ",quote)
     blanks = re.sub(r"[A-Za-z]","__ ",blanks)
-    print "#" * (len(blanks) + 4)
-    print "#%s#" % (" "*(len(blanks)+2))
-    print "#%s#" % (" "*(len(blanks)+2))
-    print "# %s #" % blanks
-    print "#%s#" % (" "*(len(blanks)+2))
-    print "#" * (len(blanks) + 4)
-    print ""
+    print("#" * (len(blanks) + 4))
+    print("#%s#" % (" "*(len(blanks)+2)))
+    print("#%s#" % (" "*(len(blanks)+2)))
+    print("# %s #" % blanks)
+    print("#%s#" % (" "*(len(blanks)+2)))
+    print("#" * (len(blanks) + 4))
+    print("")
 
 def print_instructions(quote,words):
     ''' Print instructions '''
@@ -222,9 +224,9 @@ def print_instructions(quote,words):
         wordpath=[]
         wordpathr=[]
         letterpath=[]
-        print "########################################"
-        print "#"
-        print "# Word %d" % iw
+        print("########################################")
+        print("#")
+        print("# Word %d" % iw)
         # Start at POST XX
         # pick random start post
         r = random.randrange(16)
@@ -233,7 +235,7 @@ def print_instructions(quote,words):
         wordpathr.append(r)
         #alpha = postAlpha[r]
         print("# START at POST: {} => {}".format(b, compass(b)[0]))
-        print "#"
+        print("#")
 
         i=1
         for c in word:
@@ -262,16 +264,16 @@ def print_instructions(quote,words):
                     easting = ((pos-1)%5) + 1
                     northing = 5 - ((pos-1)/5)
                 letterpath.append((easting,northing))
-                print "#    Record letter @ Easting %d, Northing %d  _______" % (easting,northing)
-                #print "#    DEBUG post:{} ({:1.2f},{:1.2f}) c:{}".format(b,xy[n][0],xy[n][1],c)
+                print("#    Record letter @ Easting %d, Northing %d  _______" % (easting,northing))
+                #print("#    DEBUG post:{} ({:1.2f},{:1.2f}) c:{}".format(b,xy[n][0],xy[n][1],c))
                 # next
                 r = n
                 i+=1
-        print "#"
-        print "########################################"
-        #print "#",
-        #print "# Word {} is {}, post path is {}".format(iw,word,wordpath)
-        #print "########################################"
+        print("#")
+        print("########################################")
+        #print("#",)
+        #print("# Word {} is {}, post path is {}".format(iw,word,wordpath))
+        #print("########################################")
         words.append({'word':word,'path':wordpath,'pathr':wordpathr,'letterpath':letterpath})
         iw += 1
 
@@ -280,21 +282,21 @@ def print_help(words):
     Use this sheet to make sure bearings are right and the game works . . 
     And to check answers.'''
     iw=1
-    print "########################################"
-    print "#"
-    print "# Help/Cheat sheet"
-    print "#  Use this sheet to check answers if needed."
-    print "#  Use this to make sure bearings are right and the game works when laying out posts."
+    print("########################################")
+    print("#")
+    print("# Help/Cheat sheet")
+    print("#  Use this sheet to check answers if needed.")
+    print("#  Use this to make sure bearings are right and the game works when laying out posts.")
     for w in words:
-        print "#"
-        print "# Word {} is {} ".format(iw,w['word'])
-        #print "#  post path is {} ".format(w['pathr'])
-        print "#  post path is {} ".format(w['path'])
-        print "#  post path is {} ".format([compass(b)[0] for b in w['path']])
-        print "#  letters path is {} ".format(w['letterpath'])
+        print("#")
+        print("# Word {} is {} ".format(iw,w['word']))
+        #print("#  post path is {} ".format(w['pathr']))
+        print("#  post path is {} ".format(w['path']))
+        print("#  post path is {} ".format([compass(b)[0] for b in w['path']]))
+        print("#  letters path is {} ".format(w['letterpath']))
         iw += 1
-    print "#"
-    print "########################################"
+    print("#")
+    print("########################################")
 
 
 
@@ -307,10 +309,10 @@ print_blanks(quote)
 
 print_help(words)
 
-print "=================================================="
-print "circle start at North=(0,1)"
-print "x^2 + y^2 = 0"
-print "circle advance by 360/8 => NE=(?,?)"
+print("==================================================")
+print("circle start at North=(0,1)")
+print("x^2 + y^2 = 0")
+print("circle advance by 360/8 => NE=(?,?)")
 
 
 
@@ -355,7 +357,7 @@ for i in range(0,8):
     y3=x82[j]
     B=(x3,y3)
     #ax.plot([x,x3],[y,y3],color='k',marker='o')
-    print "i=%d j=%d A=(%0.1f,%0.1f) B=(%0.1f,%0.1f) bearing=%0.1f" % (i,j,x,y,x3,y3,bearing(A,B))
+    print("i=%d j=%d A=(%0.1f,%0.1f) B=(%0.1f,%0.1f) bearing=%0.1f" % (i,j,x,y,x3,y3,bearing(A,B)))
 
 
 ##ax.plot(-0.5,-0.5,0.7,0.9)
