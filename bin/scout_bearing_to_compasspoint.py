@@ -107,22 +107,22 @@ def print_post(bearing,postAlpha):
     print("#")
     print("#        1   2   3   4   5 - Easting")
     print("#")
-    print("#    5  ",)#A  B  C  D  E"
+    print("#    5  "),#A  B  C  D  E"
     # TODO: record location of letters  easting,westing and use to verify
     for i in range (0,5):
-        print("%c  " % postAlpha[i])
-    print("\n#    4  ",)#F  G  H  J  K  I"
+        print("%c  " % postAlpha[i]),
+    print("\n#    4  "),#F  G  H  J  K  I"
     for i in range (5,11):
-        print("%c  " % postAlpha[i])
-    print("\n#    3  ",)#L  M  N  O  P"
+        print("%c  " % postAlpha[i]),
+    print("\n#    3  "),#L  M  N  O  P"
     for i in range (11,16):
-        print("%c  " % postAlpha[i])
-    print("\n#    2  ",)#Q  R  S  T  U"
+        print("%c  " % postAlpha[i]),
+    print("\n#    2  "),#Q  R  S  T  U"
     for i in range (16,21):
-        print("%c  " % postAlpha[i])
-    print("\n#    1  ",)#V  W  X  Y  Z"
+        print("%c  " % postAlpha[i]),
+    print("\n#    1  "),#V  W  X  Y  Z"
     for i in range (21,26):
-        print("%c  " % postAlpha[i])
+        print("%c  " % postAlpha[i]),
     print("\n#     \\")
     print("#      Northing")
     print("#")
@@ -175,8 +175,8 @@ x161 = r*np.cos(tau)
 x162 = r*np.sin(tau)
 markers_on = [0,1]
 ax.plot(x161, x162,'-gD',markevery=markers_on)
-#print "x16.1 is: ",x161)
-#print "x16.2 is: ",x162)
+#print("x16.1 is: ",x161)
+#print("x16.2 is: ",x162)
 
 ###########################################################################################
 # print posts, randomize alphabets
@@ -403,40 +403,3 @@ plt.show()
 #      Northing
 #
 ########################################
-
-
-
-
-import curses
-stdscr = curses.initscr()
-curses.start_color()
-#curses.noecho()
-#curses.cbreak()
-#stdscr.keypad(1)
-
-yxmax = stdscr.getmaxyx()
-
-pad = curses.newpad(yxmax)
-#pad = curses.newpad(100, 100)
-#  These loops fill the pad with letters; this is
-# explained in the next section
-for y in range(0, yxmax[0]-10):
-    for x in range(0, yxmax[1]-10):
-        try:
-            pad.addch(y,x, ord('a') + (x*x+y*y) % 26)
-        except curses.error:
-            pass
-
-#  Displays a section of the pad in the middle of the screen
-pad.refresh(0,0, 5,5, yxmax[0]-5,yxmax[1]-5) ## pminrow, pmincol, sminrow, smincol, smaxrow, smaxcol
-
-curses.init_pair(1, curses.COLOR_RED, curses.COLOR_WHITE)
-curses.init_pair(2, curses.COLOR_RED, curses.COLOR_BLACK)
-curses.init_pair(3, curses.COLOR_BLUE, curses.COLOR_BLACK)
-pad.addstr(0,0, "red/white", curses.color_pair(1))
-pad.addstr(1,10, "red/black", curses.color_pair(2))
-pad.addstr(2,20, "red/blue", curses.color_pair(3))
-pad.refresh(0,0, 5,5, yxmax[0]-5,yxmax[1]-5) ## pminrow, pmincol, sminrow, smincol, smaxrow, smaxcol
-
-#curses.nocbreak(); stdscr.keypad(0); curses.echo()
-curses.endwin()
