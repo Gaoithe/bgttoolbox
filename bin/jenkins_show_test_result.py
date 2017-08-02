@@ -29,6 +29,7 @@ class report:
         self.debug = 0
         self.showstderr = 0
         self.showcsv = False
+        self.test_report_file = 'test_report.csv'
 
     def makeReport(self):
         #call api of job
@@ -299,6 +300,15 @@ Which job?
 
     def showCSV(self):
 
+
+        import csv
+ 
+        csvfile  = open(self.test_report_file, "wb")
+        #writer = csv.writer(csvfile, delimiter='', quotechar='"', quoting=csv.QUOTE_ALL)
+        writer = csv.writer(csvfile, quoting=csv.QUOTE_ALL)
+ 
+        writer.writerow(["JOBNUM","DATETIME","Result","Description","PASS","FAIL","Test Result Detail"])
+
         # 1. get general job info and just of builds/job numbers
         url="%s/job/%s/api/python" % (self.baseurl,self.jobname)
         base64string = base64.encodestring('%s:%s' % (self.username, self.password)).replace('\n', '')
@@ -322,6 +332,9 @@ Which job?
             sys.exit(2)
             
         for b in jobinfo['builds']:
+
+            csvrow = []
+
             if self.debug: print b['number'] 
             if self.debug: print b['url']
 
@@ -348,6 +361,7 @@ Which job?
                                            dtf,
                                            job['result'],
                                            job['description'])
+                csvrow = [job['number'],dtf,job['result'],job['description']]
 
             except urllib2.HTTPError, msg:
                 if self.debug: print msg
@@ -364,14 +378,24 @@ Which job?
                 result = urllib2.urlopen(request)
                 # job dict
                 r=eval(result.read())
-                self.testRepInfo(r)
+                info = self.testRepInfo(r)
+                csvrow.append(r['passCount'])
+                csvrow.append(r['failCount'])
+                csvrow.append(info)
 
             except urllib2.HTTPError, msg:
                 if self.debug: print msg
                 if self.debug: print url
                 pass
 
+            writer.writerow(csvrow)
+
+
+        csvfile.close()
+
+
     def testRepInfo(self,report):
+        info = ""
         print "TOTAL test count: pass:%d fail:%d skip:%d" % (report['passCount'],report['failCount'],report['skipCount'])
         oldClassName=""
         suites=report['suites']
@@ -396,17 +420,22 @@ Which job?
                 #    from pprint import pprint
                 #    pprint(c['errorStackTrace'],indent=8)
 
-                if not self.ignorepass or ( c['status'] != "PASSED" and c['status'] != "SKIPPED" ):
+                if not self.ignorepass or ( c['status'] != "PASSED" and c['status'] != "FIXED" and c['status'] != "SKIPPED" ):
                     print "TEST CLASS: %s" % c['className']
                     print "     TEST RESULT: %s%s NAME: %s" % ( c['status'], skipped, c['name'] )
+                    info += "TEST CLASS: %s\n" % c['className']
+                    info += "     TEST RESULT: %s%s NAME: %s\n" % ( c['status'], skipped, c['name'] )
                     if c['errorDetails']:
                         print "      ERR: %s" % c['errorDetails']
+                        info += "      ERR: %s\n" % c['errorDetails']
                     if self.showstderr>0:
                         if c['stderr']:
                             print "   STDERR: %s" % c['stderr']
                         if self.showstderr>1:
                             if c['stdout']:
                                 print "   STDOUT: %s" % c['stdout']
+
+        return info
                         
         #keys e.g. of test case:
         #          "testActions" : [],
@@ -447,10 +476,10 @@ def main():
     #opts,args = getopt.getopt(sys.argv[1:],'b:-j:')
     try:
         opts, args = getopt.getopt(sys.argv[1:], 
-                                   "hb:j:n:u:p:idsc", 
+                                   "hb:j:n:u:p:idsc:", 
                                    ["help",
                                     "baseurl=","jobname=","jobnum=","username=","password=",
-                                    "ignorepass","debug","showstderr","csv" ] )
+                                    "ignorepass","debug","showstderr","csv=" ] )
     except getopt.error, msg:
         print msg
         print "for help use -h or --help"
@@ -478,6 +507,7 @@ def main():
             rep.showstderr += 1
         if o in ("-c", "--csv"):
             rep.showcsv = True
+            rep.test_report_file = a
 
     if rep.showcsv:
         rep.showCSV()
