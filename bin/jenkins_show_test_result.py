@@ -36,12 +36,35 @@ class report:
         base64string = base64.encodestring('%s:%s' % (self.username, self.password)).replace('\n', '')
         request = urllib2.Request(url)
         request.add_header("Authorization", "Basic %s" % base64string) 
-        result = urllib2.urlopen(request)
+        try:
+            result = urllib2.urlopen(request)
+        except urllib2.HTTPError, msg:
+            print msg
+            print url
+
+            url="%s/job/%s/api/python" % (self.baseurl,self.jobname)
+            base64string = base64.encodestring('%s:%s' % (self.username, self.password)).replace('\n', '')
+            request = urllib2.Request(url)
+            request.add_header("Authorization", "Basic %s" % base64string) 
+            try:
+                result = urllib2.urlopen(request)
+            except urllib2.HTTPError, msg:
+                print msg
+                print url
+
         # job dict
         j=eval(result.read())
 
         # keys of job:
         # failCount suites skipCount empty duration passCount _class testActions
+        if not 'passCount' in j:
+            print "Which job?"
+            #print " dir:{}".format(dir(j))
+            print " keys:{}".format(j.keys())
+            from pprint import pprint
+            pprint(j,indent=4)
+            sys.exit(1)
+
         print "TOTAL test count: pass:%d fail:%d skip:%d" % (j['passCount'],j['failCount'],j['skipCount'])
 
         oldClassName=""
@@ -121,6 +144,98 @@ TEST CLASS: test_spd.TestSPD
 TEST CLASS: test_spd.TestSPD
      TEST RESULT: FAILED NAME: test_spd_query_record_soap
       ERR: AssertionError: assert None is not None
+
+$ ./jenkins_show_test_result.py -n 373 -i
+TOTAL test count: pass:150 fail:0 skip:122
+TEST CLASS: test_smsc_charging.TestMoMtCharging
+     TEST RESULT: FIXED NAME: test_mo_mt_charging
+TEST CLASS: test_smsc_charset_support.TestCharsetSupport
+     TEST RESULT: FIXED NAME: test_CharsetSupport_3_3_1_1
+TEST CLASS: test_smsc_ims_momt.TestImsMoMt
+     TEST RESULT: FIXED NAME: test_ims_mo_mt_7
+TEST CLASS: test_smsc_ims_momt.TestImsMoMt
+     TEST RESULT: FIXED NAME: test_ims_mo_mt_8
+TEST CLASS: test_smsc_smpp_support.TestSmppBind
+     TEST RESULT: FIXED NAME: test_smppsupport_3_19_1_inesme
+
+$ ./jenkins_show_test_result.py -n 368 -i
+HTTP Error 404: Not Found
+http://hp-bl-06.ie.openmindnetworks.com:8086/job/yellowstone_QA_Staging/368/testReport/api/python
+Which job?
+ keys:['scm', 'color', 'lastSuccessfulBuild', 'actions', 'lastCompletedBuild', 'lastUnsuccessfulBuild', 'upstreamProjects', 'lastFailedBuild', 'healthReport', 'queueItem', 'lastBuild', '_class', 'lastStableBuild', 'description', 'downstreamProjects', 'concurrentBuild', 'lastUnstableBuild', 'buildable', 'displayNameOrNull', 'inQueue', 'keepDependencies', 'name', 'displayName', 'builds', 'url', 'firstBuild', 'nextBuildNumber', 'property']
+{   '_class': 'hudson.model.FreeStyleProject',
+    'actions': [   {   },
+                   {   },
+                   {   },
+                   {   },
+                   {   },
+                   {   },
+                   {   '_class': 'org.jenkinsci.plugins.testresultsanalyzer.TestResultsAnalyzerAction'},
+                   {   '_class': 'com.cloudbees.plugins.credentials.ViewCredentialsAction'}],
+    'buildable': True,
+    'builds': [   {   '_class': 'hudson.model.FreeStyleBuild',
+                      'number': 468,
+                      'url': 'http://hp-bl-06.ie.openmindnetworks.com:8086/job/yellowstone_QA_Staging/468/'},
+                  {   '_class': 'hudson.model.FreeStyleBuild',
+                      'number': 467,
+                      'url': 'http://hp-bl-06.ie.openmindnetworks.com:8086/job/yellowstone_QA_Staging/467/'},
+.
+.
+.
+                  {   '_class': 'hudson.model.FreeStyleBuild',
+                      'number': 368,
+                      'url': 'http://hp-bl-06.ie.openmindnetworks.com:8086/job/yellowstone_QA_Staging/368/'}],
+    'color': 'yellow',
+    'concurrentBuild': False,
+    'description': '',
+    'displayName': 'yellowstone_QA_Staging',
+    'displayNameOrNull': None,
+    'downstreamProjects': [],
+    'firstBuild': {   '_class': 'hudson.model.FreeStyleBuild',
+                      'number': 1,
+                      'url': 'http://hp-bl-06.ie.openmindnetworks.com:8086/job/yellowstone_QA_Staging/1/'},
+    'healthReport': [   {   'description': 'Build stability: 2 out of the last 5 builds failed.',
+                            'iconClassName': 'icon-health-40to59',
+                            'iconUrl': 'health-40to59.png',
+                            'score': 60},
+                        {   'description': 'Test Result: 2 tests failing out of a total of 258 tests.',
+                            'iconClassName': 'icon-health-80plus',
+                            'iconUrl': 'health-80plus.png',
+                            'score': 99}],
+    'inQueue': False,
+    'keepDependencies': False,
+    'lastBuild': {   '_class': 'hudson.model.FreeStyleBuild',
+                     'number': 468,
+                     'url': 'http://hp-bl-06.ie.openmindnetworks.com:8086/job/yellowstone_QA_Staging/468/'},
+    'lastCompletedBuild': {   '_class': 'hudson.model.FreeStyleBuild',
+                              'number': 468,
+                              'url': 'http://hp-bl-06.ie.openmindnetworks.com:8086/job/yellowstone_QA_Staging/468/'},
+    'lastFailedBuild': {   '_class': 'hudson.model.FreeStyleBuild',
+                           'number': 467,
+                           'url': 'http://hp-bl-06.ie.openmindnetworks.com:8086/job/yellowstone_QA_Staging/467/'},
+    'lastStableBuild': {   '_class': 'hudson.model.FreeStyleBuild',
+                           'number': 457,
+                           'url': 'http://hp-bl-06.ie.openmindnetworks.com:8086/job/yellowstone_QA_Staging/457/'},
+    'lastSuccessfulBuild': {   '_class': 'hudson.model.FreeStyleBuild',
+                               'number': 468,
+                               'url': 'http://hp-bl-06.ie.openmindnetworks.com:8086/job/yellowstone_QA_Staging/468/'},
+    'lastUnstableBuild': {   '_class': 'hudson.model.FreeStyleBuild',
+                             'number': 468,
+                             'url': 'http://hp-bl-06.ie.openmindnetworks.com:8086/job/yellowstone_QA_Staging/468/'},
+    'lastUnsuccessfulBuild': {   '_class': 'hudson.model.FreeStyleBuild',
+                                 'number': 468,
+                                 'url': 'http://hp-bl-06.ie.openmindnetworks.com:8086/job/yellowstone_QA_Staging/468/'},
+    'name': 'yellowstone_QA_Staging',
+    'nextBuildNumber': 469,
+    'property': [   {   '_class': 'org.jenkins.plugins.lockableresources.RequiredResourcesProperty'},
+                    {   '_class': 'de.pellepelster.jenkins.walldisplay.WallDisplayJobProperty',
+                        'wallDisplayBgPicture': None,
+                        'wallDisplayName': None,
+                        'wallDisplayOrder': None}],
+    'queueItem': None,
+    'scm': {   '_class': 'hudson.scm.CVSSCM'},
+    'upstreamProjects': [],
+    'url': 'http://hp-bl-06.ie.openmindnetworks.com:8086/job/yellowstone_QA_Staging/'}
 
         """
 
