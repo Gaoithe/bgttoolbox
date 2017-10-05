@@ -29,3 +29,6 @@ INSTALLS += target
 NOT_USED = \
     spreadsheet.h \
     spreadsheet.cpp \
+
+OTHER_FILES += \
+    README.md

@@ -140,7 +140,8 @@ sub wkdir_sanity_check{
     }
     close FP;
 
-    open FP, "cvs -q -n -z9 update $wkdir |" or die "Cannot run cvs command: $! :";
+    # add -d -P add err . . 
+    open FP, "cvs -q -n -z9 update -d -P $wkdir |" or die "Cannot run cvs command: $! :";
     $i = 0;
     while (<FP>){
         $l = $_;
@@ -151,8 +152,9 @@ sub wkdir_sanity_check{
         }
 
         $i++;
+        $err++;
 
-        print STDERR "$l\n";
+        print STDERR "$l cvs up -d -P is needed ?\n";
     }
     close FP;
 

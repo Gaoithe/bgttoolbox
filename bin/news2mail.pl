@@ -91,6 +91,9 @@ SERVERS: foreach my $server (keys %{$subscriptions}) {
     }
 
     GROUPS: foreach my $group (keys %{$subscriptions->{$server}}) {
+
+        print "$group: start\n" if(DEBUG);
+
         my($articles, $firstarticle) = eval { $client->group($group); };
 	if($@) {
 	    print STDERR "$@\n";
@@ -170,8 +173,11 @@ SERVERS: foreach my $server (keys %{$subscriptions}) {
 	    print FOO $lastretrieved;
 	    close(FOO);
 	}
+        print "$group: end\n" if(DEBUG);
     }
 }
+
+print "optimise seendb\n" if(DEBUG);
 
 # while(my($msgid, $time) = each(%seen)) {
 #     if(time() - $time > 2 * 86400) {
@@ -192,3 +198,5 @@ unlink "$confdir/seen.dbm";
 tie %seen, 'GDBM_File', "$confdir/seen.dbm", GDBM_WRCREAT, 0640;
 $seen{$_} = $newseen{$_} foreach(keys %newseen);
 untie %seen;
+
+print "finished\n" if(DEBUG);

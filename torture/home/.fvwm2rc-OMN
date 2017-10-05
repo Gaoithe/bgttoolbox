@@ -209,7 +209,7 @@ Key F6 A M All (AcceptsFocus CurrentPage !Iconic !Shaded) Thumbnail
 #Key F6 A M Current Module FvwmConsole - not what we want - Fvwm error/info console
 
 
-# Familiar alt-tabbing
+# Familiar alt-tabbing (but NumLock/CapsLock/ScrollLock http://fvwm.sourceforge.net/documentation/faq/?theme=plain#0.1)
 #Key Tab A M Next (CurrentDesk !Iconic) Focus
 ### Shift-Alt-Tab to last previously focussed window
 Key Tab A SM Prev (CurrentDesk !Iconic) Focus

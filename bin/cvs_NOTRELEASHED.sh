@@ -14,6 +14,7 @@ else
     LATEST_TAG=$(cvs rlog $CHECK |grep -A1 "^symbolic names:" |head -2 |grep -v "^symbolic names:"|sed "s/[ \t]//;s/:.*//")
 fi
 [[ ! -z $4 ]] && NEXT_TAG=$4
+#PREV_TAG=$(cvs rlog $CHECK 2>/dev/null|grep -A2 "^symbolic names:" |head -3 |tail -1 |grep -v "^symbolic names:"|sed "s/[ \t]//;s/:.*//" )
 
 echo "FROM $LATEST_TAG to $NEXT_TAG"
 # v1-01-46
