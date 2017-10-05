@@ -361,6 +361,7 @@ AddToFunc FuncFvwmMenuDirectory
 ########################Menus ########################################
 AddToMenu Utilities	"Utilities"	Title 	
 +			"Terminal"		    Exec  exec gnome-terminal &
++			"Terminator"		    Exec  exec terminator &
 +			"xterm"		        Exec  exec xterm +sb &
 +			"emacs"		        Exec  exec emacs &
 #+			"mozilla"               Exec  exec mozilla &
