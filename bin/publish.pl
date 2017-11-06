@@ -9,7 +9,7 @@ $| = 1;
 
 sub publish{
     my($ssh, $builder, $build_machine, $scm_dir, $pub_dir, $pdf, @argv) = @_;
-    my($user, $line, $desc, $base, $patches, $n, $v, $host, $i, $via_ssh,);
+    my($user, $line, $desc, $base, $patches, $n, $v, $host, $im, $i, $via_ssh,);
     my($rc, $base_rpm, $rpm, @base_rpms, @rpms, $arch, $d, $tmp, $dl_arch);
     my($j, $k, $patch_rpm, @patch_rpms, $d1, $tmp1, @arches, $cand_dir);
     my($changes_extract, $sig, $subject, $pversion, $baseless);
@@ -160,9 +160,12 @@ sub publish{
     }
 
     $cand_dir = "";
+    my $last=0;
+    for($im = 0; $im < 10; $im++){
     for($i = 0; $i < 100; $i++){
-        $d1 = sprintf "/slingshot/$patches/v1/00/%02d", $i;
+        $d1 = sprintf "/slingshot/$patches/v1/%02d/%02d", $im, $i;
         if(! -d "$d1/RPMS"){
+            $last=1;
             last;
         }
         if(-f "$d1/CANDIDATE"){
@@ -173,13 +176,14 @@ sub publish{
             }
             $pversion = "";
             foreach $patch_rpm (@patch_rpms){
-                if($patch_rpm =~ /[\.-](p\d\d-\d+)\./){
+                if($patch_rpm =~ /[\.-](p\d{1,3}-\d+)\./){
                     $pversion = $1;
+                    $last=1;
                     last;
                 }
             }
             if("$pversion" eq ""){
-                print STDERR "Cannot work out pXX-Y version in $d1/RPMS\n";
+                printf STDERR "Cannot work out pXX-Y version in $d1/RPMS majorv=%d minorv=%d\n", $im, $i;
                 exit -1;
             }
 
@@ -198,11 +202,12 @@ sub publish{
                 $changes_extract .= "$line\n";
             }
             close FPI;
+            $last=1;
             last;
         }
-    }
+    }if($last==1){last;}}
 
-
+    print "JDEBUG . . ssh to build machine:";
 
     if($via_ssh == 0){
         $rc = system("$ssh",
@@ -329,12 +334,14 @@ sub publish{
 
     print "Patches: ";
 
+    for($im = 0; $im < 10; $im++){
     for($i = 0; $i < 100; $i++){
-        $d1 = sprintf "/slingshot/$patches/v1/00/%02d", $i;
+        $d1 = sprintf "/slingshot/$patches/v1/%02d/%02d", $im, $i;
         if(-d "$d1/RPMS" && ! -f "$d1/CANDIDATE"){
             @patch_rpms = glob "$d1/RPMS/*.rpm";
-            printf "%02d(%1d)\b\b\b\b\b", $i, $#patch_rpms + 1;
+            printf "%02d(%1d/%1d)\b\b\b\b\b", $im, $i, $#patch_rpms + 1;
             if($#patch_rpms >= 0){
+
                 foreach $patch_rpm (@patch_rpms){
                     if(($patch_rpm =~ /\.([^\.]+)(\.i386|\.i686)\.rpm/) == 0){
                         print STDERR "Cannot work out arch from: $patch_rpm\n";
@@ -372,21 +379,26 @@ sub publish{
             }
         }
         printf "\r%70s\r", "";
-    }
+    }}
+    #printf "v1-%02d-%02d\n", $im, $i;
 
+    $last=0;
     $j = -1;
+    for($im = 0; $im < 10; $im++){
     for($i = 0; $i < 100; $i++){
-        $d1 = sprintf "/slingshot/$patches/v1/00/%02d", $i;
+        $d1 = sprintf "/slingshot/$patches/v1/%02d/%02d", $im, $i;
         if(-d "$d1/RPMS"){
             if(-f "$d1/CANDIDATE"){
+                $last=1;
                 last;
             }
             $j = $i;
         }
-    }
+    }if($last==1){last;}}
+    printf "v1-%02d-%02d\n", $im, $i;
 
-    if($i != 100){
-        printf "A Candidate Patch is available as v1-00-%02d\n", $i;
+    if($im != 10){
+        printf "A Candidate Patch is available as v1-%02d-%02d\n", $im, $i;
         printf "The relevant portion of the CHANGES file is:\n";
         printf "%s\n", $changes_extract;
         printf "------------------------------------------------------\n";
@@ -466,7 +478,7 @@ sub publish{
     }
 
     if($j != -1){
-        $d1 = sprintf "/slingshot/$patches/v1/00/%02d", $j;
+        $d1 = sprintf "/slingshot/$patches/v1/%02d/%02d", $im, $j;
         `diff $d1/SRC/CHANGES $pub_dir/PATCHES/CHANGES >/dev/null 2>/dev/null`;
         if($? != 0){
             `chmod +w $pub_dir/PATCHES`;

@@ -163,6 +163,7 @@ sub get_release_dir{
 }
 
 #$scm_dir = "/homes/brian/src/sbe";
+$scm_dir = "/homes/james/src/bgttoolbox/bin";
 
 if(!defined($scm_dir)){
     my($majr, $minr, $plvl) = find_latest($scm_root);
@@ -192,6 +193,7 @@ require "rpop.pl";
 require "modules.pl";
 require "pbuild.pl";
 require "publish.pl";
+#require "/home/james/src/bgttoolbox/bin/publish.pl";
 require "patch-unlock.pl";
 
 while($#ARGV >= 1 && $ARGV[0] eq "-disable"){
