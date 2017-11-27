@@ -164,6 +164,7 @@ sub get_release_dir{
 
 #$scm_dir = "/homes/brian/src/sbe";
 $scm_dir = "/homes/james/src/bgttoolbox/bin";
+#$scm_dir = "/home/james/work/TCHOD8/sbe";
 
 if(!defined($scm_dir)){
     my($majr, $minr, $plvl) = find_latest($scm_root);

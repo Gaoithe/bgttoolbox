@@ -1,6 +1,6 @@
 #!/usr/bin/env perl
 #
-# $Name: v2-31-43 $ $Header: /homes/bob/cvsroot/sbe/publish.pl,v 1.15 2012/02/09 14:56:55 jan Exp $
+# $Name:  $ $Header: /homes/bob/cvsroot/sbe/publish.pl,v 1.21 2017/07/07 10:54:54 brian Exp $
 #
 
 $^W = 1;
@@ -176,8 +176,13 @@ sub publish{
             }
             $pversion = "";
             foreach $patch_rpm (@patch_rpms){
-                if($patch_rpm =~ /[\.-](p\d{1,3}-\d+)\./){
-                    $pversion = $1;
+                if($patch_rpm =~ /[\.-]p(\d+-\d+)\./){
+                    $pversion = "p" . $1;
+                    $last=1;
+                    last;
+                }
+                if($patch_rpm =~ /[\.-]p(\d+)-1-(\d+)\./){
+                    $pversion = "p" . $1 . "-" . $2;
                     $last=1;
                     last;
                 }
@@ -207,7 +212,7 @@ sub publish{
         }
     }if($last==1){last;}}
 
-    print "JDEBUG . . ssh to build machine:";
+
 
     if($via_ssh == 0){
         $rc = system("$ssh",
@@ -274,8 +279,13 @@ sub publish{
         `chmod +w $pub_dir/BASE`;
 
         foreach $base_rpm (@base_rpms){
-            if(($base_rpm =~ /\.([^\.]+)(\.i386|\.i686)\.rpm/)){
-                $arch = $1;
+            if(($base_rpm =~ /\.([^\.]+)(\.i386|\.i686|\.x86_64)\.rpm/)){
+                if($2 eq "\.x86_64"){
+                    $arch = "x64.as7";
+                }
+                else{
+                    $arch = $1;
+                }
                 push @arches, "$arch";
                 $dl_arch = $arch;
                 $dl_arch =~ tr/[A-Z]/[a-z]/;
@@ -343,12 +353,18 @@ sub publish{
             if($#patch_rpms >= 0){
 
                 foreach $patch_rpm (@patch_rpms){
-                    if(($patch_rpm =~ /\.([^\.]+)(\.i386|\.i686)\.rpm/) == 0){
+                    if(($patch_rpm =~ /\.([^\.]+)(\.i386|\.i686|\.x86_64)\.rpm/) == 0){
                         print STDERR "Cannot work out arch from: $patch_rpm\n";
                         exit -1;
                     }
 
-                    $arch = $1;
+                    if($2 eq "\.x86_64"){
+                        $arch = "x64.as7";
+                    }
+                    else{
+                        $arch = $1;
+                    }
+
                     $d = "$pub_dir/PATCHES/$arch";
                     if(! -d "$d"){
                         `mkdir -p $d`;
@@ -439,12 +455,18 @@ sub publish{
             }
 
             foreach $patch_rpm (@patch_rpms){
-                if(($patch_rpm =~ /\.([^\.]+)(\.i386|\.i686)\.rpm/) == 0){
+                if(($patch_rpm =~ /\.([^\.]+)(\.i386|\.i686|\.x86_64)\.rpm/) == 0){
                     print STDERR "Cannot work out arch from: $patch_rpm\n";
                     exit -1;
                 }
 
-                $arch = $1;
+                if($2 eq "\.x86_64"){
+                    $arch = "x64.as7";
+                }
+                else{
+                    $arch = $1;
+                }
+
                 $d = "$pub_dir/PATCHES/$arch";
                 if(! -d "$d"){
                     `mkdir -p $d`;
