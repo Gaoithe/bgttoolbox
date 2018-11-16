@@ -33,6 +33,6 @@ fi
 
 echo "MODULE=$MODULE CHECK=$CHECK FROM $LATEST_TAG to $NEXT_TAG"
 # v1-01-46
-cvs rlog -r${LATEST_TAG}::$NEXT_TAG $MODULE 2>&1 |grep "no revision" |sed "s/.* no revision/NEW FILE ADDED/"
-cvs rlog -r${LATEST_TAG}::$NEXT_TAG $MODULE 2>/dev/null |grep -A1 -E "^RCS file:|^revision |date: |no revision" |grep -Ev "^head: |^--$" |grep -Ev "^add system test scripts dir|cvs rlog: Logging"|grep -B1 -A2 "^revision "
+cvs rlog -r${LATEST_TAG}::$NEXT_TAG $MODULE 2>&1 |grep "no revision" |sed "s/.* no revision/NEW FILE ADDED/" |grep -v \/Attic\/
+cvs rlog -r${LATEST_TAG}::$NEXT_TAG $MODULE 2>/dev/null |grep -A1 -E "^RCS file:|^revision |date: |no revision" |grep -Ev "^head: |^--$" |grep -Ev "^add system test scripts dir|cvs rlog: Logging"|grep -B1 -A2 "^revision " |sed "s/,v$//;s/^RCS file: .*cvsroot\///" |grep -Ev "^revision |^date:"
 
