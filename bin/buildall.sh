@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 usage(){
 	echo "Usage: buildall.sh [{-start|-start-after} mod] [-oneshot mod] [{-stop|-stop-after} mod] {clean|spotless|all|modvers|status|status1}"
 }
@@ -197,9 +197,11 @@ fi
 
 STARTED=0
 M1=""
-# echo "MODS: $MODS"
+#echo "MODS: $MODS"
 for d in $MODS; do
-    if [ "$d" == "$MOD1" ]; then
+    echo d=$d
+
+    if [[ "$d" == "$MOD1" ]] ; then
 	# echo "Starting: $d"
 	STARTED=1
     fi

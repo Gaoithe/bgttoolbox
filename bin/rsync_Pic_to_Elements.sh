@@ -11,13 +11,27 @@
 #/dev/sdb1 on /media/usb type fuseblk (rw,nosuid,nodev,allow_other,blksize=4096)
 
 
+# # .. # # .. # #
+#            --remove-source-files   sender removes synchronized files (non-dir)
+#            --del                   an alias for --delete-during
+#            --delete                delete extraneous files from dest dirs
+
+
 # Process for photos 17/4/2016 . . . Shotwell upload to ~/Pictures/2016/04/17/ . . . ln -s 20160417Description . . . run rsync to Elements
 FROM=/home/jamesc/Pictures/201[3456789]*
 #FROM=/home/jamesc/Pictures/2017
-EDIR=/media/jamesc/Elements/GreenSpaceMultimedia/FamilyPhotos/AllPictures
+EDIR=/media/jamesc/Elements1/GreenSpaceMultimedia/FamilyPhotos/AllPictures
 #james-laptop:/media/jamesc/Elements/GreenSpaceMultimedia/FamilyPhotos/AllPictures
-rsync -avzhP $FROM $EDIR
+#rsync -avzhP $FROM $EDIR
+#rsync -avzhP --include=*.mp4 --remove-source-files  $FROM $EDIR
 
-FROM=/home/jamesc/Pictures/201[789]*
-EDIR=/media/jamesc/Elements/GreenSpaceMultimedia/FamilyPhotos/AllPictures
-rsync -avzhP --include=*.mp4 --delete $FROM $EDIR
+FROM=/home/jamesc/Pictures/201[78]*
+EDIR=/media/jamesc/Elements1/GreenSpaceMultimedia/FamilyPhotos/AllPictures
+rsync -avzhP --include=*.mp4 --remove-source-files  $FROM $EDIR
+
+FROM=/home/jamesc/Pictures/201[9]*
+EDIR=/media/jamesc/Elements1/GreenSpaceMultimedia/FamilyPhotos/AllPictures
+rsync -avzhP --include=*.mp4 $FROM $EDIR
+
+#FROM=/home/jamesc/Pictures/201[3456789]*
+#rsync -avzhP --include=*.mp4 $FROM $EDIR
