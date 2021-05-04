@@ -41,6 +41,7 @@ DESIGN: aggregate by stripping one datetime char gives 1sec 10secs 1min 10mins 1
 DESIGN: aggregate by converting datetime and rounding down gives more possibilities
  e.g. datetime 13/4/2021-00:17:44 => -agg 3 13/4/2021-00:17
 
+e.g. 
 convert_data.pl mmsc01b/tmp/cstat_14-04-2021/mmsc.mm7*
 
 WARNING: stats all zero in mmsc01b/tmp/cstat_14-04-2021/mmsc.mm7_deliver_req_in_nack, so not including it.
@@ -205,21 +206,25 @@ if ($#ARGV < 2 ) {   #read perldoc perlvar for ARGV
 
 
 # read files in
-# first check if file data is all zero and WARNING/discard if so.
-# create list/hash with date/time for every second of the day ?
-# %data and %datacount hash contains datetime and if NEW datetime is added column is backfilled.
-# also, as data is written some files will not have some datetimes so backfill is used where needed.
+# check if file data is all zero and WARNING/discard if so.
+# create list/hash with date/time for every second of the day. yes.
+# as file is read, option to do simple aggregation by truncating date/time
+# write out .csv file with combined data into one file
 
 # INIT: data{datetime} = stat;
 # column_names[i++] = statname;
 # data{datetime} += stat;
 #Count number of lines in a file
 my @column_names;
-my @file_names;
+my %column_names;
+my $column_count=0;
 my $columns=0;
-my %data;
-my %dataAgg;
+
+my @file_names;
 my %datacount;
+my %csdata;
+my %csdataAgg;
+
 my $backfillfull="";
 my $statAgg=0;
 
@@ -238,6 +243,14 @@ foreach my $file (@ARGV) {
 	next; # foreach next file
     }
 
+    my $shortfile = basename($file);
+    my $statname = $shortfile;
+    if (not exists($column_names{$statname})) {
+	$column_names{$statname} = $column_count++;
+	push @column_names, $statname;
+	$columns++;
+    }
+	   
     open (FILE, $file) or die "Can't open '$file': $!";
     my $lines = 0;
     my $linesAgg = 0;
@@ -249,57 +262,33 @@ foreach my $file (@ARGV) {
 	#split/parse out datetime and stat
 	my ($datetime, $stat) = m/(^[^\s]*)\s+([^\s]*)\s.*/;
 	#printf "datetime:%s stat:%s\n", $datetime, $stat;
+	$stat = int($stat);
+	# OPTION for human parsing - do not include all 0 value rows
+	if ($stat == 0) { next; }
+
+	if (not exists($csdata{$datetime}{$statname})) {
+	    $csdata{$datetime}{$statname} = $stat;
+	} else {
+	    $csdata{$datetime}{$statname} += $stat;
+	}
 
 	if ($optAggVal > 0) {
 	    my $datetimeAgg = substr $datetime,0,-$optAggVal;
 	    #print "optAggVal:$optAggVal dt:$datetime atAgg:$datetimeAgg last:$datetimeAggLast\n";
-	    if ($datetimeAgg ne $datetimeAggLast) {
-		# new aggregated entry so ... 
-		if ($datetimeAggLast ne "" && $statAgg != 0) {
-		    # 1. write last entry total to hash
-		    if (exists $dataAgg{$datetimeAgg}) {
-			my $backfill = "$optBfcVal, " x ( $columns - $datacountAgg{$datetimeAgg} );
-			$dataAgg{$datetimeAgg} .= ", " . $backfill . "$statAgg";
-			$datacountAgg{$datetimeAgg}=$columns+1;
-		    } else {
-			$dataAgg{$datetimeAgg} = "${backfillfull}$statAgg";
-			$datacountAgg{$datetimeAgg} = $columns+1;
-		    }
-		}
-		# 2. start new total
-		$datetimeAggLast = $datetimeAgg;
-		$statAgg = int($stat);
-		$linesAgg++;
+	    if (not exists($csdataAgg{$datetimeAgg}{$statname})) {
+		$csdataAgg{$datetimeAgg}{$statname} = $stat;
 	    } else {
-		$statAgg += int($stat);
+		$csdataAgg{$datetimeAgg}{$statname} += $stat;
 	    }
 	}
 
-	# OPTION for human parsing - do not include all 0 value rows
-	if ($stat == 0) { next; }
-
-	# data and datacount operate on original data, every second
-	if (exists $data{$datetime}) {
-	    my $backfill = "$optBfcVal, " x ( $columns - $datacount{$datetime} );
-	    $data{$datetime} .= ", " . $backfill . "$stat";
-	    $datacount{$datetime}=$columns+1;
-	} else {
-	    $data{$datetime} = "${backfillfull}$stat";
-	    $datacount{$datetime} = $columns+1;
-	}
-
-	# column_names[i++] = statname;
 	$lines++;
     }
     close FILE;
-    # need to back-fill in empty values for files which are missing certain date/times  
-    $backfillfull .= "$optBfcVal, ";
-    $datalinecount = keys %data;
-    print "$lines lines in $file, $linesAgg aggregated, $datalinecount data lines so far.\n";
+    $datalinecount = keys %csdata;
+    $dataagglinecount = keys %csdata;
+    print "$lines lines in $file, $dataagglinecount aggregated, $datalinecount data lines so far.\n";
     push @file_names, $file;
-    my $shortfile = basename($file);
-    push @column_names, $shortfile;
-    $columns++;
 }
 
 print "$columns files read gives us $columns columns\n";
@@ -313,10 +302,25 @@ printf "datetime, %s\n", join(" ",@file_names);
 printf "datetime, %s\n", join(", ",@column_names);
 printf OUTFILE "datetime, %s\n", join(", ",@column_names);
 # writing out, sorted by date/time order
-if ($optAggVal > 0) { %data = %dataAgg; }
-foreach my $datetime (sort keys %data) {
-    printf OUTFILE "%s, %s\n", $datetime, $data{$datetime};
+if ($optAggVal > 0) { %csdata = %csdataAgg; }
+foreach my $datetime (sort keys %csdata) {
+    #my @hash = @csdata{$datetime};
+    #print keys @hash;
+    my %hash = %{$csdata{$datetime}}; #https://perlmaven.com/multi-dimensional-hashes
+
+    #printf OUTFILE "%s, %s\n", $datetime, join(", ", map{qq{$hash{$_}}} @column_names);
+    my $values = "";
+    foreach my $stat (@column_names) {
+	if (exists($hash{$stat})) {
+	    $values .= ", $hash{$stat}";
+	} else {
+	    $values .= ", 0";
+	}
+    }
+    printf OUTFILE "%s%s\n", $datetime, $values;
+    #printf OUTFILE "%s, DEBUG: %s\n", $datetime, join(", ", map{qq{$_=>$hash{$_}}} @column_names);
+    #printf OUTFILE "%s, DEBUG2: %s\n", $datetime, join(", ", map{qq{$_=>$hash{$_}}} sort keys %hash);
 }
 
-$datalinecount = keys %data;
+$datalinecount = keys %csdata;
 print "$datalinecount lines and $columns columns written to $outfile.\n";
