@@ -25,14 +25,13 @@ This script helps to take cstat data in multiple different files and merge and c
 
 convert_data.pl [TODO: OPTIONS] <list of files>
 
-TODO: output file name
+DONE: output file name
 DONE: do not include all 0 value files (DEFAULT mode)
-TODO: do not include all 0 value rows (useful for humans and decreases file size but messes up graphs maybe)
-TODO: back-fill char option default "0", "BF0" useful for debug
+DONE: do not include all 0 value rows (useful for humans and decreases file size but messes up graphs maybe)
 TODO: debug mode ? myeh no.
-TODO: column totals (good for analysis - stats matching & comparison overview)
+DONEish: column totals (good for analysis - stats matching & comparison overview)
 
-TODO: aggregate data - add up stats from every second to every minute or every 5/10/...
+WIP: aggregate data - add up stats from every second to every minute or every 5/10/...
  One day of ~180 cstat items for MMSC in 40M to 50M .tgz
  ~180 cstat files per day 4.4M to 6.3M size, 18400 lines each 
  A week of cstats with 180 cstat items from MMSC dropping 0 values gives a 180M .csv file.
@@ -147,13 +146,16 @@ mandatory:
   datafilelist  list of files to read cstat values from
 options:
   -agg        how many chars to aggregate (0 default, 1 10secs, 2/3 1min, 4 10min, 5/6 1hour
+  -agg        multiple values allowed csv e.g. 3,4,6
   -o <file>   output .csv file name
 
 debug options:
-  -bfc <char> backfill char, default "0", e.g. "BF0" useful for debug 
 
 # e.g. 
 convert_data.pl -agg 3 -o mmsc02b_cstat_aggMin_14to19-04-2021.csv mmsc02b/tmp/cstat_*/*
+
+for a in 3 4 6; do for h in mmsc0{1b,2a,2b}; do ~/src/bgttoolbox/torture/bin/convert_data.pl -agg $a -o ${h}_cstat_agg${a}Test_14to19-04-2021.csv $h/tmp/cstat_*-04-2021/*; done; done
+for h in mmsc0{1b,2a,2b}; do ~/src/bgttoolbox/torture/bin/convert_data.pl -agg 3,4,6 -o ${h}_cstat_agg%dTest_14to19-04-2021.csv $h/tmp/cstat_*-04-2021/*; done
 
 END
 
@@ -162,8 +164,8 @@ if ($#ARGV < 2 ) {   #read perldoc perlvar for ARGV
     die "$usage";
 }
 
-my $optAggVal = 0;
-my $optBfcVal = 0;
+my $optAggVal = "";
+my @optAggArr = [];
 my $optOutFile = "converted.csv";
 
 if ($ARGV[0]) {
@@ -175,13 +177,9 @@ while ($ARGV[0] =~ "^-") {
 
     if ($ARGV[0] =~ "-agg") {
 	shift(@ARGV);
-	$optAggVal = int(shift(@ARGV));
-	# if not an integer go away
-    }
-
-    if ($ARGV[0] =~ "-bfc") {
-	shift(@ARGV);
-	$optBfcVal = shift(@ARGV);
+	#$optAggVal = int(shift(@ARGV)); # if not an integer go away
+	$optAggVal = shift(@ARGV);
+	@optAggArr = map {int($_)} split(",",$optAggVal);
     }
 
     if ($ARGV[0] =~ "-o") {
@@ -225,7 +223,6 @@ my %datacount;
 my %csdata;
 my %csdataAgg;
 
-my $backfillfull="";
 my $statAgg=0;
 
 foreach my $file (@ARGV) {
@@ -272,13 +269,16 @@ foreach my $file (@ARGV) {
 	    $csdata{$datetime}{$statname} += $stat;
 	}
 
-	if ($optAggVal > 0) {
-	    my $datetimeAgg = substr $datetime,0,-$optAggVal;
-	    #print "optAggVal:$optAggVal dt:$datetime atAgg:$datetimeAgg last:$datetimeAggLast\n";
-	    if (not exists($csdataAgg{$datetimeAgg}{$statname})) {
-		$csdataAgg{$datetimeAgg}{$statname} = $stat;
-	    } else {
-		$csdataAgg{$datetimeAgg}{$statname} += $stat;
+	if ($optAggVal ne "") {
+
+	    foreach my $av (@optAggArr) {
+		my $datetimeAgg = substr $datetime,0,-$av;
+		#print "optAggVal:$optAggVal dt:$datetime atAgg:$datetimeAgg last:$datetimeAggLast\n";
+		if (not exists($csdataAgg{$av}{$datetimeAgg}{$statname})) {
+		    $csdataAgg{$av}{$datetimeAgg}{$statname} = $stat;
+		} else {
+		    $csdataAgg{$av}{$datetimeAgg}{$statname} += $stat;
+		}
 	    }
 	}
 
@@ -295,31 +295,72 @@ print "$columns files read gives us $columns columns\n";
 
 use File::Basename;
 
-my $outfile=$optOutFile;
-open (OUTFILE, '>', $outfile) or die "Can't open '$outfile': $!";
-# print column header line
-printf "datetime, %s\n", join(" ",@file_names);
-printf "datetime, %s\n", join(", ",@column_names);
-printf OUTFILE "datetime, %s\n", join(", ",@column_names);
 # writing out, sorted by date/time order
-if ($optAggVal > 0) { %csdata = %csdataAgg; }
-foreach my $datetime (sort keys %csdata) {
-    #my @hash = @csdata{$datetime};
-    #print keys @hash;
-    my %hash = %{$csdata{$datetime}}; #https://perlmaven.com/multi-dimensional-hashes
 
-    #printf OUTFILE "%s, %s\n", $datetime, join(", ", map{qq{$hash{$_}}} @column_names);
-    my $values = "";
-    foreach my $stat (@column_names) {
-	if (exists($hash{$stat})) {
-	    $values .= ", $hash{$stat}";
-	} else {
-	    $values .= ", 0";
+if ($optAggVal ne "") {
+    %csdata = %csdataAgg;
+    foreach my $av (@optAggArr) {
+
+	my $outfile= sprintf($optOutFile,$av);
+	open (OUTFILE, '>', $outfile) or die "Can't open '$outfile': $!";
+	# print column header line
+	printf "datetime, %s\n", join(" ",@file_names);
+	printf "datetime, %s\n", join(", ",@column_names);
+	printf OUTFILE "datetime, %s\n", join(", ",@column_names);
+
+	my %hashAgg = %{$csdataAgg{$av}}; #https://perlmaven.com/multi-dimensional-hashes
+	foreach my $datetime (sort keys %hashAgg) {
+	    #my @hash = @csdata{$datetime};
+	    #print keys @hash;
+	    my %hash = %{$hashAgg{$datetime}}; #https://perlmaven.com/multi-dimensional-hashes
+
+	    #printf OUTFILE "%s, %s\n", $datetime, join(", ", map{qq{$hash{$_}}} @column_names);
+	    my $values = "";
+	    foreach my $stat (@column_names) {
+		if (exists($hash{$stat})) {
+		    $values .= ", $hash{$stat}";
+		} else {
+		    $values .= ", 0";
+		}
+	    }
+	    printf OUTFILE "%s%s\n", $datetime, $values;
+	    #printf OUTFILE "%s, DEBUG: %s\n", $datetime, join(", ", map{qq{$_=>$hash{$_}}} @column_names);
+	    #printf OUTFILE "%s, DEBUG2: %s\n", $datetime, join(", ", map{qq{$_=>$hash{$_}}} sort keys %hash);
 	}
+	close OUTFILE;
     }
-    printf OUTFILE "%s%s\n", $datetime, $values;
-    #printf OUTFILE "%s, DEBUG: %s\n", $datetime, join(", ", map{qq{$_=>$hash{$_}}} @column_names);
-    #printf OUTFILE "%s, DEBUG2: %s\n", $datetime, join(", ", map{qq{$_=>$hash{$_}}} sort keys %hash);
+    
+} else {
+
+    my $outfile=$optOutFile;
+    open (OUTFILE, '>', $outfile) or die "Can't open '$outfile': $!";
+    # print column header line
+    printf "datetime, %s\n", join(" ",@file_names);
+    printf "datetime, %s\n", join(", ",@column_names);
+    printf OUTFILE "datetime, %s\n", join(", ",@column_names);
+    # writing out, sorted by date/time order
+
+    foreach my $datetime (sort keys %csdata) {
+	#my @hash = @csdata{$datetime};
+	#print keys @hash;
+	my %hash = %{$csdata{$datetime}}; #https://perlmaven.com/multi-dimensional-hashes
+
+	#printf OUTFILE "%s, %s\n", $datetime, join(", ", map{qq{$hash{$_}}} @column_names);
+	my $values = "";
+	foreach my $stat (@column_names) {
+	    if (exists($hash{$stat})) {
+		$values .= ", $hash{$stat}";
+	    } else {
+		$values .= ", 0";
+	    }
+	}
+	printf OUTFILE "%s%s\n", $datetime, $values;
+	#printf OUTFILE "%s, DEBUG: %s\n", $datetime, join(", ", map{qq{$_=>$hash{$_}}} @column_names);
+	#printf OUTFILE "%s, DEBUG2: %s\n", $datetime, join(", ", map{qq{$_=>$hash{$_}}} sort keys %hash);
+    }
+
+    close OUTFILE;
+
 }
 
 $datalinecount = keys %csdata;
