@@ -242,6 +242,7 @@ GATE4=/tmp/GATE4.${VDOT}.S1-2ndlevel-downstream.CHECKED
 
 ok=true
 LEVEL=WARNING
+# 6000 mins = 10 hours
 test $(find $GATE -mmin +6000) && LEVEL=ALERT
 GATE5=/tmp/GATE5.${VDOT}.QAlonger.CHECKED
 
@@ -250,7 +251,12 @@ GATE5=/tmp/GATE5.${VDOT}.QAlonger.CHECKED
     # 7hrs for SMSHUB 8hrs for ACADIA ... 9/10hrs to allow for myeh
     QUORUMSITES="
     QA-RUP-SMSHUB
-    QA-SMSC-ACADIA"
+    QA-SMSC-ACADIA
+    SMSC-QTOD
+    HUB-QTOD
+    QA-SMSC-QTOD
+    QA-HUB-QTOD
+    "
  
     log DEBUG "GATE5 check"
     for s in $QUORUMSITES; do
@@ -287,5 +293,37 @@ TCX-Deploy-Test-S2-2
 
 ### look in kudos.py for https server details
 #    https_api_url = "https://etph.o17g.com"
+
+# [james@nevada ~]$ ls -alstr /slingshot/PUBLISHED/TC-6000/docker_images/traffic-control/
+#total 36
+# 1 drwxr-xr-x  3 bob users   3 Feb 13  2017 ..
+# 7 -rw-r--r--  1 bob users 226 May 19  2022 REVOCATION.LIST
+#14 drwxr-xr-x 21 bob users  21 Jan 12 14:52 v1
+# 1 lrwxrwxrwx  1 bob users  67 Apr 20 15:53 LATEST -> /slingshot/PUBLISHED/TC-6000/docker_images/traff#ic-control/v1/18/67
+# 1 lrwxrwxrwx  1 bob users  67 Apr 20 15:53 LATEST_IS-v1-18-67 -> /slingshot/PUBLISHED/TC-6000/docker_images/traffic-control/v1/18/67
+#14 drwxr-xr-x  3 bob users   6 Apr 20 15:53 .
+## don't snapshot using ls -a and/or -l as the date/time changes as current time moves into the future
+# [james@nevada ~]$ ls -tr /slingshot/PUBLISHED/TC-6000/docker_images/traffic-control/
+
+ok=true
+LEVEL=WARNING
+# 9000 mins = 15 hours
+test $(find $GATE -mmin +9000) && LEVEL=ALERT
+GATE6=/tmp/GATE6.${VDOT}.Published.CHECKED
+
+[[ ! -e $GATE6 ]] && {
+
+    log DEBUG "GATE6 PUBLISH check"
+
+    #PINFO1=$(ssh $QARUPTRAFFIC ls -tr /slingshot/PUBLISHED/TC-6000/docker_images/traffic-control/)
+    PINFO1=$(ssh $QARUPTRAFFIC ls -ltr /slingshot/PUBLISHED/TC-6000/docker_images/traffic-control/)
+    PINFO2=$(echo "$PINFO1" |grep $VDASH)
+    #[[ -z $PINFO2 ]] && log WARNING "$VDASH not found in /slingshot/PUBLISHED" && ok=false
+    [[ -z $PINFO2 ]] && log $LEVEL "$VDASH not found in /slingshot/PUBLISHED" && ok=false
+    #echo PINFO2=$PINFO2 ok=$ok "what the heck ok not working ok ?"
+    $ok && touch $GATE6 && log INFO "GATE6=$GATE6 passed."
+}
+
+
 #bash-5.1$ watch -n 45 'cat $(ls -tr jobs/qas1chatbot/builds/*/log |tail -1)'
 #bash-5.1$ scp omndocker@192.168.123.23:qas1bot.sh ./
