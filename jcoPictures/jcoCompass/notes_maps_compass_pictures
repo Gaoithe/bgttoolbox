@@ -1,0 +1,77 @@
+--------------------------------------------------
+Scout/hiking map&compass app
+TODO: personal. compass using simulator
+There is no easy app to find which does a compass simulator
+There is a barcelona institute thing ? flash ? messy .. doesn't work.
+
+There may be phone apps for this?
+But I'm not familiar with any.
+
+web based html5 - should this be "easy" ? 
+
+     - parts of a compass
+        - how to hold compass
+	   - in hand following bearing
+	   - in hand - sighting accurately on bearing
+	   - FLAT
+     - taking a bearing from something
+     - following a bearing
+     - applying bearing to map (triangulation)
+        - orienting map
+	- plot bearing - compass, ruler, pencil
+     - taking bearing from map
+     - Route card workout
+        - expedition name/purpose/description/dates/location/times
+        - draw route
+	   - way markers - name, grid ref, height
+	   - segments - length, elevation, terrain/description
+	   - travel & pause time estimation
+	   - TOTALs distance/elevation/time & summary (difficulty/..)
+	   - Turn back/Get outs/Route alternatives
+	   - Weather etc 
+
+http://gaoithe.blogspot.com/2023/12/compass-south-pointing-fish-direction-o.html
+
+https://heredragonsabound.blogspot.com/2020/02/map-compasses-part-1.html
+
+
+james@james-DELL-Inspiron:~$ ls ~/Downloads/*comp*
+ /home/james/Downloads/compass-rose-JCO.svg
+ /home/james/Downloads/compass-rose-JCO.svg~
+ /home/james/Downloads/dual-compass-rose.svg
+ /home/james/Downloads/magnet-and-compass_en.jar
+'/home/james/Downloads/Orienteering Maps_compasbrook_mapproc.html'
+ /home/james/Downloads/scouts_chinese_arah-mata-angin-point-of-compass.jpg
+ /home/james/Downloads/scouts_compass_cardinal_points.jpg
+ /home/james/Downloads/scouts_compass_rose_japanese_english.jpg
+ /home/james/Downloads/touzainanboku-japanese-compass-rose-cardinal-directions.png
+ /home/james/Downloads/Walkers_compass_arp.jpg
+ /home/james/Downloads/Wooden_geomantic_compass_and_perpetual_calendar,_Chinese._Pl_Wellcome_L0058625.jpg
+ /home/james/Downloads/xkcd_computer_problems.png
+
+'/home/james/Downloads/Orienteering Maps_compasbrook_mapproc_files':
+banner-styles.css  bundle-playback.js  cblogo.gif  emailcompassbrook.gif  iconochive.css  wombat.js
+--------------------------------------------------
+$ ls ~/Downloads/*.svg
+ /home/james/Downloads/BalallyScoutDen_OpenStreetMap.svg
+ /home/james/Downloads/callflow.v2.svg
+ /home/james/Downloads/cart-and-windmills-JCO.svg
+ /home/james/Downloads/cart-and-windmills.svg
+ /home/james/Downloads/Compass_rose_en_16p.svg
+ /home/james/Downloads/compass-rose-JCO.svg
+ /home/james/Downloads/CompassRose.svg
+ /home/james/Downloads/dual-compass-rose.svg
+ /home/james/Downloads/first-svg-animation-JCO.svg
+ /home/james/Downloads/first-svg-example-JCO.svg
+ /home/james/Downloads/hierarchical-animation-JCO.svg
+ /home/james/Downloads/LogoRacer.svg
+'/home/james/Downloads/Moyne house, Kevin Byrne - Map, OSM satellite and gpx overlay.svg'
+ /home/james/Downloads/royal-canal-greenway-map-final.svg
+ /home/james/Downloads/Standard_Model_of_Elementary_Particles.svg
+ /home/james/Downloads/svg-face-JCO.svg
+ /home/james/Downloads/svg-hierarchy-JCO.svg
+ /home/james/Downloads/svg-starter-JCO.svg
+ /home/james/Downloads/windmill-rose-cart-weirdscape-JCO.svg
+ /home/james/Downloads/windmill-rose-cart-weirdscape-text-JCO.svg
+ /home/james/Downloads/world.svg
+james@james-DELL-Inspiron:~/src/bgttoolbox/jcoPictures/jcoCompass$
