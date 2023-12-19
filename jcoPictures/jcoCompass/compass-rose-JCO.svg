@@ -1,0 +1,115 @@
+<?xml version="1.0"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" 
+  "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<svg version="1.1"
+     xmlns="http://www.w3.org/2000/svg"
+     xmlns:xlink="http://www.w3.org/1999/xlink"
+     width="14cm" height="10cm" 
+     viewBox="0 0 7 5">
+     
+<!--  Compass baseplate and dial TODO: needle
+      And experimenting with rotating, animating. -->
+
+<defs>
+
+    <text id="vane0text" font-size="0.3">N</text>
+    <text id="vane90text" font-size="0.3">E</text>
+    <text id="vane180text" font-size="0.3">S</text>
+    <text id="vane270text" font-size="0.3">W</text>
+    <text id="vane0textD" font-size="0.3">0°</text>
+    <text id="vane90textD" font-size="0.3">90°</text>
+    <text id="vane180textD" font-size="0.3">180°</text>
+    <text id="vane270textD" font-size="0.3">270°</text>
+    <text id="vane0textDD" font-size="0.3">North 0°</text>
+    <text id="vane90textDD" font-size="0.3">East 90°</text>
+    <text id="vane180textDD" font-size="0.3">South 180°</text>
+    <text id="vane270textDD" font-size="0.3">West 270°</text>
+
+    <!-- dial lines -->
+    <line id="dial1line" x1="0" y1="1.75" x2="0" y2="2.4" stroke="#005000" stroke-width="0.02"/>
+    <line id="dial2line" x1="0" y1="1.75" x2="0" y2="2.4" stroke="#005000" stroke-width="0.01"/>
+    <g id="diallinesx4">
+                <line x1="0" y1="1.75" x2="0" y2="2.4"  stroke="#005000" stroke-width="0.02"/>
+                <line x1="0" y1="-1.75" x2="0" y2="-2.4"  stroke="#005000" stroke-width="0.02"/>
+                <line y1="0" x1="1.75" y2="0" x2="2.4"  stroke="#005000" stroke-width="0.02"/>
+                <line y1="0" x1="-1.75" y2="0" x2="-2.4"  stroke="#005000" stroke-width="0.02"/>
+    </g>
+
+    <polygon id="vane" points="0,0 0.5,0.1 1.5,0 0.5,-0.1"
+               fill="rgb(225,200,200)" stroke="rgb(150,100,100)" stroke-width="0.015"/>
+    <polygon id="vane2" points="0,0 0.4,0.2 1.2,0 0.4,-0.2"
+               fill="rgb(225,200,200)" stroke="rgb(150,100,100)" stroke-width="0.015"/>
+    <polygon id="vane3" points="0,0 0.35,0.15 1.0,0 0.35,-0.15"
+               fill="rgb(225,200,200)" stroke="rgb(150,100,100)" stroke-width="0.015"/>
+               
+    <g id="windmill">  <!-- A compass with vanes/pointers, dial circles,  with a rotating set of three vanes. -->
+	<!-- dial 0,3 is middle of dial -->
+        <circle cx="0" cy="3" r="1.75" stroke="#005000" stroke-width="0.02" fill="none"/>
+        <circle cx="0" cy="3" r="2.08" stroke="#005000" stroke-width="0.02" fill="none"/>
+        <circle cx="0" cy="3" r="2.4" stroke="#005000" stroke-width="0.02" fill="none"/>
+        <circle cx="0" cy="3" r="2.7" stroke="#005000" stroke-width="0.02" fill="none"/>
+        <line x1="0" y1="5.7" x2="0" y2="0.3"  stroke="#005000" stroke-width="0.02"/>
+        <line x1="4.75" y1="0" x2="5.4" y2="0"  stroke="#005000" stroke-width="0.02"/>
+	<!-- baseplate 0,0 is mid bottom of baseplate -->
+        <rect x="-1" y="0" width="2" height="5" fill="#EEEEEE" fill-opacity="0.5" stroke="#000000" stroke-width="0.02"/>
+	<!-- vanes/pointers and dial text -->
+        <g transform="translate(0,3)">
+            <g transform="rotate(0)">  <!-- The set of three rotating vanes -->
+                <animateTransform attributeName="transform" attributeType="XML"
+                            type="rotate" from="360" to="0" dur="7s" 
+                            fill="remove" repeatCount="indefinite"/>   
+                <use xlink:href="#vane3" transform="rotate(22.5)"/>
+                <use xlink:href="#vane3" transform="rotate(67.5)"/>
+                <use xlink:href="#vane3" transform="rotate(112.5)"/>
+                <use xlink:href="#vane3" transform="rotate(157.5)"/>
+                <use xlink:href="#vane3" transform="rotate(202.5)"/>
+                <use xlink:href="#vane3" transform="rotate(247.5)"/>
+                <use xlink:href="#vane3" transform="rotate(292.5)"/>
+                <use xlink:href="#vane3" transform="rotate(337.5)"/>
+                <use xlink:href="#vane2" transform="rotate(45)"/>
+                <use xlink:href="#vane2" transform="rotate(135)"/>
+                <use xlink:href="#vane2" transform="rotate(225)"/>
+                <use xlink:href="#vane2" transform="rotate(315)"/>
+                <use xlink:href="#vane"/>
+                <use xlink:href="#vane0text" transform="translate(0,2)"/>
+                <use xlink:href="#vane0textD" transform="translate(0,2.3)"/>
+                <use xlink:href="#vane" transform="rotate(90)"/>
+                <use xlink:href="#vane90text" transform="rotate(90),translate(0,2)"/>
+                <use xlink:href="#vane" transform="rotate(180)"/>
+                <use xlink:href="#vane180text" transform="rotate(180),translate(0,2)"/>
+                <use xlink:href="#vane" transform="rotate(270)"/>
+                <use xlink:href="#vane270text" transform="rotate(270),translate(0,2)"/>
+		<!-- dial needs to be here, dial lines rotate, line order:NSWE -->
+                <use xlink:href="#diallinesx4"/>
+		<!-- dial smaller lines -->
+                <use xlink:href="#diallinesx4" transform="rotate(22.5)"/>
+                <use xlink:href="#diallinesx4" transform="rotate(45)"/>
+                <use xlink:href="#diallinesx4" transform="rotate(67.5)"/>
+            </g>
+        </g>
+    </g>
+
+</defs>
+
+
+<g transform="translate(0,4) scale(1,-1)">
+    <rect x="0" y="-1" width="7" height="5" fill="rgb(220,230,255)"/>  <!-- background-->
+
+    <!-- draw a map behind -->
+    <polygon points="0,-1 0,0.85 1.55,1.6 1.85,1.35 3,2.2 4.7,0.7,6.2,1.25,7,0.83,7,-1" fill="lightgreen"/>
+    <rect x="0" y="-0.37" width="7" height="0.02" fill="rgb(180,80,195)"/>  <!-- backg -->
+    <rect x="0" y="-0.02" width="7" height="0.04" fill="rgb(220,230,0)"/>  <!-- road -->
+    <rect x="0" y="-0.42" width="7" height="0.01" fill="blue"/>  <!-- water -->
+    
+    <!-- another 2 compasses -->
+    <!-- 
+    <use xlink:href="#windmill" transform="translate(0.75,1) scale(0.6,0.6)"/>
+    <use xlink:href="#windmill" transform="translate(2.2,1.3) scale(0.4,0.4)"/>
+      -->
+      
+    <use xlink:href="#windmill" transform="translate(3.7,-0.8) scale(0.7,0.7)"/>
+    
+</g>
+
+</svg>
+
