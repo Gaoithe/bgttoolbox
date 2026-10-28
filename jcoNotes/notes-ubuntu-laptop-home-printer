@@ -1,0 +1,772 @@
+
+** brother dcpj315w home printer library dublin 
+
+Why is it difficult to keep my home printer on wifi working from my linux ubuntu laptop ? Brother DCPJ315W printer. How can I add printer that keeps on working ?
+Stop and disable cups-browsed Delete broken printers
+Brother DCPJ315W static IP 192.168.68.111
+Download ppd driver from brother (failed, used old one ..
+  and tons of starting cuips service hassle = apparmor clash
+
+DCP-J315W (Idle, Accepting Jobs, Not Shared)
+Description:	Brother DCP-J315W
+Location:	
+Driver:	Brother DCP-J315W CUPS (color)
+Connection:	lpd://BRW0022585BC472/BINARY_P1
+Defaults:	job-sheets=none, none media=na_letter_8.5x11in sides=one-sided
+
+DCPJ315W (Idle, Accepting Jobs, Not Shared)
+Description:	DCPJ315W
+Location:	
+Driver:	Brother DCP-J315W CUPS (color)
+Connection:	lpd://192.168.68.111/BINARY_P1
+Defaults:	job-sheets=none, none media=na_letter_8.5x11in sides=one-sided
+
+
+*** give it a static IP
+
+I think I gave the printer a static IP address before.
+It is on 192.168.68.111 now.
+Google photos => 169.254.163.110 WTF ? 192.168.068.111 ? YES
+
+How do I check on router for static IP assignment, the deco/tp-link router web interface does not seem to have an option for that now. :-(
+And there's a printer named BrDCPJ315W.111 installed with 192.168.68.111 but it's not working.
+TP-LINK router http://192.168.68.1/webpages/index.html  gxxxxxx@gmail.com decoDECOdeco
+   Internet IP 192.168.1.1 eircom router
+   GreenEagleNu, 3 tp-link. 11 Clients all decos
+Type	Information	Real-time Rate	Connection
+   Living-Room, 64-D2-C4-D8-D4-CD, 192.168.68.113, 0KB/s, 0KB/s, Wireless(5G)
+   James-s-S21-FE, 46-CC-0E-EA-EB-68, 192.168.68.103, 0KB/s, 0KB/s, Wireless(2.4G)
+   Netatmo Relay, 70-EE-50-5D-DB-40, 192.168.68.100, 0KB/s, 0KB/s, Wireless(2.4G)
+   Fionnuala-s-Tab-S9-FE, E6-65-8C-43-34-F9, 192.168.68.102, 0KB/s. 0KB/s, Wireless(5G)
+   Google-Nest-Hub, 1C-53-F9-0E-9C-98, 192.168.68.108, 21KB/s, 25KB/s, Wireless(5G)
+   D_7A1234285200579F, D4-D4-DA-7A-84-2C, 192.168.68.106, 0KB/s, 0KB/s, Wireless(2.4G)
+   Google, 1C-F2-9A-22-7E-06, 192.168.68.107, 5KB/s, 181KB/s, Wireless(5G)
+   BRW0022585BC472, 00-22-58-5B-C4-72, 192.168.68.111, 0KB/s, 0KB/s, Wireless(2.4G)
+   IE-4TKL284, E4-1F-D5-EF-D4-90, 192.168.68.118, 13KB/s, 10KB/s, Wireless(5G)
+   Zappi, C0-49-EF-97-58-B4, 192.168.68.105, 0KB/s, 0KB/s, Wireless(2.4G)
+   Android, 46-9C-93-B4-26-4B, 192.168.68.112, 0KB/s, 0KB/s, Wireless(5G)
+
+It looks like you are checking the Deco's web interface from your laptop (192.168.68.1). TP-Link has notoriously stripped almost all advanced configuration options out of the Deco web interface—it is basically just a read-only status page now.
+To set a static IP (DHCP Reservation) on a TP-Link Deco, you must use the Deco app on your phone.
+
+The reason your Brother Wi-Fi printer works one day and disappears the next on Ubuntu almost always comes down to Dynamic IP routing and Ubuntu's auto-discovery feature (cups-browsed) fighting with each other.
+2 "cups" printers installed ?
+BrDCPJ315W.111 192.168.68.111
+   search for drivers ? select from database... ? install PPD file ? 
+Step 1: Give the Printer a Static IP Address (Crucial)
+This solves 90% of Wi-Fi printer issues on Linux. You need to tell your router to stop changing the printer's IP address.
+
+The Deco app interface is different also.
+Oh right, after update it matches instructions:
+Step 1: Lock the IP in the Deco App
+Open the Deco app on your phone.
+Tap the More tab at the bottom right.
+Tap Advanced.
+Tap Address Reservation.
+Tap the + (plus) icon in the top right corner.
+Choose Select from Client.
+Find the printer in the list. Based on your output, it's named BRW0022585BC472 with the MAC address 00-22-58-5B-C4-72. Check the box next to it.
+Tap Done.
+Optional: If you want to force it to stay 192.168.68.111, you can tap on the newly created reservation in the list, manually edit the IP address to .111, and tap Save.
+
+
+*** Step 2: Stop Ubuntu from Auto-creating Broken Queues
+Ubuntu has a background service that tries to "help" by auto-discovering printers, but for Brother printers, it usually configures them with the wrong protocol. Let's turn it off so you only use the stable connection you are about to build.
+sudo systemctl stop cups-browsed
+sudo systemctl disable cups-browsed
+
+
+*** Step 3.1: Install the Official Brother Driver
+Do not rely on Ubuntu's generic drivers. Brother actually provides a fantastic, all-in-one Linux script.
+Go to the Brother DCP-J315W Linux Downloads page.
+https://www.brother.ie/support/dcpj315w ->
+NO DOWNLOADS THERE BUT OLDER DOWNLOAD:
+jamescoleman@IE-4TKL284:~$ locate linux-brprinter-installer
+/home/jamescoleman/Downloads/printer/linux-brprinter-installer-2.2.4-1
+/home/jamescoleman/Printer/linux-brprinter-installer-2.2.6-0
+
+# must use exact printer ID: DCP-J315W
+jamescoleman@IE-4TKL284:~$ sudo bash /home/jamescoleman/Printer/linux-brprinter-installer-2.2.6-0 DCP-J315W
+You are going to install following packages.
+   dcpj315wlpr-1.1.3-1.i386.deb
+   dcpj315wcupswrapper-1.1.3-1.i386.deb
+   brscan3-0.2.13-1.amd64.deb
+   brscan-skey-0.3.4-0.amd64.deb
+OK? [y/N] ->y
+
+The script will ask you several questions. Answer Yes (y) to all the license agreements.
+Important: When the script asks "Will you specify the Device URI? [Y/n]", type Y.
+It will show you a list of connection types. Choose the number corresponding to Specify IP address.
+Type in the Static IP address you locked down in Step 1 (e.g., 192.168.68.111).
+
+
+*** Step 3.2: Add the Printer using the Stable LPD Protocol
+Now we add it back manually, pointing directly at the IP address you just locked down.
+Still on the http://localhost:631 page, click the Administration tab at the top.
+Click the Add Printer button.
+Select LPD/LPR Host or Printer and click Continue.
+In the Connection box, type exactly this:
+lpd://192.168.68.111/BINARY_P1
+Click Continue. Give the printer a sensible name (like Brother-DCPJ315W) and click Continue.
+Scroll down the "Make" list, select Brother, and click Continue.
+Select the Brother DCP-J315W CUPS driver from the list. (If it's not there, you need to run the Brother Linux install script I mentioned in the previous message).
+Click Add Printer.
+
+
+*** Step 4: Verify the Connection Protocol (The "Silver Bullet")
+Brother printers communicate best with Linux using the lpd:// protocol, but sometimes installations default to ipp:// or usb://. Let's ensure it's correct.
+
+Open your web browser and go to the hidden Ubuntu printer admin page: http://localhost:631/printers
+(If it says "Web Interface is Disabled", open your terminal and run cupsctl WebInterface=yes and refresh the page).
+
+Click on your DCPJ315W printer.
+
+Click the Administration dropdown menu and select Modify Printer. (It may ask for your Ubuntu username and password).
+
+Select LPD/LPR Host or Printer and click Continue.
+
+In the Connection box, type exactly this (replacing the X's with your printer's static IP):
+lpd://192.168.X.X/BINARY_P1
+
+Click Continue, select your Brother driver, and click Modify Printer.
+
+Why this works:
+By locking the IP address, you stop the printer from moving around the network. By using lpd://[IP_ADDRESS]/BINARY_P1, you are using Brother's native, raw data protocol which bypasses the flaky DNS/mDNS discovery systems that cause Ubuntu to suddenly declare the printer "Offline."
+
+
+
+Two printers show now in ubuntu Settings Printers. http://localhost:631/printers shows Printers
+Printers Error
+Unable to get printer list:
+
+Bad file descriptor    
+jamescoleman@IE-4TKL284:~$ lpq
+lpq: Error - no default destination available.
+jamescoleman@IE-4TKL284:~$ lpr
+lpr: Error - No default destination.
+jamescoleman@IE-4TKL284:~$ sudo lpq
+lpq: Error - no default destination available.
+jamescoleman@IE-4TKL284:~$ lp
+lp         lpadmin    lpinfo     lpoptions  lpr        lp_solve   
+lp2        lpc        lpmove     lpq        lprm       lpstat     
+jamescoleman@IE-4TKL284:~$ lpinfo
+jamescoleman@IE-4TKL284:~$ 
+
+
+
+**** ppd files
+
+jamescoleman@IE-4TKL284:~$ locate *.ppd
+/etc/cups/ppd/BrDCPJ315W.111.ppd
+/etc/cups/ppd/DCP-J315W.ppd
+/opt/brother/Printers/dcpj315w/cupswrapper/brother_dcpj315w_printer_en.ppd
+/usr/share/GNUstep/PostScript/PPD/English.lproj/Generic-PostScript_Printer-Postscript.ppd
+/usr/share/a2ps/ppd/level1.ppd
+/usr/share/a2ps/ppd/level2.ppd
+/usr/share/cups/model/Brother/brother_dcpj315w_printer_en.ppd
+/usr/share/ghostscript/10.07.1/lib/cbjc600.ppd
+/usr/share/ghostscript/10.07.1/lib/cbjc800.ppd
+/usr/share/ghostscript/10.07.1/lib/ghostpdf.ppd
+/usr/share/ppd/Brother/DCP7010.ppd
+/usr/share/ppd/Brother/DCP7020.ppd
+/usr/share/ppd/Brother/DCP7025.ppd
+/usr/share/ppd/Brother/DCP8060.ppd
+/usr/share/ppd/Brother/DCP8065DN.ppd
+/usr/share/ppd/Brother/FAX2810.ppd
+/usr/share/ppd/Brother/FAX2820.ppd
+/usr/share/ppd/Brother/FAX2920.ppd
+/usr/share/ppd/Brother/HL2030.ppd
+/usr/share/ppd/Brother/HL2040.ppd
+/usr/share/ppd/Brother/HL2070N.ppd
+/usr/share/ppd/Brother/HL5240.ppd
+/usr/share/ppd/Brother/HL5250DN.ppd
+/usr/share/ppd/Brother/HL5270DN.ppd
+/usr/share/ppd/Brother/HL5280DW.ppd
+/usr/share/ppd/Brother/MFC7220.ppd
+/usr/share/ppd/Brother/MFC7225N.ppd
+/usr/share/ppd/Brother/MFC7420.ppd
+/usr/share/ppd/Brother/MFC7820N.ppd
+/usr/share/ppd/Brother/MFC8460N.ppd
+/usr/share/ppd/Brother/MFC8660DN.ppd
+/usr/share/ppd/Brother/MFC8860DN.ppd
+/usr/share/ppd/Brother/MFC8870DW.ppd
+/usr/share/ppd/Brother/brdcp1000_cups.ppd
+/usr/share/ppd/Brother/brdcp110c_cups.ppd
+/usr/share/ppd/Brother/brdcp130c.ppd
+/usr/share/ppd/Brother/brdcp135c.ppd
+/usr/share/ppd/Brother/brdcp1400_cups.ppd
+/usr/share/ppd/Brother/brdcp150c.ppd
+/usr/share/ppd/Brother/brdcp153c.ppd
+/usr/share/ppd/Brother/brdcp310cn_cups.ppd
+/usr/share/ppd/Brother/brdcp330c.ppd
+/usr/share/ppd/Brother/brdcp350c.ppd
+/usr/share/ppd/Brother/brdcp353c.ppd
+/usr/share/ppd/Brother/brdcp540cn.ppd
+/usr/share/ppd/Brother/brdcp560cn.ppd
+/usr/share/ppd/Brother/brdcp750cn.ppd
+/usr/share/ppd/Brother/brdcp750cw.ppd
+/usr/share/ppd/Brother/brdcp770cw.ppd
+/usr/share/ppd/Brother/brdcp8020_cups.ppd
+/usr/share/ppd/Brother/brdcp8025d_cups.ppd
+/usr/share/ppd/Brother/brdcp8040_cups.ppd
+/usr/share/ppd/Brother/brdcp8045d_cups.ppd
+/usr/share/ppd/Brother/brdcp9040cn.ppd
+/usr/share/ppd/Brother/brdcp9042cdn.ppd
+/usr/share/ppd/Brother/brdcp9045cdn.ppd
+/usr/share/ppd/Brother/brfax1815c_cups.ppd
+/usr/share/ppd/Brother/brfax1820c_cups.ppd
+/usr/share/ppd/Brother/brfax1835c_cups.ppd
+/usr/share/ppd/Brother/brfax1840c_cups.ppd
+/usr/share/ppd/Brother/brfax1860c.ppd
+/usr/share/ppd/Brother/brfax1920cn_cups.ppd
+/usr/share/ppd/Brother/brfax1940cn_cups.ppd
+/usr/share/ppd/Brother/brfax1960c.ppd
+/usr/share/ppd/Brother/brfax2440c_cups.ppd
+/usr/share/ppd/Brother/brfax2480c.ppd
+/usr/share/ppd/Brother/brfax2580c.ppd
+/usr/share/ppd/Brother/brfax2850_cups.ppd
+/usr/share/ppd/Brother/brfax2900_cups.ppd
+/usr/share/ppd/Brother/brfax3800_cups.ppd
+/usr/share/ppd/Brother/brfax4100_cups.ppd
+/usr/share/ppd/Brother/brfax4750e_cups.ppd
+/usr/share/ppd/Brother/brfax5750e_cups.ppd
+/usr/share/ppd/Brother/brhl1030_cups.ppd
+/usr/share/ppd/Brother/brhl1230_cups.ppd
+/usr/share/ppd/Brother/brhl1240_cups.ppd
+/usr/share/ppd/Brother/brhl1250_cups.ppd
+/usr/share/ppd/Brother/brhl1270n_cups.ppd
+/usr/share/ppd/Brother/brhl1430_cups.ppd
+/usr/share/ppd/Brother/brhl1440_cups.ppd
+/usr/share/ppd/Brother/brhl1450_cups.ppd
+/usr/share/ppd/Brother/brhl1470n_cups.ppd
+/usr/share/ppd/Brother/brhl16_2_cups.ppd
+/usr/share/ppd/Brother/brhl18_2_cups.ppd
+/usr/share/ppd/Brother/brhl4040cdn.ppd
+/usr/share/ppd/Brother/brhl4040cn.ppd
+/usr/share/ppd/Brother/brhl4050cdn.ppd
+/usr/share/ppd/Brother/brhl4070cdw.ppd
+/usr/share/ppd/Brother/brhl5030_cups.ppd
+/usr/share/ppd/Brother/brhl5040_cups.ppd
+/usr/share/ppd/Brother/brhl5050_cups.ppd
+/usr/share/ppd/Brother/brhl5070n_cups.ppd
+/usr/share/ppd/Brother/brhl5130_cups.ppd
+/usr/share/ppd/Brother/brhl5140_cups.ppd
+/usr/share/ppd/Brother/brhl5150d_cups.ppd
+/usr/share/ppd/Brother/brhl5170dn_cups.ppd
+/usr/share/ppd/Brother/brhl6050_cups.ppd
+/usr/share/ppd/Brother/brhl6050d_cups.ppd
+/usr/share/ppd/Brother/brmfc210c_cups.ppd
+/usr/share/ppd/Brother/brmfc230c.ppd
+/usr/share/ppd/Brother/brmfc235c.ppd
+/usr/share/ppd/Brother/brmfc240c.ppd
+/usr/share/ppd/Brother/brmfc260c.ppd
+/usr/share/ppd/Brother/brmfc3220c_cups.ppd
+/usr/share/ppd/Brother/brmfc3240c_cups.ppd
+/usr/share/ppd/Brother/brmfc3320cn_cups.ppd
+/usr/share/ppd/Brother/brmfc3340cn_cups.ppd
+/usr/share/ppd/Brother/brmfc3360c.ppd
+/usr/share/ppd/Brother/brmfc3420c_cups.ppd
+/usr/share/ppd/Brother/brmfc3820cn_cups.ppd
+/usr/share/ppd/Brother/brmfc410cn_cups.ppd
+/usr/share/ppd/Brother/brmfc420cn_cups.ppd
+/usr/share/ppd/Brother/brmfc440cn.ppd
+/usr/share/ppd/Brother/brmfc460cn.ppd
+/usr/share/ppd/Brother/brmfc465cn.ppd
+/usr/share/ppd/Brother/brmfc4800_cups.ppd
+/usr/share/ppd/Brother/brmfc5440cn_cups.ppd
+/usr/share/ppd/Brother/brmfc5460cn.ppd
+/usr/share/ppd/Brother/brmfc5840cn_cups.ppd
+/usr/share/ppd/Brother/brmfc5860cn.ppd
+/usr/share/ppd/Brother/brmfc620cn_cups.ppd
+/usr/share/ppd/Brother/brmfc630cd.ppd
+/usr/share/ppd/Brother/brmfc660cn.ppd
+/usr/share/ppd/Brother/brmfc665cw.ppd
+/usr/share/ppd/Brother/brmfc6800_cups.ppd
+/usr/share/ppd/Brother/brmfc680cn.ppd
+/usr/share/ppd/Brother/brmfc685cw.ppd
+/usr/share/ppd/Brother/brmfc8420_cups.ppd
+/usr/share/ppd/Brother/brmfc8440_cups.ppd
+/usr/share/ppd/Brother/brmfc845cw.ppd
+/usr/share/ppd/Brother/brmfc8500_cups.ppd
+/usr/share/ppd/Brother/brmfc850cdn.ppd
+/usr/share/ppd/Brother/brmfc860cdn.ppd
+/usr/share/ppd/Brother/brmfc8820d_cups.ppd
+/usr/share/ppd/Brother/brmfc8840d_cups.ppd
+/usr/share/ppd/Brother/brmfc885cw.ppd
+/usr/share/ppd/Brother/brmfc9030_cups.ppd
+/usr/share/ppd/Brother/brmfc9070_cups.ppd
+/usr/share/ppd/Brother/brmfc9160_cups.ppd
+/usr/share/ppd/Brother/brmfc9180_cups.ppd
+/usr/share/ppd/Brother/brmfc9420cn.ppd
+/usr/share/ppd/Brother/brmfc9440cn.ppd
+/usr/share/ppd/Brother/brmfc9450cdn.ppd
+/usr/share/ppd/Brother/brmfc9660_cups.ppd
+/usr/share/ppd/Brother/brmfc9700_cups.ppd
+/usr/share/ppd/Brother/brmfc9760_cups.ppd
+/usr/share/ppd/Brother/brmfc9800_cups.ppd
+/usr/share/ppd/Brother/brmfc9840cdw.ppd
+/usr/share/ppd/Brother/brmfc9860_cups.ppd
+/usr/share/ppd/Brother/brmfc9880_cups.ppd
+/usr/share/ppd/Brother/brother_dcpj315w_printer_en.ppd
+/usr/share/ppd/cupsfilters/Fuji_Xerox-DocuPrint_CM305_df-PDF.ppd
+/usr/share/ppd/cupsfilters/Generic-PDF_Printer-PDF.ppd
+/usr/share/ppd/cupsfilters/HP-Color_LaserJet_CM3530_MFP-PDF.ppd
+/usr/share/ppd/cupsfilters/Ricoh-PDF_Printer-PDF.ppd
+/usr/share/ppd/cupsfilters/pxlcolor.ppd
+/usr/share/ppd/cupsfilters/pxlmono.ppd
+jamescoleman@IE-4TKL284:~$ 
+
+**** install linux-brprinter-installer
+
+jamescoleman@IE-4TKL284:~$ sudo systemctl stop cups-browsed
+sudo systemctl disable cups-browsed
+[sudo] password for jamescoleman: 
+Removed '/etc/systemd/system/multi-user.target.wants/cups-browsed.service'.
+jamescoleman@IE-4TKL284:~$ locate linux-brprinter-installer
+/home/jamescoleman/Downloads/printer/linux-brprinter-installer-2.2.4-1
+/home/jamescoleman/Printer/linux-brprinter-installer-2.2.6-0
+jamescoleman@IE-4TKL284:~$ less /home/jamescoleman/Printer/linux-brprinter-installer-2.2.6-0
+#jamescoleman@IE-4TKL284:~$ /home/jamescoleman/Printer/linux-brprinter-installer-2.2.6-0
+bash: /home/jamescoleman/Printer/linux-brprinter-installer-2.2.6-0: Permission denied
+jamescoleman@IE-4TKL284:~$ bash /home/jamescoleman/Printer/linux-brprinter-installer-2.2.6-0 BrDCP-J315W
+Only root can perform this operation.
+rmdir: failed to remove '': No such file or directory
+jamescoleman@IE-4TKL284:~$ sudo bash /home/jamescoleman/Printer/linux-brprinter-installer-2.2.6-0 BrDCP-J315W
+[sudo] password for jamescoleman: 
+Driver-packages cannot be found.
+ Confirm the model name.
+
+jamescoleman@IE-4TKL284:~$ sudo bash /home/jamescoleman/Printer/linux-brprinter-installer-2.2.6-0 DCP-J315W
+You are going to install following packages.
+   dcpj315wlpr-1.1.3-1.i386.deb
+   dcpj315wcupswrapper-1.1.3-1.i386.deb
+   brscan3-0.2.13-1.amd64.deb
+   brscan-skey-0.3.4-0.amd64.deb
+OK? [y/N] ->y
+
+
+=========================================
+Brother License Agreement
+
+Brother retains any and all copyrights to the Software. In no case this Agreement shall be construed to assign or otherwise transfer from Brother to User any copyrights or other intellectual property rights to whole or any part of the Software.
+
+Brother grants User a non-exclusive license: to reproduce and/or distribute (via Internet or in any other manner) the Software. Further, Brother grants User a non-exclusive license to modify, alter, translate or otherwise prepare derivative works of the Software and to reproduce and distribute (via Internet or in any other manner) such modification, alteration, translation or other derivative works for any purpose.
+
+The license of the Software from Brother hereunder is granted "AS IS." BROTHER HEREBY DISCLAIMS ANY WARRANTIES WITH RESPECT TO THE SOFTWARE, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO WARRANTY FOR THE QUALITY, MERCHANTABILITY, FITNESS FOR PARTICULAR PURPOSE OR NON-INFRINGEMENT.
+Brother shall have no liability in contract, tort (including negligence or breach of statutory duty) or otherwise for any interruption of use, loss of data, or for any indirect, incidental, punitive or consequential loss or damage, or for any loss of profit, revenue, data, goodwill or anticipated savings that arises under, out of, or in contemplation of this Agreement or otherwise arises due to any error, inaccuracy or defect in the Software even if Brother has been advised of the possibility of such loss or damage.
+Further, Brother shall have no liability to disclose and/or distribute the source cord of the Software to User under any circumstances. In no case shall the above license by Brother to modify, alter, translate or otherwise prepare derivative works of the Software be construed as Brother's implied agreement or undertakings to disclose and/or distribute the source cord of the Software.
+=========================================
+Do you agree? [Y/n] ->y
+
+wget -T 10 -nd --no-cache https://download.brother.com/pub/com/linux/linux/packages/dcpj315wlpr-1.1.3-1.i386.deb
+--2026-10-13 12:17:11--  https://download.brother.com/pub/com/linux/linux/packages/dcpj315wlpr-1.1.3-1.i386.deb
+Resolving download.brother.com (download.brother.com)... 23.40.210.9
+Connecting to download.brother.com (download.brother.com)|23.40.210.9|:443... connected.
+HTTP request sent, awaiting response... 200 OK
+Length: 1895566 (1.8M) [text/plain]
+Saving to: ‘dcpj315wlpr-1.1.3-1.i386.deb’
+
+dcpj315wlpr-1.1.3-1.i386.de 100%[==========================================>]   1.81M  9.18MB/s    in 0.2s    
+
+2026-10-13 12:17:11 (9.18 MB/s) - ‘dcpj315wlpr-1.1.3-1.i386.deb’ saved [1895566/1895566]
+
+
+=========================================
+GPL License Agreement
+
+This Software may be used in accordance with GNU General Public License (GPL). Please read carefully the following GPL and click on "I Accept" button. If you cannot agree with the following terms, please click "I don't Accept" button. In case of your non-acceptance, you can not use this Software.
+Note:
+Please click on "I Accept" while holding down "Shift" or right click on "I Accept" and select "Save Target As,,," from the menu.
+
+GNU GENERAL PUBLIC LICENSE
+Version 2, June 1991
+
+Copyright (C) 1989, 1991 Free Software Foundation, Inc.51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA
+Everyone is permitted to copy and distribute verbatim copies of this license document, but changing it is not allowed.
+
+Preamble
+
+The licenses for most software are designed to take away your freedom to share and change it. By contrast, the GNU General Public License is intended to guarantee your freedom to share and change free software--to make sure the software is free for all its users. This General Public License applies to most of the Free Software Foundation's software and to any other program whose authors commit to using it. (Some other Free Software Foundation software is covered by
+the GNU Library General Public License instead.) You can apply it to your programs, too.
+
+When we speak of free software, we are referring to freedom, not price. Our General Public Licenses are designed to make sure that you have the freedom to distribute copies of free software (and charge for this service if you wish), that you receive source code or can get it if you want it, that you can change the software or use pieces of it in new free programs; and that you know you can do these things.
+
+To protect your rights, we need to make restrictions that forbid anyone to deny you these rights or to ask you to surrender the rights. These restrictions translate to certain responsibilities for you if you distribute copies of the software, or if you modify it.
+
+For example, if you distribute copies of such a program, whether gratis or for a fee, you must give the recipients all the rights that you have. You must make sure that they, too, receive or can get the
+source code. And you must show them these terms so they know their rights.
+
+We protect your rights with two steps: (1) copyright the software, and (2) offer you this license which gives you legal permission to copy, distribute and/or modify the software.
+
+Also, for each author's protection and ours, we want to make certain that everyone understands that there is no warranty for this free software. If the software is modified by someone else and passed on, we want its recipients to know that what they have is not the original, so that any problems introduced by others will not reflect on the original authors' reputations.
+
+Finally, any free program is threatened constantly by software patents. We wish to avoid the danger that redistributors of a free program will individually obtain patent licenses, in effect making the program proprietary. To prevent this, we have made it clear that any patent must be licensed for everyone's free use or not licensed at all.
+
+The precise terms and conditions for copying, distribution and modification follow.
+
+GNU GENERAL PUBLIC LICENSE
+TERMS AND CONDITIONS FOR COPYING, DISTRIBUTION AND MODIFICATION
+
+0. This License applies to any program or other work which contains a notice placed by the copyright holder saying it may be distributed under the terms of this General Public License. The "Program", below, refers to any such program or work, and a "work based on the Program" means either the Program or any derivative work under copyright law: that is to say, a work containing the Program or a portion of it, either verbatim or with modifications and/or translated into another language. (Hereinafter, translation is included without limitation in the term "modification".) Each licensee is addressed as "you".
+
+Activities other than copying, distribution and modification are not covered by this License; they are outside its scope. The act of running the Program is not restricted, and the output from the Program
+is covered only if its contents constitute a work based on the Program (independent of having been made by running the Program). Whether that is true depends on what the Program does.
+
+   1. You may copy and distribute verbatim copies of the Program's source code as you receive it, in any medium, provided that you conspicuously and appropriately publish on each copy an appropriate copyright notice and disclaimer of warranty; keep intact all the notices that refer to this License and to the absence of any warranty; and give any other recipients of the Program a copy of this License along with the Program.
+
+      You may charge a fee for the physical act of transferring a copy, and you may at your option offer warranty protection in exchange for a fee.
+   2. You may modify your copy or copies of the Program or any portion of it, thus forming a work based on the Program, and copy and distribute such modifications or work under the terms of Section 1 above, provided that you also meet all of these conditions:
+
+      a) You must cause the modified files to carry prominent notices stating that you changed the files and the date of any change.
+
+      b) You must cause any work that you distribute or publish, that in whole or in part contains or is derived from the Program or any part thereof, to be licensed as a whole at no charge to all third parties under the terms of this License.
+
+      c) If the modified program normally reads commands interactively when run, you must cause it, when started running for such interactive use in the most ordinary way, to print or display an
+      announcement including an appropriate copyright notice and a notice that there is no warranty (or else, saying that you provide a warranty) and that users may redistribute the program under these conditions, and telling the user how to view a copy of this License. (Exception: if the Program itself is interactive but does not normally print such an announcement, your work based on the Program is not required to print an announcement.)
+      
+      These requirements apply to the modified work as a whole. If identifiable sections of that work are not derived from the Program, and can be reasonably considered independent and separate works in themselves, then this License, and its terms, do not apply to those sections when you distribute them as separate works. But when you distribute the same sections as part of a whole which is a work based on the Program, the distribution of the whole must be on the terms of this License, whose permissions for other licensees extend to the entire whole, and thus to each and every part regardless of who wrote it.
+
+      Thus, it is not the intent of this section to claim rights or contest your rights to work written entirely by you; rather, the intent is to exercise the right to control the distribution of derivative or collective works based on the Program.
+
+      In addition, mere aggregation of another work not based on the Program with the Program (or with a work based on the Program) on a volume of a storage or distribution medium does not bring the other work under the scope of this License.
+   3. You may copy and distribute the Program (or a work based on it, under Section 2) in object code or executable form under the terms of Sections 1 and 2 above provided that you also do one of the following:
+
+      a) Accompany it with the complete corresponding machine-readable source code, which must be distributed under the terms of Sections 1 and 2 above on a medium customarily used for software interchange; or,
+
+      b) Accompany it with a written offer, valid for at least three years, to give any third party, for a charge no more than your cost of physically performing source distribution, a complete machine-readable copy of the corresponding source code, to be distributed under the terms of Sections 1 and 2 above on a medium customarily used for software interchange; or,
+
+      c) Accompany it with the information you received as to the offer to distribute corresponding source code. (This alternative is allowed only for noncommercial distribution and only if you
+      received the program in object code or executable form with such an offer, in accord with Subsection b above.)
+
+      The source code for a work means the preferred form of the work for making modifications to it. For an executable work, complete source code means all the source code for all modules it contains, plus any associated interface definition files, plus the scripts used to control compilation and installation of the executable. However, as a special exception, the source code distributed need not include anything that is normally distributed (in either source or binary form) with the major components (compiler, kernel, and so on) of the operating system on which the executable runs, unless that component itself accompanies the executable.
+
+      If distribution of executable or object code is made by offering access to copy from a designated place, then offering equivalent access to copy the source code from the same place counts as distribution of the source code, even though third parties are not compelled to copy the source along with the object code.
+   4. You may not copy, modify, sublicense, or distribute the Program except as expressly provided under this License. Any attempt otherwise to copy, modify, sublicense or distribute the Program is void, and will automatically terminate your rights under this License. However, parties who have received copies, or rights, from you under this License will not have their licenses terminated so long as such parties remain in full compliance.
+   5. You are not required to accept this License, since you have not signed it. However, nothing else grants you permission to modify or distribute the Program or its derivative works. These actions are prohibited by law if you do not accept this License. Therefore, by modifying or distributing the Program (or any work based on the Program), you indicate your acceptance of this License to do so, and all its terms and conditions for copying, distributing or modifying
+      the Program or works based on it.
+   6. Each time you redistribute the Program (or any work based on the Program), the recipient automatically receives a license from the original licensor to copy, distribute or modify the Program subject to these terms and conditions. You may not impose any further restrictions on the recipients' exercise of the rights granted herein. You are not responsible for enforcing compliance by third parties to this License.
+   7. If, as a consequence of a court judgment or allegation of patent infringement or for any other reason (not limited to patent issues), conditions are imposed on you (whether by court order, agreement or otherwise) that contradict the conditions of this License, they do not excuse you from the conditions of this License. If you cannot distribute so as to satisfy simultaneously your obligations under this License and any other pertinent obligations, then as a consequence you may not distribute the Program at all. For example, if a patent license would not permit royalty-free redistribution of the Program by all those who receive copies directly or indirectly through you, then the only way you could satisfy both it and this License would be to refrain entirely from distribution of the Program.
+
+      If any portion of this section is held invalid or unenforceable under any particular circumstance, the balance of the section is intended to apply and the section as a whole is intended to apply in other circumstances.
+
+      It is not the purpose of this section to induce you to infringe any patents or other property right claims or to contest validity of any such claims; this section has the sole purpose of protecting the integrity of the free software distribution system, which is implemented by public license practices. Many people have made generous contributions to the wide range of software distributed through that system in reliance on consistent application of that system; it is up to the author/donor to decide if he or she is willing to distribute software through any other system and a licensee cannot impose that choice.
+
+      This section is intended to make thoroughly clear what is believed to be a consequence of the rest of this License.
+   8. If the distribution and/or use of the Program is restricted in certain countries either by patents or by copyrighted interfaces, the original copyright holder who places the Program under this License may add an explicit geographical distribution limitation excluding those countries, so that distribution is permitted only in or among countries not thus excluded. In such case, this License incorporates the limitation as if written in the body of this License.
+   9. The Free Software Foundation may publish revised and/or new versions of the General Public License from time to time. Such new versions will be similar in spirit to the present version, but may differ in detail to address new problems or concerns.
+
+      Each version is given a distinguishing version number. If the Program specifies a version number of this License which applies to it and "any later version", you have the option of following the terms and conditions either of that version or of any later version published by the Free Software Foundation. If the Program does not specify a version number of this License, you may choose any version ever published by the Free Software Foundation.
+  10. If you wish to incorporate parts of the Program into other free programs whose distribution conditions are different, write to the author to ask for permission. For software which is copyrighted by the Free Software Foundation, write to the Free Software Foundation; we sometimes make exceptions for this. Our decision will be guided by the two goals of preserving the free status of all derivatives of our free software and of promoting the sharing and reuse of software generally.
+
+NO WARRANTY
+
+  11. BECAUSE THE PROGRAM IS LICENSED FREE OF CHARGE, THERE IS NO WARRANTY FOR THE PROGRAM, TO THE EXTENT PERMITTED BY APPLICABLE LAW. EXCEPT WHEN OTHERWISE STATED IN WRITING THE COPYRIGHT HOLDERS AND/OR OTHER PARTIES PROVIDE THE PROGRAM "AS IS" WITHOUT WARRANTY OF ANY KIND, EITHER EXPRESSED OR IMPLIED, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE. THE ENTIRE RISK AS TO THE QUALITY AND PERFORMANCE OF THE PROGRAM IS WITH YOU. SHOULD THE PROGRAM PROVE DEFECTIVE, YOU ASSUME THE COST OF ALL NECESSARY SERVICING, REPAIR OR CORRECTION.
+  12. IN NO EVENT UNLESS REQUIRED BY APPLICABLE LAW OR AGREED TO IN WRITING WILL ANY COPYRIGHT HOLDER, OR ANY OTHER PARTY WHO MAY MODIFY AND/OR REDISTRIBUTE THE PROGRAM AS PERMITTED ABOVE, BE LIABLE TO YOU FOR DAMAGES, INCLUDING ANY GENERAL, SPECIAL, INCIDENTAL OR CONSEQUENTIAL DAMAGES ARISING OUT OF THE USE OR INABILITY TO USE THE PROGRAM (INCLUDING BUT NOT LIMITED TO LOSS OF DATA OR DATA BEING RENDERED INACCURATE OR LOSSES SUSTAINED BY YOU OR THIRD PARTIES OR A FAILURE OF THE PROGRAM TO OPERATE WITH ANY OTHER PROGRAMS), EVEN IF SUCH HOLDER OR OTHER PARTY HAS BEEN ADVISED OF THE POSSIBILITY OF SUCH DAMAGES.
+
+END OF TERMS AND CONDITIONS
+
+How to Apply These Terms to Your New Programs
+
+If you develop a new program, and you want it to be of the greatest possible use to the public, the best way to achieve this is to make it free software which everyone can redistribute and change under these terms.
+
+To do so, attach the following notices to the program. It is safest to attach them to the start of each source file to most effectively convey the exclusion of warranty; and each file should have at least the "copyright" line and a pointer to where the full notice is found.
+
+<one line to give the program's name and a brief idea of what it does.>
+Copyright (C) <year> <name of author>
+
+This program is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation; either version 2 of the License, or (at your option) any later version.
+
+This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License along with this program; if not, write to the Free Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA
+
+
+Also add information on how to contact you by electronic and paper mail.
+
+If the program is interactive, make it output a short notice like this when it starts in an interactive mode:
+
+Gnomovision version 69, Copyright (C) year name of author Gnomovision
+comes with ABSOLUTELY NO WARRANTY; for details type `show w'.
+This is free software, and you are welcome to redistribute it
+under certain conditions; type `show c' for details.
+
+The hypothetical commands `show w' and `show c' should show the appropriate parts of the General Public License. Of course, the commands you use may be called something other than `show w' and `show c'; they could even be mouse-clicks or menu items--whatever suits your program.
+
+You should also get your employer (if you work as a programmer) or your school, if any, to sign a "copyright disclaimer" for the program, if necessary. Here is a sample; alter the names:
+
+Yoyodyne, Inc., hereby disclaims all copyright interest in the program
+`Gnomovision' (which makes passes at compilers) written by James Hacker.
+
+<signature of Ty Coon>, 1 April 1989
+Ty Coon, President of Vice
+
+This General Public License does not permit incorporating your program into proprietary programs. If your program is a subroutine library, you may consider it more useful to permit linking proprietary applications with the library. If this is what you want to do, use the GNU Library General Public License instead of this License.
+=========================================
+
+Do you agree? [Y/n] ->y
+
+wget -T 10 -nd --no-cache https://download.brother.com/pub/com/linux/linux/packages/dcpj315wcupswrapper-1.1.3-1.i386.deb
+--2026-10-13 12:17:14--  https://download.brother.com/pub/com/linux/linux/packages/dcpj315wcupswrapper-1.1.3-1.i386.deb
+Resolving download.brother.com (download.brother.com)... 23.40.210.9
+Connecting to download.brother.com (download.brother.com)|23.40.210.9|:443... connected.
+HTTP request sent, awaiting response... 200 OK
+Length: 13602 (13K) [text/plain]
+Saving to: ‘dcpj315wcupswrapper-1.1.3-1.i386.deb’
+
+dcpj315wcupswrapper-1.1.3-1 100%[==========================================>]  13.28K  --.-KB/s    in 0.003s  
+
+2026-10-13 12:17:14 (3.75 MB/s) - ‘dcpj315wcupswrapper-1.1.3-1.i386.deb’ saved [13602/13602]
+
+Get:1 https://apt.releases.hashicorp.com noble InRelease [12.8 kB]
+Hit:2 https://dl.google.com/linux/chrome-stable/deb stable InRelease                                          
+Hit:3 https://linux.teamviewer.com/deb stable InRelease                                                       
+Hit:4 http://security.ubuntu.com/ubuntu noble-security InRelease                                              
+Err:1 https://apt.releases.hashicorp.com noble InRelease                                                      
+  Sub-process /usr/bin/sqv returned an error code (1), error message is: Missing key D55C0D1AC78A8D8126CB631CFC9CA96ACA026560, which is needed to verify signature.
+Hit:5 http://ie.archive.ubuntu.com/ubuntu noble InRelease                                 
+Hit:6 https://ppa.launchpadcontent.net/git-core/ppa/ubuntu noble InRelease
+Hit:7 https://ppa.launchpadcontent.net/opencpn/opencpn/ubuntu noble InRelease
+Hit:8 http://ie.archive.ubuntu.com/ubuntu noble-updates InRelease   
+Hit:9 https://deb.opera.com/opera-stable stable InRelease
+Hit:10 http://ie.archive.ubuntu.com/ubuntu noble-backports InRelease
+Fetched 12.8 kB in 0s (46.4 kB/s)
+Reading package lists... Done
+W: An error occurred during the signature verification. The repository is not updated and the previous index files will be used. OpenPGP signature verification failed: https://apt.releases.hashicorp.com noble InRelease: Sub-process /usr/bin/sqv returned an error code (1), error message is: Missing key D55C0D1AC78A8D8126CB631CFC9CA96ACA026560, which is needed to verify signature.
+W: Failed to fetch https://apt.releases.hashicorp.com/dists/noble/InRelease  Sub-process /usr/bin/sqv returned an error code (1), error message is: Missing key D55C0D1AC78A8D8126CB631CFC9CA96ACA026560, which is needed to verify signature.
+W: Some index files failed to download. They have been ignored, or old ones used instead.
+Reading package lists... Done
+Building dependency tree... Done
+Reading state information... Done
+Package ia32-libs is not available, but is referred to by another package.
+This may mean that the package is missing, has been obsoleted, or
+is only available from another source
+However the following packages replace it:
+  lib32z1
+
+E: Package 'ia32-libs' has no installation candidate
+dpkg -x dcpj315wlpr-1.1.3-1.i386.deb /
+dpkg -x dcpj315wcupswrapper-1.1.3-1.i386.deb /
+(Reading database… 480733 files and directories currently installed.)
+Removing dcpj315wcupswrapper:i386 (1.1.3-1)…
+lpadmin: The printer or class does not exist.
+Restarting cups (via systemctl): cups.serviceJob for cups.service failed because a timeout was exceeded.
+See "systemctl status cups.service" and "journalctl -xeu cups.service" for details.
+ failed!
+dpkg-deb: building package 'dcpj315wlpr' in 'dcpj315wlpr-1.1.3-1a.i386.deb'.
+dpkg -b ./brother_driver_packdir dcpj315wlpr-1.1.3-1a.i386.deb
+dpkg-deb: building package 'dcpj315wcupswrapper' in 'dcpj315wcupswrapper-1.1.3-1a.i386.deb'.
+dpkg -b ./brother_driver_packdir dcpj315wcupswrapper-1.1.3-1a.i386.deb
+dpkg -i --force-all dcpj315wlpr-1.1.3-1a.i386.deb
+(Reading database… 480729 files and directories currently installed.)
+Preparing to unpack dcpj315wlpr-1.1.3-1a.i386.deb…
+Unpacking dcpj315wlpr:i386 (1.1.3-1) over (1.1.3-1)…
+Setting up dcpj315wlpr:i386 (1.1.3-1)…
+Processing triggers for kali-menu (2026.3.2)…
+dpkg -i --force-all dcpj315wcupswrapper-1.1.3-1a.i386.deb
+Selecting previously unselected package dcpj315wcupswrapper:i386.
+(Reading database… 480729 files and directories currently installed.)
+Preparing to unpack dcpj315wcupswrapper-1.1.3-1a.i386.deb…
+Unpacking dcpj315wcupswrapper:i386 (1.1.3-1)…
+Setting up dcpj315wcupswrapper:i386 (1.1.3-1)…
+Restarting cups (via systemctl): cups.serviceJob for cups.service failed because a timeout was exceeded.
+See "systemctl status cups.service" and "journalctl -xeu cups.service" for details.
+ failed!
+lpadmin: Printer drivers are deprecated and will stop working in a future version of CUPS.
+#
+dcpj315wlpr
+Will you specify the Device URI? [Y/n] ->Y
+
+
+0: socket
+1: https
+2: ipp
+3: http
+4: beh
+5: lpd
+6: hp
+7: ipps
+8: hpfax
+9: lpd://BRW0022585BC472/BINARY_P1
+10 (I): Specify IP address.
+11 (A): Auto. (usb://dev/usblp0)
+
+select the number of destination Device URI. ->10
+
+ enter IP address ->192.168.68.111
+lpadmin -p DCPJ315W -v lpd://192.168.68.111/BINARY_P1 -E
+Test Print? [y/N] ->y
+
+wait 5s.
+lpr -P DCPJ315W /usr/share/cups/data/testprint
+You are going to install following packages.
+   brscan3-0.2.13-1.amd64.deb
+
+This Agreement provides terms and conditions for license grant for use of the software that is distributed with this Agreement ("Software") from Brother Industries, Ltd. ("Brother") to recipients thereof ("You").
+
+Note:
+Please click on "I Accept" while holding down "Shift" or right click on "I Accept" and select "Save Target As,,," from the menu. 
+
+1.The Software is comprised of the following software modules:
+
+(1) Certain software modules that is the subject of GNU GENERAL PUBLIC LICENSE ("GPL Modules"), and 
+(2) Other software modules ("Non-GPL Modules") 
+
+You may distinguish each of GPL Modules by downloading source files of the Software as Brother separately makes available and reading such files.
+
+2.Your use of all GPL Modules shall be subject to the terms and conditions of GNU GENERAL PUBLIC LICENSE Version 2, June 1991 ("GPLv2"). Please see https://support.brother.com/g/s/agreement/English_gpl/agree.html. You shall use GPL Modules in accordance with the terms and conditions of GPLv2. Your use of GPL Modules shall be deemed as your agreement to the terms and conditions of GPLv2.
+
+3.You have the right to use all Non-GPL Modules only in accordance with the following terms and conditions. Your use of Non-GPL Modules shall be deemed as your agreement to the following terms and conditions: 
+(1) Brother retains any and all copyrights to Non-GPL Modules. In no case this Agreement shall be construed to assign or otherwise transfer from Brother to you any copyrights or other intellectual property rights to whole or any part of Non-GPL Modules.
+
+(2) Brother grants you a non-exclusive license to reproduce and/or distribute (via Internet or in any other manner) Non-GPL Modules. Brother further grants you a non-exclusive license to modify, alter, translate or otherwise prepare derivative works of Non-GPL Modules and to reproduce and/or distribute (via Internet or in any other manner) such modification, alteration, translation or other derivative works of Non-GPL Modules.
+
+(3) When you distribute (via Internet or in any other manner) Non-GPL Modules or any modification, alteration, translation or other derivative works thereof under the license granted in accordance with subparagraph 3(2) above, you must expressly grant any and all recipient thereof the license equivalent to this Agreement which applies to Non-GPL Modules.
+
+(4) The license of Non-GPL Modules from Brother hereunder is granted "AS IS. BROTHER HEREBY DISCLAIMS ANY WARRANTIES WITH RESPECT TO NON-GPL MODULES, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO WARRANTY FOR THE QUALITY, MERCHANTABILITY, FITNESS FOR PARTICULAR PURPOSE OR NON-INFRINGEMENT. 
+
+(5) To the extent allowed by applicable laws, Brother shall have no liability in contract, tort (including negligence or breach of statutory duty) or otherwise for any interruption of use, loss of data, or for any indirect, incidental, punitive or consequential loss or damage, or for any loss of profit, revenue, data, goodwill or anticipated savings that arises under, out of, or in contemplation of this Agreement or otherwise arises due to any error, inaccuracy or defect in Non-GPL Modules even if Brother has been advised of the possibility of such loss or damage.
+
+(6) The form in which Non-GPL Modules is distributed is subject to Brothers sole discretion. Brother does not have any obligation to distribute or disclose Non-GPL Modules in source code form. In no case shall this Agreement be deemed as Brothers express or implied agreement to disclose source code of Non-GPL Modules.
+Do you agree? [Y/n] ->y
+
+wget -T 10 -nd --no-cache https://download.brother.com/pub/com/linux/linux/packages/brscan3-0.2.13-1.amd64.deb
+--2026-10-13 12:22:12--  https://download.brother.com/pub/com/linux/linux/packages/brscan3-0.2.13-1.amd64.deb
+Resolving download.brother.com (download.brother.com)... 23.40.210.9
+Connecting to download.brother.com (download.brother.com)|23.40.210.9|:443... connected.
+HTTP request sent, awaiting response... 200 OK
+Length: 67650 (66K) [text/plain]
+Saving to: ‘brscan3-0.2.13-1.amd64.deb’
+
+brscan3-0.2.13-1.amd64.deb  100%[==========================================>]  66.06K  --.-KB/s    in 0.05s   
+
+2026-10-13 12:22:12 (1.24 MB/s) - ‘brscan3-0.2.13-1.amd64.deb’ saved [67650/67650]
+
+dpkg -i --force-all brscan3-0.2.13-1.amd64.deb
+(Reading database… 480733 files and directories currently installed.)
+Preparing to unpack brscan3-0.2.13-1.amd64.deb…
+Unpacking brscan3 (0.2.13-1) over (0.2.13-1)…
+Setting up brscan3 (0.2.13-1)…
+Processing triggers for kali-menu (2026.3.2)…
+You are going to install following packages.
+   brscan-skey-0.3.4-0.amd64.deb
+
+=========================================
+Brother License Agreement
+
+Brother retains any and all copyrights to the Software. In no case this Agreement shall be construed to assign or otherwise transfer from Brother to User any copyrights or other intellectual property rights to whole or any part of the Software.
+
+Brother grants User a non-exclusive license: to reproduce and/or distribute (via Internet or in any other manner) the Software. Further, Brother grants User a non-exclusive license to modify, alter, translate or otherwise prepare derivative works of the Software and to reproduce and distribute (via Internet or in any other manner) such modification, alteration, translation or other derivative works for any purpose.
+
+The license of the Software from Brother hereunder is granted "AS IS." BROTHER HEREBY DISCLAIMS ANY WARRANTIES WITH RESPECT TO THE SOFTWARE, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO WARRANTY FOR THE QUALITY, MERCHANTABILITY, FITNESS FOR PARTICULAR PURPOSE OR NON-INFRINGEMENT.
+Brother shall have no liability in contract, tort (including negligence or breach of statutory duty) or otherwise for any interruption of use, loss of data, or for any indirect, incidental, punitive or consequential loss or damage, or for any loss of profit, revenue, data, goodwill or anticipated savings that arises under, out of, or in contemplation of this Agreement or otherwise arises due to any error, inaccuracy or defect in the Software even if Brother has been advised of the possibility of such loss or damage.
+Further, Brother shall have no liability to disclose and/or distribute the source cord of the Software to User under any circumstances. In no case shall the above license by Brother to modify, alter, translate or otherwise prepare derivative works of the Software be construed as Brother's implied agreement or undertakings to disclose and/or distribute the source cord of the Software.
+=========================================
+Do you agree? [Y/n] ->y
+
+wget -T 10 -nd --no-cache https://download.brother.com/pub/com/linux/linux/packages/brscan-skey-0.3.4-0.amd64.deb
+--2026-10-13 12:22:16--  https://download.brother.com/pub/com/linux/linux/packages/brscan-skey-0.3.4-0.amd64.deb
+Resolving download.brother.com (download.brother.com)... 23.40.210.9
+Connecting to download.brother.com (download.brother.com)|23.40.210.9|:443... connected.
+HTTP request sent, awaiting response... 200 OK
+Length: 59150 (58K) [text/plain]
+Saving to: ‘brscan-skey-0.3.4-0.amd64.deb’
+
+brscan-skey-0.3.4-0.amd64.d 100%[==========================================>]  57.76K  --.-KB/s    in 0.02s   
+
+2026-10-13 12:22:16 (3.40 MB/s) - ‘brscan-skey-0.3.4-0.amd64.deb’ saved [59150/59150]
+
+dpkg -i --force-all brscan-skey-0.3.4-0.amd64.deb
+Selecting previously unselected package brscan-skey.
+(Reading database… 480733 files and directories currently installed.)
+Preparing to unpack brscan-skey-0.3.4-0.amd64.deb…
+Unpacking brscan-skey (0.3.4-0)…
+Setting up brscan-skey (0.3.4-0)…
+apt-get install libusb-0.1-4
+Reading package lists... Done
+Building dependency tree... Done
+Reading state information... Done
+Solving dependencies... Done
+The following packages were automatically installed and are no longer required:
+  linux-headers-6.8.0-138 linux-headers-6.8.0-138-generic linux-headers-6.8.0-139
+  linux-headers-6.8.0-139-generic
+Use 'sudo apt autoremove' to remove them.
+The following NEW packages will be installed:
+  libusb-0.1-4
+0 upgraded, 1 newly installed, 0 to remove and 90 not upgraded.
+Need to get 17.2 kB of archives.
+After this operation, 59.4 kB of additional disk space will be used.
+Get:1 http://ie.archive.ubuntu.com/ubuntu noble/main amd64 libusb-0.1-4 amd64 2:0.1.12-35build1 [17.2 kB]
+Fetched 17.2 kB in 0s (55.8 kB/s)       
+Selecting previously unselected package libusb-0.1-4:amd64.
+(Reading database… 480754 files and directories currently installed.)
+Preparing to unpack …/libusb-0.1-4_2%3a0.1.12-35build1_amd64.deb…
+Unpacking libusb-0.1-4:amd64 (2:0.1.12-35build1)…
+Setting up libusb-0.1-4:amd64 (2:0.1.12-35build1)…
+Processing triggers for libc-bin (2.42-16)…
+brsaneconfig3 -a name=DCP-J315W model=DCP-J315W ip=192.168.68.111
+jamescoleman@IE-4TKL284:~$
+
+
+
+*** AppArmor
+You found the exact root cause in those logs!
+Look closely at all these lines:
+apparmor="DENIED" operation="create" ... profile="/usr/sbin/cupsd" ... comm="cupsd"
+AppArmor (Ubuntu's built-in security shield) is having a meltdown and is actively blocking the CUPS printing service from creating the network sockets it needs to run. Because CUPS is blocked by the security kernel, it just hangs there until systemd finally kills it with a "timeout".
+(Note: Your logs show AppArmor is also randomly blocking your system logger rsyslogd, which usually happens after an Ubuntu background update gets stuck).
+Here is how to tell AppArmor to back off and let the printer service run.
+
+Step 1: Put the CUPS security profile into "Complain" mode
+This tells AppArmor to allow CUPS to do its job, but just log any suspicious activity instead of outright blocking it and crashing the service.
+
+# Install the AppArmor utility tools (if you don't already have them)
+sudo apt install apparmor-utils -y
+
+# Tell AppArmor to stop blocking CUPS
+sudo aa-complain /usr/sbin/cupsd
+ERROR: Syntax Error: Unknown line found in file /etc/apparmor.d/plasmashell line 21:
+    priority=1 /usr/lib{,64,exec}/{,@{multiarch}/}qt{,5,6}/{,libexec/}QtWebEngineProcess cx -> &plasmashell//QtWebEngineProcess,
+sudo mv /etc/apparmor.d/plasmashell /root/plasmashell.broken
+
+Step 2: Restart the AppArmor & CUPS services
+Now that the security rules are relaxed for the print spooler, let's start it back up cleanly:
+
+ # Tell AppArmor to permanently ignore CUPS
+
+sudo ln -s /etc/apparmor.d/usr.sbin.cupsd /etc/apparmor.d/disable/
+
+# Force the low-level parser to unload the CUPS rules immediately
+
+sudo apparmor_parser -R /etc/apparmor.d/usr.sbin.cupsd
+
+ln: failed to create symbolic link '/etc/apparmor.d/disable/': No such file or directory BUT
+
+jamescoleman@IE-4TKL284:~$ sudo systemctl start cups.socket
+jamescoleman@IE-4TKL284:~$ sudo systemctl start cups.service
+jamescoleman@IE-4TKL284:~$ sudo systemctl status cups.service
+● cups.service - CUPS Scheduler
+     Loaded: loaded (/usr/lib/systemd/system/cups.service; enabled; preset: disabled)
+     Active: active (running) since Tue 2026-10-13 12:50:20 IST; 27s ago
+ Invocation: 184c4d1f085e46a7be4be44363285bde
+TriggeredBy: ○ cups.path
+             ● cups.socket
+       Docs: man:cupsd(8)
+   Main PID: 908904 (cupsd)
+     Status: "Scheduler is running..."
+      Tasks: 1 (limit: 37579)
+     Memory: 2.3M (peak: 3M)
+        CPU: 16ms
+     CGroup: /system.slice/system-cups.slice/cups.service
+             └─908904 /usr/sbin/cupsd -l
+
+
+
+Oct 13 12:50:20 IE-4TKL284 systemd[1]: Starting cups.service - CUPS Scheduler...
+
+Oct 13 12:50:20 IE-4TKL284 systemd[1]: Started cups.service - CUPS Scheduler. AND Printers
+
+Search in Printers:   
+Showing 2 of 2 printers.
+Queue NameDescriptionLocationMake and ModelStatus
+DCP-J315WBrother DCP-J315WBrother DCP-J315W CUPSIdle
+DCPJ315WDCPJ315WBrother DCP-J315W CUPSIdle
