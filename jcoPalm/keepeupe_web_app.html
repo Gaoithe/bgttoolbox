@@ -1,0 +1,538 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>keepEupE - Retro PalmOS Suite</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Google Fonts: Space Mono for retro vibe -->
+    <link href="https://fonts.googleapis.com/css2?family=Space+Mono:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        mono: ['"Space Mono"', 'monospace'],
+                    },
+                    colors: {
+                        retro: {
+                            900: '#021008', // Deep dark green/black
+                            800: '#052e16',
+                            green: '#4ade80', // Palm/Neon green
+                            glow: 'rgba(74, 222, 128, 0.4)'
+                        }
+                    },
+                    boxShadow: {
+                        'neon': '0 0 10px rgba(74, 222, 128, 0.5), inset 0 0 10px rgba(74, 222, 128, 0.2)',
+                        'neon-strong': '0 0 20px rgba(74, 222, 128, 0.8), inset 0 0 15px rgba(74, 222, 128, 0.5)',
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        body {
+            background-color: #021008;
+            color: #4ade80;
+            overscroll-behavior-y: contain; /* Prevent pull-to-refresh on mobile */
+        }
+        
+        .view {
+            display: none;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+        
+        .view.active {
+            display: flex;
+            opacity: 1;
+        }
+
+        /* Shape Button Styles */
+        .shape-btn {
+            transition: all 0.1s;
+            cursor: pointer;
+            filter: drop-shadow(0 0 5px rgba(74, 222, 128, 0.2));
+        }
+        .shape-btn.active-shape {
+            filter: drop-shadow(0 0 15px rgba(74, 222, 128, 0.9));
+            transform: scale(0.95);
+        }
+        .shape-btn svg {
+            fill: transparent;
+            stroke: #4ade80;
+            stroke-width: 4;
+            transition: fill 0.1s;
+        }
+        .shape-btn.active-shape svg {
+            fill: #4ade80;
+        }
+
+        /* Music Pad Grid */
+        .pad-grid {
+            background-size: 40px 40px;
+            background-image: 
+                linear-gradient(to right, rgba(74, 222, 128, 0.1) 1px, transparent 1px),
+                linear-gradient(to bottom, rgba(74, 222, 128, 0.1) 1px, transparent 1px);
+            background-position: center center;
+        }
+        
+        #theremin-cursor {
+            width: 30px;
+            height: 30px;
+            border: 2px solid #4ade80;
+            border-radius: 50%;
+            position: absolute;
+            transform: translate(-50%, -50%);
+            pointer-events: none;
+            display: none;
+            box-shadow: 0 0 15px rgba(74, 222, 128, 0.8);
+        }
+    </style>
+</head>
+<body class="h-screen w-screen overflow-hidden flex flex-col font-mono selection:bg-retro-green selection:text-retro-900">
+
+    <!-- Header -->
+    <header class="h-14 shrink-0 bg-retro-900 border-b border-retro-green/30 flex items-center justify-center px-4 relative shadow-[0_4px_15px_rgba(74,222,128,0.1)] z-20">
+        <h1 class="text-xl font-bold tracking-widest uppercase text-retro-green drop-shadow-[0_0_8px_rgba(74,222,128,0.6)]">
+            keepEupE
+        </h1>
+        <div id="status-indicator" class="absolute right-4 w-3 h-3 rounded-full bg-retro-green shadow-[0_0_8px_#4ade80] animate-pulse"></div>
+    </header>
+
+    <!-- Main Content Area -->
+    <main class="flex-grow relative overflow-hidden">
+        
+        <!-- View 1: KeepEupE (Simon Says) -->
+        <section id="view-game" class="view active flex-col items-center justify-center h-full w-full p-4">
+            <div class="mb-8 text-center">
+                <div class="text-xs uppercase tracking-widest text-retro-green/70 mb-2">Sequence Length</div>
+                <div id="game-score" class="text-4xl font-bold drop-shadow-[0_0_10px_rgba(74,222,128,0.5)]">0</div>
+            </div>
+            
+            <!-- 2x2 Grid -->
+            <div class="grid grid-cols-2 gap-6 md:gap-10 p-6 rounded-2xl border border-retro-green/20 bg-retro-800/30 shadow-neon">
+                <!-- Shape 0: Rectangle (262Hz) -->
+                <div class="shape-btn w-24 h-24 md:w-32 md:h-32 flex items-center justify-center touch-none" data-id="0">
+                    <svg viewBox="0 0 100 100" class="w-full h-full p-2"><rect x="10" y="25" width="80" height="50" rx="4" /></svg>
+                </div>
+                <!-- Shape 1: Triangle (330Hz) -->
+                <div class="shape-btn w-24 h-24 md:w-32 md:h-32 flex items-center justify-center touch-none" data-id="1">
+                    <svg viewBox="0 0 100 100" class="w-full h-full p-2"><polygon points="50,15 90,85 10,85" stroke-linejoin="round"/></svg>
+                </div>
+                <!-- Shape 2: Diamond (392Hz) -->
+                <div class="shape-btn w-24 h-24 md:w-32 md:h-32 flex items-center justify-center touch-none" data-id="2">
+                    <svg viewBox="0 0 100 100" class="w-full h-full p-2"><polygon points="50,10 90,50 50,90 10,50" stroke-linejoin="round"/></svg>
+                </div>
+                <!-- Shape 3: Circle (524Hz) -->
+                <div class="shape-btn w-24 h-24 md:w-32 md:h-32 flex items-center justify-center touch-none" data-id="3">
+                    <svg viewBox="0 0 100 100" class="w-full h-full p-2"><circle cx="50" cy="50" r="40" /></svg>
+                </div>
+            </div>
+            
+            <button id="btn-start-game" class="mt-12 px-8 py-3 rounded border border-retro-green text-retro-green hover:bg-retro-green hover:text-retro-900 uppercase font-bold tracking-widest transition-all shadow-neon">
+                Start Game
+            </button>
+        </section>
+
+        <!-- View 2: Music (Theremin) -->
+        <section id="view-music" class="view flex-col h-full w-full">
+            <div class="bg-retro-800/50 border-b border-retro-green/20 px-4 py-2 flex justify-between text-xs tracking-wider z-10">
+                <span>FREQ: <span id="theremin-freq" class="font-bold">0</span> Hz</span>
+                <span>VOL: <span id="theremin-vol" class="font-bold">0</span> %</span>
+            </div>
+            <div id="theremin-pad" class="flex-grow relative cursor-crosshair pad-grid touch-none">
+                <div class="absolute inset-0 flex items-center justify-center pointer-events-none opacity-20">
+                    <span class="rotate-90 tracking-[1em] text-4xl font-bold uppercase">Theremin</span>
+                </div>
+                <div id="theremin-cursor"></div>
+            </div>
+        </section>
+
+        <!-- View 3: Fern -->
+        <section id="view-fern" class="view relative h-full w-full bg-retro-900">
+            <div class="absolute top-4 left-4 z-10 text-xs bg-retro-900/80 px-2 py-1 rounded border border-retro-green/30">Barnsley Fern IFS</div>
+            <canvas id="canvas-fern" class="absolute inset-0 w-full h-full"></canvas>
+        </section>
+
+        <!-- View 4: Sierpinski -->
+        <section id="view-sierpinski" class="view relative h-full w-full bg-retro-900">
+            <div class="absolute top-4 left-4 z-10 text-xs bg-retro-900/80 px-2 py-1 rounded border border-retro-green/30">Chaos Game Triangle</div>
+            <canvas id="canvas-sierpinski" class="absolute inset-0 w-full h-full"></canvas>
+        </section>
+
+    </main>
+
+    <!-- Bottom Navigation -->
+    <nav class="h-16 shrink-0 bg-retro-900 border-t border-retro-green/30 flex z-20 shadow-[0_-4px_15px_rgba(74,222,128,0.05)]">
+        <button class="nav-btn flex-1 flex flex-col items-center justify-center gap-1 text-retro-green/50 hover:text-retro-green transition-colors active-tab" data-target="view-game">
+            <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 10l-2 1m0 0l-2-1m2 1v2.5M20 7l-2 1m2-1l-2-1m2 1v2.5M14 4l-2-1-2 1M4 7l2-1M4 7l2 1M4 7v2.5M12 21l-2-1m2 1l2-1m-2 1v-2.5M6 18l-2-1v-2.5M18 18l2-1v-2.5" /></svg>
+            <span class="text-[10px] uppercase tracking-wider">KeepEupE</span>
+        </button>
+        <button class="nav-btn flex-1 flex flex-col items-center justify-center gap-1 text-retro-green/50 hover:text-retro-green transition-colors" data-target="view-music">
+            <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19V6l12-3v13M9 19c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zm12-3c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zM9 10l12-3" /></svg>
+            <span class="text-[10px] uppercase tracking-wider">Music</span>
+        </button>
+        <button class="nav-btn flex-1 flex flex-col items-center justify-center gap-1 text-retro-green/50 hover:text-retro-green transition-colors" data-target="view-fern">
+            <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z" /></svg>
+            <span class="text-[10px] uppercase tracking-wider">Fern</span>
+        </button>
+        <button class="nav-btn flex-1 flex flex-col items-center justify-center gap-1 text-retro-green/50 hover:text-retro-green transition-colors" data-target="view-sierpinski">
+            <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" /></svg>
+            <span class="text-[10px] uppercase tracking-wider">Chaos</span>
+        </button>
+    </nav>
+
+    <!-- Scripts -->
+    <script>
+        // --- Globals & Audio Context ---
+        let audioCtx;
+        const delay = ms => new Promise(res => setTimeout(res, ms));
+
+        function initAudio() {
+            if (!audioCtx) {
+                audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            }
+            if (audioCtx.state === 'suspended') {
+                audioCtx.resume();
+            }
+        }
+
+        // Quick beep function for game
+        function playBeep(freq, durationMs) {
+            initAudio();
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            
+            osc.type = 'square'; // Retro square wave
+            osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+            
+            gain.gain.setValueAtTime(0.1, audioCtx.currentTime); // Low volume
+            gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + durationMs / 1000);
+            
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+            
+            osc.start();
+            osc.stop(audioCtx.currentTime + durationMs / 1000);
+        }
+
+        function playLoseTone() {
+            initAudio();
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            
+            osc.type = 'sawtooth';
+            osc.frequency.setValueAtTime(800, audioCtx.currentTime);
+            osc.frequency.exponentialRampToValueAtTime(50, audioCtx.currentTime + 1.5);
+            
+            gain.gain.setValueAtTime(0.2, audioCtx.currentTime);
+            gain.gain.linearRampToValueAtTime(0, audioCtx.currentTime + 1.5);
+            
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+            
+            osc.start();
+            osc.stop(audioCtx.currentTime + 1.5);
+        }
+
+        // --- View Switching Logic ---
+        const navBtns = document.querySelectorAll('.nav-btn');
+        const views = document.querySelectorAll('.view');
+        
+        // Stop current activities when switching
+        function stopAllActivities() {
+            stopTheremin();
+            stopFractals();
+        }
+
+        navBtns.forEach(btn => {
+            btn.addEventListener('click', () => {
+                initAudio(); // Initialize audio on first click anywhere
+                stopAllActivities();
+                
+                // Update tabs
+                navBtns.forEach(b => {
+                    b.classList.remove('text-retro-green', 'active-tab');
+                    b.classList.add('text-retro-green/50');
+                });
+                btn.classList.add('text-retro-green', 'active-tab');
+                btn.classList.remove('text-retro-green/50');
+
+                // Update views
+                const targetId = btn.getAttribute('data-target');
+                views.forEach(v => v.classList.remove('active'));
+                document.getElementById(targetId).classList.add('active');
+
+                // Start specific view activity
+                if(targetId === 'view-fern') startFern();
+                if(targetId === 'view-sierpinski') startSierpinski();
+            });
+        });
+
+        // --- Mode 1: KeepEupE (Simon Says) ---
+        const FREQUENCIES = [262, 330, 392, 524];
+        const shapes = document.querySelectorAll('.shape-btn');
+        const scoreDisplay = document.getElementById('game-score');
+        const btnStart = document.getElementById('btn-start-game');
+        
+        let sequence = [];
+        let playerStep = 0;
+        let gameState = 'idle'; // idle, playing, waiting
+
+        async function flashShape(id, duration = 300) {
+            const shape = document.querySelector(`.shape-btn[data-id="${id}"]`);
+            shape.classList.add('active-shape');
+            playBeep(FREQUENCIES[id], duration);
+            await delay(duration);
+            shape.classList.remove('active-shape');
+        }
+
+        async function playSequence() {
+            gameState = 'playing';
+            btnStart.style.opacity = '0.5';
+            btnStart.disabled = true;
+            
+            await delay(500);
+            for (let id of sequence) {
+                await flashShape(id, 400);
+                await delay(200);
+            }
+            
+            gameState = 'waiting';
+            playerStep = 0;
+            btnStart.style.opacity = '1';
+        }
+
+        function resetGame() {
+            sequence = [];
+            playerStep = 0;
+            scoreDisplay.innerText = "0";
+            gameState = 'idle';
+            btnStart.disabled = false;
+        }
+
+        btnStart.addEventListener('click', () => {
+            initAudio();
+            resetGame();
+            sequence.push(Math.floor(Math.random() * 4));
+            scoreDisplay.innerText = sequence.length;
+            playSequence();
+        });
+
+        shapes.forEach(shape => {
+            // Use pointerdown for responsive mobile touch
+            shape.addEventListener('pointerdown', async (e) => {
+                if (gameState !== 'waiting') return;
+                
+                const id = parseInt(shape.getAttribute('data-id'));
+                flashShape(id, 200); // Visual/Audio feedback for user tap
+                
+                if (id === sequence[playerStep]) {
+                    // Correct tap
+                    playerStep++;
+                    if (playerStep === sequence.length) {
+                        gameState = 'playing'; // Block input
+                        sequence.push(Math.floor(Math.random() * 4));
+                        scoreDisplay.innerText = sequence.length;
+                        await delay(800);
+                        playSequence();
+                    }
+                } else {
+                    // Wrong tap
+                    gameState = 'idle';
+                    playLoseTone();
+                    btnStart.disabled = false;
+                    scoreDisplay.innerText = "ERR";
+                }
+            });
+        });
+
+
+        // --- Mode 2: Music (Theremin) ---
+        const tPad = document.getElementById('theremin-pad');
+        const tCursor = document.getElementById('theremin-cursor');
+        const tFreqLabel = document.getElementById('theremin-freq');
+        const tVolLabel = document.getElementById('theremin-vol');
+        
+        let tOsc, tGain, tPlaying = false;
+
+        function startTheremin(x, y) {
+            initAudio();
+            tOsc = audioCtx.createOscillator();
+            tGain = audioCtx.createGain();
+            
+            tOsc.type = 'square';
+            tOsc.connect(tGain);
+            tGain.connect(audioCtx.destination);
+            
+            tGain.gain.value = 0;
+            tOsc.start();
+            tPlaying = true;
+            tCursor.style.display = 'block';
+            updateTheremin(x, y);
+        }
+
+        function updateTheremin(x, y) {
+            if (!tPlaying || !audioCtx) return;
+            const rect = tPad.getBoundingClientRect();
+            
+            // Constrain
+            const cx = Math.max(0, Math.min(x - rect.left, rect.width));
+            const cy = Math.max(0, Math.min(y - rect.top, rect.height));
+            
+            // Map
+            const normX = cx / rect.width;
+            const normY = cy / rect.height;
+            
+            // Pitch: 100Hz to 2000Hz (exponential)
+            const freq = 100 * Math.pow(20, normX);
+            // Volume: Y axis, bottom is quiet, top is loud
+            const vol = 1 - normY; 
+            
+            const now = audioCtx.currentTime;
+            tOsc.frequency.setTargetAtTime(freq, now, 0.05);
+            tGain.gain.setTargetAtTime(vol * 0.2, now, 0.05); // max 20% volume
+            
+            // UI
+            tCursor.style.left = `${cx}px`;
+            tCursor.style.top = `${cy}px`;
+            tFreqLabel.innerText = Math.round(freq);
+            tVolLabel.innerText = Math.round(vol * 100);
+        }
+
+        function stopTheremin() {
+            if (tPlaying && tGain) {
+                tGain.gain.setTargetAtTime(0, audioCtx.currentTime, 0.05);
+                setTimeout(() => { if(tOsc) { tOsc.stop(); tOsc.disconnect(); }}, 100);
+            }
+            tPlaying = false;
+            tCursor.style.display = 'none';
+            tFreqLabel.innerText = "0";
+            tVolLabel.innerText = "0";
+        }
+
+        tPad.addEventListener('pointerdown', e => {
+            tPad.setPointerCapture(e.pointerId);
+            startTheremin(e.clientX, e.clientY);
+        });
+        tPad.addEventListener('pointermove', e => updateTheremin(e.clientX, e.clientY));
+        tPad.addEventListener('pointerup', e => {
+            tPad.releasePointerCapture(e.pointerId);
+            stopTheremin();
+        });
+        tPad.addEventListener('pointercancel', e => {
+            tPad.releasePointerCapture(e.pointerId);
+            stopTheremin();
+        });
+
+
+        // --- Canvas Base Logic ---
+        let animFrame;
+        function stopFractals() {
+            if (animFrame) cancelAnimationFrame(animFrame);
+        }
+
+        function setupCanvas(id) {
+            const canvas = document.getElementById(id);
+            const parent = canvas.parentElement;
+            canvas.width = parent.clientWidth;
+            canvas.height = parent.clientHeight;
+            const ctx = canvas.getContext('2d');
+            ctx.fillStyle = '#021008';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            return { canvas, ctx };
+        }
+
+
+        // --- Mode 3: Barnsley Fern IFS ---
+        function startFern() {
+            stopFractals();
+            const { canvas, ctx } = setupCanvas('canvas-fern');
+            
+            let x = 0, y = 0;
+            ctx.fillStyle = '#4ade80'; // Retro green
+            
+            // Transform matrix mapped to canvas size
+            const scale = Math.min(canvas.width / 6, canvas.height / 11);
+            const offsetX = canvas.width / 2;
+            const offsetY = canvas.height;
+
+            function drawFernIter() {
+                // Draw 500 points per frame for cool progressive rendering
+                for (let i = 0; i < 500; i++) {
+                    let nextX, nextY;
+                    let r = Math.random();
+                    if (r < 0.01) {
+                        nextX = 0;
+                        nextY = 0.16 * y;
+                    } else if (r < 0.86) {
+                        nextX = 0.85 * x + 0.04 * y;
+                        nextY = -0.04 * x + 0.85 * y + 1.6;
+                    } else if (r < 0.93) {
+                        nextX = 0.20 * x - 0.26 * y;
+                        nextY = 0.23 * x + 0.22 * y + 1.6;
+                    } else {
+                        nextX = -0.15 * x + 0.28 * y;
+                        nextY = 0.26 * x + 0.24 * y + 0.44;
+                    }
+                    x = nextX;
+                    y = nextY;
+                    
+                    // Map to canvas
+                    let plotX = x * scale + offsetX;
+                    let plotY = offsetY - (y * scale);
+                    ctx.fillRect(plotX, plotY, 1, 1);
+                }
+                animFrame = requestAnimationFrame(drawFernIter);
+            }
+            drawFernIter();
+        }
+
+        // --- Mode 4: Sierpinski (Chaos Game) ---
+        function startSierpinski() {
+            stopFractals();
+            const { canvas, ctx } = setupCanvas('canvas-sierpinski');
+            
+            const padding = 20;
+            const vertices = [
+                { x: canvas.width / 2, y: padding }, // Top
+                { x: padding, y: canvas.height - padding }, // Bottom Left
+                { x: canvas.width - padding, y: canvas.height - padding } // Bottom Right
+            ];
+
+            let px = canvas.width / 2;
+            let py = canvas.height / 2;
+            
+            ctx.fillStyle = 'rgba(74, 222, 128, 0.8)'; 
+
+            function drawSierpinskiIter() {
+                for (let i = 0; i < 500; i++) {
+                    const target = vertices[Math.floor(Math.random() * 3)];
+                    px = px + (target.x - px) / 2;
+                    py = py + (target.y - py) / 2;
+                    ctx.fillRect(px, py, 1, 1);
+                }
+                animFrame = requestAnimationFrame(drawSierpinskiIter);
+            }
+            drawSierpinskiIter();
+        }
+
+        // Handle window resize for canvases
+        window.addEventListener('resize', () => {
+            const activeNav = document.querySelector('.active-tab');
+            if (activeNav) {
+                const target = activeNav.getAttribute('data-target');
+                if (target === 'view-fern') startFern();
+                if (target === 'view-sierpinski') startSierpinski();
+            }
+        });
+
+    </script>
+</body>
+</html>

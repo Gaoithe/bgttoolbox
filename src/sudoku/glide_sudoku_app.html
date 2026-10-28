@@ -1,0 +1,531 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Glide Sudoku Solver</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Google Fonts: Space Mono & Inter -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Space+Mono:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        mono: ['"Space Mono"', 'monospace'],
+                    },
+                    colors: {
+                        glide: {
+                            900: '#09090b', // Zinc 950
+                            800: '#18181b', // Zinc 900
+                            700: '#27272a', // Zinc 800
+                            cyan: '#22d3ee', // Neon Cyan
+                            emerald: '#34d399', // Neon Emerald
+                        }
+                    },
+                    boxShadow: {
+                        'neon-cyan': '0 0 10px rgba(34, 211, 238, 0.4), inset 0 0 5px rgba(34, 211, 238, 0.2)',
+                        'neon-emerald': '0 0 10px rgba(52, 211, 153, 0.4)',
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        body {
+            background-color: #09090b;
+            color: #e4e4e7;
+            overscroll-behavior-y: contain;
+        }
+
+        /* Grid Background Pattern */
+        .bg-pattern {
+            background-image: radial-gradient(rgba(34, 211, 238, 0.1) 1px, transparent 1px);
+            background-size: 24px 24px;
+        }
+
+        /* Sudoku Grid specific styles */
+        .sudoku-cell {
+            transition: all 0.2s ease;
+            aspect-ratio: 1 / 1;
+        }
+        
+        .sudoku-cell.selected {
+            background-color: rgba(34, 211, 238, 0.2);
+            box-shadow: 0 0 10px rgba(34, 211, 238, 0.5) inset;
+        }
+
+        .sudoku-cell.highlight {
+            background-color: rgba(52, 211, 153, 0.2);
+            animation: pulse-green 1s ease-out;
+        }
+
+        @keyframes pulse-green {
+            0% { background-color: rgba(52, 211, 153, 0.6); }
+            100% { background-color: transparent; }
+        }
+
+        /* Modal transitions */
+        .modal {
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+        }
+        .modal.active {
+            opacity: 1;
+            pointer-events: auto;
+        }
+        .modal-content {
+            transform: scale(0.95) translateY(10px);
+            transition: transform 0.3s ease;
+        }
+        .modal.active .modal-content {
+            transform: scale(1) translateY(0);
+        }
+    </style>
+</head>
+<body class="min-h-screen bg-pattern flex flex-col antialiased selection:bg-glide-cyan selection:text-glide-900">
+
+    <!-- Header -->
+    <header class="h-16 shrink-0 bg-glide-900/80 backdrop-blur-md border-b border-white/5 flex items-center justify-between px-4 md:px-8 z-20">
+        <div class="flex items-center gap-3">
+            <div class="w-8 h-8 rounded bg-glide-800 border border-glide-cyan/50 flex items-center justify-center shadow-neon-cyan">
+                <span class="text-glide-cyan font-mono font-bold text-lg leading-none">9</span>
+            </div>
+            <h1 class="text-xl font-bold tracking-tight text-white">Glide<span class="text-glide-cyan">Sudoku</span></h1>
+        </div>
+        <button onclick="openModal('hint-modal')" class="px-4 py-1.5 rounded-full bg-white/5 hover:bg-white/10 border border-white/10 text-sm font-medium transition-colors text-glide-cyan">
+            Hint / Rules
+        </button>
+    </header>
+
+    <!-- Main Content -->
+    <main class="flex-grow flex flex-col lg:flex-row items-center justify-center p-4 gap-8 md:gap-12 max-w-6xl mx-auto w-full">
+        
+        <!-- Sudoku Board Container -->
+        <div class="w-full max-w-md shrink-0">
+            <div id="sudoku-board" class="grid grid-cols-9 bg-glide-800 border-2 border-glide-700 rounded-lg overflow-hidden shadow-2xl">
+                <!-- Cells generated via JS -->
+            </div>
+            
+            <!-- Mobile/Virtual Keypad -->
+            <div class="mt-6 grid grid-cols-5 gap-2">
+                <button class="keypad-btn bg-glide-800 hover:bg-glide-700 border border-white/10 rounded-md py-3 text-lg font-mono font-bold transition-all hover:text-glide-cyan hover:border-glide-cyan/50" data-val="1">1</button>
+                <button class="keypad-btn bg-glide-800 hover:bg-glide-700 border border-white/10 rounded-md py-3 text-lg font-mono font-bold transition-all hover:text-glide-cyan hover:border-glide-cyan/50" data-val="2">2</button>
+                <button class="keypad-btn bg-glide-800 hover:bg-glide-700 border border-white/10 rounded-md py-3 text-lg font-mono font-bold transition-all hover:text-glide-cyan hover:border-glide-cyan/50" data-val="3">3</button>
+                <button class="keypad-btn bg-glide-800 hover:bg-glide-700 border border-white/10 rounded-md py-3 text-lg font-mono font-bold transition-all hover:text-glide-cyan hover:border-glide-cyan/50" data-val="4">4</button>
+                <button class="keypad-btn bg-glide-800 hover:bg-glide-700 border border-white/10 rounded-md py-3 text-lg font-mono font-bold transition-all hover:text-glide-cyan hover:border-glide-cyan/50" data-val="5">5</button>
+                <button class="keypad-btn bg-glide-800 hover:bg-glide-700 border border-white/10 rounded-md py-3 text-lg font-mono font-bold transition-all hover:text-glide-cyan hover:border-glide-cyan/50" data-val="6">6</button>
+                <button class="keypad-btn bg-glide-800 hover:bg-glide-700 border border-white/10 rounded-md py-3 text-lg font-mono font-bold transition-all hover:text-glide-cyan hover:border-glide-cyan/50" data-val="7">7</button>
+                <button class="keypad-btn bg-glide-800 hover:bg-glide-700 border border-white/10 rounded-md py-3 text-lg font-mono font-bold transition-all hover:text-glide-cyan hover:border-glide-cyan/50" data-val="8">8</button>
+                <button class="keypad-btn bg-glide-800 hover:bg-glide-700 border border-white/10 rounded-md py-3 text-lg font-mono font-bold transition-all hover:text-glide-cyan hover:border-glide-cyan/50" data-val="9">9</button>
+                <button class="keypad-btn bg-glide-800 hover:bg-red-900/40 border border-white/10 rounded-md py-3 text-sm font-bold text-red-400 transition-all" data-val="0">CLR</button>
+            </div>
+        </div>
+
+        <!-- Control Panel -->
+        <div class="w-full max-w-sm flex flex-col gap-6">
+            
+            <div class="bg-glide-800/50 border border-white/5 rounded-xl p-5 backdrop-blur-sm">
+                <h2 class="text-xs uppercase tracking-widest text-glide-cyan/80 mb-4 font-mono">Load Puzzles</h2>
+                <div class="grid grid-cols-3 gap-3">
+                    <button onclick="loadPuzzle(1)" class="py-2 rounded bg-glide-700 hover:bg-glide-600 text-sm font-medium transition-colors border border-transparent hover:border-glide-cyan/30">Load 1</button>
+                    <button onclick="loadPuzzle(2)" class="py-2 rounded bg-glide-700 hover:bg-glide-600 text-sm font-medium transition-colors border border-transparent hover:border-glide-cyan/30">Load 2</button>
+                    <button onclick="loadPuzzle(3)" class="py-2 rounded bg-glide-700 hover:bg-glide-600 text-sm font-medium transition-colors border border-transparent hover:border-glide-cyan/30">Load 3</button>
+                </div>
+            </div>
+
+            <div class="bg-glide-800/50 border border-white/5 rounded-xl p-5 backdrop-blur-sm">
+                <h2 class="text-xs uppercase tracking-widest text-glide-emerald/80 mb-4 font-mono">Solver Engines</h2>
+                <div class="flex flex-col gap-3">
+                    <button onclick="triggerSolveW()" class="py-2.5 rounded bg-glide-700 hover:bg-glide-600 text-sm font-medium transition-colors border border-transparent hover:border-glide-emerald/30 flex justify-between px-4 items-center">
+                        <span>Solve W <span class="text-xs text-zinc-400">(Naked Single)</span></span>
+                        <span id="stat-w" class="text-glide-emerald font-mono text-xs bg-glide-900 px-2 py-0.5 rounded">0</span>
+                    </button>
+                    <button onclick="triggerSolveY()" class="py-2.5 rounded bg-glide-700 hover:bg-glide-600 text-sm font-medium transition-colors border border-transparent hover:border-glide-emerald/30 flex justify-between px-4 items-center">
+                        <span>Solve Y <span class="text-xs text-zinc-400">(Hidden Single)</span></span>
+                        <span id="stat-y" class="text-glide-emerald font-mono text-xs bg-glide-900 px-2 py-0.5 rounded">0</span>
+                    </button>
+                    <button onclick="triggerSolveAll()" class="py-3 mt-2 rounded bg-glide-emerald/10 text-glide-emerald hover:bg-glide-emerald hover:text-glide-900 font-bold tracking-wide transition-all shadow-neon-emerald">
+                        SOLVE ALL
+                    </button>
+                </div>
+            </div>
+            
+            <button onclick="resetBoard()" class="py-3 rounded border border-red-500/30 text-red-400 hover:bg-red-500/10 font-bold uppercase tracking-widest transition-colors text-sm">
+                Reset Board
+            </button>
+
+            <!-- Status Logs -->
+            <div class="mt-auto">
+                <div class="text-[10px] text-zinc-500 uppercase tracking-widest mb-1">Engine Log</div>
+                <div id="engine-log" class="h-16 overflow-y-auto font-mono text-xs text-glide-cyan/70 bg-glide-900 rounded border border-white/5 p-2 leading-relaxed">
+                    System Ready...
+                </div>
+            </div>
+
+        </div>
+    </main>
+
+    <!-- Hint Modal -->
+    <div id="hint-modal" class="modal fixed inset-0 z-50 flex items-center justify-center bg-glide-900/90 backdrop-blur-sm p-4">
+        <div class="modal-content bg-glide-800 border border-glide-cyan/30 p-6 md:p-8 rounded-2xl max-w-lg w-full shadow-2xl relative">
+            <button onclick="closeModal('hint-modal')" class="absolute top-4 right-4 text-zinc-400 hover:text-white transition-colors">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>
+            </button>
+            <h2 class="text-2xl font-bold text-white mb-6 flex items-center gap-2">
+                <span class="text-glide-cyan">Engine</span> Hints
+            </h2>
+            <div class="space-y-4 text-sm text-zinc-300 leading-relaxed max-h-[60vh] overflow-y-auto pr-2">
+                <p>This solver uses a bitmask logic engine ported directly from PocketC (0x1FF mask). Each cell stores candidates as bits (Bit 0 = 1, Bit 8 = 9).</p>
+                
+                <div class="bg-glide-900 p-4 rounded-lg border border-white/5">
+                    <h3 class="text-glide-cyan font-bold mb-1">Algorithm W (Naked Single)</h3>
+                    <p>Scans every empty cell on the board. If the calculated bitmask for a cell has exactly one bit left (meaning all other 8 numbers are blocked by its row, column, or 3x3 block), it places that number immediately.</p>
+                </div>
+
+                <div class="bg-glide-900 p-4 rounded-lg border border-white/5">
+                    <h3 class="text-glide-emerald font-bold mb-1">Algorithm Y (Hidden Single)</h3>
+                    <p>Scans the 27 groups (9 rows, 9 cols, 9 blocks). For each group, it counts how many empty cells can accept a specific number (1-9). If a number can only fit into exactly <i>one</i> cell within that group, it is placed, even if that cell could technically accept other numbers.</p>
+                </div>
+            </div>
+            <button onclick="closeModal('hint-modal')" class="mt-6 w-full py-3 rounded-xl bg-white/10 hover:bg-white/20 text-white font-medium transition-colors">
+                Understood
+            </button>
+        </div>
+    </div>
+
+    <script>
+        // --- Core Logic Data Structures ---
+        let board = new Array(81).fill(0);
+        let initialBoard = new Array(81).fill(0); // Tracks locked clues
+        let selectedCell = null;
+        
+        // 27 Groups: 9 Rows, 9 Cols, 9 Blocks
+        // Each array contains the 9 cell indices for that group
+        const groups = [];
+        for (let i = 0; i < 9; i++) {
+            let row = [], col = [], blk = [];
+            for (let j = 0; j < 9; j++) {
+                row.push(i * 9 + j);
+                col.push(j * 9 + i);
+                blk.push(Math.floor(i / 3) * 27 + (i % 3) * 3 + Math.floor(j / 3) * 9 + (j % 3));
+            }
+            groups.push(row, col, blk);
+        }
+
+        const defaultPuzzles = {
+            1: "000000000000902000069708140200000004900654008050000030300090007027000510090517020",
+            2: "000000001003009060004851000090500106008000050060300807005163000001007020000000009",
+            3: "800506003000000000109804205280000059000708000040090030400000006005201400700000008"
+        };
+
+        // --- DOM Elements ---
+        const boardEl = document.getElementById('sudoku-board');
+        const logEl = document.getElementById('engine-log');
+        const statW = document.getElementById('stat-w');
+        const statY = document.getElementById('stat-y');
+
+        let countW = 0;
+        let countY = 0;
+
+        // --- Initialization ---
+        function initBoardUI() {
+            boardEl.innerHTML = '';
+            for (let i = 0; i < 81; i++) {
+                const cell = document.createElement('div');
+                cell.className = 'sudoku-cell flex items-center justify-center text-xl sm:text-2xl font-mono font-medium cursor-pointer border-zinc-700 bg-glide-900/50 hover:bg-glide-700/50';
+                
+                // Add thick borders for 3x3 grid
+                const row = Math.floor(i / 9);
+                const col = i % 9;
+                
+                let borderClasses = 'border-r border-b ';
+                if (col === 8) borderClasses = borderClasses.replace('border-r ', '');
+                if (row === 8) borderClasses = borderClasses.replace('border-b ', '');
+                
+                if ((col + 1) % 3 === 0 && col !== 8) borderClasses += 'border-r-2 border-r-glide-cyan/50 ';
+                if ((row + 1) % 3 === 0 && row !== 8) borderClasses += 'border-b-2 border-b-glide-cyan/50 ';
+                
+                cell.className += ' ' + borderClasses;
+                cell.dataset.index = i;
+                
+                cell.addEventListener('click', () => selectCell(i));
+                boardEl.appendChild(cell);
+            }
+        }
+
+        function renderBoard() {
+            const cells = boardEl.children;
+            for (let i = 0; i < 81; i++) {
+                const val = board[i];
+                const el = cells[i];
+                
+                el.innerText = val === 0 ? '' : val;
+                
+                // Styling based on state
+                el.classList.remove('text-zinc-400', 'text-white', 'font-bold');
+                if (val !== 0) {
+                    if (initialBoard[i] !== 0) {
+                        el.classList.add('text-zinc-400'); // Clue
+                    } else {
+                        el.classList.add('text-white', 'font-bold'); // User/Solver input
+                    }
+                }
+
+                // Selection highlight
+                if (selectedCell === i) {
+                    el.classList.add('selected');
+                } else {
+                    el.classList.remove('selected');
+                }
+            }
+        }
+
+        function selectCell(index) {
+            selectedCell = index;
+            renderBoard();
+        }
+
+        function handleInput(val) {
+            if (selectedCell === null) return;
+            if (initialBoard[selectedCell] !== 0) {
+                logMsg("Cannot modify initial clues.");
+                return; // Can't edit locked clues
+            }
+            board[selectedCell] = val;
+            renderBoard();
+        }
+
+        // --- Core Sudoku Logic ---
+
+        // Recalculates the 0x1FF mask for all empty cells
+        function updateCandidates() {
+            let maybe = new Array(81).fill(0);
+            for (let i = 0; i < 81; i++) {
+                if (board[i] !== 0) continue;
+                let mask = 0x1FF;
+                
+                let r = Math.floor(i / 9);
+                let c = i % 9;
+                let b = Math.floor(r / 3) * 3 + Math.floor(c / 3);
+                
+                for (let j = 0; j < 81; j++) {
+                    if (board[j] === 0 || i === j) continue;
+                    let jr = Math.floor(j / 9);
+                    let jc = j % 9;
+                    let jb = Math.floor(jr / 3) * 3 + Math.floor(jc / 3);
+                    
+                    if (r === jr || c === jc || b === jb) {
+                        mask &= ~(1 << (board[j] - 1));
+                    }
+                }
+                maybe[i] = mask;
+            }
+            return maybe;
+        }
+
+        // Returns number of set bits
+        function countBits(mask) {
+            let count = 0;
+            for (let i = 0; i < 9; i++) {
+                if (mask & (1 << i)) count++;
+            }
+            return count;
+        }
+
+        // Returns the 1-indexed value of the single set bit
+        function getSingleBitValue(mask) {
+            for (let i = 0; i < 9; i++) {
+                if (mask & (1 << i)) return i + 1;
+            }
+            return 0;
+        }
+
+        // Naked Single Solver
+        function solveW() {
+            let changed = false;
+            let maybe = updateCandidates();
+            let placedCount = 0;
+
+            for (let i = 0; i < 81; i++) {
+                if (board[i] === 0 && countBits(maybe[i]) === 1) {
+                    let val = getSingleBitValue(maybe[i]);
+                    board[i] = val;
+                    highlightCell(i);
+                    changed = true;
+                    placedCount++;
+                    maybe = updateCandidates(); // Recalculate immediately
+                }
+            }
+            if (placedCount > 0) {
+                countW += placedCount;
+                statW.innerText = countW;
+                logMsg(`Algorithm W found ${placedCount} Naked Singles.`);
+            }
+            return changed;
+        }
+
+        // Hidden Single Solver
+        function solveY() {
+            let changed = false;
+            let maybe = updateCandidates();
+            let placedCount = 0;
+
+            for (let g of groups) {
+                for (let v = 1; v <= 9; v++) {
+                    let count = 0;
+                    let targetIdx = -1;
+                    let bit = 1 << (v - 1);
+                    
+                    for (let idx of g) {
+                        if (board[idx] === 0 && (maybe[idx] & bit)) {
+                            count++;
+                            targetIdx = idx;
+                        }
+                    }
+                    
+                    if (count === 1 && board[targetIdx] === 0) {
+                        board[targetIdx] = v;
+                        highlightCell(targetIdx);
+                        changed = true;
+                        placedCount++;
+                        maybe = updateCandidates(); // Recalculate immediately
+                    }
+                }
+            }
+            if (placedCount > 0) {
+                countY += placedCount;
+                statY.innerText = countY;
+                logMsg(`Algorithm Y found ${placedCount} Hidden Singles.`);
+            }
+            return changed;
+        }
+
+        // --- Controls & UI Hooks ---
+
+        function loadPuzzle(num) {
+            const str = defaultPuzzles[num];
+            for (let i = 0; i < 81; i++) {
+                let v = parseInt(str[i], 10);
+                board[i] = v;
+                initialBoard[i] = v;
+            }
+            selectedCell = null;
+            countW = 0; countY = 0;
+            statW.innerText = 0; statY.innerText = 0;
+            logMsg(`Loaded puzzle ${num}. Engine ready.`);
+            renderBoard();
+        }
+
+        function resetBoard() {
+            for (let i = 0; i < 81; i++) {
+                board[i] = initialBoard[i];
+            }
+            countW = 0; countY = 0;
+            statW.innerText = 0; statY.innerText = 0;
+            logMsg(`Board reset to initial clues.`);
+            renderBoard();
+        }
+
+        function triggerSolveW() {
+            let res = solveW();
+            if(!res) logMsg("Algorithm W found 0 solutions this pass.");
+            renderBoard();
+        }
+
+        function triggerSolveY() {
+            let res = solveY();
+            if(!res) logMsg("Algorithm Y found 0 solutions this pass.");
+            renderBoard();
+        }
+
+        async function triggerSolveAll() {
+            logMsg("Starting Solve All loop...");
+            let changed = true;
+            let iterations = 0;
+            
+            while (changed && iterations < 50) {
+                iterations++;
+                changed = false;
+                
+                if (solveW()) changed = true;
+                renderBoard();
+                if (changed) await new Promise(r => setTimeout(r, 100)); // Visual delay
+                
+                if (solveY()) changed = true;
+                renderBoard();
+                if (changed) await new Promise(r => setTimeout(r, 100));
+            }
+            
+            if (board.includes(0)) {
+                logMsg("Solve All finished. Stuck! Advanced logic needed.");
+            } else {
+                logMsg("Solve All finished. Board Complete!");
+            }
+        }
+
+        function highlightCell(index) {
+            const el = boardEl.children[index];
+            el.classList.remove('highlight');
+            void el.offsetWidth; // Trigger reflow
+            el.classList.add('highlight');
+        }
+
+        function logMsg(msg) {
+            const time = new Date().toLocaleTimeString('en-US', {hour12: false, hour: '2-digit', minute:'2-digit', second:'2-digit'});
+            logEl.innerHTML = `<div><span class="text-zinc-600">[${time}]</span> ${msg}</div>` + logEl.innerHTML;
+        }
+
+        // --- Event Listeners ---
+        
+        // Keypad
+        document.querySelectorAll('.keypad-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                handleInput(parseInt(btn.dataset.val, 10));
+            });
+        });
+
+        // Keyboard support
+        window.addEventListener('keydown', (e) => {
+            if (e.key >= '1' && e.key <= '9') {
+                handleInput(parseInt(e.key, 10));
+            } else if (e.key === '0' || e.key === 'Backspace' || e.key === 'Delete') {
+                handleInput(0);
+            } else if (selectedCell !== null) {
+                let r = Math.floor(selectedCell / 9);
+                let c = selectedCell % 9;
+                
+                if (e.key === 'ArrowUp' && r > 0) selectCell(selectedCell - 9);
+                if (e.key === 'ArrowDown' && r < 8) selectCell(selectedCell + 9);
+                if (e.key === 'ArrowLeft' && c > 0) selectCell(selectedCell - 1);
+                if (e.key === 'ArrowRight' && c < 8) selectCell(selectedCell + 1);
+            }
+        });
+
+        // Modal Handling
+        function openModal(id) {
+            document.getElementById(id).classList.add('active');
+        }
+        function closeModal(id) {
+            document.getElementById(id).classList.remove('active');
+        }
+        document.querySelectorAll('.modal').forEach(modal => {
+            modal.addEventListener('click', (e) => {
+                if (e.target === modal) closeModal(modal.id);
+            });
+        });
+
+        // Boot
+        initBoardUI();
+        loadPuzzle(1); // Load default
+
+    </script>
+</body>
+</html>

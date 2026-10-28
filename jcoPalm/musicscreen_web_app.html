@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>MusicScreen - HTML5</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Google Fonts: Inter -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    },
+                    colors: {
+                        brand: {
+                            400: '#22d3ee', // Cyan
+                            500: '#06b6d4',
+                            900: '#164e63',
+                            950: '#083344',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        body {
+            background-color: #0f172a; /* Slate 900 */
+            color: #f8fafc;
+            overscroll-behavior-y: contain; /* Prevent pull-to-refresh on mobile */
+        }
+
+        /* XY Pad Grid Background */
+        .pad-grid {
+            background-size: 50px 50px;
+            background-image: 
+                linear-gradient(to right, rgba(34, 211, 238, 0.05) 1px, transparent 1px),
+                linear-gradient(to bottom, rgba(34, 211, 238, 0.05) 1px, transparent 1px);
+            background-position: center center;
+        }
+
+        /* Center crosshair lines */
+        .pad-grid::before, .pad-grid::after {
+            content: '';
+            position: absolute;
+            background-color: rgba(34, 211, 238, 0.15);
+            pointer-events: none;
+        }
+        .pad-grid::before {
+            top: 50%; left: 0; right: 0; height: 1px;
+        }
+        .pad-grid::after {
+            left: 50%; top: 0; bottom: 0; width: 1px;
+        }
+
+        /* Glowing Cursor */
+        #cursor {
+            width: 40px;
+            height: 40px;
+            border: 2px solid #22d3ee;
+            border-radius: 50%;
+            position: absolute;
+            top: 0;
+            left: 0;
+            transform: translate(-50%, -50%);
+            pointer-events: none;
+            display: none;
+            box-shadow: 0 0 20px rgba(34, 211, 238, 0.6), inset 0 0 10px rgba(34, 211, 238, 0.4);
+            background-color: rgba(34, 211, 238, 0.2);
+            transition: opacity 0.1s;
+        }
+        
+        #cursor::after {
+            content: '';
+            position: absolute;
+            top: 50%; left: 50%;
+            width: 6px; height: 6px;
+            background: #fff;
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+            box-shadow: 0 0 10px #fff;
+        }
+
+        /* Modal Transitions */
+        .modal {
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+        }
+        .modal.active {
+            opacity: 1;
+            pointer-events: auto;
+        }
+        .modal-content {
+            transform: scale(0.95) translateY(10px);
+            transition: transform 0.3s ease;
+        }
+        .modal.active .modal-content {
+            transform: scale(1) translateY(0);
+        }
+    </style>
+</head>
+<body class="h-screen w-screen overflow-hidden flex flex-col antialiased selection:bg-brand-500 selection:text-white">
+
+    <!-- Header -->
+    <header class="h-16 shrink-0 bg-slate-900/80 backdrop-blur-md border-b border-white/10 flex items-center justify-between px-4 md:px-8 z-20">
+        <div class="flex items-center gap-3">
+            <div class="w-8 h-8 rounded-lg bg-gradient-to-br from-brand-400 to-blue-600 flex items-center justify-center shadow-[0_0_15px_rgba(6,182,212,0.4)]">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M9 18V5l12-2v13"></path>
+                    <circle cx="6" cy="18" r="3"></circle>
+                    <circle cx="18" cy="16" r="3"></circle>
+                </svg>
+            </div>
+            <h1 class="text-xl font-bold tracking-tight text-white">MusicScreen</h1>
+        </div>
+        
+        <div class="flex items-center gap-3">
+            <button onclick="openModal('help-modal')" class="px-4 py-1.5 rounded-full bg-white/5 hover:bg-white/10 border border-white/10 text-sm font-medium transition-colors">
+                Help
+            </button>
+            <button onclick="openModal('about-modal')" class="px-4 py-1.5 rounded-full bg-white/5 hover:bg-white/10 border border-white/10 text-sm font-medium transition-colors">
+                About
+            </button>
+        </div>
+    </header>
+
+    <!-- Info Bar -->
+    <div class="bg-slate-950 border-b border-white/5 px-4 py-2 flex justify-between text-xs font-mono text-brand-400 uppercase tracking-wider z-10 shadow-md">
+        <div class="flex gap-6">
+            <span>Freq: <span id="freq-val" class="text-white">0 Hz</span></span>
+            <span>Vol: <span id="vol-val" class="text-white">0%</span></span>
+        </div>
+        <div class="text-slate-500">X = Pitch | Y = Volume</div>
+    </div>
+
+    <!-- Interactive XY Pad -->
+    <!-- 'touch-none' prevents native scrolling and pinch-zoom on touch devices -->
+    <main id="pad" class="flex-grow relative cursor-crosshair pad-grid touch-none">
+        <!-- Axes Labels -->
+        <div class="absolute bottom-4 left-1/2 -translate-x-1/2 text-slate-600 text-xs font-mono font-bold tracking-widest pointer-events-none">
+            FREQUENCY (Hz) &rarr;
+        </div>
+        <div class="absolute left-4 top-1/2 -translate-y-1/2 -rotate-90 text-slate-600 text-xs font-mono font-bold tracking-widest pointer-events-none origin-center">
+            VOLUME (Gain) &rarr;
+        </div>
+
+        <!-- Glowing interactive cursor -->
+        <div id="cursor"></div>
+    </main>
+
+    <!-- Help Modal -->
+    <div id="help-modal" class="modal fixed inset-0 z-50 flex items-center justify-center bg-slate-950/80 backdrop-blur-sm p-4">
+        <div class="modal-content bg-slate-900 border border-white/10 p-6 md:p-8 rounded-2xl max-w-md w-full shadow-2xl relative">
+            <button onclick="closeModal('help-modal')" class="absolute top-4 right-4 text-slate-400 hover:text-white transition-colors">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>
+            </button>
+            <div class="w-12 h-12 rounded-full bg-brand-500/20 flex items-center justify-center mb-4 border border-brand-500/30">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-brand-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+            </div>
+            <h2 class="text-2xl font-bold text-white mb-4">Help</h2>
+            <div class="text-slate-300 text-sm leading-relaxed space-y-4">
+                <p>The plan: Make noise, illustrate noise, save & load & edit noise. Export noise. Geiger counter. Heartbeat monitor. Tick tock timebomb explode.</p>
+                <p class="font-semibold text-brand-400">Have fun!</p>
+            </div>
+            <button onclick="closeModal('help-modal')" class="mt-8 w-full py-2.5 rounded-xl bg-white/10 hover:bg-white/20 text-white font-medium transition-colors">
+                Dismiss
+            </button>
+        </div>
+    </div>
+
+    <!-- About Modal -->
+    <div id="about-modal" class="modal fixed inset-0 z-50 flex items-center justify-center bg-slate-950/80 backdrop-blur-sm p-4">
+        <div class="modal-content bg-slate-900 border border-white/10 p-6 md:p-8 rounded-2xl max-w-md w-full shadow-2xl relative">
+            <button onclick="closeModal('about-modal')" class="absolute top-4 right-4 text-slate-400 hover:text-white transition-colors">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>
+            </button>
+            <div class="w-12 h-12 rounded-full bg-blue-500/20 flex items-center justify-center mb-4 border border-blue-500/30">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-blue-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+            </div>
+            <h2 class="text-2xl font-bold text-white mb-4">About</h2>
+            <div class="text-slate-300 text-sm leading-relaxed space-y-2">
+                <p class="font-semibold text-white">MusicScreen v0.0.1 Beta.</p>
+                <p>Built natively for Web.</p>
+                <p>programming James Coleman.</p>
+                <p class="text-xs text-slate-500 mt-4 pt-4 border-t border-white/10">copyleft me, distribute with source code please.</p>
+            </div>
+            <button onclick="closeModal('about-modal')" class="mt-6 w-full py-2.5 rounded-xl bg-brand-500 hover:bg-brand-600 text-white font-medium transition-colors shadow-lg shadow-brand-500/20">
+                Rock On
+            </button>
+        </div>
+    </div>
+
+    <script>
+        // Modal Logic
+        function openModal(id) {
+            document.getElementById(id).classList.add('active');
+        }
+        function closeModal(id) {
+            document.getElementById(id).classList.remove('active');
+        }
+        
+        // Close modals on click outside
+        document.querySelectorAll('.modal').forEach(modal => {
+            modal.addEventListener('click', (e) => {
+                if (e.target === modal) closeModal(modal.id);
+            });
+        });
+
+        // Web Audio API Logic
+        const pad = document.getElementById('pad');
+        const cursor = document.getElementById('cursor');
+        const freqLabel = document.getElementById('freq-val');
+        const volLabel = document.getElementById('vol-val');
+
+        let audioCtx;
+        let oscillator;
+        let gainNode;
+        let isPlaying = false;
+
+        const MIN_FREQ = 50;
+        const MAX_FREQ = 3200;
+
+        function initAudio() {
+            if (!audioCtx) {
+                // Initialize Audio Context (fallback for older Safari)
+                const AudioContext = window.AudioContext || window.webkitAudioContext;
+                audioCtx = new AudioContext();
+                
+                // Create Gain Node (Volume)
+                gainNode = audioCtx.createGain();
+                gainNode.gain.value = 0; // Start silenced
+                gainNode.connect(audioCtx.destination);
+
+                // Create Oscillator Node (Tone)
+                oscillator = audioCtx.createOscillator();
+                oscillator.type = 'sawtooth'; // Gives a nice buzzy synth sound, similar to old palm os beeps
+                oscillator.connect(gainNode);
+                oscillator.start();
+            }
+
+            // Resume if suspended (browser auto-play policy)
+            if (audioCtx.state === 'suspended') {
+                audioCtx.resume();
+            }
+        }
+
+        function playSound(x, y) {
+            initAudio();
+            isPlaying = true;
+            cursor.style.display = 'block';
+            
+            // Set initial values quickly to avoid glide-in from old values
+            updateSoundParams(x, y, 0.01);
+        }
+
+        function updateSound(x, y) {
+            if (!isPlaying) return;
+            updateSoundParams(x, y, 0.05); // slight glide/portamento
+        }
+
+        function updateSoundParams(x, y, timeConstant) {
+            if (!audioCtx) return;
+
+            const rect = pad.getBoundingClientRect();
+            
+            // Constrain coordinates within the pad
+            const constrainedX = Math.max(0, Math.min(x - rect.left, rect.width));
+            const constrainedY = Math.max(0, Math.min(y - rect.top, rect.height));
+
+            // Normalize coordinates (0.0 to 1.0)
+            const normX = constrainedX / rect.width;
+            const normY = constrainedY / rect.height;
+
+            // Map X to Frequency (Exponential mapping sounds more natural for pitch)
+            const freq = MIN_FREQ * Math.pow(MAX_FREQ / MIN_FREQ, normX);
+            
+            // Map Y to Volume (Top is loudest, bottom is quietest)
+            // Using a slight curve for smoother volume roll-off
+            const linearVol = 1 - normY;
+            const vol = linearVol * linearVol; // x^2 curve for volume
+
+            // Apply to Audio Nodes (setTargetAtTime prevents popping)
+            const now = audioCtx.currentTime;
+            oscillator.frequency.setTargetAtTime(freq, now, timeConstant);
+            gainNode.gain.setTargetAtTime(vol, now, timeConstant);
+
+            // Update UI
+            cursor.style.transform = `translate(${constrainedX}px, ${constrainedY}px)`;
+            freqLabel.textContent = `${Math.round(freq)} Hz`;
+            volLabel.textContent = `${Math.round(linearVol * 100)}%`;
+        }
+
+        function stopSound() {
+            isPlaying = false;
+            cursor.style.display = 'none';
+            
+            if (gainNode && audioCtx) {
+                const now = audioCtx.currentTime;
+                // Fade out quickly to avoid popping
+                gainNode.gain.cancelScheduledValues(now);
+                gainNode.gain.setTargetAtTime(0, now, 0.03);
+            }
+
+            freqLabel.textContent = '0 Hz';
+            volLabel.textContent = '0%';
+        }
+
+        // Pointer Events (Handles Mouse, Touch, and Pen simultaneously)
+        pad.addEventListener('pointerdown', (e) => {
+            // Capture the pointer so events keep firing even if cursor leaves the element slightly
+            pad.setPointerCapture(e.pointerId);
+            playSound(e.clientX, e.clientY);
+        });
+
+        pad.addEventListener('pointermove', (e) => {
+            updateSound(e.clientX, e.clientY);
+        });
+
+        pad.addEventListener('pointerup', (e) => {
+            pad.releasePointerCapture(e.pointerId);
+            stopSound();
+        });
+
+        pad.addEventListener('pointercancel', (e) => {
+            pad.releasePointerCapture(e.pointerId);
+            stopSound();
+        });
+
+        // Handle window blur (user switches tabs while holding mouse down)
+        window.addEventListener('blur', stopSound);
+    </script>
+</body>
+</html>

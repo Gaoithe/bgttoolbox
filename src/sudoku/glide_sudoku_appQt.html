@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HTML5 Sudoku Ikku</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body { background-color: #0f172a; color: #e2e8f0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        .cell { transition: all 0.2s ease; }
+        .cell.selected { background-color: #3b82f6 !important; color: #fff; box-shadow: inset 0 0 10px rgba(0,0,0,0.5); }
+        .cell.given { font-weight: bold; color: #94a3b8; }
+        /* Glowing LED styles */
+        .led-green { background-color: #22c55e; box-shadow: 0 0 10px #22c55e, inset 0 0 4px rgba(255,255,255,0.5); }
+        .led-yellow { background-color: #eab308; box-shadow: 0 0 10px #eab308, inset 0 0 4px rgba(255,255,255,0.5); }
+        .led-red { background-color: #ef4444; box-shadow: 0 0 10px #ef4444, inset 0 0 4px rgba(255,255,255,0.5); }
+        .led-off { background-color: #334155; box-shadow: inset 0 2px 4px rgba(0,0,0,0.6); }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col items-center justify-center p-4">
+
+    <div class="max-w-md w-full bg-slate-800 rounded-xl shadow-2xl overflow-hidden border border-slate-700">
+        
+        <!-- Header & Traffic Light -->
+        <div class="p-4 bg-slate-900 border-b border-slate-700 flex justify-between items-center">
+            <h1 class="text-xl font-bold text-blue-400 tracking-wider">SUDOKU IKKU</h1>
+            <div class="flex items-center space-x-2 bg-slate-800 px-3 py-1.5 rounded-lg border border-slate-700">
+                <span class="text-xs text-slate-400 uppercase tracking-widest font-semibold">Status</span>
+                <div id="status-light" class="w-4 h-4 rounded-full led-off transition-all duration-300"></div>
+            </div>
+        </div>
+
+        <!-- Sudoku Grid -->
+        <div class="p-4">
+            <div id="grid" class="grid grid-cols-9 gap-px bg-slate-600 border-2 border-slate-500 mx-auto w-full aspect-square">
+                <!-- Cells injected via JS -->
+            </div>
+        </div>
+
+        <!-- Controls -->
+        <div class="p-4 bg-slate-900 border-t border-slate-700">
+            <div class="grid grid-cols-4 gap-2 mb-4">
+                <button onclick="solveW()" class="bg-blue-900 hover:bg-blue-800 text-blue-100 py-2 rounded text-sm font-semibold transition">Solve W</button>
+                <button onclick="solveX()" class="bg-blue-900 hover:bg-blue-800 text-blue-100 py-2 rounded text-sm font-semibold transition">Solve X</button>
+                <button onclick="solveY()" class="bg-blue-900 hover:bg-blue-800 text-blue-100 py-2 rounded text-sm font-semibold transition">Solve Y</button>
+                <button onclick="runValidation()" class="bg-indigo-700 hover:bg-indigo-600 text-white py-2 rounded text-sm font-semibold transition border border-indigo-500">Validate</button>
+            </div>
+            
+            <div class="grid grid-cols-3 gap-2 mb-4">
+                <button onclick="loadBoard(0)" class="bg-slate-700 hover:bg-slate-600 py-2 rounded text-sm transition">Load 1</button>
+                <button onclick="loadBoard(1)" class="bg-slate-700 hover:bg-slate-600 py-2 rounded text-sm transition">Load 2</button>
+                <button onclick="clearBoard()" class="bg-red-900 hover:bg-red-800 text-red-100 py-2 rounded text-sm transition">Clear</button>
+            </div>
+
+            <!-- Virtual Numpad -->
+            <div class="grid grid-cols-5 gap-2">
+                <script>
+                    for(let i=1; i<=9; i++) {
+                        document.write(`<button onclick="handleInput(${i})" class="bg-slate-700 hover:bg-blue-600 py-3 rounded text-lg font-bold shadow transition">${i}</button>`);
+                    }
+                </script>
+                <button onclick="handleInput(0)" class="bg-slate-800 border border-slate-600 hover:bg-slate-700 py-3 rounded text-lg font-bold shadow transition">X</button>
+            </div>
+        </div>
+
+        <!-- Console -->
+        <div id="console" class="bg-black text-green-400 font-mono text-xs p-3 h-20 overflow-y-auto">
+            System ready.
+        </div>
+    </div>
+
+    <script>
+        // Data Structures
+        let sudoku = new Int32Array(81);
+        let maybe = new Int32Array(81).fill(0x1ff);
+        let nope = new Int32Array(81).fill(0);
+        let grpfin = new Int32Array(27).fill(0);
+        let grp = new Int32Array(243);
+        let selectedIdx = -1;
+
+        // Sample Boards
+        const boards = [
+            "000000000000902000069708140200000004900654008050000030300090007027000510090517020",
+            "800506003000000000109804205280000059000708000040090030400000006005201400700000008"
+        ];
+
+        function log(msg) {
+            const consoleEl = document.getElementById('console');
+            consoleEl.innerHTML = `<div>> ${msg}</div>` + consoleEl.innerHTML;
+        }
+
+        // Init Groups
+        function initGrps() {
+            for (let gi = 0; gi < 9; gi++) {
+                for (let gj = 0; gj < 9; gj++) {
+                    let gidx = gi * 9 + gj;
+                    grp[0 + gidx] = gidx; // horiz
+                    grp[81 + gidx] = gi + 9 * gj; // vert
+                    grp[162 + gidx] = ((gi % 3) * 3) + (Math.floor(gi / 3) * 27) + 9 * Math.floor(gj / 3) + (gj % 3); // box
+                }
+            }
+        }
+
+        // UI Setup
+        function renderGrid() {
+            const grid = document.getElementById('grid');
+            grid.innerHTML = '';
+            for (let j = 0; j < 9; j++) {
+                for (let i = 0; i < 9; i++) {
+                    const idx = i + j * 9;
+                    const cell = document.createElement('div');
+                    cell.className = `cell flex items-center justify-center text-xl bg-slate-800 cursor-pointer
+                        ${i % 3 === 2 && i !== 8 ? 'border-r-2 border-r-slate-500' : ''}
+                        ${j % 3 === 2 && j !== 8 ? 'border-b-2 border-b-slate-500' : ''}`;
+                    cell.onclick = () => selectCell(idx);
+                    cell.id = `cell-${idx}`;
+                    grid.appendChild(cell);
+                }
+            }
+        }
+
+        function updateUI() {
+            for (let i = 0; i < 81; i++) {
+                const cell = document.getElementById(`cell-${i}`);
+                cell.innerText = sudoku[i] === 0 ? '' : sudoku[i];
+                if (i === selectedIdx) {
+                    cell.classList.add('selected');
+                } else {
+                    cell.classList.remove('selected');
+                }
+            }
+        }
+
+        function selectCell(idx) {
+            selectedIdx = idx;
+            updateUI();
+        }
+
+        function handleInput(val) {
+            if (selectedIdx === -1) return;
+            setBox(selectedIdx % 9, Math.floor(selectedIdx / 9), val);
+            updateUI();
+            runValidation(); // Auto-update light on input
+        }
+
+        // Engine Logic
+        function updOne(un, ki, maskin, maskout) {
+            let i = ki % 9, j = Math.floor(ki / 9);
+            let gpx = j, gpy = 9 + i, gpb = 18 + 3 * Math.floor(j / 3) + Math.floor(i / 3);
+            
+            if (un) {
+                grpfin[gpx] &= maskout; grpfin[gpy] &= maskout; grpfin[gpb] &= maskout;
+                maybe[ki] &= maskout;
+                nope[ki] |= maskin;
+            } else {
+                grpfin[gpx] |= maskin; grpfin[gpy] |= maskin; grpfin[gpb] |= maskin;
+                maybe[ki] |= maskin;
+                nope[ki] &= maskout;
+            }
+        }
+
+        function updMaybeNope(i, j, v, un) {
+            let idx = i + j * 9;
+            let maskin = 1 << (v - 1);
+            let maskout = 0x1ff ^ maskin;
+            
+            if (un && v !== 0) {
+                maybe[idx] = maskin; nope[idx] = maskout;
+            }
+            
+            let gx = 3 * Math.floor(i / 3), gy = 3 * Math.floor(j / 3);
+            for (let k = 0; k < 9; k++) {
+                if (k !== i) updOne(un, k + j * 9, maskin, maskout);
+                if (k !== j) updOne(un, i + k * 9, maskin, maskout);
+                
+                let kgx = gx + (k % 3), kgy = gy + Math.floor(k / 3);
+                if (i !== kgx && j !== kgy) updOne(un, kgx + 9 * kgy, maskin, maskout);
+            }
+        }
+
+        function setBox(i, j, v) {
+            let idx = i + j * 9;
+            if (v !== 0 && (nope[idx] & (1 << (v - 1)))) {
+                log(`Move rejected! ${v} is mathematically impossible at ${i},${j}`);
+                return;
+            }
+            if (sudoku[idx]) updMaybeNope(i, j, sudoku[idx], 0);
+            sudoku[idx] = v;
+            if (v !== 0) updMaybeNope(i, j, v, 1);
+        }
+
+        // Ported Qt validateSudoku()
+        function validateSudoku() {
+            let done = true;
+            for (let j = 0; j < 9; j++) {
+                for (let i = 0; i < 9; i++) {
+                    let idx = i + j * 9;
+                    let val = sudoku[idx];
+                    
+                    if (val === 0) {
+                        done = false;
+                        continue;
+                    }
+                    
+                    // Horiz line
+                    for (let x = 0; x < 9; x++) {
+                        if (x === i) continue;
+                        if (sudoku[x + j * 9] === val) {
+                            log(`Conflict on H-line at ${i},${j}`);
+                            return -1; // Invalid
+                        }
+                    }
+                    
+                    // Vert line
+                    for (let y = 0; y < 9; y++) {
+                        if (y === j) continue;
+                        if (sudoku[i + y * 9] === val) {
+                            log(`Conflict on V-line at ${i},${j}`);
+                            return -1; // Invalid
+                        }
+                    }
+                    
+                    // 3x3 Box
+                    let xoff = Math.floor(i / 3) * 3;
+                    let yoff = Math.floor(j / 3) * 3;
+                    for (let x = 0; x < 3; x++) {
+                        for (let y = 0; y < 3; y++) {
+                            if (x + xoff === i && y + yoff === j) continue;
+                            if (sudoku[(x + xoff) + (y + yoff) * 9] === val) {
+                                log(`Conflict in 3x3 box at ${i},${j}`);
+                                return -1; // Invalid
+                            }
+                        }
+                    }
+                }
+            }
+            return done ? 0 : 1; // 0 = Solved, 1 = Valid but incomplete
+        }
+
+        // Ported Qt vvalidateSudoku() Light Controller
+        function runValidation() {
+            const rc = validateSudoku();
+            const light = document.getElementById('status-light');
+            light.className = 'w-4 h-4 rounded-full transition-all duration-300'; // Reset
+
+            if (rc === 0) {
+                light.classList.add('led-green');
+                log("Board is SOLVED and VALID.");
+            } else if (rc > 0) {
+                light.classList.add('led-yellow');
+                log("Board is valid, but incomplete.");
+            } else {
+                light.classList.add('led-red');
+                log("WARNING: Invalid conflicts detected!");
+            }
+        }
+
+        function bits(mask) {
+            let bc = 0;
+            for (let i = 0; i < 9; i++) {
+                if (mask & (1 << i)) { bc++; window.onebit = i; }
+            }
+            return bc;
+        }
+
+        // Solve W: Naked Single
+        function solveW() {
+            let ctr = 0;
+            for (let i = 0; i < 81; i++) {
+                if (sudoku[i] === 0 && bits(maybe[i]) === 1) {
+                    setBox(i % 9, Math.floor(i / 9), window.onebit + 1);
+                    ctr++;
+                }
+            }
+            log(`Solve W: Found ${ctr} cells.`);
+            updateUI();
+            runValidation();
+        }
+
+        // Solve X: Naked Pair
+        function solveX() {
+            let ctr = 0;
+            for(let gp=0; gp<27; gp++) {
+                if (grpfin[gp] === 0x1ff) continue;
+                for(let i=0; i<9; i++) {
+                    let iidx = grp[gp*9+i];
+                    if(sudoku[iidx] !== 0 || bits(maybe[iidx]) !== 2) continue;
+                    
+                    for(let j=i+1; j<9; j++) {
+                        let jidx = grp[gp*9+j];
+                        if(sudoku[jidx] !== 0 && maybe[iidx] === maybe[jidx]) {
+                            // Match found. Mask out for rest of group.
+                            for(let ki=0; ki<9; ki++) {
+                                let kidx = grp[gp*9+ki];
+                                if(sudoku[kidx]===0 && kidx!==iidx && kidx!==jidx) {
+                                    updOne(1, kidx, maybe[iidx], 0x1ff ^ maybe[iidx]);
+                                    if(bits(maybe[kidx]) === 1) {
+                                        setBox(kidx%9, Math.floor(kidx/9), window.onebit+1);
+                                        ctr++;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            log(`Solve X: Found ${ctr} hidden pairs.`);
+            updateUI();
+            runValidation();
+        }
+
+        // Solve Y: Hidden Single
+        function solveY() {
+            let ctr = 0;
+            let idx = new Int32Array(9);
+            let ct = new Int32Array(9);
+            
+            for(let gp=0; gp<27; gp++) {
+                if (grpfin[gp] === 0x1ff) continue;
+                ct.fill(0);
+                for(let i=0; i<9; i++) {
+                    let iidx = grp[gp*9+i];
+                    for(let j=0; j<9; j++) {
+                        if (maybe[iidx] & (1 << j)) {
+                            ct[j]++;
+                            idx[j] = iidx;
+                        }
+                    }
+                }
+                for(let i=0; i<9; i++) {
+                    if(sudoku[idx[i]] === 0 && ct[i] === 1) {
+                        setBox(idx[i]%9, Math.floor(idx[i]/9), i+1);
+                        ctr++;
+                    }
+                }
+            }
+            log(`Solve Y: Placed ${ctr} hidden singles.`);
+            updateUI();
+            runValidation();
+        }
+
+        function loadBoard(n) {
+            clearBoard();
+            const it = boards[n];
+            for (let i = 0; i < 81; i++) {
+                let v = parseInt(it.charAt(i));
+                if (v !== 0) {
+                    setBox(i % 9, Math.floor(i / 9), v);
+                }
+            }
+            log(`Loaded Board ${n + 1}`);
+            selectedIdx = -1;
+            updateUI();
+            runValidation();
+        }
+
+        function clearBoard() {
+            sudoku.fill(0);
+            maybe.fill(0x1ff);
+            nope.fill(0);
+            grpfin.fill(0);
+            selectedIdx = -1;
+            updateUI();
+            document.getElementById('status-light').className = 'w-4 h-4 rounded-full led-off transition-all duration-300';
+            log("Board cleared.");
+        }
+
+        // Boot
+        initGrps();
+        renderGrid();
+        loadBoard(0);
+
+    </script>
+</body>
+</html>
